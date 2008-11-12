@@ -1,0 +1,207 @@
+#! /usr/bin/env ruby
+
+# == Synopsis
+#
+# Profiles a Ruby program.
+#
+# == Usage
+#
+# ruby_prof [options] <script.rb> [--] [script-options]"
+#
+# Options:
+#     -p, --printer=printer            Select a printer:
+#                                        flat - Prints a flat profile as text (default).
+#                                        graph - Prints a graph profile as text.
+#                                        graph_html - Prints a graph profile as html.
+#                                        call_tree - format for KCacheGrind
+#     -f, --file=path                  Output results to a file instead of standard out.
+#     -m, --min_percent=min_percent    The minimum percent a method must take before ',
+#                                      being included in output reports.  Should be an
+#                                      integer between 1 and 100.  0 means all methods are printed.
+#         --mode=measure_mode          Select a measurement mode:
+#                                        process - Use process time (default).
+#                                        wall - Use wall time.
+#                                        cpu - Use the CPU clock counter
+#                                              (only supported on Pentium and PowerPCs).
+#                                        allocations - Tracks object allocations
+#                                              (requires a patched Ruby interpreter).
+#                                        memory - Tracks total memory size
+#                                              (requires a patched Ruby interpreter).
+#                                        gc_runs - Tracks number of garbage collection runs
+#                                              (requires a patched Ruby interpreter).
+#                                        gc_time - Tracks time spent doing garbage collection
+#                                              (requires a patched Ruby interpreter).
+#         --replace-progname           Replace $0 when loading the .rb files.
+#         --specialized-instruction    Turn on specialized instruction.
+#     -h, --help                       Show help message
+#         --version                    Show version
+# 
+#
+# See also: {flat profiles}[link:files/examples/flat_txt.html], {graph profiles}[link:files/examples/graph_txt.html], {html graph profiles}[link:files/examples/graph_html.html]
+#
+
+require 'ostruct'
+require 'optparse'
+require 'ruby-prof'
+
+options = OpenStruct.new
+options.measure_mode = RubyProf::PROCESS_TIME
+options.printer = RubyProf::FlatPrinter
+options.min_percent = 0
+options.file = nil
+options.replace_prog_name = false
+options.specialized_instruction = false
+
+opts = OptionParser.new do |opts|
+  opts.banner = "ruby_prof #{RubyProf::VERSION}\n" +
+                "Usage: ruby_prof [options] <script.rb> [--] [script-options]"
+ 
+  opts.separator ""
+  opts.separator "Options:"
+
+    
+  opts.on('-p printer', '--printer=printer', [:flat, :graph, :graph_html, :call_tree],
+          'Select a printer:',
+          '  flat - Prints a flat profile as text (default).',
+          '  graph - Prints a graph profile as text.',
+          '  graph_html - Prints a graph profile as html.',
+          '  call_tree - format for KCacheGrind' ) do |printer|
+
+          
+    case printer
+      when :flat
+        options.printer = RubyProf::FlatPrinter
+      when :graph
+        options.printer = RubyProf::GraphPrinter
+      when :graph_html
+        options.printer = RubyProf::GraphHtmlPrinter
+      when :call_tree
+        options.printer = RubyProf::CallTreePrinter
+    end
+  end
+    
+  opts.on('-m min_percent', '--min_percent=min_percent', Float,
+          'The minimum percent a method must take before ',
+          '  being included in output reports.',
+                                        '  this option is not supported for call tree.') do |min_percent|
+    options.min_percent = min_percent
+  end
+
+  opts.on('-f path', '--file=path',
+        'Output results to a file instead of standard out.') do |file|
+    options.file = file
+  end
+    
+  opts.on('--mode=measure_mode',
+      [:process, :wall, :cpu, :allocations, :memory, :gc_runs, :gc_time],
+      'Select what ruby-prof should measure:',
+      '  process - Process time (default).',
+      '  wall - Wall time.',
+      '  cpu - CPU time (Pentium and PowerPCs only).',
+      '  allocations - Object allocations (requires patched Ruby interpreter).',
+      '  memory - Allocated memory in KB (requires patched Ruby interpreter).',
+      '  gc_runs - Number of garbage collections (requires patched Ruby interpreter).',
+      '  gc_time - Time spent in garbage collection (requires patched Ruby interpreter).') do |measure_mode|
+      
+      case measure_mode
+      when :process
+        options.measure_mode = RubyProf::PROCESS_TIME     
+      when :wall
+        options.measure_mode = RubyProf::WALL_TIME      
+      when :cpu
+        options.measure_mode = RubyProf::CPU_TIME
+      when :allocations
+        options.measure_mode = RubyProf::ALLOCATIONS
+      when :memory
+        options.measure_mode = RubyProf::MEMORY
+      when :gc_runs
+        options.measure_mode = RubyProf::GC_RUNS
+      when :gc_time
+        options.measure_mode = RubyProf::GC_TIME
+      end
+  end
+        
+  opts.on("--replace-progname", "Replace $0 when loading the .rb files.") do
+          options.replace_prog_name = true
+  end
+
+  if defined?(VM)
+    opts.on("--specialized-instruction", "Turn on specified instruction.") do
+            options.specialized_instruction = true
+    end
+  end
+    
+  opts.on_tail("-h", "--help", "Show help message") do
+      puts opts
+      exit
+  end
+  
+  opts.on_tail("-v", "--version", "Show version") do
+      puts "ruby_prof " + RubyProf::VERSION
+      exit
+  end
+end
+
+begin
+  opts.parse! ARGV
+rescue OptionParser::InvalidOption, OptionParser::InvalidArgument,
+       OptionParser::MissingArgument => e
+  puts opts
+  puts
+  puts e.message
+  exit(-1)
+end
+
+# Make sure the user specified at least one file
+if ARGV.length < 1
+  puts opts
+  puts ""
+  puts "Must specify a script to run"
+  exit(-1)
+end
+
+
+# Install at_exit handler.  It is important that we do this 
+# before loading the scripts so our at_exit handler run
+# *after* any other one that will be installed. 
+
+at_exit {
+  # Stop profiling
+  result = RubyProf.stop
+
+  # Create a printer
+  printer = options.printer.new(result)
+
+  # Get output
+  if options.file
+    File.open(options.file, 'w') do |file|
+      printer.print(file, {:min_percent => options.min_percent})
+    end
+  else
+    # Print out results 
+    printer.print(STDOUT, {:min_percent => options.min_percent})
+  end
+}
+
+# Now set measure mode
+RubyProf.measure_mode = options.measure_mode
+
+# Set VM compile option
+if defined?(VM)
+  VM::InstructionSequence.compile_option = {
+    :trace_instruction => true,
+    :specialized_instruction => options.specialized_instruction
+  }
+end
+
+# Get the script we will execute
+script = ARGV.shift
+if options.replace_prog_name
+  $0 = File.expand_path(script)
+end
+
+# Start profiling
+RubyProf.start 
+
+# Load the script
+load script

@@ -1,0 +1,169 @@
+0.7.0 (2008-11-04)
+========================
+
+Features
+--------
+* Added two new methods - RubyProf.resume and RubyProf.pause. 
+  RubyProf.resume takes an optional block, which ensures that
+  RubyProf.pause is called.  For example:
+  
+  10.times do |i|
+    RubyProf.resume do
+      # Some long process
+    end
+  end
+  
+  result = RubyProf.stop
+
+* Added support for profiling tests that use Ruby's built-in
+  unit test framework (ie, test derived from 
+  Test::Unit::TestCase).  To enable profiling simply add
+  the following line of code to your test class:
+  
+    include RubyProf::Test
+    
+  By default, profiling results are written to the current 
+  processes working directory.  To change this, or other
+  profiling options, simply modify the PROFILE_OPTIONS hash
+  table as needed.        
+
+* Used the new support for profiling test cases to revamp
+  the way that Rails profiling works.  For more information
+  please refer to RubyProf's documentation.
+
+* Keep track of call stack for each method to enable more
+  powerful profile visualizations in Integrated Development
+  Environments (Hin Boean, work supported by CodeGear).
+
+* Expose measurements to Ruby (Jeremy Kemper).
+
+* Add support for additional memory measurements modes in Ruby 1.9 (Jeremy Kemper).
+
+* Add support for Lloyd Hilaiel's Ruby patch for measuring total heap size.
+   See http://lloydforge.org/projects/ruby. (Jeremy Kemper).
+  
+  
+Fixes
+-------
+* RubyProf.profile no longer crashes if an exception is
+  thrown during a profiling run.
+
+* Measure memory in fractional kilobytes rather than rounding down (Jeremy Kemper)
+
+  
+0.6.0 (2008-02-03)
+========================
+
+ruby-prof 0.6.0 adds support for Ruby 1.9 and memory profiling.
+
+Features
+--------
+* Added support for ruby 1.9 (Shugo Maeda)
+* Added support for outputting printer results to a String, Array or IO
+  object (Michael Granger)
+* Add new memory profiling mode.  Note this mode depends on a
+  patched Ruby interpreter (Alexander Dymo)
+
+Fixes
+-------
+* Improvements to GraphHtmlPrinter including updated documentation,
+  fixes for min_time support, ability to specify templates using
+  strings or filenames, and table layout fixes (Makoto Kuwata)
+* Fixes to scaling factor for calltrees so that precision is not lost
+  due to the conversion to doubles (Sylvain Joyeux) 
+* Changed constant ALLOCATED_OBJECTS to ALLOCATIONS in the C code to
+  match the Ruby code (Sylvain Joyeux)
+* Added support for calltree printer to ruby-prof binary script (Sylvain Joyeux)
+* Fix support for the allocator measure mode to extconf.rb (Sylvain Joyeux)
+* Honor measure mode when specified on the command line (Sylvain Joyeux)
+* Sorting of methods by total time was incorrect (Dan Fitch, Charlie Savage)
+* Fix ruby-prof to work with the latest version of GEMS (Alexander Dymo)
+* Always define MEASURE_CPU_TIME and MEASURE_ALLOCATIONS in Ruby code, but
+  set their values to nil if the functionality is not available.
+   
+
+0.5.2 (2007-07-19)
+========================
+
+ruby-prof 0.5.2 is a bug fix release.
+
+Fixes
+-------
+* Include missing rails plugin
+
+
+0.5.1 (2007-07-18)
+========================
+
+ruby-prof 0.5.1 is a bug fix and performance release.
+
+Performance
+--------
+* Significantly reduced the number of thread lookups by
+  caching the last executed thread.
+
+Fixes
+-------
+* Properly escape method names in HTML reports
+* Fix use of -m and --min-percent command line switches
+* Default source file information to ruby_runtime#0 for c calls
+* Moved rails_plugin to top level so it is more obvious
+* Updated rails_plugin to write reports to the current
+  Rails log directory
+* Added additional tests
+
+
+0.5.0 (2007-07-09)
+========================
+
+Features
+--------
+* Added support for timing multi-threaded applications
+* Added support for 64 bit systems (patch from Diego 'Flameeyes' Petten)
+* Added suport for outputting data in the format used by
+  KCacheGrind (patch from Carl Shimer)
+* Add filename and line numbers to call tree information (patch from Carl Shimer)
+* Added Visual Studio 2005 project file.
+* Added replace-progname switch, als rcov.
+* Added better support for recursive methods
+* Added better support for profiling Rails applications
+
+Fixes
+-------
+* Fixes bug when the type of an attached object (singleton) is inherited
+  from T_OBJECT as opposed to being a T_OBJECT (identified by Francis Cianfrocca)
+* ruby-prof now works in IRB.
+* Fix sort order in reports.
+* Fixed rdoc compile error.
+* Fix tabs in erb template for graph html report on windows.
+
+0.4.1 (2006-06-26)
+========================
+
+Features
+--------
+* Added a RubyProf.running? method to indicate whether a profile is in progress.
+* Added tgz and zip archives to release
+
+Fixes
+-------
+* Duplicate method names are now allowed
+* The documentation has been updated to show the correct API usage is RubyProf.stop not RubyProf.end
+
+
+0.4.0 (2006-06-16)
+========================
+Features
+--------
+* added support for call graphs
+* added support for printers.  Currently there is a FlatPrinter,
+  GraphPrinter and GraphHtmlPrinter.
+* added support for recursive methods
+* added Windows support
+* now packaged as a RubyGem
+
+Fixes
+-------
+* Fixes bug where RubyProf would crash depending on the
+  way it was invoked - for example, it did not run when
+  used with Arachno Ruby's customized version of Ruby.

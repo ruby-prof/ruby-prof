@@ -56,15 +56,15 @@ class AggregateTest < Test::Unit::TestCase
 
     call_info = method.call_infos[0]
     assert_equal('AggregateTest#test_call_infos->C1#a->C1#z', call_info.call_sequence)
-    assert_equal(0, call_info.children.length)
+    assert_equal(1, call_info.children.length)
 
     call_info = method.call_infos[1]
     assert_equal('AggregateTest#test_call_infos->C1#b->C1#a->C1#z', call_info.call_sequence)
-    assert_equal(0, call_info.children.length)
+    assert_equal(1, call_info.children.length)
 
     call_info = method.call_infos[2]
     assert_equal('AggregateTest#test_call_infos->C1#c->C1#a->C1#z', call_info.call_sequence)
-    assert_equal(0, call_info.children.length)
+    assert_equal(1, call_info.children.length)
   end
 
   def test_aggregates_parents

@@ -16,6 +16,8 @@
   As a result, printers now aggregate together callers (and children),
   matching ruby-prof's output from versions prior to 0.7.0.
 
+* Fixes for supporting x86_64 machines (Matt Sanford)
+
 
 0.7.0 (2008-11-04)
 ========================

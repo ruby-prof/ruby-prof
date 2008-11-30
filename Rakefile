@@ -117,7 +117,7 @@ task :default => :package
 desc 'Run the ruby-prof test suite'
 Rake::TestTask.new do |t|
   t.libs += %w(lib ext test)
-  t.test_files = Dir['test/*_test.rb'] - %w(test/profile_unit_test.rb)
+  t.test_files = Dir['test/test_suite.rb']
   t.verbose = true
   t.warning = true
 end

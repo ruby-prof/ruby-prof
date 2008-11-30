@@ -26,7 +26,7 @@
 
 #include <ruby.h>
 
-#if defined(_WIN32) || (defined(__GNUC__) && (defined(__i386__) || defined(__powerpc__) || defined(__ppc__)))
+#if defined(_WIN32) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__ppc__)))
 #define MEASURE_CPU_TIME 2
 
 static unsigned long long cpu_frequency;
@@ -36,7 +36,7 @@ static unsigned long long cpu_frequency;
 static prof_measure_t
 measure_cpu_time()
 {
-#if defined(__i386__)
+#if defined(__i386__) || defined(__x86_64__) 
     unsigned long long x;
     __asm__ __volatile__ ("rdtsc" : "=A" (x));
     return x;

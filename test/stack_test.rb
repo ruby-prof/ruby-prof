@@ -10,7 +10,7 @@ require 'ruby-prof'
 #        \
 #         B
 
-class C1
+class StackClass
   def a
     sleep 1
     b
@@ -34,17 +34,17 @@ class StackTest < Test::Unit::TestCase
   end
 
   def test_call_sequence
-    c = C1.new
+    c = StackClass.new
     result = RubyProf.profile do
       c.a
     end
 
     # Length should be 5:
     #   StackTest#test_call_sequence
-    #   C1#a
+    #   StackClass#a
     #   Kernel#sleep
-    #   C1#c
-    #   C1#b
+    #   StackClass#c
+    #   StackClass#b
 
     methods = result.threads.values.first.sort.reverse
     assert_equal(5, methods.length)
@@ -63,9 +63,9 @@ class StackTest < Test::Unit::TestCase
     assert_equal('StackTest#test_call_sequence', call_info.call_sequence)
     assert_equal(1, call_info.children.length)
 
-    # Check C1#a
+    # Check StackClass#a
     method = methods[1]
-    assert_equal('C1#a', method.full_name)
+    assert_equal('StackClass#a', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(8, method.total_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
@@ -74,7 +74,7 @@ class StackTest < Test::Unit::TestCase
     assert_equal(1, method.call_infos.length)
 
     call_info = method.call_infos[0]
-    assert_equal('StackTest#test_call_sequence->C1#a', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a', call_info.call_sequence)
     assert_equal(3, call_info.children.length)
     
     # Check Kernel#sleep
@@ -88,24 +88,24 @@ class StackTest < Test::Unit::TestCase
     assert_equal(4, method.call_infos.length)
 
     call_info = method.call_infos[0]
-    assert_equal('StackTest#test_call_sequence->C1#a->Kernel#sleep', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
 
     call_info = method.call_infos[1]
-    assert_equal('StackTest#test_call_sequence->C1#a->C1#b->Kernel#sleep', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a->StackClass#b->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
 
     call_info = method.call_infos[2]
-    assert_equal('StackTest#test_call_sequence->C1#a->C1#c->Kernel#sleep', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a->StackClass#c->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
 
     call_info = method.call_infos[3]
-    assert_equal('StackTest#test_call_sequence->C1#a->C1#c->C1#b->Kernel#sleep', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a->StackClass#c->StackClass#b->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
 
-    # Check C1#c
+    # Check StackClass#c
     method = methods[3]
-    assert_equal('C1#c', method.full_name)
+    assert_equal('StackClass#c', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(5, method.total_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
@@ -114,12 +114,12 @@ class StackTest < Test::Unit::TestCase
     assert_equal(1, method.call_infos.length)
 
     call_info = method.call_infos[0]
-    assert_equal('StackTest#test_call_sequence->C1#a->C1#c', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a->StackClass#c', call_info.call_sequence)
     assert_equal(2, call_info.children.length)
 
-    # Check C1#b
+    # Check StackClass#b
     method = methods[4]
-    assert_equal('C1#b', method.full_name)
+    assert_equal('StackClass#b', method.full_name)
     assert_equal(2, method.called)
     assert_in_delta(4, method.total_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
@@ -128,11 +128,11 @@ class StackTest < Test::Unit::TestCase
     assert_equal(2, method.call_infos.length)
 
     call_info = method.call_infos[0]
-    assert_equal('StackTest#test_call_sequence->C1#a->C1#b', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a->StackClass#b', call_info.call_sequence)
     assert_equal(1, call_info.children.length)
 
     call_info = method.call_infos[1]
-    assert_equal('StackTest#test_call_sequence->C1#a->C1#c->C1#b', call_info.call_sequence)
+    assert_equal('StackTest#test_call_sequence->StackClass#a->StackClass#c->StackClass#b', call_info.call_sequence)
     assert_equal(1, call_info.children.length)
   end
 end

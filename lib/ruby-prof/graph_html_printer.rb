@@ -198,7 +198,7 @@ module RubyProf
             self_percentage = (method.self_time/total_time) * 100 %>
           
             <!-- Parents -->
-            <% for caller in method.call_infos
+            <% for caller in method.aggregate_parents
                  next unless caller.parent
                  next if min_time && caller.total_time < min_time  %>
               <tr>
@@ -228,7 +228,7 @@ module RubyProf
             </tr>
 
             <!-- Children -->
-            <% for callee in method.children %>
+            <% for callee in method.aggregate_children %>
             <%   next if min_time && callee.total_time < min_time  %>
               <tr>
                 <td>&nbsp;</td>

@@ -1,3 +1,22 @@
+0.7.1 (2008-11-28)
+========================
+* Added new AggregateCallInfo class for printers to
+  make results easier to read.  Take this call sequence
+  for example:
+
+   A   B   C
+   |   |   |
+   Z   A   A
+       |   |
+       Z   Z
+
+  By default, ruby-prof will show that Z was called by 3 separate
+  instances of A.  In an IDE that is helpful but in a text report
+  it is not since it makes the report much harder to read.
+  As a result, printers now aggregate together callers (and children),
+  matching ruby-prof's output from versions prior to 0.7.0.
+
+
 0.7.0 (2008-11-04)
 ========================
 

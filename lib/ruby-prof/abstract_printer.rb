@@ -37,6 +37,5 @@ module RubyProf
       end
       name
     end
-
   end
 end 

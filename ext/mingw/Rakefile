@@ -15,7 +15,7 @@ task :install do
   # RUBYLIBDIR=#{dest_path}
   
   dest_path = ENV['RUBYLIBDIR']
-  
+
   # Copy the extension
   cp(EXTENSION_NAME, dest_path)
 end

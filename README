@@ -33,7 +33,9 @@ The easiest way to install ruby-prof is by using Ruby Gems.  To install:
 <tt>gem install ruby-prof</tt>
 
 If you are running Windows, make sure to install the Win32 RubyGem which 
-includes a pre-built binary.
+includes a pre-built binary. Due to a bug in ruby-gems, you cannot
+install the gem to a path that contains spaces
+(see http://rubyforge.org/tracker/?func=detail&aid=23003&group_id=126&atid=577).
 
 ruby-prof is also available as a tarred gzip archive and zip archive. 
 

@@ -2,6 +2,7 @@ require "ruby_prof.so"
 
 require "ruby-prof/method_info"
 require "ruby-prof/call_info"
+require "ruby-prof/aggregate_call_info"
 require "ruby-prof/flat_printer"
 require "ruby-prof/graph_printer"
 require "ruby-prof/graph_html_printer"

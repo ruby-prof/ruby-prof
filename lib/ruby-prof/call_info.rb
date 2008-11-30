@@ -39,7 +39,7 @@ module RubyProf
     def root?
       self.parent.nil?
     end
-    
+
     def to_s
       "#{call_sequence}"
     end

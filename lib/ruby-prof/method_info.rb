@@ -48,14 +48,6 @@ module RubyProf
       end
     end
 
-    def children
-      @children ||= begin
-        call_infos.map do |call_info|
-          call_info.children
-        end.flatten
-      end
-    end
-
     def children_time
       @children_time ||= begin
         call_infos.inject(0) do |sum, call_info|
@@ -78,8 +70,38 @@ module RubyProf
       end
     end
 
+    def children
+      @children ||= begin
+        call_infos.map do |call_info|
+          call_info.children
+        end.flatten
+      end
+    end
+
+    def aggregate_parents
+      aggregate_call_infos(self.call_infos)
+    end
+
+    def aggregate_children
+      aggregate_call_infos(self.children)
+    end
+
     def to_s
       full_name
+    end
+
+    private
+
+    def aggregate_call_infos(call_infos)
+      groups = call_infos.inject(Hash.new) do |hash, call_info|
+        key = call_info.parent ? call_info.parent.target : self
+        (hash[key] ||= []) << call_info
+        hash
+      end
+
+      groups.map do |key, value|
+        AggregateCallInfo.new(value)
+      end
     end
   end
 end

@@ -127,7 +127,7 @@ module RubyProf
     end
     
     def print_parents(thread_id, method)
-      method.call_infos.each do |caller|
+      method.aggregate_parents.each do |caller|
         next unless caller.parent
         @output << " " * 2 * PERCENTAGE_WIDTH
         @output << sprintf("%#{TIME_WIDTH}.2f", caller.total_time)
@@ -143,7 +143,7 @@ module RubyProf
     end
   
     def print_children(method)
-      method.children.each do |child|
+      method.aggregate_children.each do |child|
         # Get children method
         
         @output << " " * 2 * PERCENTAGE_WIDTH

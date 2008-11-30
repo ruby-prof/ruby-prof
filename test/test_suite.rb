@@ -1,5 +1,6 @@
 require 'test/unit'
 
+require 'aggregate_test'
 require 'basic_test'
 require 'duplicate_names_test'
 require 'exceptions_test'

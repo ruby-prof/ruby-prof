@@ -1,3 +1,8 @@
+0.7.2 (2008-12-04)
+========================
+* Fixes for supporting x86_64 machines (Diego Pettenò)
+
+
 0.7.1 (2008-11-28)
 ========================
 * Added new AggregateCallInfo class for printers to

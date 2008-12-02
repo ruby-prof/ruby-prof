@@ -37,9 +37,9 @@ static prof_measure_t
 measure_cpu_time()
 {
 #if defined(__i386__) || defined(__x86_64__) 
-    unsigned long long x;
-    __asm__ __volatile__ ("rdtsc" : "=A" (x));
-    return x;
+    uint32_t a, d;
+    __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
+    return ((uint64_t)d << 32) + a;
 #elif defined(__powerpc__) || defined(__ppc__)
     unsigned long long x, y;
 

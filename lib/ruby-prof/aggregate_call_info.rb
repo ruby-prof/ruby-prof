@@ -55,8 +55,8 @@ module RubyProf
     def aggregate(method_name)
       self.call_infos.inject(0) do |sum, call_info|
         sum += call_info.send(method_name)
+        sum
       end
     end
-
   end
 end

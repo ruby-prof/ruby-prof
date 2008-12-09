@@ -79,21 +79,8 @@ module RubyProf
     end
 
     def aggregate_parents
-      aggregate_call_infos(self.call_infos)
-    end
-
-    def aggregate_children
-      aggregate_call_infos(self.children)
-    end
-
-    def to_s
-      full_name
-    end
-
-    private
-
-    def aggregate_call_infos(call_infos)
-      groups = call_infos.inject(Hash.new) do |hash, call_info|
+      # Group call info's based on their parents
+      groups = self.call_infos.inject(Hash.new) do |hash, call_info|
         key = call_info.parent ? call_info.parent.target : self
         (hash[key] ||= []) << call_info
         hash
@@ -102,6 +89,23 @@ module RubyProf
       groups.map do |key, value|
         AggregateCallInfo.new(value)
       end
+    end
+
+    def aggregate_children
+      # Group call info's based on their targets
+      groups = self.children.inject(Hash.new) do |hash, call_info|
+        key = call_info.target
+        (hash[key] ||= []) << call_info
+        hash
+      end
+
+      groups.map do |key, value|
+        AggregateCallInfo.new(value)
+      end
+    end
+
+    def to_s
+      full_name
     end
   end
 end

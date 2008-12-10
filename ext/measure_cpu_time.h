@@ -33,6 +33,8 @@ static unsigned long long cpu_frequency;
 
 #if defined(__GNUC__)
 
+#include <stdint.h>
+
 static prof_measure_t
 measure_cpu_time()
 {

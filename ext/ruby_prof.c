@@ -864,7 +864,7 @@ get_event_name(rb_event_flag_t event)
 #endif
 
 static prof_method_t* 
-get_method(rb_event_flag_t event, NODE *node, VALUE klass, ID mid, int depth, st_table* method_table)
+get_method(rb_event_flag_t event, VALUE klass, ID mid, int depth, st_table* method_table)
 {
     prof_method_key_t key;
     prof_method_t *method = NULL;
@@ -1111,13 +1111,13 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
           
         /* Assume this is the first time we have called this method. */
-        method = get_method(event, node, klass, mid, 0, thread_data->method_table);
+        method = get_method(event, klass, mid, 0, thread_data->method_table);
 
         /* Check for a recursive call */
         if (method->active)
         {
           /* Yes, this method is already active */
-          method = get_method(event, node, klass, mid, method->key->depth + 1, thread_data->method_table);
+          method = get_method(event, klass, mid, method->key->depth + 1, thread_data->method_table);
         }
         else
         {

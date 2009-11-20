@@ -37,6 +37,12 @@ includes a pre-built binary. Due to a bug in ruby-gems, you cannot
 install the gem to a path that contains spaces
 (see http://rubyforge.org/tracker/?func=detail&aid=23003&group_id=126&atid=577).
 
+If you on windows mswin [not mingw] (check via ruby -v)
+please install v0.7.3 which has a prebuilt binary
+C:> gem install ruby-prof -v0.7.3
+
+If you're on mingw, please install the devkit first.
+
 ruby-prof is also available as a tarred gzip archive and zip archive. 
 
 == Usage

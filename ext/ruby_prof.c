@@ -307,13 +307,28 @@ prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
     return result;
 }
 
+static void prof_method_mark(prof_method_t *method);
+
 static void
 prof_call_info_mark(prof_call_info_t *call_info)
 {
-  rb_gc_mark(prof_method_wrap(call_info->target));
+  {
+    VALUE target = call_info->target->object;
+    if (NIL_P(target))
+      prof_method_mark(call_info->target);
+    else
+      rb_gc_mark(target);
+  }
   rb_gc_mark(call_info->children);
-  if (call_info->parent)
-    rb_gc_mark(prof_call_info_wrap(call_info->parent));
+  if (call_info->parent) {
+    VALUE parent = call_info->parent->object;
+    if (NIL_P(parent)) {
+      prof_call_info_mark(call_info->parent);
+    }
+    else {
+      rb_gc_mark(parent);
+    }
+  }
 }
 
 static void

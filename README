@@ -436,7 +436,10 @@ repository also includes a Microsoft VC++ 2005 solution.  If you wish to run
 a debug version of ruby-prof on Windows, then it is highly recommended
 you use VC++.
 
-
 == License
 
 See LICENSE for license information.
+
+== Development
+
+Code is located at http://github.com/rdp/ruby-prof

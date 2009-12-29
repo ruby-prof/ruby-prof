@@ -37,4 +37,6 @@ end
 
 add_define 'RUBY_VM' if RUBY_VERSION >= '1.9'
 
+add_define 'DEBUG' if $DEBUG
+
 create_makefile("ruby_prof")

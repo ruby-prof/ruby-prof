@@ -121,3 +121,18 @@ Rake::TestTask.new do |t|
   t.verbose = true
   t.warning = true
 end
+
+require 'fileutils'
+
+
+desc 'Build ruby_prof.so'
+task :build do
+ Dir.chdir('ext') do
+  unless File.exist? 'Makefile'
+    system("ruby -d extconf.rb")
+    system("make clean")
+  end
+  system("make")
+  FileUtils.cp 'ruby_prof.so', '../lib' 
+ end
+end

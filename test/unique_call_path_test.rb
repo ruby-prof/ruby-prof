@@ -151,7 +151,7 @@ class UniqueCallPathTest < Test::Unit::TestCase
 
     child = root_methods[0].children[0]
 
-    assert_not_equal(0, child.id)
+    assert_not_equal(0, child.object_id)
     #assert_equal(RubyProf::CallInfo.id2ref(child.id).target.full_name, child.target.full_name)
   end
 

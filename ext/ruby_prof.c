@@ -48,7 +48,7 @@
 */
 
 #include "ruby_prof.h"
-
+#include <stdio.h>
 
 /* ================  Helper Functions  =================*/
 static VALUE
@@ -378,7 +378,7 @@ prof_call_info_target(VALUE self)
 /* call-seq:
    called -> int
 
-Returns the total amount of time this method was called. */
+Returns the total amount of times this method was called. */
 static VALUE
 prof_call_info_called(VALUE self)
 {
@@ -918,7 +918,7 @@ update_result(prof_measure_t total_time,
               prof_frame_t *frame)
 {
     prof_measure_t self_time = total_time - frame->child_time - frame->wait_time;
-
+    
     prof_call_info_t *call_info = frame->call_info;
     
     /* Update information about the current method */
@@ -926,7 +926,7 @@ update_result(prof_measure_t total_time,
     call_info->total_time += total_time;
     call_info->self_time += self_time;
     call_info->wait_time += frame->wait_time;
-
+    
     /* Note where the current method was called from */
     if (parent_frame)
       call_info->line = parent_frame->line;
@@ -937,12 +937,12 @@ switch_thread(VALUE thread_id, prof_measure_t now)
 {
     prof_frame_t *frame = NULL;
     prof_measure_t wait_time = 0;
-    
     /* Get new thread information. */
     thread_data_t *thread_data = threads_table_lookup(threads_tbl, thread_id);
 
     /* How long has this thread been waiting? */
     wait_time = now - thread_data->last_switch;
+    
     thread_data->last_switch = 0;
 
     /* Get the frame at the top of the stack.  This may represent
@@ -950,13 +950,17 @@ switch_thread(VALUE thread_id, prof_measure_t now)
        previous method (EVENT_CALL).*/
     frame = stack_peek(thread_data->stack);
   
-    if (frame)
+    if (frame) {
       frame->wait_time += wait_time;
+    }
+    
+    
       
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
-    if (last_thread_data)
-      last_thread_data->last_switch = now;
+    if (last_thread_data) {
+      last_thread_data->last_switch = now;   
+    }
       
     last_thread_data = thread_data;
     return thread_data;
@@ -969,11 +973,10 @@ pop_frame(thread_data_t *thread_data, prof_measure_t now)
   prof_frame_t* parent_frame = NULL;
   prof_measure_t total_time;
 
-  frame = stack_pop(thread_data->stack);
-    
+  frame = stack_pop(thread_data->stack); // only time it's called
   /* Frame can be null.  This can happen if RubProf.start is called from
      a method that exits.  And it can happen if an exception is raised
-     in code that is being profiled and the stack unwinds (RubProf is
+     in code that is being profiled and the stack unwinds (RubyProf is
      not notified of that by the ruby runtime. */
   if (frame == NULL) return NULL;
 
@@ -989,7 +992,7 @@ pop_frame(thread_data_t *thread_data, prof_measure_t now)
     parent_frame->child_time += total_time;
   }
     
-  update_result(total_time, parent_frame, frame);
+  update_result(total_time, parent_frame, frame); // only time it's called
   return frame;
 }
 
@@ -1029,7 +1032,6 @@ static void
 prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 #endif
 {
-    
     VALUE thread = Qnil;
     VALUE thread_id = Qnil;
     prof_measure_t now = 0;
@@ -1066,8 +1068,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 
         class_name = rb_class2name(klass);
 
-        if (last_thread_id != thread_id)
+        if (last_thread_id != thread_id) {
           printf("\n");
+        }
 
         printf("%2u: %-8s :%2d  %s#%s\n",
                thread_id, event_name, source_line, class_name, method_name);
@@ -1182,6 +1185,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
+        // this assumes that all C calls take 100% user cpu, I guess.
         pop_frame(thread_data, now);
         break;
       }

@@ -1,78 +1,40 @@
-1.9.1 376 mingw without me
 
-d364ff3b5680456e2988f9a9978cb12b0395a245
-
+....FFEF...F
+Finished in 31.906250 seconds.
 
   1) Failure:
-test_instance_methods(BasicTest) [C:/dev/ruby/ruby-prof/test/basic_test.rb:139]:
-<"<Class::Object>#allocate"> expected but was
-<"<Class::BasicObject>#allocate">.
-
-  2) Failure:
-test_module_instance_methods(BasicTest) [C:/dev/ruby/ruby-prof/test/basic_test.rb:219]:
-<"<Class::Object>#allocate"> expected but was
-<"<Class::BasicObject>#allocate">.
-
-  3) Failure:
-test_module_methods(BasicTest) [C:/dev/ruby/ruby-prof/test/basic_test.rb:186]:
-Expected 0.3 - 0.3125 (0.0125) to be < 0.01.
-
-  4) Failure:
-test_cycle(RecursiveTest) [C:/dev/ruby/ruby-prof/test/recursive_test.rb:136]:
+test_cycle(RecursiveTest) [E:/dev/ruby/ruby-prof/test/recursive_test.rb:136]:
 <8> expected but was
 <6>.
 
-  5) Failure:
-test_simple(RecursiveTest) [C:/dev/ruby/ruby-prof/test/recursive_test.rb:37]:
+  2) Failure:
+test_simple(RecursiveTest) [E:/dev/ruby/ruby-prof/test/recursive_test.rb:37]:
 <6> expected but was
 <4>.
 
-  6) Failure:
-test_thread_count(ThreadTest) [C:/dev/ruby/ruby-prof/test/thread_test.rb:23]:
+  3) Failure:
+test_thread_count(ThreadTest) [E:/dev/ruby/ruby-prof/test/thread_test.rb:23]:
 <2> expected but was
 <1>.
 
-  7) Failure:
-test_thread_identity(ThreadTest) [C:/dev/ruby/ruby-prof/test/thread_test.rb:40]:
-<10943584> expected but wasnbn
-test_id2ref(UniqueCallPathTest):
-NoMethodError: undefined method `id' for UniqueCallPathTest#test_id2ref->UniqueCallPath#method_a:RubyProf::CallInfo
-    C:/dev/ruby/ruby-prof/test/unique_call_path_test.rb:154:in `test_id2ref'
+  4) Failure:
+test_thread_identity(ThreadTest) [E:/dev/ruby/ruby-prof/test/thread_test.rb:40]:
+<11039760> expected but was
+<nil>.
 
- 11) Failure:
-test_unique_path(UniqueCallPathTest) [C:/dev/ruby/ruby-prof/test/unique_call_path_test.rb:194]:
+  5) Error:
+test_thread_timings(ThreadTest):
+NoMethodError: undefined method `sort' for nil:NilClass
+    E:/dev/ruby/ruby-prof/test/thread_test.rb:61:in `test_thread_timings'
+
+  6) Failure:
+test_children_of(UniqueCallPathTest) [E:/dev/ruby/ruby-prof/test/unique_call_path_test.rb:125]:
 <4> expected but was
 <2>.
 
-43 tests, 244 assertions, 9 failures, 2 errors, 0 skips
-rake aborted!
-Command failed with status (1): [C:/installs/ruby191p376/bin/ruby.exe -w -I...]
+  7) Failure:
+test_unique_path(UniqueCallPathTest) [E:/dev/ruby/ruby-prof/test/unique_call_path_test.rb:194]:
+<4> expected but was
+<2>.
 
-
-
-
-1.8.6 mingw even one commit earlier
-
-......F../test/unique_call_path_test.rb:154: warning: Object#id will be deprecated; use Object#object_id
-....
-Finished in 31.984375 seconds.
-
-  1) Failure:
-test_module_methods(BasicTest) [./test/basic_test.rb:186]:
-<0.29999999999999999000> and
-<0.31250000000000000000> expected to be within
-<0.01000000000000000000> of each other.
- (sometimes doesn't fail)
-  2) Failure:
-test_thread_timings(ThreadTest) [./test/thread_test.rb:69]:
-<1> and
-<0.00000000000000000000> expected to be within
-<0.01000000000000000000> of each other.
-
-43 tests, 428 assertions, 2 failures, 0 errors
-rake aborted!
-Command failed with status (1): [C:/ruby/bin/ruby.exe -w -I"lib;lib;ext;tes...]
-
-(See full trace by running task with --trace)
-
-
+43 tests, 291 assertions, 6 failures, 1 errors, 0 skips

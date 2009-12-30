@@ -115,6 +115,12 @@ class BasicTest < Test::Unit::TestCase
     assert_in_delta(0, methods[2].wait_time, 0.01)
     assert_in_delta(0.1, methods[2].self_time, 0.01)
   end
+  
+  if RUBY_VERSION < '1.9'
+    PARENT = Object
+  else
+    PARENT = BasicObject
+  end
 
   def test_instance_methods
     result = RubyProf.profile do
@@ -136,9 +142,9 @@ class BasicTest < Test::Unit::TestCase
     assert_equal('C1#hello', methods[1].full_name)
     assert_equal('Kernel#sleep', methods[2].full_name)
     assert_equal('Class#new', methods[3].full_name)
-    parent = self.class.ancestors[-1]
-    assert_equal("<Class::#{parent}>#allocate", methods[4].full_name)
-    assert_equal("#{parent}#initialize", methods[5].full_name)
+    
+    assert_equal("<Class::#{PARENT}>#allocate", methods[4].full_name)
+    assert_equal("#{PARENT}#initialize", methods[5].full_name)
 
     # Check times
     assert_in_delta(0.2, methods[0].total_time, 0.02)
@@ -217,9 +223,8 @@ class BasicTest < Test::Unit::TestCase
     assert_equal('M1#hello', methods[1].full_name)
     assert_equal('Kernel#sleep', methods[2].full_name)
     assert_equal('Class#new', methods[3].full_name)
-    parent = self.class.ancestors[-1]    
-    assert_equal("<Class::#{parent}>#allocate", methods[4].full_name)
-    assert_equal("#{parent}#initialize", methods[5].full_name)
+    assert_equal("<Class::#{PARENT}>#allocate", methods[4].full_name)
+    assert_equal("#{PARENT}#initialize", methods[5].full_name)
     
     # Check times
     assert_in_delta(0.3, methods[0].total_time, 0.02)

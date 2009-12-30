@@ -872,6 +872,11 @@ get_event_name(rb_event_flag_t event)
   return "c-return";
     case RUBY_EVENT_RAISE:
   return "raise";
+#ifdef RUBY_VM
+    case RUBY_EVENT_SWITCH:
+  return "thread-interrupt";
+#endif
+    case 
     default:
   return "unknown";
   }
@@ -1406,7 +1411,7 @@ prof_install_hook()
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN 
-          | RUBY_EVENT_LINE, Qnil);
+          | RUBY_EVENT_LINE | RUBY_EVENT_SWITCH, Qnil);
 #else
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |

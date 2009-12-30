@@ -10,16 +10,22 @@ class ThreadTest < Test::Unit::TestCase
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 
+def nothing
+end
   def test_thread_count
+    puts "BEGIN BAD\n\n\n\n"
     RubyProf.start
 
     thread = Thread.new do
+      puts "in other thread"
       sleep(1)
+      nothing
     end
 
     thread.join
     result = RubyProf.stop
-
+#    _dbg
+    puts "END BAD\n\n\n"
     assert_equal(2, result.threads.keys.length)
   end
 
@@ -93,11 +99,13 @@ class ThreadTest < Test::Unit::TestCase
 
     method = methods[0]
     assert_equal('ThreadTest#test_thread_timings', method.full_name)
-    assert_equal(1, method.called) # the sub calls cause the parent frame to be created for #test_thread_timings, which means a +1 when it's popped in the end
-    # ltodo a test that shows it the other way
+    # the sub calls to Object#new, when popped,
+    # cause the parent frame to be created for method #test_thread_timings, which means a +1 when it's popped in the end
+    # xxxx a test that shows it the other way, too
+    assert_equal(1, method.called) 
     assert_in_delta(1, method.total_time, 0.01)
-    assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(0, method.wait_time, 0.01)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(1, method.children_time, 0.01)
 
     assert_equal(1, method.call_infos.length)
@@ -109,8 +117,9 @@ class ThreadTest < Test::Unit::TestCase
     assert_equal('Thread#join', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(1, method.total_time, 0.01)
-    assert_in_delta(1.0, method.self_time, 0.01) # todo this is a bug since #sleep really isn't using self_time--it's sleep time!
-    # but for our purposes...I guess that's ok...sure.
+    assert_in_delta(1.0, method.self_time, 0.01) 
+    # todo this is a bug since #sleep really isn't using self_time--it's sleep time!
+    # but for our purposes...I guess that's ok for now...sure.
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.children_time, 0.01)
 

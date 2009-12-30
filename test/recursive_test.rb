@@ -152,10 +152,10 @@ class RecursiveTest < Test::Unit::TestCase
     method = methods[0]
     assert_equal('RecursiveTest#test_cycle', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(2, method.total_time, 0.01)
+    assert_in_delta(2, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(2, method.children_time, 0.01)
+    assert_in_delta(2, method.children_time, 0.05)
 
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
@@ -165,10 +165,10 @@ class RecursiveTest < Test::Unit::TestCase
     method = methods[1]
     assert_equal('Object#cycle', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(2, method.total_time, 0.01)
+    assert_in_delta(2, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(2, method.children_time, 0.01)
+    assert_in_delta(2, method.children_time, 0.05)
 
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
@@ -178,10 +178,10 @@ class RecursiveTest < Test::Unit::TestCase
     method = methods[2]
     assert_equal('Object#sub_cycle', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(2, method.total_time, 0.01)
+    assert_in_delta(2, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(2, method.children_time, 0.01)
+    assert_in_delta(2, method.children_time, 0.05)
 
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
@@ -195,7 +195,7 @@ class RecursiveTest < Test::Unit::TestCase
     method = methods[3]
     assert_equal('Kernel#sleep', method.full_name)
     assert_equal(2, method.called)
-    assert_in_delta(2, method.total_time, 0.01)
+    assert_in_delta(2, method.total_time, 0.05)
     assert_in_delta(2, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.children_time, 0.01)

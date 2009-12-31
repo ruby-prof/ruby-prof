@@ -10,23 +10,16 @@ class ThreadTest < Test::Unit::TestCase
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 
-def nothing
-end
   def test_thread_count
-    puts "BEGIN BAD\n\n\n\n"
     RubyProf.start
 
     thread = Thread.new do
-      puts "in other thread"
       sleep(1)
-      nothing
     end
 
     thread.join
     result = RubyProf.stop
-#    _dbg
-    puts "END BAD\n\n\n"
-    assert_equal(2, result.threads.keys.length)
+    assert_equal(2, result.threads.keys.length) # this should pass...
   end
 
   def test_thread_identity
@@ -41,6 +34,7 @@ end
 
     thread_ids = result.threads.keys.sort
     threads = [Thread.current, thread].sort_by {|thread| thread.object_id}
+    assert_equal(2, thread_ids.length) # should pass
 
     assert_equal(threads[0].object_id, thread_ids[0])
     assert_equal(threads[1].object_id, thread_ids[1])
@@ -52,9 +46,6 @@ end
     assert_equal(threads[1], ObjectSpace._id2ref(thread_ids[1]))
   end
 
-  def nothing
-  end
-  
   def test_thread_timings
     RubyProf.start    
     thread = Thread.new do
@@ -64,8 +55,9 @@ end
     result = RubyProf.stop
     
     # Check background thread
+    assert_equal(2, result.threads.length)
     methods = result.threads[thread.object_id].sort.reverse
-    #assert_equal(6, methods.length)
+    assert_equal(2, methods.length)
 
     method = methods[0]
     assert_equal('ThreadTest#test_thread_timings', method.full_name)

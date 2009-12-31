@@ -872,11 +872,12 @@ get_event_name(rb_event_flag_t event)
   return "c-return";
     case RUBY_EVENT_RAISE:
   return "raise";
+  
 #ifdef RUBY_VM
     case RUBY_EVENT_SWITCH:
   return "thread-interrupt";
 #endif
-    case 
+  
     default:
   return "unknown";
   }

@@ -50,10 +50,6 @@
 #include "ruby_prof.h"
 #include <stdio.h>
 
-#ifdef RUBY_VM
-# include "vm_core.h"
-#endif
-
 
 /* ================  Helper Functions  =================*/
 static VALUE
@@ -1036,33 +1032,8 @@ prof_pop_threads()
 
 
 #ifdef RUBY_VM
-static int
-thread_list_i(st_data_t key, st_data_t val, void *data)
-{
-    /* mark all threads so they'll tell us they're events... */
-    VALUE thval = key;
-    rb_thread_t *th;
-    GetThreadPtr(thval, th);    
-    int got_one = 0;
-    if(!(th->event_flags & RUBY_EVENT_RETURN)) {
-      printf("marking new one");
-      got_one = 1;
-    }
-    
-    th->event_flags |= (RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
-          RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN 
-          | RUBY_EVENT_LINE | RUBY_EVENT_SWITCH);
-    if(got_one) {
-      printf("marked it");
-    }
-  
-  return ST_CONTINUE;  
-}
-
 void prof_install_hook();
 void prof_remove_hook();
-
-
 #endif
 
 #ifdef RUBY_VM
@@ -1134,14 +1105,10 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread_id = rb_obj_id(thread);
     
 #ifdef RUBY_VM
-   
-  //  rb_thread_t *th;
-  //    th   = GET_THREAD();
-   //st_foreach(th->vm->living_threads, thread_list_i, 0); 
+    /* ensure that new threads are hooked [sigh] */
    prof_remove_hook();
    prof_install_hook();
-#endif    
-    
+#endif
 
     if (exclude_threads_tbl &&
         st_lookup(exclude_threads_tbl, (st_data_t) thread_id, 0)) 
@@ -1458,7 +1425,7 @@ prof_install_hook()
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN 
-          | RUBY_EVENT_LINE | RUBY_EVENT_SWITCH, Qnil);
+            | RUBY_EVENT_LINE, Qnil); //  | RUBY_EVENT_SWITCH
 #else
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |

@@ -181,8 +181,8 @@ class RecursiveTest < Test::Unit::TestCase
     assert_equal('Object#sub_cycle', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(2, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(0, method.wait_time, 0.01)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(2, method.children_time, 0.05)
 
     assert_equal(1, method.call_infos.length)

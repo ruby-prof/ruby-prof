@@ -37,14 +37,4 @@ end
 
 add_define 'DEBUG' if $DEBUG
 
-if RUBY_VERSION >= '1.9'
- add_define 'RUBY_VM'
- require 'ruby_core_source'
- hdrs = proc { have_header("vm_core.h")  }
- if !Ruby_core_source::create_makefile_with_core(hdrs, "ruby_prof")
-   # error
-   exit(1)
- end
-else
-  create_makefile("ruby_prof")
-end
+create_makefile("ruby_prof")

@@ -62,7 +62,7 @@ class ThreadTest < Test::Unit::TestCase
     assert_equal(1, method.called)
     assert_in_delta(1, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(0, method.wait_time, 0.01) # this fails
+    assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(1, method.children_time, 0.01)
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]

@@ -1,0 +1,18 @@
+require 'ruby-prof'
+require 'benchmark'
+
+def go
+end
+
+puts Benchmark.realtime {
+ RubyProf.profile do
+  100000.times { go }
+ end
+}
+
+100.times { Thread.new { sleep }}
+puts Benchmark.realtime {
+ RubyProf.profile do
+   100000.times { go }
+ end
+}

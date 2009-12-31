@@ -24,21 +24,19 @@ class ThreadTest < Test::Unit::TestCase
 
   def test_thread_identity
     RubyProf.start
-
     thread = Thread.new do
-      sleep(1)
+      sleep(1)    
     end
-
     thread.join
     result = RubyProf.stop
 
     thread_ids = result.threads.keys.sort
-    threads = [Thread.current, thread].sort_by {|th| th.object_id}
+    threads = [Thread.current, thread]
     assert_equal(2, thread_ids.length) # should pass
 
-    assert_equal(threads[0].object_id, thread_ids[0])
-    assert_equal(threads[1].object_id, thread_ids[1])
-
+    assert(thread_ids.include?(threads[0].object_id))
+    assert(thread_ids.include?(threads[1].object_id))
+    
     assert_instance_of(Thread, ObjectSpace._id2ref(thread_ids[0]))
     assert_equal(threads[0], ObjectSpace._id2ref(thread_ids[0]))
 

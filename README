@@ -22,9 +22,8 @@ ruby-prof requires Ruby 1.8.4 or higher.
 If you are running Linux or Unix you'll need a C compiler so the extension
 can be compiled when it is installed.
 
-If you are running Windows, then install the Windows specific RubyGem which
-includes an already built extension.
-
+If you are running Windows, then you may need to install the 
+Windows specific RubyGem which includes an already built extension (see below).
 
 == Install
 
@@ -32,13 +31,9 @@ The easiest way to install ruby-prof is by using Ruby Gems.  To install:
 
 <tt>gem install ruby-prof</tt>
 
-If you are running Windows, make sure to install the Win32 RubyGem which 
-includes a pre-built binary. Due to a bug in ruby-gems, you cannot
-install the gem to a path that contains spaces
-(see http://rubyforge.org/tracker/?func=detail&aid=23003&group_id=126&atid=577).
-
-If you on windows mswin [not mingw] (check via ruby -v)
-please install v0.7.3 which has a prebuilt binary
+If you on windows mswin [not mingw] (check via ruby -v) and 
+don't have an MSVC compiler, please install v0.7.3 which 
+has a prebuilt binary
 C:> gem install ruby-prof -v0.7.3
 
 If you're on mingw, please install the devkit first, then install the latest version (gem install ruby-prof).
@@ -285,7 +280,7 @@ aspects of a Ruby program.  Supported measurements include:
 Process time measures the time used by a process between any two moments.
 It is unaffected by other processes concurrently running 
 on the system. Note that Windows does not support measuring process
-times - therefore, all measurements on Windows use wall time.
+times - therefore, measurements on Windows defaults to wall time.
 
 Wall time measures the real-world time elapsed between any two moments.
 If there are other processes concurrently running on the system
@@ -349,7 +344,7 @@ does not measure time spent in methods such as Kernel.sleep method.
 If you need to measure these values, then use wall time.  Wall time
 is measured using the gettimeofday kernel method.
 
-On Windows, timings are always wall times.  If you set the clock 
+On Windows, timings default to wall times.  If you set the clock 
 mode to PROCESS_TIME, then timing are read using the clock method
 provided by the C runtime library.  Note though, these values are
 wall times on Windows and not process times like on Linux.
@@ -365,7 +360,7 @@ On both platforms, cpu time is measured using the RDTSC assembly
 function provided by the Pentium and PowerPC platforms. CPU time
 is dependent on the cpu's frequency.  On Linux, ruby-prof attempts 
 to read this value from "/proc/cpuinfo."  On Windows, you must
-specify the clock frequency.  This can be done using the
+manually specify the clock frequency.  This can be done using the
 RUBY_PROF_CPU_FREQUENCY environment variable:
 
   export RUBY_PROF_CPU_FREQUENCY=<value>
@@ -412,11 +407,8 @@ spawned threads that go to sleep immediately (their first call).
 For instance, if you use Ruby's timeout library to wait for 2 seconds,
 the 2 seconds will be assigned to the foreground thread
 and not the newly created background thread.  These errors
-can largely be avoided if the background thread performs an
+can largely be avoided if the background thread performs any
 operation before going to sleep. 
-
-Currently threaded measurements are broken on 1.9, viz:
-http://www.ruby-forum.com/topic/201329
 
 == Performance
 
@@ -426,6 +418,9 @@ with profiling code varies considerably with the code being
 profiled.  Most programs will run approximately twice as slow
 while highly recursive programs (like the fibonacci series test)
 will run three times slower.
+
+Because of some threading difficulties in 1.9, it currently runs a bit slower there.
+http://www.ruby-forum.com/topic/201329
 
 == License
 

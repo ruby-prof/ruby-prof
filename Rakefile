@@ -125,16 +125,29 @@ end
 require 'fileutils'
 
 
-desc 'Build ruby_prof.so'
+desc 'Build ruby_prof.so with debug symbols on'
 task :build do
+ build(true)
+end
+
+def build(with_debug)
  Dir.chdir('ext') do
   unless File.exist? 'Makefile'
-    system("ruby -d extconf.rb")
+    if with_debug
+      system("ruby -d extconf.rb")
+    else
+      system("ruby extconf.rb")
+    end
     system("make clean")
   end
   system("make")
   FileUtils.cp 'ruby_prof.so', '../lib' 
  end
+end
+
+desc 'build ruby_prof.so'
+task :build_no_debug do
+ build(false)
 end
 
 desc 'clean ext'

@@ -41,14 +41,11 @@ If you on windows mswin [not mingw] (check via ruby -v)
 please install v0.7.3 which has a prebuilt binary
 C:> gem install ruby-prof -v0.7.3
 
-If you're on mingw, please install the devkit first.
-
-ruby-prof is also available as a tarred gzip archive and zip archive. 
+If you're on mingw, please install the devkit first, then install the latest version (gem install ruby-prof).
 
 == Usage
 
 There are three ways of running ruby-prof.
-
 
 === ruby-prof executable
 
@@ -137,9 +134,9 @@ This method is provided for backwards compatibility.  Using
 == Profiling Tests
 
 Starting with the 0.6.1 release, ruby-prof supports profiling tests cases
-written using Ruby's built-in	unit test framework (ie, test derived from 
+written using Ruby's built-in unit test framework (ie, test derived from 
 Test::Unit::TestCase).  To enable profiling simply add the following line 
-of code to your test class:
+of code to within your test class:
   
   	include RubyProf::Test
   	
@@ -259,16 +256,18 @@ Reports are created by printers.  Supported printers include:
 
 To use a printer:
 
+  ...
   result = RubyProf.end
   printer = RubyProf::GraphPrinter.new(result)
-  printer.print(STDOUT, 0)
+  printer.print(STDOUT, :min_percent => 2)
 
 The first parameter is any writable IO object such as STDOUT or a file.
-The second parameter, which has a default value of 0, specifies 
-the minimum percentage a method must take to be printed.  Percentages
-should be specified as integers in the range 0 to 100.  For more
-information please see the documentation for the different printers.
+The second parameter, specifies the minimum percentage a method must take 
+to be printed.  Percentages should be specified as integers in the range 0 to 100.  
+For more information please see the documentation for the different printers.
 
+The other option is :print_file => true (default false), which adds the filename to the
+output (GraphPrinter only).
 
 == Measurements
 
@@ -283,7 +282,6 @@ aspects of a Ruby program.  Supported measurements include:
 * garbage collections runs (RubyProf::GC_RUNS)
 * garbage collection time (RubyProf::GC_TIME)
 
-
 Process time measures the time used by a process between any two moments.
 It is unaffected by other processes concurrently running 
 on the system. Note that Windows does not support measuring process
@@ -296,7 +294,7 @@ then the reported results will be too large.
 
 CPU time uses the CPU clock counter to measure time.  The returned
 values are dependent on the correctly setting the CPU's frequency.
-This mode is only supported on Pentium or PowerPC platforms.
+This mode is only supported on Pentium or PowerPC platforms (linux only).
 
 Object allocation reports show how many objects each method in
 a program allocates.  This support was added by Sylvain Joyeux
@@ -404,20 +402,21 @@ However, the self time values for recursive calls should always
 be accurate.  It is also believed that the total times are
 accurate, but these should be carefully analyzed to verify their veracity.
 
-
 == Multi-threaded Applications
 
 Unfortunately, Ruby does not provide an internal api
-for detecting thread context switches.  As a result, the
+for detecting thread context switches in 1.8.  As a result, the
 timings ruby-prof reports for each thread may be slightly
 inaccurate.  In particular, this will happen for newly 
-spanned threads that immediately go to sleep.  For instance,
-if you use Ruby's timeout library to wait for 2 seconds,
+spawned threads that go to sleep immediately (their first call).  
+For instance, if you use Ruby's timeout library to wait for 2 seconds,
 the 2 seconds will be assigned to the foreground thread
 and not the newly created background thread.  These errors
 can largely be avoided if the background thread performs an
-operation before going to sleeep. 
+operation before going to sleep. 
 
+Currently threaded measurements are broken on 1.9, viz:
+http://www.ruby-forum.com/topic/201329
 
 == Performance
 
@@ -427,14 +426,6 @@ with profiling code varies considerably with the code being
 profiled.  Most programs will run approximately twice as slow
 while highly recursive programs (like the fibonacci series test)
 will run three times slower.
-
-
-== Windows Binary
-
-The Windows binary is built with the latest version of MinGW.  The source
-repository also includes a Microsoft VC++ 2005 solution.  If you wish to run
-a debug version of ruby-prof on Windows, then it is highly recommended
-you use VC++.
 
 == License
 

@@ -1,7 +1,16 @@
+0.7.6 (2009-12-31)
+======================
+* fix some tests for 1.9 (no real code changes)
+
+0.7.5 (2009-12)
+========================
+* fix a GC collection bug (nobu's patch).
+* correctly report recursive call depths (Kevin Scaldeferri).
+* sort methods on output (Kevin Scaldeferri).
+
 0.7.3 (2008-12-09)
 ========================
 * Fixed compile error with new x86_64 code using GCC.
-
 
 0.7.2 (2008-12-08)
 ========================

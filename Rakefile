@@ -158,5 +158,8 @@ task :clean do
     system("make clean")
     FileUtils.rm 'Makefile'
   end
+  Dir.glob('*~') do |file|
+    FileUtils.rm file
+  end
  end
 end

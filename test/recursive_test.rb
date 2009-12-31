@@ -34,18 +34,20 @@ class RecursiveTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
+    
     if RUBY_VERSION < '1.9'
-      assert_equal(6, methods.length) # includes Fixnum+, Fixnum==
+      assert_equal(6, methods.length) # includes Fixnum+, Fixnum==...
     else
       assert_equal(4, methods.length)
     end
+    
     method = methods[0]
     assert_equal('RecursiveTest#test_simple', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(2, method.total_time, 0.01)
+    assert_in_delta(2, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(2, method.children_time, 0.01)
+    assert_in_delta(2, method.children_time, 0.05)
 
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
@@ -212,10 +214,10 @@ class RecursiveTest < Test::Unit::TestCase
     method = methods[4]
     assert_equal('Object#cycle-1', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(1, method.total_time, 0.01)
+    assert_in_delta(1, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(1, method.children_time, 0.01)
+    assert_in_delta(1, method.children_time, 0.05)
 
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]

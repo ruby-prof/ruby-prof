@@ -1248,7 +1248,7 @@ get_prof_result(VALUE obj)
       RDATA(obj)->dfree != (RUBY_DATA_FUNC) prof_result_free)
     {
         /* Should never happen */
-      rb_raise(rb_eTypeError, "wrong result object");
+      rb_raise(rb_eTypeError, "wrong result object (%d %d) ", BUILTIN_TYPE(obj) != T_DATA, RDATA(obj)->dfree != (RUBY_DATA_FUNC) prof_result_free);
     }
     return (prof_result_t *) DATA_PTR(obj);
 }

@@ -33,7 +33,7 @@ class ThreadTest < Test::Unit::TestCase
     result = RubyProf.stop
 
     thread_ids = result.threads.keys.sort
-    threads = [Thread.current, thread].sort_by {|thread| thread.object_id}
+    threads = [Thread.current, thread].sort_by {|th| th.object_id}
     assert_equal(2, thread_ids.length) # should pass
 
     assert_equal(threads[0].object_id, thread_ids[0])

@@ -136,3 +136,14 @@ task :build do
   FileUtils.cp 'ruby_prof.so', '../lib' 
  end
 end
+
+desc 'clean ext'
+task :clean do
+ FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
+ Dir.chdir('ext') do
+  if File.exist? 'Makefile'
+    system("make clean")
+    FileUtils.rm 'Makefile'
+  end
+ end
+end

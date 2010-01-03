@@ -37,7 +37,7 @@ module RubyProf
     
     def print_methods(thread_id, methods)
       # Get total time
-      toplevel = methods.sort.last
+      toplevel = methods.sort.last # TODO this takes forever...
       total_time = toplevel.total_time
       if total_time == 0
         total_time = 0.01

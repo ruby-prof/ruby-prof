@@ -57,7 +57,7 @@ module RubyProf
     end
 
     def min_depth
-      call_infos.map do |call_info|
+      @min_depth ||= call_infos.map do |call_info|
         call_info.depth
       end.min
     end

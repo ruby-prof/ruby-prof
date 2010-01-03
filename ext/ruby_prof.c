@@ -49,7 +49,7 @@
 
 #include "ruby_prof.h"
 #include <stdio.h>
-
+#include <assert.h>
 
 /* ================  Helper Functions  =================*/
 static VALUE
@@ -1162,7 +1162,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 #endif
 
         /* Check for a recursive call */
-        while (method->active)
+        while (method->active) // it's while because if you replace this while with an if, the assertion fails... [ltodo figure out why]
         {
           /* Yes, this method is already active */
 #ifdef RUBY_VM
@@ -1171,8 +1171,10 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           method = get_method(event, node, klass, mid, method->key->depth + 1, thread_data->method_table);
 #endif
         }
+        assert(!method->active);
+          
         method->active = 1;
-        
+                
 
         if (!frame)
         {

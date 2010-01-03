@@ -62,7 +62,7 @@ module RubyProf
       # Cache thread times since this is an expensive
       # operation with the required sorting      
       @result.threads.each do |thread_id, methods|
-        top = methods.sort.last
+        top = methods.max
         
         thread_time = 0.01
         thread_time = top.total_time if top.total_time > 0

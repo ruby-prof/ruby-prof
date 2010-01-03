@@ -82,7 +82,7 @@ module RubyProf
 
       data = RubyProf.stop
       bench = data.threads.values.inject(0) do |total, method_infos|
-        top = method_infos.sort.last
+        top = method_infos.max
         total += top.total_time
         total
       end

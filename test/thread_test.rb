@@ -21,7 +21,7 @@ class ThreadTest < Test::Unit::TestCase
     result = RubyProf.stop
     assert_equal(2, result.threads.keys.length) # this should pass...
   end
-
+  
   def test_thread_identity
     RubyProf.start
     thread = Thread.new do
@@ -38,10 +38,10 @@ class ThreadTest < Test::Unit::TestCase
     assert(thread_ids.include?(threads[1].object_id))
     
     assert_instance_of(Thread, ObjectSpace._id2ref(thread_ids[0]))
-    assert_equal(threads[0], ObjectSpace._id2ref(thread_ids[0]))
+    assert(threads.include? (ObjectSpace._id2ref(thread_ids[0])))
 
     assert_instance_of(Thread, ObjectSpace._id2ref(thread_ids[1]))
-    assert_equal(threads[1], ObjectSpace._id2ref(thread_ids[1]))
+    assert(threads.include?(ObjectSpace._id2ref(thread_ids[1])))
   end
 
   def test_thread_timings

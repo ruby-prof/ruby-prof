@@ -53,10 +53,10 @@ class StackTest < Test::Unit::TestCase
     method = methods[0]
     assert_equal('StackTest#test_call_sequence', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(8, method.total_time, 0.05)
+    assert_in_delta(8, method.total_time, 0.25)
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(8, method.children_time, 0.05)
+    assert_in_delta(8, method.children_time, 0.25)
     assert_equal(1, method.call_infos.length)
 
     call_info = method.call_infos[0]
@@ -83,7 +83,7 @@ class StackTest < Test::Unit::TestCase
     assert_equal(4, method.called)
     assert_in_delta(8, method.total_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(8, method.self_time, 0.01)
+    assert_in_delta(8, method.self_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
     assert_equal(4, method.call_infos.length)
 

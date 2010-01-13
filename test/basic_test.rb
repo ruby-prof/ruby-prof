@@ -137,14 +137,14 @@ class BasicTest < Test::Unit::TestCase
 
     methods = result.threads.values.first.sort.reverse
     assert_equal(6, methods.length)
-
-    assert_equal('BasicTest#test_instance_methods', methods[0].full_name)
-    assert_equal('C1#hello', methods[1].full_name)
-    assert_equal('Kernel#sleep', methods[2].full_name)
-    assert_equal('Class#new', methods[3].full_name)
-    
-    assert_equal("<Class::#{PARENT}>#allocate", methods[4].full_name)
-    assert_equal("#{PARENT}#initialize", methods[5].full_name)
+    names = methods.map &:full_name
+    assert_equal('BasicTest#test_instance_methods', names[0])
+    assert_equal('C1#hello', names[1])
+    assert_equal('Kernel#sleep', names[2])
+    assert_equal('Class#new', names[3])
+    # order can differ
+    assert(names.include?("<Class::#{PARENT}>#allocate"))
+    assert(names.include?("#{PARENT}#initialize"))
 
     # Check times
     assert_in_delta(0.2, methods[0].total_time, 0.02)
@@ -190,17 +190,17 @@ class BasicTest < Test::Unit::TestCase
     assert_equal('Kernel#sleep', methods[2].full_name)
 
     # Check times
-    assert_in_delta(0.3, methods[0].total_time, 0.02)
+    assert_in_delta(0.3, methods[0].total_time, 0.1)
     assert_in_delta(0, methods[0].wait_time, 0.02)
     assert_in_delta(0, methods[0].self_time, 0.02)
 
-    assert_in_delta(0.3, methods[1].total_time, 0.02)
+    assert_in_delta(0.3, methods[1].total_time, 0.1)
     assert_in_delta(0, methods[1].wait_time, 0.02)
     assert_in_delta(0, methods[1].self_time, 0.02)
 
-    assert_in_delta(0.3, methods[2].total_time, 0.02)
+    assert_in_delta(0.3, methods[2].total_time, 0.1)
     assert_in_delta(0, methods[2].wait_time, 0.02)
-    assert_in_delta(0.3, methods[2].self_time, 0.02)
+    assert_in_delta(0.3, methods[2].self_time, 0.1)
   end
 
   def test_module_instance_methods
@@ -218,18 +218,18 @@ class BasicTest < Test::Unit::TestCase
 
     methods = result.threads.values.first.sort.reverse
     assert_equal(6, methods.length)
-
-    assert_equal('BasicTest#test_module_instance_methods', methods[0].full_name)
-    assert_equal('M1#hello', methods[1].full_name)
-    assert_equal('Kernel#sleep', methods[2].full_name)
-    assert_equal('Class#new', methods[3].full_name)
-    assert_equal("<Class::#{PARENT}>#allocate", methods[4].full_name)
-    assert_equal("#{PARENT}#initialize", methods[5].full_name)
+    names = methods.map &:full_name 
+    assert_equal('BasicTest#test_module_instance_methods', names[0])
+    assert_equal('M1#hello', names[1])
+    assert_equal('Kernel#sleep', names[2])
+    assert_equal('Class#new', names[3])
+    assert(names.include?("<Class::#{PARENT}>#allocate"))
+    assert(names.include?("#{PARENT}#initialize"))
     
     # Check times
-    assert_in_delta(0.3, methods[0].total_time, 0.02)
-    assert_in_delta(0, methods[0].wait_time, 0.02)
-    assert_in_delta(0, methods[0].self_time, 0.01)
+    assert_in_delta(0.3, methods[0].total_time, 0.1)
+    assert_in_delta(0, methods[0].wait_time, 0.1)
+    assert_in_delta(0, methods[0].self_time, 0.1)
 
     assert_in_delta(0.3, methods[1].total_time, 0.02)
     assert_in_delta(0, methods[1].wait_time, 0.01)

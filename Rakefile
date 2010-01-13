@@ -134,9 +134,9 @@ def build(with_debug)
  Dir.chdir('ext') do
   unless File.exist? 'Makefile'
     if with_debug
-      system("ruby -d extconf.rb")
+      system(Gem.ruby + " -d extconf.rb")
     else
-      system("ruby extconf.rb")
+      system(Gem.ruby + " extconf.rb")
     end
     system("make clean")
   end

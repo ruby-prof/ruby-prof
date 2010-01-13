@@ -1,3 +1,8 @@
+0.7.7 (2009-01-13)
+======================
+* "fix" multi threading support for 1.9 http://redmine.ruby-lang.org/issues/show/2012
+* speedups
+
 0.7.6 (2009-12-31)
 ======================
 * fix some tests for 1.9 (no real code changes)

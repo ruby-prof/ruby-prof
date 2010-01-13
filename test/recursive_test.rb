@@ -198,7 +198,7 @@ class RecursiveTest < Test::Unit::TestCase
     assert_equal('Kernel#sleep', method.full_name)
     assert_equal(2, method.called)
     assert_in_delta(2, method.total_time, 0.05)
-    assert_in_delta(2, method.self_time, 0.01)
+    assert_in_delta(2, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.children_time, 0.01)
 

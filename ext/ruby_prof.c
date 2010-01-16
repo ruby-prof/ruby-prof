@@ -149,7 +149,7 @@ method_name(ID mid, int depth)
     if (depth > 0)
     {
       char buffer[65];
-      sprintf(buffer, "%i", depth);
+      sprintf(buffer, "d%i", depth);
       rb_str_cat2(result, "-");
       rb_str_cat2(result, buffer);
     }
@@ -1054,6 +1054,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 #ifdef RUBY_VM
 
     if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
+        // guess these are already set for C call in 1.9?
         rb_frame_method_id_and_class(&mid, &klass);
     }
     
@@ -1064,7 +1065,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         when debugging to see a print out of exactly what the
         profiler is tracing. */
     {
-        char* key = 0;
         static VALUE last_thread_id = Qnil;
 
         VALUE thread = rb_thread_current();
@@ -1085,8 +1085,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           printf("\n");
         }
 
-        printf("%2u: %-8s :%2d  %s#%s\n",
-               thread_id, event_name, source_line, class_name, method_name);
+        printf("%2u: %-8s %s:%2d  %s#%s\n",
+               thread_id, event_name, source_file, source_line, class_name, method_name);
         fflush(stdout);
         last_thread_id = thread_id;               
     }
@@ -1160,21 +1160,17 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 #else
         method = get_method(event, node, klass, mid, 0, thread_data->method_table);
 #endif
-
         /* Check for a recursive call */
-        while (method->active) // it's while because if you replace this while with an if, the assertion fails... [ltodo figure out why]
+        while (method->active) // it's while because we start at 0 and then go down to the right depth
         {
-          /* Yes, this method is already active */
+          /* Yes, this method is already active somewhere up the stack */
 #ifdef RUBY_VM
           method = get_method(event, klass, mid, method->key->depth + 1, thread_data->method_table);
 #else
           method = get_method(event, node, klass, mid, method->key->depth + 1, thread_data->method_table);
 #endif
-        }
-        assert(!method->active);
-          
-        method->active = 1;
-                
+        }          
+        method->active = 1;                
 
         if (!frame)
         {
@@ -1193,7 +1189,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           }
         }
 
-        /* Push a new frame onto the stack */
+        /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         frame = stack_push(thread_data->stack);
         frame->call_info = call_info;
         frame->start_time = now;
@@ -1206,8 +1202,13 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
-        // this assumes that all C calls take 100% user cpu, I guess.
-        pop_frame(thread_data, now);
+        frame = pop_frame(thread_data, now);
+#ifdef RUBY_VM
+          // we need to go up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
+        while( (frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass)){
+           frame = pop_frame(thread_data, now);
+         }      
+#endif
         break;
       }
     }
@@ -1227,7 +1228,6 @@ stores another hash table that contains profiling information
 for each method called during the threads execution.  That
 hash table is keyed on method name and contains
 RubyProf::MethodInfo objects. */
-
 
 static void
 prof_result_mark(prof_result_t *prof_result)

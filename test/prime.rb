@@ -45,7 +45,7 @@ end
 
 def run_primes
   length = 10
-  maxnum = 10000
+  maxnum = 1000
   
   # Create random numbers
   random_array = make_random_array(length, maxnum)

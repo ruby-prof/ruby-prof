@@ -1,4 +1,4 @@
-require "ruby_prof.so"
+require File.dirname(__FILE__) + "/../ext/ruby_prof.so"
 
 require "ruby-prof/method_info"
 require "ruby-prof/call_info"
@@ -9,7 +9,7 @@ require "ruby-prof/graph_html_printer"
 require "ruby-prof/call_tree_printer"
 require "ruby-prof/symbol_to_proc"
 
-require "ruby-prof/test"
+#require "ruby-prof/test"
 
 module RubyProf
   # See if the user specified the clock mode via 

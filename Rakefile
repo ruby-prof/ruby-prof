@@ -48,8 +48,8 @@ EOF
 
   spec.version = RUBY_PROF_VERSION
 
-  spec.author = "Shugo Maeda and Charlie Savage"
-  spec.email = "shugo@ruby-lang.org and cfis@savagexi.com"
+  spec.author = "Shugo Maeda, Charlie Savage, Roger Pack"
+  spec.email = "shugo@ruby-lang.org, cfis@savagexi.com, rogerdpack@gmail.com"
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib" 
   spec.bindir = "bin"
@@ -62,9 +62,8 @@ EOF
   spec.required_ruby_version = '>= 1.8.4'
   spec.date = DateTime.now
   spec.rubyforge_project = 'ruby-prof'
+  spec.add_development_dependency 'os'
   
-  # rdoc
-  spec.has_rdoc = true
 end
 
 # Rake task to build the default package
@@ -124,8 +123,7 @@ end
 
 require 'fileutils'
 
-
-desc 'Build ruby_prof.so with debug symbols on'
+desc 'Build ruby_prof.so with debug output on'
 task :build do
  build(true)
 end
@@ -150,7 +148,6 @@ task :build_no_debug do
  build(false)
 end
 
-desc 'clean ext'
 task :clean do
  FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
  Dir.chdir('ext') do
@@ -162,4 +159,5 @@ task :clean do
     FileUtils.rm file
   end
  end
+ system("rm -rf pkg")
 end

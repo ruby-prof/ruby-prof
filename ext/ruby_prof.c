@@ -1204,8 +1204,11 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     {
         frame = pop_frame(thread_data, now);
 #ifdef RUBY_VM
-          // we need to go up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
-        while( (frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass)){
+          // we need to walk up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
+          // sometimes frames don't have line and source somehow [like blank]
+          // if we hit one there's not much we can do...I guess...
+          // or maybe we don't have one because we're at the top or something.
+        while( frame->call_info->target->key->mid && frame->call_info->target->key->klass && ((frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass))){
            frame = pop_frame(thread_data, now);
          }      
 #endif

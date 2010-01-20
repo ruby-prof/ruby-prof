@@ -35,6 +35,8 @@
 #         --specialized-instruction    Turn on specialized instruction.
 #     -h, --help                       Show help message
 #         --version                    Show version
+#     -v                               Show version, set $VERBOSE to true, run file
+#     -d                               Set $DEBUG to true
 # 
 #
 # See also: {flat profiles}[link:files/examples/flat_txt.html], {graph profiles}[link:files/examples/graph_txt.html], {html graph profiles}[link:files/examples/graph_html.html]
@@ -136,9 +138,19 @@ opts = OptionParser.new do |opts|
       exit
   end
   
-  opts.on_tail("-v", "--version", "Show version") do
+  opts.on_tail("--version", "Show version #{RubyProf::VERSION}") do
       puts "ruby_prof " + RubyProf::VERSION
       exit
+  end
+  
+  opts.on("-v","Show version, set $VERBOSE to true, profile script") do
+      puts "ruby_prof " + RubyProf::VERSION
+      puts "ruby " + RUBY_DESCRIPTION
+      $VERBOSE= true
+  end
+  
+  opts.on("-d", "Set $DEBUG to true") do
+    $DEBUG = true
   end
 end
 

@@ -149,8 +149,7 @@ method_name(ID mid, int depth)
     if (depth > 0)
     {
       char buffer[65];
-      sprintf(buffer, "d%i", depth);
-      rb_str_cat2(result, "-");
+      sprintf(buffer, "(d%i)", depth);
       rb_str_cat2(result, buffer);
     }
 
@@ -1208,7 +1207,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           // sometimes frames don't have line and source somehow [like blank]
           // if we hit one there's not much we can do...I guess...
           // or maybe we don't have one because we're at the top or something.
-        while( frame->call_info->target->key->mid && frame->call_info->target->key->klass && ((frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass))){
+        while( frame && frame->call_info->target->key->mid && frame->call_info->target->key->klass && ((frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass))){
            frame = pop_frame(thread_data, now);
          }      
 #endif

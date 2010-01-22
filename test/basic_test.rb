@@ -137,7 +137,7 @@ class BasicTest < Test::Unit::TestCase
 
     methods = result.threads.values.first.sort.reverse
     assert_equal(6, methods.length)
-    names = methods.map &:full_name
+    names = methods.map(&:full_name)
     assert_equal('BasicTest#test_instance_methods', names[0])
     assert_equal('C1#hello', names[1])
     assert_equal('Kernel#sleep', names[2])
@@ -218,7 +218,7 @@ class BasicTest < Test::Unit::TestCase
 
     methods = result.threads.values.first.sort.reverse
     assert_equal(6, methods.length)
-    names = methods.map &:full_name 
+    names = methods.map(&:full_name)
     assert_equal('BasicTest#test_module_instance_methods', names[0])
     assert_equal('M1#hello', names[1])
     assert_equal('Kernel#sleep', names[2])

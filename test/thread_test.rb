@@ -38,8 +38,8 @@ class ThreadTest < Test::Unit::TestCase
     assert(thread_ids.include?(threads[1].object_id))
     
     assert_instance_of(Thread, ObjectSpace._id2ref(thread_ids[0]))
-    assert(threads.include? (ObjectSpace._id2ref(thread_ids[0])))
-
+    assert(threads.include?(ObjectSpace._id2ref(thread_ids[0])))
+    
     assert_instance_of(Thread, ObjectSpace._id2ref(thread_ids[1]))
     assert(threads.include?(ObjectSpace._id2ref(thread_ids[1])))
   end

@@ -84,11 +84,11 @@ class RecursiveTest < Test::Unit::TestCase
     assert_equal(0, call_info.children.length)
 
     call_info = method.call_infos[1]
-    assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple-d1->Kernel#sleep', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple(d1)->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
 
     method = methods[3]
-    assert_equal('Object#simple-d1', method.full_name)
+    assert_equal('Object#simple(d1)', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(1, method.total_time, 0.01)
     assert_in_delta(0, method.self_time, 0.01)
@@ -97,7 +97,7 @@ class RecursiveTest < Test::Unit::TestCase
 
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
-    assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple-d1', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple(d1)', call_info.call_sequence)
     if RUBY_VERSION < '1.9'
       assert_equal(3, call_info.children.length)
 
@@ -115,7 +115,7 @@ class RecursiveTest < Test::Unit::TestCase
       assert_equal(0, call_info.children.length)
 
       call_info = method.call_infos[1]
-      assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple-d1->Fixnum#-', call_info.call_sequence)
+      assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple(d1)->Fixnum#-', call_info.call_sequence)
       assert_equal(0, call_info.children.length)
 
       method = methods[5]
@@ -132,7 +132,7 @@ class RecursiveTest < Test::Unit::TestCase
       assert_equal(0, call_info.children.length)
 
       call_info = method.call_infos[1]
-      assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple-d1->Fixnum#==', call_info.call_sequence)
+      assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple(d1)->Fixnum#==', call_info.call_sequence)
       assert_equal(0, call_info.children.length)
 
     else
@@ -208,11 +208,11 @@ class RecursiveTest < Test::Unit::TestCase
     assert_equal(0, call_info.children.length)
 
     call_info = method.call_infos[1]
-    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle-d1->Object#sub_cycle-d1->Kernel#sleep', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle(d1)->Object#sub_cycle(d1)->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
 
     method = methods[4]
-    assert_equal('Object#cycle-d1', method.full_name)
+    assert_equal('Object#cycle(d1)', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(1, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
@@ -221,20 +221,17 @@ class RecursiveTest < Test::Unit::TestCase
 
     assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
-    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle-d1', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle(d1)', call_info.call_sequence)
     assert_equal(1, call_info.children.length)
 
     method = methods[5]
-    assert_equal('Object#sub_cycle-d1', method.full_name)
+    assert_equal('Object#sub_cycle(d1)', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(1, method.total_time, 0.01)
     assert_in_delta(0, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(1, method.children_time, 0.01)
-
-    assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
-    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle-d1->Object#sub_cycle-d1', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle(d1)->Object#sub_cycle(d1)', call_info.call_sequence)
     if RUBY_VERSION < '1.9'
       assert_equal(3, call_info.children.length)
       method = methods[6]
@@ -251,7 +248,7 @@ class RecursiveTest < Test::Unit::TestCase
       assert_equal(0, call_info.children.length)
 
       call_info = method.call_infos[1]
-      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle-d1->Object#sub_cycle-d1->Fixnum#-', call_info.call_sequence)
+      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle(d1)->Object#sub_cycle(d1)->Fixnum#-', call_info.call_sequence)
       assert_equal(0, call_info.children.length)
 
       method = methods[7]
@@ -268,7 +265,7 @@ class RecursiveTest < Test::Unit::TestCase
       assert_equal(0, call_info.children.length)
 
       call_info = method.call_infos[1]
-      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle-d1->Object#sub_cycle-d1->Fixnum#==', call_info.call_sequence)
+      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle(d1)->Object#sub_cycle(d1)->Fixnum#==', call_info.call_sequence)
       assert_equal(0, call_info.children.length)
     else
       assert_equal(1, call_info.children.length)

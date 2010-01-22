@@ -115,7 +115,7 @@ class AggregateTest < Test::Unit::TestCase
     assert_in_delta(3, call_info.total_time, 0.05)
     assert_in_delta(0, call_info.wait_time, 0.01)
     assert_in_delta(0, call_info.self_time, 0.05)
-    assert_in_delta(3, call_info.children_time, 0.01)
+    assert_in_delta(3, call_info.children_time, 0.05)
     assert_equal(3, call_info.called)
   end
 end

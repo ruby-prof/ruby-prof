@@ -65,7 +65,7 @@ particular segments of code.
   
   # Print a flat profile to text
   printer = RubyProf::FlatPrinter.new(result)
-  printer.print(STDOUT, 0)
+  printer.print(STDOUT)
   
 Alternatively, you can use a block to tell ruby-prof what
 to profile:
@@ -245,6 +245,7 @@ the {KCachegrind}[link:http://kcachegrind.sourceforge.net/cgi-bin/show.cgi/Kcach
 Reports are created by printers.  Supported printers include:
 
 * RubyProf::FlatPrinter - Creates a flat report in text format
+* RubyProf::FlatPrinterWithLineNumbers - same as above but more verbose
 * RubyProf::GraphPrinter - Creates a call graph report in text format
 * RubyProf::GraphHtmlPrinter - Creates a call graph report in HTML (separate files per thread)
 * RubyProf::CallTreePrinter - Creates a call tree report compatible with KCachegrind.
@@ -375,23 +376,23 @@ You can also directly set the cpu frequency by calling:
 Recursive calls occur when method A calls method A and cycles
 occur when method A calls method B calls method C calls method A.
 ruby-prof detects both direct recursive calls and cycles.  Both
-are indicated in reports by a dash and number following a method
+are indicated in reports by a "d number" in parentheses following a method
 name.  For example, here is a flat profile from the test method
-RecursiveTest#test_recursive:
 
+RecursiveTest#test_recursive:
 
 %self     total     self     wait    child    calls  name
 100.00      2.00     2.00     0.00     0.00        2  Kernel#sleep
   0.00      2.00     0.00     0.00     2.00        0  RecursiveTest#test_cycle
   0.00      0.00     0.00     0.00     0.00        2  Fixnum#==
   0.00      0.00     0.00     0.00     0.00        2  Fixnum#-
-  0.00      1.00     0.00     0.00     1.00        1  Object#sub_cycle-1
+  0.00      1.00     0.00     0.00     1.00        1  Object#sub_cycle(d1)
   0.00      2.00     0.00     0.00     2.00        1  Object#sub_cycle
   0.00      2.00     0.00     0.00     2.00        1  Object#cycle
-  0.00      1.00     0.00     0.00     1.00        1  Object#cycle-1
+  0.00      1.00     0.00     0.00     1.00        1  Object#cycle(d1)
 
-Notice the presence of Object#cycle and Object#cycle-1.  The -1 means
-the method was either recursively called (directly or indirectly).
+Notice the presence of Object#cycle and Object#cycle(d1).  The d1 means
+depth 1 -- the method was either recursively called (directly or indirectly).
 
 However, the self time values for recursive calls should always 
 be accurate.  It is also believed that the total times are

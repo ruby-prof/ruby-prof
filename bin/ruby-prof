@@ -11,6 +11,7 @@
 # Options:
 #     -p, --printer=printer            Select a printer:
 #                                        flat - Prints a flat profile as text (default).
+#                                        flat_with_line_numbers - Above, with line numbers
 #                                        graph - Prints a graph profile as text.
 #                                        graph_html - Prints a graph profile as html.
 #                                        call_tree - format for KCacheGrind
@@ -62,17 +63,21 @@ opts = OptionParser.new do |opts|
   opts.separator "Options:"
 
     
-  opts.on('-p printer', '--printer=printer', [:flat, :graph, :graph_html, :call_tree],
+  opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree],
           'Select a printer:',
           '  flat - Prints a flat profile as text (default).',
+          '  flat_with_line_numbers - same as flat, with line numbers.',
           '  graph - Prints a graph profile as text.',
           '  graph_html - Prints a graph profile as html.',
-          '  call_tree - format for KCacheGrind' ) do |printer|
+          '  call_tree - format for KCacheGrind'
+           ) do |printer|
 
           
     case printer
       when :flat
         options.printer = RubyProf::FlatPrinter
+      when :flat_with_line_numbers
+        options.printer = RubyProf::FlatPrinterWithLineNumbers
       when :graph
         options.printer = RubyProf::GraphPrinter
       when :graph_html

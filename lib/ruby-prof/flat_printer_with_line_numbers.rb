@@ -2,39 +2,17 @@ require 'ruby-prof/abstract_printer'
 
 module RubyProf
   # Generates flat[link:files/examples/flat_txt.html] profile reports as text. 
-  # To use the flat printer:
+  # To use the flat printer with line numbers:
   #
   #   result = RubyProf.profile do
   #     [code to profile]
   #   end
   #
-  #   printer = RubyProf::FlatPrinter.new(result)
+  #   printer = RubyProf::FlatPrinterWithLineNumbers.new(result)
   #   printer.print(STDOUT, 0)
   #
-  class FlatPrinter < AbstractPrinter
-    # Print a flat profile report to the provided output.
-    # 
-    # output - Any IO oject, including STDOUT or a file. 
-    # The default value is STDOUT.
-    # 
-    # options - Hash of print options.  See #setup_options 
-    #           for more information.
-    #
-    def print(output = STDOUT, options = {})
-      @output = output
-      setup_options(options)
-      print_threads
-    end      
-    
-    private 
-    
-    def print_threads
-      @result.threads.each do |thread_id, methods|
-        print_methods(thread_id, methods)
-        @output << "\n" * 2
-      end
-    end
-    
+  class FlatPrinterWithLineNumbers < FlatPrinter
+
     def print_methods(thread_id, methods)
       # Get total time
       toplevel = methods.max
@@ -63,15 +41,21 @@ module RubyProf
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0
         #total_time_called = method.called > 0? method.total_time/method.called : 0
         
-        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s\n" % [
+        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s " % [
                       method.self_time / total_time * 100, # %self
                       method.total_time,                   # total
                       method.self_time,                    # self
                       method.wait_time,                    # wait
                       method.children_time,                # children
                       method.called,                       # calls
-                      method_name(method)                  # name
+                      method_name(method),                 # name
+                      method.source_file,                  # filename
+                      method.line                          # line in said file 
                   ]
+         if method.source_file != 'ruby_runtime'
+           @output << "  %s:%s" % [method.source_file, method.line]
+         end
+         @output << "\n"         
       end
     end
   end

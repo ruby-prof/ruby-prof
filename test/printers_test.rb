@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'ruby-prof'
-require 'prime'
+require './prime'
 
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase
@@ -16,6 +16,9 @@ class PrintersTest < Test::Unit::TestCase
     printer = RubyProf::FlatPrinter.new(@result)
     printer.print(STDOUT)
     
+    printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
+    printer.print(STDOUT)
+    
     printer = RubyProf::GraphHtmlPrinter.new(@result)
     printer.print
     
@@ -24,20 +27,32 @@ class PrintersTest < Test::Unit::TestCase
     
     printer = RubyProf::CallTreePrinter.new(@result)
     printer.print(STDOUT)
-
+    
     # we should get here
     assert(true)
   end
 
   def test_flat_string
+    output = helper_test_flat_string RubyProf::FlatPrinter
+    assert_no_match(/prime.rb/, output)
+  end
+
+  def helper_test_flat_string klass
     output = ''
     
-    printer = RubyProf::FlatPrinter.new(@result)
+    printer = klass.new(@result)
     assert_nothing_raised { printer.print(output) }
     
     assert_match(/Thread ID: -?\d+/i, output)
     assert_match(/Total: \d+\.\d+/i, output)
     assert_match(/Object#run_primes/i, output)
+    output
+  end
+  
+  def test_flat_string_with_numbers
+    output = helper_test_flat_string RubyProf::FlatPrinterWithLineNumbers
+    assert_match(/prime.rb/, output)    
+    assert_no_match(/ruby_runtime:0/, output)
   end
     
   def test_graph_html_string

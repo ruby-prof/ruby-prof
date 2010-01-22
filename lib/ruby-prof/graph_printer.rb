@@ -11,13 +11,7 @@ module RubyProf
   #   printer = RubyProf::GraphPrinter.new(result, 5)
   #   printer.print(STDOUT, 0)
   #
-  # The constructor takes two arguments.  The first is
-  # a RubyProf::Result object generated from a profiling
-  # run.  The second is the minimum %total (the methods 
-  # total time divided by the overall total time) that
-  # a method must take for it to be printed out in 
-  # the report.  Use this parameter to eliminate methods
-  # that are not important to the overall profiling results.
+  # The constructor takes two arguments. See the README
 
   class GraphPrinter < AbstractPrinter
     PERCENTAGE_WIDTH = 8
@@ -38,9 +32,8 @@ module RubyProf
       @result.threads.each do |thread_id, methods|
         top = methods.max
         
-        thread_time = 0.01
-        thread_time = top.total_time if top.total_time > 0
-
+        thread_time = [top.total_time, 0.01].max
+        
         @thread_times[thread_id] = thread_time 
       end
     end

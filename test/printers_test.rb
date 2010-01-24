@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'ruby-prof'
-require './prime'
+require 'prime'
 
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase

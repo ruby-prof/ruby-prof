@@ -1,3 +1,8 @@
+0.7.10 (2009-01-22)
+=======================
+* fix SEGFAULT in 1.9
+* add new printer flat_printer_with_line_numbers
+
 0.7.7 (2009-01-13)
 ======================
 * "fix" multi threading support for 1.9 http://redmine.ruby-lang.org/issues/show/2012

@@ -1,5 +1,5 @@
 require 'ruby-prof/abstract_printer'
-
+require 'pathname'
 module RubyProf
   # Generates flat[link:files/examples/flat_txt.html] profile reports as text. 
   # To use the flat printer with line numbers:
@@ -56,13 +56,17 @@ module RubyProf
            @output << "  %s:%s" % [method.source_file, method.line]
          end
          @output << "\n\tcalled from: "
-         method.call_infos.each{|ci|
-           if ci.parent
-             @output << method_name(ci.parent.target) << " "
-             if ci.parent.target.source_file != 'ruby_runtime'
-               @output << " (%s:%s) " % [ci.parent.target.source_file, ci.parent.target.line]
-            end
-          end
+         
+         here = Pathname.new(File.expand_path(Dir.pwd))
+         # make sure they're unique
+         method.call_infos.map{|ci| 
+           if ci.parent && ci.parent.target.source_file != 'ruby_runtime'
+              [method_name(ci.parent.target), ci.parent.target.source_file, ci.parent.target.line]
+            else
+              nil
+            end 
+         }.compact.uniq.each{|args|
+             @output << " %s (%s:%s) " % args             
          }
          @output << "\n\n"         
       end

@@ -55,7 +55,16 @@ module RubyProf
          if method.source_file != 'ruby_runtime'
            @output << "  %s:%s" % [method.source_file, method.line]
          end
-         @output << "\n"         
+         @output << "\n\tcalled from: "
+         method.call_infos.each{|ci|
+           if ci.parent
+             @output << method_name(ci.parent.target) << " "
+             if ci.parent.target.source_file != 'ruby_runtime'
+               @output << " (%s:%s) " % [ci.parent.target.source_file, ci.parent.target.line]
+            end
+          end
+         }
+         @output << "\n\n"         
       end
     end
   end

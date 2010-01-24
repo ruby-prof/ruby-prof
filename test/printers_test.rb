@@ -53,6 +53,7 @@ class PrintersTest < Test::Unit::TestCase
     output = helper_test_flat_string RubyProf::FlatPrinterWithLineNumbers
     assert_match(/prime.rb/, output)    
     assert_no_match(/ruby_runtime:0/, output)
+    assert_match(/called from/, output)
   end
     
   def test_graph_html_string

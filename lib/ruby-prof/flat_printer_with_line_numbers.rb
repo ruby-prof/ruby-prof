@@ -48,20 +48,17 @@ module RubyProf
                       method.wait_time,                    # wait
                       method.children_time,                # children
                       method.called,                       # calls
-                      method_name(method),                 # name
-                      method.source_file,                  # filename
-                      method.line                          # line in said file 
+                      method_name(method),                 # name                      
                   ]
          if method.source_file != 'ruby_runtime'
-           @output << "  %s:%s" % [method.source_file, method.line]
+           @output << "  %s:%s" % [File.expand_path(method.source_file), method.line]
          end
          @output << "\n\tcalled from: "
          
-         here = Pathname.new(File.expand_path(Dir.pwd))
          # make sure they're unique
          method.call_infos.map{|ci| 
            if ci.parent && ci.parent.target.source_file != 'ruby_runtime'
-              [method_name(ci.parent.target), ci.parent.target.source_file, ci.parent.target.line]
+              [method_name(ci.parent.target), File.expand_path(ci.parent.target.source_file), ci.parent.target.line]
             else
               nil
             end 

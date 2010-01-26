@@ -62,10 +62,14 @@ class PrintersTest < Test::Unit::TestCase
     assert_no_match(/ruby_runtime:0/, output)
     assert_match(/called from/, output)
     
-    line = output.split("\n").find{|line| line =~ /called from.*is_prime.d7/}
     # should combine common parents
-    assert((line.scan /Object#is_prime.d7/).length == 1)    
-    assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
+    if RUBY_VERSION < '1.9'
+        assert_equal(3, output.scan(/Object#is_prime/).length)
+	else
+		# 1.9
+		assert_equal(2, output.scan(/Object#is_prime/).length)
+	end
+	assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
   end
     
   def test_graph_html_string

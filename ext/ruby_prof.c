@@ -924,7 +924,6 @@ update_result(prof_measure_t total_time,
               prof_frame_t *frame)
 {
     prof_measure_t self_time = total_time - frame->child_time - frame->wait_time;
-    
     prof_call_info_t *call_info = frame->call_info;
     
     /* Update information about the current method */
@@ -941,15 +940,15 @@ update_result(prof_measure_t total_time,
 static thread_data_t *
 switch_thread(VALUE thread_id, prof_measure_t now)
 {
-    prof_frame_t *frame = NULL;
-    prof_measure_t wait_time = 0;
+	prof_frame_t *frame = NULL;
+	prof_measure_t wait_time = 0;
     /* Get new thread information. */
     thread_data_t *thread_data = threads_table_lookup(threads_tbl, thread_id);
 
     /* How long has this thread been waiting? */
     wait_time = now - thread_data->last_switch;
     
-    thread_data->last_switch = 0;
+    thread_data->last_switch = now; // XXXX a test that fails if this is 0
 
     /* Get the frame at the top of the stack.  This may represent
        the current method (EVENT_LINE, EVENT_RETURN)  or the
@@ -959,8 +958,6 @@ switch_thread(VALUE thread_id, prof_measure_t now)
     if (frame) {
       frame->wait_time += wait_time;
     }
-    
-    
       
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
@@ -995,7 +992,7 @@ pop_frame(thread_data_t *thread_data, prof_measure_t now)
   parent_frame = stack_peek(thread_data->stack);
   if (parent_frame)
   {
-    parent_frame->child_time += total_time;
+  	parent_frame->child_time += total_time;
   }
     
   update_result(total_time, parent_frame, frame); // only time it's called
@@ -1024,7 +1021,7 @@ pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
 static void 
 prof_pop_threads()
 {
-    /* Get current measurement*/
+    /* Get current measurement */
     prof_measure_t now = get_measurement();
     st_foreach(threads_tbl, pop_frames, (st_data_t) &now);
 }
@@ -1097,7 +1094,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     if (self == mProf) return;
 
     /* Get current measurement*/
-    now = get_measurement();
+    now = 0; // don't set it until we know we need it
     
     /* Get the current thread information. */
     thread = rb_thread_current();
@@ -1116,9 +1113,10 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     }    
     
     /* Was there a context switch? */
-    if (!last_thread_data || last_thread_data->thread_id != thread_id)
+    if (!last_thread_data || last_thread_data->thread_id != thread_id) {    
+      now = get_measurement();
       thread_data = switch_thread(thread_id, now);
-    else
+   }else
       thread_data = last_thread_data;
     
     /* Get the current frame for the current thread. */
@@ -1191,6 +1189,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         frame = stack_push(thread_data->stack);
         frame->call_info = call_info;
+        if(now == 0)
+    	  now = get_measurement();    
         frame->start_time = now;
         frame->wait_time = 0;
         frame->child_time = 0;
@@ -1201,6 +1201,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
+    	if(now == 0)
+    	  now = get_measurement();
+    
         frame = pop_frame(thread_data, now);
 #ifdef RUBY_VM
           // we need to walk up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
@@ -1429,7 +1432,7 @@ prof_install_hook()
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN 
-            | RUBY_EVENT_LINE, Qnil); //  | RUBY_EVENT_SWITCH
+            | RUBY_EVENT_LINE | RUBY_EVENT_SWITCH, Qnil);
 #else
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |

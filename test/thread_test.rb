@@ -45,8 +45,12 @@ class ThreadTest < Test::Unit::TestCase
   end
 
   def test_thread_timings
-    RubyProf.start    
+  	RubyProf.start    
     thread = Thread.new do
+      sleep 0 # force it to hit thread.join, below, first
+      # thus forcing sleep(1), below, to be counted as (wall) self_time
+      # since we currently count time "in some other thread" as self.wait_time
+      # for whatever reason
       sleep(1)
     end
     thread.join
@@ -71,10 +75,10 @@ class ThreadTest < Test::Unit::TestCase
 
     method = methods[1]
     assert_equal('Kernel#sleep', method.full_name)
-    assert_equal(1, method.called)
+    assert_equal(2, method.called)
     assert_in_delta(1, method.total_time, 0.01)
-    assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(1.0, method.wait_time, 0.01)
+    assert_in_delta(1.0, method.self_time, 0.01)
+    assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.children_time, 0.01)
 
     assert_equal(1, method.call_infos.length)
@@ -91,7 +95,7 @@ class ThreadTest < Test::Unit::TestCase
     assert_equal('ThreadTest#test_thread_timings', method.full_name)
     # the sub calls to Object#new, when popped,
     # cause the parent frame to be created for method #test_thread_timings, which means a +1 when it's popped in the end
-    # xxxx a test that shows it the other way, too
+    # xxxx a test that shows it the other way, too (never creates parent frame--if that's even possible)
     assert_equal(1, method.called) 
     assert_in_delta(1, method.total_time, 0.01)
     assert_in_delta(0, method.self_time, 0.05)
@@ -107,10 +111,8 @@ class ThreadTest < Test::Unit::TestCase
     assert_equal('Thread#join', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(1, method.total_time, 0.01)
-    assert_in_delta(1.0, method.self_time, 0.01) 
-    # todo this is a bug since #sleep really isn't using self_time--it's sleep time!
-    # but for our purposes...I guess that's ok for now...sure.
-    assert_in_delta(0, method.wait_time, 0.01)
+    assert_in_delta(0, method.self_time, 0.01) 
+    assert_in_delta(1.0, method.wait_time, 0.01)
     assert_in_delta(0, method.children_time, 0.01)
 
     assert_equal(1, method.call_infos.length)
@@ -143,6 +145,17 @@ class ThreadTest < Test::Unit::TestCase
     call_info = method.call_infos[0]
     assert_equal('ThreadTest#test_thread_timings-><Class::Thread>#new->Thread#initialize', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
+  end
+  
+  # useless test
+  def test_thread_back_and_forth
+  	result = RubyProf.profile do
+  		a = Thread.new { 100_000.times { sleep 0 }}
+  		b = Thread.new { 100_000.times { sleep 0 }}
+  		a.join
+  		b.join
+  	end
+  	assert result.threads.values.flatten.sort[-1].total_time < 10 # 10s  	
   end
   
   def test_thread

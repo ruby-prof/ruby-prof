@@ -148,15 +148,15 @@ class BasicTest < Test::Unit::TestCase
 
     # Check times
     assert_in_delta(0.2, methods[0].total_time, 0.02)
-    assert_in_delta(0, methods[0].wait_time, 0.01)
-    assert_in_delta(0, methods[0].self_time, 0.01)
+    assert_in_delta(0, methods[0].wait_time, 0.02)
+    assert_in_delta(0, methods[0].self_time, 0.02)
 
     assert_in_delta(0.2, methods[1].total_time, 0.02)
-    assert_in_delta(0, methods[1].wait_time, 0.01)
-    assert_in_delta(0, methods[1].self_time, 0.01)
+    assert_in_delta(0, methods[1].wait_time, 0.02)
+    assert_in_delta(0, methods[1].self_time, 0.02)
 
     assert_in_delta(0.2, methods[2].total_time, 0.02)
-    assert_in_delta(0, methods[2].wait_time, 0.01)
+    assert_in_delta(0, methods[2].wait_time, 0.02)
     assert_in_delta(0.2, methods[2].self_time, 0.02)
 
     assert_in_delta(0, methods[3].total_time, 0.01)

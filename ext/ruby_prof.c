@@ -1028,11 +1028,10 @@ prof_pop_threads()
 
 
 #ifdef RUBY_VM
+static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now);
 void prof_install_hook();
 void prof_remove_hook();
-#endif
 
-#ifdef RUBY_VM
 static void
 prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
 #else
@@ -1046,15 +1045,13 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
 
-
-#ifdef RUBY_VM
+    # ifdef RUBY_VM
 
     if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
-        // guess these are already set for C call in 1.9?
+        // guess these are already set for C calls in 1.9, then?
         rb_frame_method_id_and_class(&mid, &klass);
     }
-    
-#endif
+    # endif
 
 #ifdef DEBUG
     /*  This code is here for debug purposes - uncomment it out
@@ -1093,18 +1090,15 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
        the results but aren't important to them results. */
     if (self == mProf) return;
 
-    /* Get current measurement*/
-    now = 0; // don't set it until we know we need it
-    
     /* Get the current thread information. */
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
     
-#ifdef RUBY_VM
-    /* ensure that new threads are hooked [sigh] */
-   prof_remove_hook();
-   prof_install_hook();
-#endif
+   #ifdef RUBY_VM
+     /* ensure that new threads are hooked [sigh] (bug in core) */
+     prof_remove_hook();
+     prof_install_hook();
+   #endif
 
     if (exclude_threads_tbl &&
         st_lookup(exclude_threads_tbl, (st_data_t) thread_id, 0)) 
@@ -1112,25 +1106,32 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       return;
     }    
     
+    /* Get current timestamp */
+    now = get_measurement();
+    
     /* Was there a context switch? */
-    if (!last_thread_data || last_thread_data->thread_id != thread_id) {    
-      now = get_measurement();
+    if (!last_thread_data || last_thread_data->thread_id != thread_id)
       thread_data = switch_thread(thread_id, now);
-   }else
+    else
       thread_data = last_thread_data;
     
-    /* Get the current frame for the current thread. */
-    frame = stack_peek(thread_data->stack);
-
+    
     switch (event) {
     case RUBY_EVENT_LINE:
     {
       /* Keep track of the current line number in this method.  When
          a new method is called, we know what line number it was 
          called from. */
+         
+       /* Get the current frame for the current thread. */
+      frame = stack_peek(thread_data->stack);
+
       if (frame)
       {
-        frame->line = rb_sourceline();
+        frame->line = rb_sourceline();        
+        # ifdef RUBY_VM
+        walk_up_until_right_frame(frame, thread_data, mid, klass, now);
+        # endif
         break;
       }
 
@@ -1141,6 +1142,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
+        /* Get the current frame for the current thread. */
+        frame = stack_peek(thread_data->stack);
         prof_call_info_t *call_info = NULL;
         prof_method_t *method = NULL;
 
@@ -1152,20 +1155,20 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
           
         /* Assume this is the first time we have called this method. */
-#ifdef RUBY_VM
-        method = get_method(event, klass, mid, 0, thread_data->method_table);
-#else
-        method = get_method(event, node, klass, mid, 0, thread_data->method_table);
-#endif
+        #ifdef RUBY_VM
+          method = get_method(event, klass, mid, 0, thread_data->method_table);
+        #else
+          method = get_method(event, node, klass, mid, 0, thread_data->method_table);
+        #endif
         /* Check for a recursive call */
-        while (method->active) // it's while because we start at 0 and then go down to the right depth
+        while (method->active) // it's while because we start at 0 and then inc. to the right recursive depth
         {
           /* Yes, this method is already active somewhere up the stack */
-#ifdef RUBY_VM
-          method = get_method(event, klass, mid, method->key->depth + 1, thread_data->method_table);
-#else
-          method = get_method(event, node, klass, mid, method->key->depth + 1, thread_data->method_table);
-#endif
+          #ifdef RUBY_VM
+            method = get_method(event, klass, mid, method->key->depth + 1, thread_data->method_table);
+          #else
+            method = get_method(event, node, klass, mid, method->key->depth + 1, thread_data->method_table);
+          #endif
         }          
         method->active = 1;                
 
@@ -1189,36 +1192,39 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         frame = stack_push(thread_data->stack);
         frame->call_info = call_info;
-        if(now == 0)
-    	  now = get_measurement();    
         frame->start_time = now;
         frame->wait_time = 0;
         frame->child_time = 0;
         frame->line = rb_sourceline();
-
         break;
     }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
-    {
-    	if(now == 0)
-    	  now = get_measurement();
-    
-        frame = pop_frame(thread_data, now);
-#ifdef RUBY_VM
-          // we need to walk up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
-          // sometimes frames don't have line and source somehow [like blank]
-          // if we hit one there's not much we can do...I guess...
-          // or maybe we don't have one because we're at the top or something.
-        while( frame && frame->call_info->target->key->mid && frame->call_info->target->key->klass && ((frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass))){
-           frame = pop_frame(thread_data, now);
-         }      
-#endif
-        break;
-      }
+    {      
+    	frame = pop_frame(thread_data, now);
+      
+      # ifdef RUBY_VM
+        // we need to walk up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
+        // sometimes frames don't have line and source somehow [like blank]
+        // if we hit one there's not much we can do...I guess...
+        // or maybe we don't have one because we're at the top or something.
+        walk_up_until_right_frame(frame, thread_data, mid, klass, now);
+      # endif
+                
+      break;
+    }
     }
 }
 
+#ifdef RUBY_VM
+
+static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now) {
+  // while it doesn't match, pop on up until we have found where we belong...
+  while( frame && frame->call_info->target->key->mid && frame->call_info->target->key->klass && ((frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass))){
+    frame = pop_frame(thread_data, now);
+  }
+}
+#endif
 
 /* ========  ProfResult ============== */
 
@@ -1432,7 +1438,7 @@ prof_install_hook()
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN 
-            | RUBY_EVENT_LINE | RUBY_EVENT_SWITCH, Qnil);
+            | RUBY_EVENT_LINE, Qnil); // RUBY_EVENT_SWITCH
 #else
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |

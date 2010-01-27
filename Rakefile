@@ -123,7 +123,7 @@ end
 
 require 'fileutils'
 
-desc 'Build ext/ruby_prof.so'
+desc 'Build ruby_prof.so'
 task :build do
  build(false)
 end
@@ -144,7 +144,7 @@ def build(with_debug)
 end
 
 desc 'build ruby_prof.so with verbose symbols enabled'
-task :build_with_debug do
+task :build_debug do
  build(true)
 end
 

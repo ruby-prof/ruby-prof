@@ -11,6 +11,7 @@ class PrintersTest < Test::Unit::TestCase
   end
   
   def setup
+    puts "START \n\n\n\n\n"
     RubyProf::measure_mode = RubyProf::PROCESS_TIME
     @result = RubyProf.profile do
       run_primes
@@ -65,11 +66,11 @@ class PrintersTest < Test::Unit::TestCase
     # should combine common parents
     if RUBY_VERSION < '1.9'
         assert_equal(3, output.scan(/Object#is_prime/).length)
-	else
-		# 1.9
-		assert_equal(2, output.scan(/Object#is_prime/).length)
-	end
-	assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
+	  else
+		  # 1.9
+		  assert_equal(2, output.scan(/Object#is_prime/).length)		
+	  end
+	  assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
   end
     
   def test_graph_html_string

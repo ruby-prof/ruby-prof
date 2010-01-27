@@ -884,9 +884,6 @@ get_event_name(rb_event_flag_t event)
 }
 #endif
 
-
-// these differ 1.9/1.8
-
 static prof_method_t* 
 #ifdef RUBY_VM
  get_method(rb_event_flag_t event, VALUE klass, ID mid, int depth, st_table* method_table)
@@ -1028,6 +1025,8 @@ prof_pop_threads()
 
 
 #ifdef RUBY_VM
+
+ /* These are mostly to avoid bugs in core */
 static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now);
 void prof_install_hook();
 void prof_remove_hook();
@@ -1094,11 +1093,11 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
     
-   #ifdef RUBY_VM
+   # ifdef RUBY_VM
      /* ensure that new threads are hooked [sigh] (bug in core) */
      prof_remove_hook();
      prof_install_hook();
-   #endif
+   # endif
 
     if (exclude_threads_tbl &&
         st_lookup(exclude_threads_tbl, (st_data_t) thread_id, 0)) 

@@ -1026,7 +1026,7 @@ prof_pop_threads()
 
 #ifdef RUBY_VM
 
- /* These are mostly to avoid bugs in core */
+/* These are mostly to avoid bugs in core */
 static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now);
 void prof_install_hook();
 void prof_remove_hook();
@@ -1128,9 +1128,13 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       if (frame)
       {
         frame->line = rb_sourceline();        
+        
         # ifdef RUBY_VM
-        walk_up_until_right_frame(frame, thread_data, mid, klass, now);
+          // disabled till I figure out why it causes
+          // us to lose valuable frame information...maybe mid comes in wrong sometimes?
+          // walk_up_until_right_frame(frame, thread_data, mid, klass, now);
         # endif
+        
         break;
       }
 

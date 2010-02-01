@@ -31,7 +31,6 @@ module RubyProf
       @output << "Total: %0.6f\n" % total_time
       @output << "\n"
       @output << " %self     total     self     wait    child    calls  name\n"
-
       sum = 0    
       methods.each do |method|
         self_percent = (method.self_time / total_time) * 100

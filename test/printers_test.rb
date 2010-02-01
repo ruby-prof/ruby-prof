@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'ruby-prof'
-require 'prime'
+require File.dirname(__FILE__) + '/prime'
 
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase
@@ -11,7 +11,6 @@ class PrintersTest < Test::Unit::TestCase
   end
   
   def setup
-    puts "START \n\n\n\n\n"
     RubyProf::measure_mode = RubyProf::PROCESS_TIME
     @result = RubyProf.profile do
       run_primes
@@ -34,10 +33,8 @@ class PrintersTest < Test::Unit::TestCase
     printer.print
     
     printer = RubyProf::CallTreePrinter.new(@result)
-    printer.print(STDOUT)
-    
-    # we should get here
-    assert(true)
+    printer.print(STDOUT)    
+    # we should get here    
   end
 
   def test_flat_string
@@ -49,7 +46,7 @@ class PrintersTest < Test::Unit::TestCase
     output = ''
     
     printer = klass.new(@result)
-    assert_nothing_raised { printer.print(output) }
+    printer.print(output)
     
     assert_match(/Thread ID: -?\d+/i, output)
     assert_match(/Total: \d+\.\d+/i, output)
@@ -76,7 +73,7 @@ class PrintersTest < Test::Unit::TestCase
   def test_graph_html_string
     output = ''
     printer = RubyProf::GraphHtmlPrinter.new(@result)
-    assert_nothing_raised { printer.print(output) }
+    printer.print(output)
 
     assert_match( /DTD HTML 4\.01/i, output )
     assert_match( %r{<th>Total Time</th>}i, output )
@@ -86,7 +83,7 @@ class PrintersTest < Test::Unit::TestCase
   def test_graph_string
     output = ''
     printer = RubyProf::GraphPrinter.new(@result)
-    assert_nothing_raised { printer.print(output) }
+    printer.print(output)
 
     assert_match( /Thread ID: -?\d+/i, output )
     assert_match( /Total Time: \d+\.\d+/i, output )
@@ -96,9 +93,38 @@ class PrintersTest < Test::Unit::TestCase
   def test_call_tree_string
     output = ''
     printer = RubyProf::CallTreePrinter.new(@result)
-    assert_nothing_raised { printer.print(output) }
+    printer.print(output)
 
     assert_match(/fn=Object::find_primes/i, output)
     assert_match(/events: process_time/i, output)
   end
+  
+  def do_nothing
+    start = Time.now
+    while(Time.now == start)
+    end
+  end
+  
+  def test_all_with_small_percentiles
+    
+    result = RubyProf.profile do
+      sleep 2
+      do_nothing 
+    end
+    
+    # RubyProf::CallTreePrinter doesn't "do" a min_percent
+    # RubyProf::FlatPrinter only outputs if self time > percent...
+    # RubyProf::FlatPrinterWithLineNumbers same
+    for klass in [ RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
+      puts klass
+      printer = klass.new(result)
+      out = ''
+      output = printer.print(out, :min_percent => 0.00000001 )
+      assert_match(/do_nothing/, out)      
+    end
+    
+  end    
+  
+  
+  
 end

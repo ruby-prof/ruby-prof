@@ -58,9 +58,9 @@ module RubyProf
          method.call_infos.map{|ci| 
            if ci.parent && ci.parent.target.source_file != 'ruby_runtime'
               [method_name(ci.parent.target), File.expand_path(ci.parent.target.source_file), ci.parent.target.line]
-            else
+           else
               nil
-            end 
+           end 
          }.compact.uniq.each{|args|
              @output << " %s (%s:%s) " % args             
          }

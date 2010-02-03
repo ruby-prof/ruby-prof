@@ -66,7 +66,7 @@ class PrintersTest < Test::Unit::TestCase
 	  else
 		  # 1.9
 		  assert_equal(2, output.scan(/Object#is_prime/).length)		
-	  end
+    end
 	  assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
   end
     

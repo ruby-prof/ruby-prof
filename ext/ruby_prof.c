@@ -1052,6 +1052,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     }
     # endif
 
+    /* Get current timestamp */
+    now = get_measurement();
+
 #ifdef DEBUG
     /*  This code is here for debug purposes - uncomment it out
         when debugging to see a print out of exactly what the
@@ -1077,8 +1080,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           printf("\n");
         }
 
-        printf("%2u: %-8s %s:%2d  %s#%s\n",
-               thread_id, event_name, source_file, source_line, class_name, method_name);
+        printf("%2u:%llums %-8s %s:%2d  %s#%s\n",
+               (unsigned int) thread_id, now, event_name, source_file, source_line, class_name, method_name);
         fflush(stdout);
         last_thread_id = thread_id;               
     }
@@ -1105,8 +1108,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       return;
     }    
     
-    /* Get current timestamp */
-    now = get_measurement();
     
     /* Was there a context switch? */
     if (!last_thread_data || last_thread_data->thread_id != thread_id)

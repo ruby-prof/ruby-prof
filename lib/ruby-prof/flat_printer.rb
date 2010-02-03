@@ -75,5 +75,4 @@ module RubyProf
       end
     end
   end
-end 
-
+end

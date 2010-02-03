@@ -1044,13 +1044,12 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
 
-    # ifdef RUBY_VM
-
-    if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
+    #ifdef RUBY_VM
+      if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
         // guess these are already set for C calls in 1.9, then?
         rb_frame_method_id_and_class(&mid, &klass);
-    }
-    # endif
+      }
+    #endif
 
     /* Get current timestamp */
     now = get_measurement();
@@ -1064,9 +1063,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 
         VALUE thread = rb_thread_current();
         VALUE thread_id = rb_obj_id(thread);
-        char* class_name = NULL;
-        char* method_name = rb_id2name(mid);
-        char* source_file = rb_sourcefile();
+        const char* class_name = NULL;
+        const char* method_name = rb_id2name(mid);
+        const char* source_file = rb_sourcefile();
         unsigned int source_line = rb_sourceline();
 
         char* event_name = get_event_name(event);
@@ -1079,9 +1078,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         if (last_thread_id != thread_id) {
           printf("\n");
         }
-
-        printf("%2u:%llums %-8s %s:%2d  %s#%s\n",
-               (unsigned int) thread_id, now, event_name, source_file, source_line, class_name, method_name);
+        
+        printf("%2u:%2ums %-8s %s:%2d  %s#%s\n",
+               (unsigned int) thread_id, (unsigned int) now, event_name, source_file, source_line, class_name, method_name);
         fflush(stdout);
         last_thread_id = thread_id;               
     }

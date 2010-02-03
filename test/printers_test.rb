@@ -11,7 +11,7 @@ class PrintersTest < Test::Unit::TestCase
   end
   
   def setup
-    RubyProf::measure_mode = RubyProf::PROCESS_TIME
+    RubyProf::measure_mode = RubyProf::WALL_TIME # WALL_TIME so we can use sleep in our test
     @result = RubyProf.profile do
       run_primes
       go
@@ -96,7 +96,7 @@ class PrintersTest < Test::Unit::TestCase
     printer.print(output)
 
     assert_match(/fn=Object::find_primes/i, output)
-    assert_match(/events: process_time/i, output)
+    assert_match(/events: wall_time/i, output)
   end
   
   def do_nothing

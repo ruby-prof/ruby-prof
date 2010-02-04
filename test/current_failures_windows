@@ -1,8 +1,8 @@
 1.8 passes, 1.9 however...
 
   1) Failure:
-test_thread_timings(ThreadTest) [E:/dev/ruby/ruby-prof/test/thread_test.rb:76]:
-Expected 0 - 1.0 (1.0) to be < 0.01.
+test_flat_string_with_numbers(PrintersTest) [E:/dev/ruby/ruby-prof/test/printers_test.rb:68]:
+<2> expected but was
+<29>.
 
-43 tests, 410 assertions, 1 failures, 0 errors, 0 skips
-rake aborted!
+which is expected until core backports a recent fix.

@@ -29,7 +29,7 @@
 #if defined(_WIN32) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__ppc__)))
 #define MEASURE_CPU_TIME 2
 
-static unsigned long long cpu_frequency;
+static unsigned LONG_LONG cpu_frequency;
 
 #if defined(__GNUC__)
 
@@ -93,10 +93,10 @@ unsigned long long get_cpu_frequency()
 
 #elif defined(_WIN32)
 
-unsigned long long get_cpu_frequency()
+unsigned LONG_LONG get_cpu_frequency()
 {
-    unsigned long long x, y;
-    unsigned long long frequency;
+    unsigned LONG_LONG x, y;
+    unsigned LONG_LONG frequency;
     x = measure_cpu_time();
 
     /* Use the windows sleep function, not Ruby's */

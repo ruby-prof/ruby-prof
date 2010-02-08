@@ -1145,10 +1145,11 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
-        /* Get the current frame for the current thread. */
-        frame = stack_peek(thread_data->stack);
         prof_call_info_t *call_info = NULL;
         prof_method_t *method = NULL;
+
+        /* Get the current frame for the current thread. */
+        frame = stack_peek(thread_data->stack);
 
         /* Is this an include for a module?  If so get the actual
            module class since we want to combine all profiling

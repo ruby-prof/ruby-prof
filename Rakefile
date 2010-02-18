@@ -70,14 +70,13 @@ end
 
 # Rake task to build the default package
 Rake::GemPackageTask.new(default_spec) do |pkg|
-  pkg.need_tar = true
+  #pkg.need_tar = true
   #pkg.need_zip = true
 end
 
 require 'rake/extensiontask'
 
 Rake::ExtensionTask.new('ruby_prof')
-
 # ---------  RDoc Documentation ------
 desc "Generate rdoc documentation"
 Rake::RDocTask.new("rdoc") do |rdoc|
@@ -112,7 +111,7 @@ end
 
 require 'fileutils'
 
-desc 'Build ruby_prof.so'
+desc 'Buildr ruby_prof.so'
 task :build do
  build(false)
 end
@@ -137,7 +136,7 @@ task :build_debug do
  build(true)
 end
 
-task :clean do
+task :cleanr do
  FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
  Dir.chdir('ext/ruby_prof') do
   if File.exist? 'Makefile'

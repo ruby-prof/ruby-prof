@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/../ext/ruby_prof" # .so
+require File.dirname(__FILE__) + "/../ext/ruby_prof/ruby_prof" # .so
 
 require "ruby-prof/method_info"
 require "ruby-prof/call_info"

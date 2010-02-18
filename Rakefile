@@ -6,7 +6,7 @@ require 'date'
 
 # ------- Version ----
 # Read version from header file
-version_header = File.read('ext/version.h')
+version_header = File.read('ext/ruby_prof/version.h')
 match = version_header.match(/RUBY_PROF_VERSION\s*["](\d.+)["]/)
 raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
 RUBY_PROF_VERSION = match[1]
@@ -21,9 +21,10 @@ FILES = FileList[
   'bin/*',
   'doc/**/*',
   'examples/*',
-  'ext/*',
-  'ext/mingw/Rakefile',
-  'ext/mingw/build.rake',
+  'ext/ruby_prof/*.c',
+  'ext/ruby_prof/*.h',
+  'ext/ruby_prof/mingw/Rakefile',
+  'ext/ruby_prof/mingw/build.rake',
   'ext/vc/*.sln',
   'ext/vc/*.vcproj',
   'lib/**/*',
@@ -54,7 +55,7 @@ EOF
   spec.require_path = "lib" 
   spec.bindir = "bin"
   spec.executables = ["ruby-prof"]
-  spec.extensions = ["ext/extconf.rb"]
+  spec.extensions = ["ext/ruby_prof/extconf.rb"]
   spec.files = FILES.to_a
   spec.test_files = Dir["test/test_*.rb"]
   
@@ -63,6 +64,7 @@ EOF
   spec.date = DateTime.now
   spec.rubyforge_project = 'ruby-prof'
   spec.add_development_dependency 'os'
+  spec.add_development_dependency 'rake-compiler'
   
 end
 
@@ -72,22 +74,9 @@ Rake::GemPackageTask.new(default_spec) do |pkg|
   #pkg.need_zip = true
 end
 
+require 'rake/extensiontask'
 
-# ------- Windows Package ----------
-if RUBY_PLATFORM.match(/win32/)
-  binaries = (FileList['ext/mingw/*.so',
-                       'ext/mingw/*.dll*'])
-
-  # Windows specification
-  win_spec = default_spec.clone
-  win_spec.extensions = ['ext/mingw/Rakefile']
-  win_spec.platform = Gem::Platform::CURRENT
-  win_spec.files += binaries.to_a
-
-  # Rake task to build the windows package
-  Rake::GemPackageTask.new(win_spec) do |pkg|
-  end
-end
+Rake::ExtensionTask.new('ruby_prof')
 
 # ---------  RDoc Documentation ------
 desc "Generate rdoc documentation"
@@ -104,9 +93,9 @@ Rake::RDocTask.new("rdoc") do |rdoc|
                           'examples/graph.txt',
                           'examples/graph.html',
                           'lib/**/*.rb',
-                          'ext/ruby_prof.c',
-                          'ext/version.h',
-                          'ext/measure_*.h',
+                          'ext/ruby_prof/ruby_prof.c',
+                          'ext/ruby_prof/version.h',
+                          'ext/ruby_prof/measure_*.h',
                           'README',
                           'LICENSE')
 end
@@ -129,7 +118,7 @@ task :build do
 end
 
 def build(with_debug)
- Dir.chdir('ext') do
+ Dir.chdir('ext/ruby_prof') do
   unless File.exist? 'Makefile'
     if with_debug
       system(Gem.ruby + " -d extconf.rb")
@@ -139,18 +128,18 @@ def build(with_debug)
     system("make clean")
   end
   system("make")
-  FileUtils.cp 'ruby_prof.so', '../lib' 
+  FileUtils.cp 'ruby_prof.so', '../../lib' 
  end
 end
 
-desc 'build ruby_prof.so with verbose symbols enabled'
+desc 'build ruby_prof.so with verbose debugging enabled'
 task :build_debug do
  build(true)
 end
 
 task :clean do
  FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
- Dir.chdir('ext') do
+ Dir.chdir('ext/ruby_prof') do
   if File.exist? 'Makefile'
     system("make clean")
     FileUtils.rm 'Makefile'

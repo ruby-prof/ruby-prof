@@ -58,8 +58,6 @@ EOF
   spec.extensions = ["ext/ruby_prof/extconf.rb"]
   spec.files = FILES.to_a
   spec.test_files = Dir["test/test_*.rb"]
-  
-
   spec.required_ruby_version = '>= 1.8.4'
   spec.date = DateTime.now
   spec.rubyforge_project = 'ruby-prof'
@@ -68,15 +66,25 @@ EOF
   
 end
 
+require 'rake/extensiontask'
+
+desc 'build native .gem files -- use like native_gems clobber cross native gem RUBY_CC_VERSION=1.8.6:1.9.1--for non native use native_gems clobber && clean gem'
+task :native_gems do
+  Rake::ExtensionTask.new('ruby_prof', default_spec) do |ext|
+    ext.cross_compile = true
+    ext.cross_platform = ['x86-mswin32', 'i386-mingw32']
+  end
+end
+
 # Rake task to build the default package
 Rake::GemPackageTask.new(default_spec) do |pkg|
-  #pkg.need_tar = true
+  pkg.need_tar = true
   #pkg.need_zip = true
 end
 
-require 'rake/extensiontask'
 
-Rake::ExtensionTask.new('ruby_prof')
+
+
 # ---------  RDoc Documentation ------
 desc "Generate rdoc documentation"
 Rake::RDocTask.new("rdoc") do |rdoc|

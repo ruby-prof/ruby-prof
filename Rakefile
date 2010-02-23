@@ -66,13 +66,14 @@ EOF
   
 end
 
-require 'rake/extensiontask'
 
-desc 'build native .gem files -- use like native_gems clobber cross native gem RUBY_CC_VERSION=1.8.6:1.9.1--for non native use native_gems clobber && clean gem'
+desc 'build native .gem files -- use like "native_gems clobber cross native gem"--for non native gem creation use "native_gems clobber" then "clean gem"'
 task :native_gems do
+  ENV['RUBY_CC_VERSION'] = '1.8.6:1.9.1'
+  require 'rake/extensiontask'
   Rake::ExtensionTask.new('ruby_prof', default_spec) do |ext|
     ext.cross_compile = true
-    ext.cross_platform = ['x86-mswin32', 'i386-mingw32']
+    ext.cross_platform = ['x86-mswin32-60', 'x86-mingw32-60']
   end
 end
 
@@ -81,8 +82,6 @@ Rake::GemPackageTask.new(default_spec) do |pkg|
   pkg.need_tar = true
   #pkg.need_zip = true
 end
-
-
 
 
 # ---------  RDoc Documentation ------

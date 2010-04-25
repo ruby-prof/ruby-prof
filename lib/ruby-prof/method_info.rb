@@ -107,5 +107,16 @@ module RubyProf
     def to_s
       full_name
     end
+
+    def dump
+      res = ""
+      res << "MINFO: #{klass_name}##{method_name}\n"
+      call_infos.each do |ci|
+        pinfo = ci.root? ? "TOPLEVEL" : (p=ci.parent.target; "#{p.klass_name}##{p.method_name} (#{ci.parent.object_id})")
+        res << "CINFO[#{ci.object_id}] called #{ci.called} times from #{pinfo}\n"
+      end
+      res
+    end
+
   end
 end

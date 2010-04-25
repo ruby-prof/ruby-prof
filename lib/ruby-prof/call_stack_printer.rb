@@ -13,6 +13,9 @@ module RubyProf
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
+      if @graph_html = options.delete(:graph)
+        @graph_html = "file://" + @graph_html if @graph_html[0]=="/"
+      end
 
       @overall_threads_time = 0.0
       @threads_totals = Hash.new
@@ -26,6 +29,7 @@ module RubyProf
       print_header
 
       @result.threads.keys.sort.each do |thread_id|
+        @current_thread_id = thread_id
         @overall_time = @threads_totals[thread_id]
         @output.print "<div class=\"thread\">Thread: #{thread_id} (#{"%4.2f%%" % ((@overall_time/@overall_threads_time)*100)} ~ #{@overall_time})</div>"
         @output.print "<ul name=\"thread\">"
@@ -63,7 +67,7 @@ module RubyProf
         image = visible_children ? (expanded ? "minus" : "plus") : "empty"
         @output.print "<img class=\"toggle\" src=\"#{image}.png\">"
       end
-      @output.printf " %4.2f%% (%4.2f%%) %s [%d calls]\n", percent_total, percent_parent, link(call_info), call_info.called
+      @output.printf " %4.2f%% (%4.2f%%) %s %s\n", percent_total, percent_parent, link(call_info), graph_link(call_info)
       unless kids.empty?
         if expanded
           @output.print "<ul>"
@@ -91,6 +95,17 @@ module RubyProf
       else
         "<a href=\"txmt://open?url=file://#{file}&line=#{method.line}\">#{h(name(call_info))}</a>"
       end
+    end
+
+    def graph_link(call_info)
+      total_calls = call_info.target.call_infos.inject(0){|t, ci| t += ci.called}
+      href = "#{@graph_html}##{method_href(call_info.target)}"
+      totals = @graph_html ? "<a href='#{href}'>#{total_calls}</a>" : total_calls.to_s
+      "[#{call_info.called} calls, #{totals} total]"
+    end
+
+    def method_href(method)
+      h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + @current_thread_id.to_s)
     end
 
     def total_time(call_infos)

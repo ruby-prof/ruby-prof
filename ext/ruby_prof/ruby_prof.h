@@ -29,22 +29,22 @@
    The main players are:
 
      prof_result_t     - Its one field, values,  contains the overall results
-     thread_data_t     - Stores data about a single thread.  
+     thread_data_t     - Stores data about a single thread.
      prof_stack_t      - The method call stack in a particular thread
      prof_method_t     - Profiling information for each method
-     prof_call_info_t  - Keeps track a method's callers and callees. 
+     prof_call_info_t  - Keeps track a method's callers and callees.
 
   The final resulut is a hash table of thread_data_t, keyed on the thread
   id.  Each thread has an hash a table of prof_method_t, keyed on the
   method id.  A hash table is used for quick look up when doing a profile.
   However, it is exposed to Ruby as an array.
-  
+
   Each prof_method_t has two hash tables, parent and children, of prof_call_info_t.
   These objects keep track of a method's callers (who called the method) and its
   callees (who the method called).  These are keyed the method id, but once again,
   are exposed to Ruby as arrays.  Each prof_call_into_t maintains a pointer to the
-  caller or callee method, thereby making it easy to navigate through the call 
-  hierarchy in ruby - which is very helpful for creating call graphs.      
+  caller or callee method, thereby making it easy to navigate through the call
+  hierarchy in ruby - which is very helpful for creating call graphs.
 */
 
 /* #define DEBUG */
@@ -124,7 +124,7 @@ typedef struct prof_call_info_t {
     prof_measure_t total_time;
     prof_measure_t self_time;
     prof_measure_t wait_time;
-    int line;  
+    int line;
     VALUE object;
     VALUE children;
 } prof_call_info_t;

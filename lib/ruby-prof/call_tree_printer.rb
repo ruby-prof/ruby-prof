@@ -8,7 +8,7 @@ module RubyProf
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
-        
+
       # add a header - this information is somewhat arbitrary
       @output << "events: "
       case RubyProf.measure_mode
@@ -56,7 +56,7 @@ module RubyProf
     end
 
     def print_methods(thread_id, methods)
-      methods.reverse_each do |method| 
+      methods.reverse_each do |method|
         # Print out the file and method name
         @output << "fl=#{file(method)}\n"
         @output << "fn=#{method_name(method)}\n"

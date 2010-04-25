@@ -1,7 +1,7 @@
 # A silly little test program that finds prime numbers.  It
 # is intentionally badly designed to show off the use
 # of ruby-prof.
-# 
+#
 # Source from http://people.cs.uchicago.edu/~bomb154/154/maclabs/profilers-lab/
 
 def make_random_array(length, maxnum)
@@ -9,10 +9,10 @@ def make_random_array(length, maxnum)
   result.each_index do |i|
     result[i] = rand(maxnum)
   end
-    
+
   result
 end
- 
+
 def is_prime(x)
   y = 2
   y.upto(x-1) do |i|
@@ -46,13 +46,13 @@ end
 def run_primes
   length = 10
   maxnum = 1000
-  
+
   # Create random numbers
   random_array = make_random_array(length, maxnum)
-  
+
   # Find the primes
   primes = find_primes(random_array)
-  
+
   # Find the largest primes
   # largest = find_largest(primes)
 end

@@ -15,7 +15,7 @@ module RubyProf
   #
   # ruby-prof specific options include:
   #
-  #   output_dir - For each file specified an output 
+  #   output_dir - For each file specified an output
   #                file with profile information will be
   #                written to the output directory.
   #                By default, the output directory is
@@ -29,9 +29,9 @@ module RubyProf
   #                 will not be written out.
   #
   # Example:
-  #   
+  #
   #   require 'ruby-prof/task'
-  #   
+  #
   #   RubyProf::ProfileTask.new do |t|
   #     t.test_files = FileList['test/test*.rb']
   #     t.output_dir = "c:/temp"
@@ -55,37 +55,37 @@ module RubyProf
   #   rake profile TEST=just_one_file.rb     # run just one test file.
   #   rake profile TESTOPTS="-v"             # run in verbose mode
   #   rake profile TESTOPTS="--runner=fox"   # use the fox test runner
-  
+
   class ProfileTask < Rake::TestTask
-    attr_accessor :output_dir 
-    attr_accessor :min_percent 
+    attr_accessor :output_dir
+    attr_accessor :min_percent
     attr_accessor :printer
-    
+
     def initialize(name = :profile)
       super(name)
     end
-    
+
     # Create the tasks defined by this task lib.
     def define
       lib_path = @libs.join(File::PATH_SEPARATOR)
       desc "Profile" + (@name==:profile ? "" : " for #{@name}")
-      
+
       task @name do
         create_output_directory
-        
+
         @ruby_opts.unshift( "-I#{lib_path}" )
         @ruby_opts.unshift( "-w" ) if @warning
         @ruby_opts.push("-S ruby-prof")
         @ruby_opts.push("--printer #{@printer}")
         @ruby_opts.push("--min_percent #{@min_percent}")
 
-        file_list.each do |file_path|  
+        file_list.each do |file_path|
           run_script(file_path)
         end
       end
       self
     end
-    
+
     # Run script
     def run_script(script_path)
       run_code = ''
@@ -99,14 +99,14 @@ module RubyProf
           else
             file_name += ".txt"
         end
-          
+
         output_file_path = File.join(output_directory, file_name)
-          
-        command_line = @ruby_opts.join(" ") + 
+
+        command_line = @ruby_opts.join(" ") +
                       " --file=" + output_file_path +
                       " " + script_path
 
-        puts "ruby " + command_line 
+        puts "ruby " + command_line
         # We have to catch the exeption to continue on.  However,
         # the error message will have been output to STDERR
         # already by the time we get here so we don't have to
@@ -125,7 +125,7 @@ module RubyProf
     def output_directory
       File.expand_path(@output_dir)
     end
-    
+
     def create_output_directory
       if not File.exist?(output_directory)
         Dir.mkdir(output_directory)
@@ -138,7 +138,7 @@ module RubyProf
         FileUtils.rm(files)
       end
     end
-    
+
     def option_list # :nodoc:
       ENV['OPTIONS'] || @options.join(" ") || ""
     end

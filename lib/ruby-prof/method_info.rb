@@ -31,7 +31,7 @@ module RubyProf
         end
       end
     end
-    
+
     def self_time
       @self_time ||= begin
         call_infos.inject(0) do |sum, call_info|

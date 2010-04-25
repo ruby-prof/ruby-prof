@@ -17,5 +17,5 @@ ENV["RAILS_ENV"] = env
 require 'ruby-prof'
 
 # Setup output directory to Rails tmp directory
-RubyProf::Test::PROFILE_OPTIONS[:output_dir] = 
+RubyProf::Test::PROFILE_OPTIONS[:output_dir] =
     File.expand_path(File.join(RAILS_ROOT, 'tmp', 'profile'))

@@ -5,7 +5,7 @@
 # definitely not use the production databse!
 
 
-# Cache classes - otherwise your code 
+# Cache classes - otherwise your code
 # will run approximately 5 times slower and the
 # profiling results will be overwhelmed by Rails
 # dependency loading mechanism

@@ -76,7 +76,7 @@ class StackTest < Test::Unit::TestCase
     call_info = method.call_infos[0]
     assert_equal('StackTest#test_call_sequence->StackClass#a', call_info.call_sequence)
     assert_equal(3, call_info.children.length)
-    
+
     # Check Kernel#sleep
     method = methods[2]
     assert_equal('Kernel#sleep', method.full_name)

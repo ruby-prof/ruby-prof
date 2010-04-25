@@ -55,29 +55,29 @@
 
 Features
 --------
-* Added two new methods - RubyProf.resume and RubyProf.pause. 
+* Added two new methods - RubyProf.resume and RubyProf.pause.
   RubyProf.resume takes an optional block, which ensures that
   RubyProf.pause is called.  For example:
-  
+
   10.times do |i|
     RubyProf.resume do
       # Some long process
     end
   end
-  
+
   result = RubyProf.stop
 
 * Added support for profiling tests that use Ruby's built-in
-  unit test framework (ie, test derived from 
+  unit test framework (ie, test derived from
   Test::Unit::TestCase).  To enable profiling simply add
   the following line of code to your test class:
-  
+
     include RubyProf::Test
-    
-  By default, profiling results are written to the current 
+
+  By default, profiling results are written to the current
   processes working directory.  To change this, or other
   profiling options, simply modify the PROFILE_OPTIONS hash
-  table as needed.        
+  table as needed.
 
 * Used the new support for profiling test cases to revamp
   the way that Rails profiling works.  For more information
@@ -93,8 +93,8 @@ Features
 
 * Add support for Lloyd Hilaiel's Ruby patch for measuring total heap size.
    See http://lloydforge.org/projects/ruby. (Jeremy Kemper).
-  
-  
+
+
 Fixes
 -------
 * RubyProf.profile no longer crashes if an exception is
@@ -102,7 +102,7 @@ Fixes
 
 * Measure memory in fractional kilobytes rather than rounding down (Jeremy Kemper)
 
-  
+
 0.6.0 (2008-02-03)
 ========================
 
@@ -122,7 +122,7 @@ Fixes
   fixes for min_time support, ability to specify templates using
   strings or filenames, and table layout fixes (Makoto Kuwata)
 * Fixes to scaling factor for calltrees so that precision is not lost
-  due to the conversion to doubles (Sylvain Joyeux) 
+  due to the conversion to doubles (Sylvain Joyeux)
 * Changed constant ALLOCATED_OBJECTS to ALLOCATIONS in the C code to
   match the Ruby code (Sylvain Joyeux)
 * Added support for calltree printer to ruby-prof binary script (Sylvain Joyeux)
@@ -132,7 +132,7 @@ Fixes
 * Fix ruby-prof to work with the latest version of GEMS (Alexander Dymo)
 * Always define MEASURE_CPU_TIME and MEASURE_ALLOCATIONS in Ruby code, but
   set their values to nil if the functionality is not available.
-   
+
 
 0.5.2 (2007-07-19)
 ========================

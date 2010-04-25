@@ -5,4 +5,4 @@ unless (:a.respond_to?(:to_proc))
    end
  end
 end
- 
+

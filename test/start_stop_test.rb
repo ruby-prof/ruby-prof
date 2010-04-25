@@ -2,7 +2,7 @@
 
 require 'test/unit'
 require 'ruby-prof'
- 
+
 class StartStopTest < Test::Unit::TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls

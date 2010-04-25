@@ -112,7 +112,7 @@ class UniqueCallPathTest < Test::Unit::TestCase
       end
     end
 
-    assert !call_info_a.nil? 
+    assert !call_info_a.nil?
 
     children_of_a = Array.new
 
@@ -121,7 +121,7 @@ class UniqueCallPathTest < Test::Unit::TestCase
         children_of_a.push(c)
       end
     end
-    
+
     if RUBY_VERSION < '1.9'
       assert_equal(4, call_info_a.target.children.length)
     else
@@ -139,7 +139,7 @@ class UniqueCallPathTest < Test::Unit::TestCase
       assert_equal(1, children_of_a.length)
       assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
     end
-    
+
   end
 
   def test_id2ref

@@ -34,13 +34,13 @@ class RecursiveTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-    
+
     if RUBY_VERSION < '1.9'
       assert_equal(6, methods.length) # includes Fixnum+, Fixnum==...
     else
       assert_equal(4, methods.length)
     end
-    
+
     method = methods[0]
     assert_equal('RecursiveTest#test_simple', method.full_name)
     assert_equal(1, method.called)

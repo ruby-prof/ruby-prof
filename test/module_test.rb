@@ -16,7 +16,7 @@ module Bar
     sleep(0.5)
     Foo::hello
   end
-  
+
   def hello
     sleep(0.5)
     Bar::hello
@@ -32,23 +32,23 @@ class ModuleTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-      
+
     # Length should be 5
     assert_equal(5, methods.length)
-    
+
     method = methods[0]
     assert_equal('ModuleTest#test_nested_modules', method.full_name)
-    
+
     method = methods[1]
     assert_equal('Bar#hello', method.full_name)
 
     method = methods[2]
     assert_equal('Kernel#sleep', method.full_name)
-    
+
     method = methods[3]
     assert_equal('<Module::Bar>#hello', method.full_name)
-    
+
     method = methods[4]
     assert_equal('<Module::Foo>#hello', method.full_name)
-  end 
+  end
 end

@@ -2,7 +2,7 @@
 require 'ruby-prof'
 
 # Make sure this works with no class or method
-result = RubyProf.profile do 
+result = RubyProf.profile do
   sleep 1
 end
 

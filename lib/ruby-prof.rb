@@ -19,7 +19,7 @@ require "ruby-prof/symbol_to_proc" # for 1.8's benefit
 #require "ruby-prof/result"
 
 module RubyProf
-  # See if the user specified the clock mode via 
+  # See if the user specified the clock mode via
   # the RUBY_PROF_MEASURE_MODE environment variable
   def self.figure_measure_mode
     case ENV["RUBY_PROF_MEASURE_MODE"]

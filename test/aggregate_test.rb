@@ -14,7 +14,7 @@ class AggClass
   def z
     sleep 1
   end
-  
+
   def a
     z
   end

@@ -15,7 +15,7 @@ module RubyProf
     def output_dir
       PROFILE_OPTIONS[:output_dir]
     end
-          
+
     def run(result)
       return if @method_name.to_s == "default_test"
 
@@ -108,7 +108,7 @@ module RubyProf
     def report_profile(data, measure_mode)
       PROFILE_OPTIONS[:printers].each do |printer_klass|
         printer = printer_klass.new(data)
-        
+
         # Makes sure the output directory exits
         FileUtils.mkdir_p(output_dir)
 

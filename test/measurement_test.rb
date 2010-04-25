@@ -42,7 +42,7 @@ class MeasurementTest < Test::Unit::TestCase
       RubyProf::measure_mode = RubyProf::CPU_TIME
       assert_equal(RubyProf::CPU_TIME, RubyProf::measure_mode)
     end
-    
+
     def test_cpu_time
       RubyProf.cpu_frequency = 2.33e9
 

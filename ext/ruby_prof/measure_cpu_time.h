@@ -1,4 +1,4 @@
-/* :nodoc: 
+/* :nodoc:
  * Copyright (C) 2008  Shugo Maeda <shugo@ruby-lang.org>
  *                     Charlie Savage <cfis@savagexi.com>
  * All rights reserved.
@@ -38,7 +38,7 @@ static unsigned LONG_LONG cpu_frequency;
 static prof_measure_t
 measure_cpu_time()
 {
-#if defined(__i386__) || defined(__x86_64__) 
+#if defined(__i386__) || defined(__x86_64__)
     uint32_t a, d;
     __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
     return ((uint64_t)d << 32) + a;
@@ -46,7 +46,7 @@ measure_cpu_time()
     unsigned long long x, y;
 
     __asm__ __volatile__ ("\n\
-1:	mftbu   %1\n\
+1:      mftbu   %1\n\
   mftb    %L0\n\
   mftbu   %0\n\
   cmpw    %0,%1\n\
@@ -128,7 +128,7 @@ prof_measure_cpu_time(VALUE self)
    call-seq:
      cpu_frequency -> int
 
-Returns the cpu's frequency.  This value is needed when 
+Returns the cpu's frequency.  This value is needed when
 RubyProf::measure_mode is set to CPU_TIME. */
 static VALUE
 prof_get_cpu_frequency(VALUE self)
@@ -140,7 +140,7 @@ prof_get_cpu_frequency(VALUE self)
    call-seq:
      cpu_frequency=value -> void
 
-Sets the cpu's frequency.   This value is needed when 
+Sets the cpu's frequency.   This value is needed when
 RubyProf::measure_mode is set to CPU_TIME. */
 static VALUE
 prof_set_cpu_frequency(VALUE self, VALUE val)

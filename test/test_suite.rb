@@ -18,6 +18,7 @@ require 'thread_test'
 require 'unique_call_path_test'
 require 'stack_printer_test'
 require 'multi_printer_test'
+require 'method_elimination_test'
 
 # Can't use this one here cause it breaks
 # the rest of the unit tets (Ruby Prof gets

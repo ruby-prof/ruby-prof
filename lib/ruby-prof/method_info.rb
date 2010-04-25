@@ -120,5 +120,12 @@ module RubyProf
       res
     end
 
+    # remove method from the call graph. should not be called directly.
+    def eliminate!
+      # $stderr.puts "eliminating #{self}"
+      call_infos.each{ |call_info| call_info.eliminate! }
+      call_infos.clear
+    end
+
   end
 end

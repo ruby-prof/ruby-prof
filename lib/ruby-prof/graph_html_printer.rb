@@ -3,7 +3,7 @@ require 'erb'
 
 module RubyProf
   # Generates graph[link:files/examples/graph_html.html] profile reports as html.
-  # To use the grap html printer:
+  # To use the graph html printer:
   #
   #   result = RubyProf.profile do
   #     [code to profile]
@@ -103,6 +103,15 @@ module RubyProf
       h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + thread_id.to_s)
     end
 
+    def file_link(path, linenum)
+      srcfile = File.expand_path(path)
+      if srcfile =~ /\/ruby_runtime$/
+        ""
+      else
+        "<a href=\"txmt://open?url=file://#{h srcfile}&line=#{linenum}\" title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
+      end
+    end
+
     def template
 '
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
@@ -164,7 +173,7 @@ module RubyProf
         <th>Thread ID</th>
         <th>Total Time</th>
       </tr>
-      <% for thread_id, methods in @result.threads %>
+      <% for thread_id in @result.threads.keys.sort %>
       <tr>
         <td><a href="#<%= thread_id %>"><%= thread_id %></a></td>
         <td><%= thread_time(thread_id) %></td>
@@ -173,7 +182,8 @@ module RubyProf
     </table>
 
     <!-- Methods Tables -->
-    <% for thread_id, methods in @result.threads
+    <% for thread_id in @result.threads.keys.sort
+         methods = @result.threads[thread_id]
          total_time = thread_time(thread_id) %>
       <h2><a name="<%= thread_id %>">Thread <%= thread_id %></a></h2>
 
@@ -211,7 +221,7 @@ module RubyProf
                 <% called = "#{caller.called}/#{method.called}" %>
                 <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
                 <td class="method_name"><%= create_link(thread_id, caller.parent.target) %></td>
-                <td><a href="file://<%=h srcfile=File.expand_path(caller.parent.target.source_file) %>#line=<%= linenum=caller.line %>" title="<%=h srcfile %>:<%= linenum %>"><%= caller.line %></a></td>
+                <td><%= file_link(caller.parent.target.source_file, caller.line) %></td>
               </tr>
             <% end %>
 
@@ -224,7 +234,7 @@ module RubyProf
               <td><%= sprintf("%#{TIME_WIDTH}.2f", method.children_time) %></td>
               <td><%= sprintf("%#{CALL_WIDTH}i", method.called) %></td>
               <td class="method_name"><a name="<%= method_href(thread_id, method) %>"><%= h method.full_name %></a></td>
-              <td><a href="file://<%=h srcfile=File.expand_path(method.source_file) %>#line=<%= linenum=method.line %>" title="<%=h srcfile %>:<%= linenum %>"><%= method.line %></a></td>
+              <td><%= file_link(method.source_file, method.line) %></td>
             </tr>
 
             <!-- Children -->
@@ -240,7 +250,7 @@ module RubyProf
                 <% called = "#{callee.called}/#{callee.target.called}" %>
                 <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
                 <td class="method_name"><%= create_link(thread_id, callee.target) %></td>
-                <td><a href="file://<%=h srcfile=File.expand_path(method.source_file) %>#line=<%= linenum=callee.line %>" title="<%=h srcfile %>:<%= linenum %>"><%= callee.line %></a></td>
+                <td><%= file_link(method.source_file, callee.line) %></td>
               </tr>
             <% end %>
             <!-- Create divider row -->

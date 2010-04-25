@@ -850,8 +850,15 @@ collect_threads(st_data_t key, st_data_t value, st_data_t result)
 
 
 /* ================  Profiling    =================*/
+
+/* support tracing ruby events from ruby-prof. useful for getting at
+   what actually happens inside the ruby interpreter (and ruby-prof).
+   set environment variable RUBY_PROF_TRACE to filename you want to
+   find the trace in.
+ */
+static FILE* trace_file = NULL;
+
 /* Copied from eval.c */
-#ifdef DEBUG
 static char *
 get_event_name(rb_event_flag_t event)
 {
@@ -882,7 +889,7 @@ get_event_name(rb_event_flag_t event)
   return "unknown";
   }
 }
-#endif
+
 
 static prof_method_t*
 #ifdef RUBY_VM
@@ -1061,10 +1068,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     /* Get current timestamp */
     now = get_measurement();
 
-#ifdef DEBUG
-    /*  This code is here for debug purposes - uncomment it out
-        when debugging to see a print out of exactly what the
-        profiler is tracing. */
+    if (trace_file != NULL)
     {
         static VALUE last_thread_id = Qnil;
 
@@ -1083,15 +1087,14 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         class_name = rb_class2name(klass);
 
         if (last_thread_id != thread_id) {
-          printf("\n");
+          fprintf(trace_file, "\n");
         }
 
-        printf("%2u:%2ums %-8s %s:%2d  %s#%s\n",
+        fprintf(trace_file, "%2u:%2ums %-8s %s:%2d  %s#%s\n",
                (unsigned int) thread_id, (unsigned int) now, event_name, source_file, source_line, class_name, method_name);
-        fflush(stdout);
+        /* fflush(trace_file); */
         last_thread_id = thread_id;
     }
-#endif
 
     /* Special case - skip any methods from the mProf
        module, such as Prof.stop, since they clutter
@@ -1504,6 +1507,18 @@ prof_start(VALUE self)
     last_thread_data = NULL;
     threads_tbl = threads_table_create();
 
+    /* open trace file if environment wants it */
+    char* trace_file_name = getenv("RUBY_PROF_TRACE");
+    if (trace_file_name != NULL) {
+      if (0==strcmp(trace_file_name, "stdout")) {
+        trace_file = stdout;
+      } else if (0==strcmp(trace_file_name, "stderr")) {
+        trace_file = stderr;
+      } else {
+        trace_file = fopen(trace_file_name, "a");
+      }
+    }
+
     prof_install_hook();
     return self;
 }
@@ -1556,6 +1571,13 @@ static VALUE
 prof_stop(VALUE self)
 {
     VALUE result = Qnil;
+
+    /* close trace file if open */
+    if (trace_file != NULL) {
+      if (trace_file!=stderr && trace_file!=stdout)
+        fclose(trace_file);
+      trace_file = NULL;
+    }
 
     prof_remove_hook();
 

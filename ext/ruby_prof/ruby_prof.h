@@ -47,8 +47,6 @@
   hierarchy in ruby - which is very helpful for creating call graphs.
 */
 
-/* #define DEBUG */
-
 #ifndef RUBY_PROF_H
 #define RUBY_PROF_H
 

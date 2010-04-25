@@ -108,7 +108,6 @@ typedef struct {
     prof_method_key_t *key;                 /* Method key */
     const char *source_file;                /* The method's source file */
     int line;                               /* The method's line number. */
-    int active;                             /* Is this  recursion depth. */
     struct prof_call_infos_t *call_infos;   /* Call info objects for this method */
     VALUE object;                           /* Cahced ruby object */
 } prof_method_t;

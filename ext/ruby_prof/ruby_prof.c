@@ -135,7 +135,7 @@ klass_name(VALUE klass)
 }
 
 static VALUE
-method_name(ID mid, int depth)
+method_name(ID mid)
 {
     VALUE result;
 
@@ -146,22 +146,15 @@ method_name(ID mid, int depth)
     else
         result = rb_String(ID2SYM(mid));
 
-    if (depth > 0)
-    {
-      char buffer[65];
-      sprintf(buffer, "(d%i)", depth);
-      rb_str_cat2(result, buffer);
-    }
-
     return result;
 }
 
 static VALUE
-full_name(VALUE klass, ID mid, int depth)
+full_name(VALUE klass, ID mid)
 {
   VALUE result = klass_name(klass);
   rb_str_cat2(result, "#");
-  rb_str_append(result, method_name(mid, depth));
+  rb_str_append(result, method_name(mid));
 
   return result;
 }
@@ -224,9 +217,7 @@ stack_peek(prof_stack_t *stack)
 static int
 method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2)
 {
-    return (key1->klass != key2->klass) ||
-           (key1->mid != key2->mid) ||
-           (key1->depth != key2->depth);
+    return (key1->klass != key2->klass) || (key1->mid != key2->mid);
 }
 
 static int
@@ -241,12 +232,11 @@ static struct st_hash_type type_method_hash = {
 };
 
 static void
-method_key(prof_method_key_t* key, VALUE klass, ID mid, int depth)
+method_key(prof_method_key_t* key, VALUE klass, ID mid)
 {
     key->klass = klass;
     key->mid = mid;
-    key->depth = depth;
-    key->key = (klass << 4) + (mid << 2) + depth;
+    key->key = (klass << 4) + (mid << 2);
 }
 
 
@@ -539,11 +529,9 @@ prof_method_create(prof_method_key_t *key, const char* source_file, int line)
     prof_method_t *result = ALLOC(prof_method_t);
     result->object = Qnil;
     result->key = ALLOC(prof_method_key_t);
-    method_key(result->key, key->klass, key->mid, key->depth);
+    method_key(result->key, key->klass, key->mid);
 
     result->call_infos = prof_call_infos_create();
-
-    result->active = 0;
 
     if (source_file != NULL)
     {
@@ -669,10 +657,10 @@ Returns the name of this method in the format Object#method.  Singletons
 methods will be returned in the format <Object::Object>#method.*/
 
 static VALUE
-prof_method_name(VALUE self, int depth)
+prof_method_name(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-    return method_name(method->key->mid, depth);
+    return method_name(method->key->mid);
 }
 
 /* call-seq:
@@ -684,7 +672,7 @@ static VALUE
 prof_full_name(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-    return full_name(method->key->klass, method->key->mid, method->key->depth);
+    return full_name(method->key->klass, method->key->mid);
 }
 
 /* call-seq:
@@ -893,15 +881,15 @@ get_event_name(rb_event_flag_t event)
 
 static prof_method_t*
 #ifdef RUBY_VM
- get_method(rb_event_flag_t event, VALUE klass, ID mid, int depth, st_table* method_table)
+ get_method(rb_event_flag_t event, VALUE klass, ID mid, st_table* method_table)
 # else
- get_method(rb_event_flag_t event, NODE *node, VALUE klass, ID mid, int depth, st_table* method_table)
+ get_method(rb_event_flag_t event, NODE *node, VALUE klass, ID mid, st_table* method_table)
 #endif
 {
     prof_method_key_t key;
     prof_method_t *method = NULL;
 
-    method_key(&key, klass, mid, depth);
+    method_key(&key, klass, mid);
     method = method_table_lookup(method_table, &key);
 
     if (!method)
@@ -990,9 +978,6 @@ pop_frame(thread_data_t *thread_data, prof_measure_t now)
   /* Calculate the total time this method took */
   total_time = now - frame->start_time;
 
-  /* Now deactivate the method */
-  frame->call_info->target->active = 0;
-
   parent_frame = stack_peek(thread_data->stack);
   if (parent_frame)
   {
@@ -1046,7 +1031,7 @@ void prof_remove_hook();
 
 #ifdef RUBY_VM
 static void
-prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
+prof_event_hook(rb_event_flag_t event, NODE *node, VALUE data, VALUE self, ID mid, VALUE klass)
 #else
 static void
 prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE klass)
@@ -1168,23 +1153,11 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         if (klass != 0)
           klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
 
-        /* Assume this is the first time we have called this method. */
         #ifdef RUBY_VM
-          method = get_method(event, klass, mid, 0, thread_data->method_table);
+        method = get_method(event, klass, mid, thread_data->method_table);
         #else
-          method = get_method(event, node, klass, mid, 0, thread_data->method_table);
+        method = get_method(event, node, klass, mid, thread_data->method_table);
         #endif
-        /* Check for a recursive call */
-        while (method->active) // it's while because we start at 0 and then inc. to the right recursive depth
-        {
-          /* Yes, this method is already active somewhere up the stack */
-          #ifdef RUBY_VM
-            method = get_method(event, klass, mid, method->key->depth + 1, thread_data->method_table);
-          #else
-            method = get_method(event, node, klass, mid, method->key->depth + 1, thread_data->method_table);
-          #endif
-        }
-        method->active = 1;
 
         if (!frame)
         {

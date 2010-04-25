@@ -32,6 +32,7 @@ class SingletonTest < Test::Unit::TestCase
       assert_equal(1, a.as.size)
     end
     printer = RubyProf::FlatPrinter.new(result)
-    printer.print(STDOUT)
+    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : ''
+    printer.print(output)
   end
 end

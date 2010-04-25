@@ -20,20 +20,22 @@ class PrintersTest < Test::Unit::TestCase
   end
 
   def test_printers
+    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : ''
+
     printer = RubyProf::FlatPrinter.new(@result)
-    printer.print(STDOUT)
+    printer.print(output)
 
     printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
-    printer.print(STDOUT)
+    printer.print(output)
 
     printer = RubyProf::GraphHtmlPrinter.new(@result)
-    printer.print
+    printer.print(output)
 
     printer = RubyProf::GraphPrinter.new(@result)
-    printer.print
+    printer.print(output)
 
     printer = RubyProf::CallTreePrinter.new(@result)
-    printer.print(STDOUT)
+    printer.print(output)
 
     # we should get here
   end
@@ -117,7 +119,6 @@ class PrintersTest < Test::Unit::TestCase
     # RubyProf::FlatPrinter only outputs if self time > percent...
     # RubyProf::FlatPrinterWithLineNumbers same
     for klass in [ RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
-      puts klass
       printer = klass.new(result)
       out = ''
       output = printer.print(out, :min_percent => 0.00000001 )

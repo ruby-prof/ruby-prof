@@ -93,12 +93,17 @@ static VALUE cResult;
 static VALUE cMethodInfo;
 static VALUE cCallInfo;
 
+/* nasty hack to avoid compilation warnings related to 64/32 bit conversions */
+#ifndef SIZEOF_ST_INDEX_T
+#define st_index_t int
+#endif
+
 /* Profiling information for each method. */
 typedef struct {
     VALUE klass;                            /* The method's class. */
     ID mid;                                 /* The method id. */
     int depth;                              /* The recursion depth. */
-    int key;                                /* Cache calculated key */
+    st_index_t key;                         /* Cache calculated key */
 } prof_method_key_t;
 
 struct prof_call_infos_t;

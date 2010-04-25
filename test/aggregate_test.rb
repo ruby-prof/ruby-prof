@@ -58,7 +58,7 @@ class AggregateTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-    method = methods.find {|method| method.full_name == 'AggClass#z'}
+    method = methods.find {|meth| meth.full_name == 'AggClass#z'}
 
     # Check AggClass#z
     assert_equal('AggClass#z', method.full_name)
@@ -91,7 +91,7 @@ class AggregateTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-    method = methods.find {|method| method.full_name == 'AggClass#z'}
+    method = methods.find {|meth| meth.full_name == 'AggClass#z'}
 
     # Check AggClass#z
     assert_equal('AggClass#z', method.full_name)
@@ -117,7 +117,7 @@ class AggregateTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-    method = methods.find {|method| method.full_name == 'AggClass#a'}
+    method = methods.find {|meth| meth.full_name == 'AggClass#a'}
 
     # Check AggClass#a
     assert_equal('AggClass#a', method.full_name)

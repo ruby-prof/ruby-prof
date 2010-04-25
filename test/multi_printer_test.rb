@@ -70,7 +70,7 @@ class MultiPrinterTest < Test::Unit::TestCase
     printer.print(:path => path, :profile => profile,
                   :threshold => 0, :min_percent => 0, :title => "ruby_prof #{test}")
     if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"
-      system("open #{printer.stack_profile}")
+      system("open '#{printer.stack_profile}'")
     end
     if GC.respond_to?(:dump_file_and_line_info)
       GC.start

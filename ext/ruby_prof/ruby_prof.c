@@ -220,7 +220,7 @@ method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2)
     return (key1->klass != key2->klass) || (key1->mid != key2->mid);
 }
 
-static int
+static st_index_t
 method_table_hash(prof_method_key_t *key)
 {
    return key->key;
@@ -605,7 +605,7 @@ prof_method_create(prof_method_key_t *key, const char* source_file, int line)
 
     if (source_file != NULL)
     {
-      int len = strlen(source_file) + 1;
+      size_t len = strlen(source_file) + 1;
       char *buffer = ALLOC_N(char, len);
 
       MEMCPY(buffer, source_file, char, len);
@@ -916,8 +916,8 @@ collect_threads(st_data_t key, st_data_t value, st_data_t result)
  */
 static FILE* trace_file = NULL;
 
-/* Copied from eval.c */
-static char *
+/* Copied from eval.c (1.8.x) / thread.c (1.9.2) */
+static const char *
 get_event_name(rb_event_flag_t event)
 {
   switch (event) {
@@ -1101,7 +1101,7 @@ void prof_remove_hook();
 
 #ifdef RUBY_VM
 static void
-prof_event_hook(rb_event_flag_t event, NODE *node, VALUE data, VALUE self, ID mid, VALUE klass)
+prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
 #else
 static void
 prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE klass)
@@ -1134,7 +1134,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         const char* source_file = rb_sourcefile();
         unsigned int source_line = rb_sourceline();
 
-        char* event_name = get_event_name(event);
+        const char* event_name = get_event_name(event);
 
         if (klass != 0)
           klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
@@ -1386,7 +1386,7 @@ prof_get_measure_mode(VALUE self)
 static VALUE
 prof_set_measure_mode(VALUE self, VALUE val)
 {
-    long mode = NUM2LONG(val);
+    int mode = NUM2INT(val);
 
     if (threads_tbl)
     {
@@ -1442,7 +1442,7 @@ prof_set_measure_mode(VALUE self, VALUE val)
       #endif
 
       default:
-        rb_raise(rb_eArgError, "invalid mode: %ld", mode);
+        rb_raise(rb_eArgError, "invalid mode: %d", mode);
         break;
     }
 

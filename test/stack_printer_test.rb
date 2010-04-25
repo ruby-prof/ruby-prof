@@ -68,7 +68,7 @@ class StackPrinterTest < Test::Unit::TestCase
     testfile_name = "#{Dir::tmpdir}/ruby_prof_#{test}.html"
     printer = RubyProf::CallStackPrinter.new(result)
     File.open(testfile_name, "w") {|f| printer.print(f, :threshold => 0, :min_percent => 0, :title => "ruby_prof #{test}")}
-    system("open #{testfile_name}") if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"
+    system("open '#{testfile_name}'") if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"
     File.open(testfile_name, "r"){|f| f.read}
   end
 end

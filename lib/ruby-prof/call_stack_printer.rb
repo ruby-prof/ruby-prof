@@ -74,8 +74,8 @@ module RubyProf
         else
           @output.print '<ul style="display:none">'
         end
-        kids.sort_by{|c| -c.total_time}.each do |call_info|
-          print_stack call_info, total_time
+        kids.sort_by{|c| -c.total_time}.each do |callinfo|
+          print_stack callinfo, total_time
         end
         @output.print "</ul>"
       end

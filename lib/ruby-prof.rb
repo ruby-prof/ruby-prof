@@ -7,6 +7,7 @@ rescue Exception
   require "#{me}/../ext/ruby_prof/ruby_prof"
 end
 
+require "ruby-prof/result"
 require "ruby-prof/method_info"
 require "ruby-prof/call_info"
 require "ruby-prof/aggregate_call_info"

@@ -1592,6 +1592,9 @@ prof_stop(VALUE self)
     threads_table_free(threads_tbl);
     threads_tbl = NULL;
 
+    /* compute minimality of call_infos */
+    rb_funcall(result, rb_intern("compute_minimality") , 0);
+
     return result;
 }
 

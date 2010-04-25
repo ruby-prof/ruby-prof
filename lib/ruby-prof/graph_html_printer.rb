@@ -55,19 +55,27 @@ module RubyProf
       @output << erb.result(binding)
     end
 
+    def total_time(call_infos)
+      sum(call_infos.map{|ci| ci.total_time})
+    end
+
+    def sum(a)
+      a.inject(0.0){|s,t| s+=t}
+    end
+
     # These methods should be private but then ERB doesn't
     # work.  Turn off RDOC though
     #--
     def calculate_thread_times
       # Cache thread times since this is an expensive
       # operation with the required sorting
+      @overall_threads_time = 0.0
+      @thread_times = Hash.new
       @result.threads.each do |thread_id, methods|
-        top = methods.max
-
-        thread_time = 0.01
-        thread_time = top.total_time if top.total_time > 0
-
-        @thread_times[thread_id] = thread_time
+        roots = methods.select{|m| m.root?}
+        thread_total_time = sum(roots.map{|r| self.total_time(r.call_infos)})
+        @overall_threads_time += thread_total_time
+        @thread_times[thread_id] = thread_total_time
       end
     end
 

@@ -24,7 +24,7 @@ class AggClass
   end
 
   def c
-   a
+    a
   end
 end
 
@@ -32,6 +32,21 @@ class AggregateTest < Test::Unit::TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME
+  end
+
+  def test_all_call_infos_are_minimal_as_there_is_no_recursion
+    c1 = AggClass.new
+    result = RubyProf.profile do
+      c1.a
+      c1.b
+      c1.c
+    end
+    methods = result.threads.values.first.sort.reverse
+    methods.each do |m|
+      m.call_infos.each do |ci|
+        assert ci.minimal?, "#{ci.call_sequence} should be minimal in the call tree"
+      end
+    end
   end
 
   def test_call_infos

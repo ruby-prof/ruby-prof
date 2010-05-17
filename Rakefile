@@ -118,7 +118,7 @@ end
 
 require 'fileutils'
 
-desc 'Buildr ruby_prof.so'
+desc 'Build ruby_prof.so'
 task :build do
  build(false)
 end
@@ -138,11 +138,13 @@ def build(with_debug)
  end
 end
 
-desc 'build ruby_prof.so with verbose debugging enabled'
+desc 'build ruby_prof.so with (rather verbose) debugging enabled'
+
 task :build_debug do
  build(true)
 end
 
+desc 'clean stuff'
 task :cleanr do
  FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
  Dir.chdir('ext/ruby_prof') do

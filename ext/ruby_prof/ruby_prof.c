@@ -1023,14 +1023,21 @@ prof_pop_threads()
     st_foreach(threads_tbl, pop_frames, (st_data_t) &now);
 }
 
+#if RUBY_VERSION == 190
+# error 1.9.0 not supported (ask for it if desired)
+#endif
 
-#ifdef RUBY_VM
+#if RUBY_VERSION == 191
 
-/* These are mostly to avoid bugs in core */
+/* Avoid bugs in 1.9.1 */
+
 static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now);
 void prof_install_hook();
 void prof_remove_hook();
 
+#endif
+
+#ifdef RUBY_VM
 static void
 prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
 #else
@@ -1095,7 +1102,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
     
-   # ifdef RUBY_VM
+   # if RUBY_VERSION == 191
      /* ensure that new threads are hooked [sigh] (bug in core) */
      prof_remove_hook();
      prof_install_hook();
@@ -1129,8 +1136,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       {
         frame->line = rb_sourceline();        
         
-        # ifdef RUBY_VM
-          // disabled till I figure out why it causes
+        # if RUBY_VERSION == 191
+          // disabled it causes
           // us to lose valuable frame information...maybe mid comes in wrong sometimes?
           // walk_up_until_right_frame(frame, thread_data, mid, klass, now);
         # endif
@@ -1207,7 +1214,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     {      
     	frame = pop_frame(thread_data, now);
       
-      # ifdef RUBY_VM
+      # if RUBY_VERSION == 191
         // we need to walk up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
         // sometimes frames don't have line and source somehow [like blank]
         // if we hit one there's not much we can do...I guess...
@@ -1220,7 +1227,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     }
 }
 
-#ifdef RUBY_VM
+#if RUBY_VERSION == 191
 
 static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now) {
   // while it doesn't match, pop on up until we have found where we belong...

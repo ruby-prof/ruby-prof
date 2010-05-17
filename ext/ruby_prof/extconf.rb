@@ -31,10 +31,14 @@ have_func("rb_gc_heap_info")
 have_func("rb_gc_malloc_allocations")
 have_func("rb_gc_malloc_allocated_size")
 
-def add_define(name)
-  $defs.push("-D#{name}")
+def add_define(name, value = nil)
+  if value
+    $defs.push("-D#{name}=#{value}")
+  else
+    $defs.push("-D#{name}")
+  end
 end
 
 add_define 'DEBUG' if $DEBUG
-
+add_define("RUBY_VERSION", RUBY_VERSION.gsub('.', ''))
 create_makefile("ruby_prof")

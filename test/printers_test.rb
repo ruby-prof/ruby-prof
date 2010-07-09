@@ -33,8 +33,9 @@ class PrintersTest < Test::Unit::TestCase
     printer.print
     
     printer = RubyProf::CallTreePrinter.new(@result)
-    printer.print(STDOUT)    
-    # we should get here    
+    printer.print(STDOUT)
+    
+    # we should get here
   end
 
   def test_flat_string
@@ -94,9 +95,9 @@ class PrintersTest < Test::Unit::TestCase
     output = ''
     printer = RubyProf::CallTreePrinter.new(@result)
     printer.print(output)
-
-    assert_match(/fn=Object::find_primes/i, output)
+    assert_match(/fn=Object#find_primes/i, output)
     assert_match(/events: wall_time/i, output)
+    assert_no_match(/d\d\d\d\d\d/, output) # old bug looked [in error] like Object::run_primes(d5833116)
   end
   
   def do_nothing

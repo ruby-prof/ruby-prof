@@ -10,7 +10,7 @@ version_header = File.read('ext/ruby_prof/version.h')
 match = version_header.match(/RUBY_PROF_VERSION\s*["](\d.+)["]/)
 raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
 RUBY_PROF_VERSION = match[1]
-  
+
 
 # ------- Default Package ----------
 FILES = FileList[
@@ -35,14 +35,14 @@ FILES = FileList[
 # Default GEM Specification
 default_spec = Gem::Specification.new do |spec|
   spec.name = "ruby-prof"
-  
+
   spec.homepage = "http://rubyforge.org/projects/ruby-prof/"
   spec.summary = "Fast Ruby profiler"
   spec.description = <<-EOF
 ruby-prof is a fast code profiler for Ruby. It is a C extension and
 therefore is many times faster than the standard Ruby profiler. It
 supports both flat and graph profiles.  For each method, graph profiles
-show how long the method ran, which methods called it and which 
+show how long the method ran, which methods called it and which
 methods it called. RubyProf generate both text and html and can output
 it to standard out or to a file.
 EOF
@@ -52,7 +52,7 @@ EOF
   spec.author = "Shugo Maeda, Charlie Savage, Roger Pack"
   spec.email = "shugo@ruby-lang.org, cfis@savagexi.com, rogerdpack@gmail.com"
   spec.platform = Gem::Platform::RUBY
-  spec.require_path = "lib" 
+  spec.require_path = "lib"
   spec.bindir = "bin"
   spec.executables = ["ruby-prof"]
   spec.extensions = ["ext/ruby_prof/extconf.rb"]
@@ -63,7 +63,7 @@ EOF
   spec.rubyforge_project = 'ruby-prof'
   spec.add_development_dependency 'os'
   spec.add_development_dependency 'rake-compiler'
-  
+
 end
 
 
@@ -134,7 +134,8 @@ def build(with_debug)
     system("make clean")
   end
   system("make")
-  FileUtils.cp 'ruby_prof.so', '../../lib' 
+  FileUtils.cp 'ruby_prof.so', '../../lib' if File.exist? 'lib/ruby_prof.so'
+  FileUtils.cp 'ruby_prof.bundle', '../../lib' if File.exist? 'lib/ruby_prof.bundle'
  end
 end
 
@@ -147,6 +148,7 @@ end
 desc 'clean stuff'
 task :cleanr do
  FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
+ FileUtils.rm 'lib/ruby_prof.bundle' if File.exist? 'lib/ruby_prof.bundle'
  Dir.chdir('ext/ruby_prof') do
   if File.exist? 'Makefile'
     system("make clean")

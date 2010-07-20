@@ -19,7 +19,7 @@ class ESTPT
   end
 
   def b
-    sleep 0.0001
+    sleep 0
   end
 
   def c

@@ -39,6 +39,5 @@ def add_define(name, value = nil)
   end
 end
 
-add_define 'DEBUG' if $DEBUG
 add_define("RUBY_VERSION", RUBY_VERSION.gsub('.', ''))
 create_makefile("ruby_prof")

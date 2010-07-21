@@ -120,29 +120,15 @@ require 'fileutils'
 
 desc 'Build ruby_prof.so'
 task :build do
- build(false)
-end
-
-def build(with_debug)
  Dir.chdir('ext/ruby_prof') do
   unless File.exist? 'Makefile'
-    if with_debug
-      system(Gem.ruby + " -d extconf.rb")
-    else
-      system(Gem.ruby + " extconf.rb")
-    end
+    system(Gem.ruby + " extconf.rb")
     system("make clean")
   end
   system("make")
   FileUtils.cp 'ruby_prof.so', '../../lib' if File.exist? 'lib/ruby_prof.so'
   FileUtils.cp 'ruby_prof.bundle', '../../lib' if File.exist? 'lib/ruby_prof.bundle'
  end
-end
-
-desc 'build ruby_prof.so with (rather verbose) debugging enabled'
-
-task :build_debug do
- build(true)
 end
 
 desc 'clean stuff'

@@ -15,7 +15,7 @@ RUBY_PROF_VERSION = match[1]
 # ------- Default Package ----------
 FILES = FileList[
   'Rakefile',
-  'README',
+  'README.rdoc',
   'LICENSE',
   'CHANGES',
   'bin/*',
@@ -92,7 +92,7 @@ Rake::RDocTask.new("rdoc") do |rdoc|
   # Show source inline with line numbers
   rdoc.options << "--inline-source" << "--line-numbers"
   # Make the readme file the start page for the generated html
-  rdoc.options << '--main' << 'README'
+  rdoc.options << '--main' << 'README.rdoc'
   rdoc.rdoc_files.include('bin/**/*',
                           'doc/*.rdoc',
                           'examples/flat.txt',
@@ -102,7 +102,7 @@ Rake::RDocTask.new("rdoc") do |rdoc|
                           'ext/ruby_prof/ruby_prof.c',
                           'ext/ruby_prof/version.h',
                           'ext/ruby_prof/measure_*.h',
-                          'README',
+                          'README.rdoc',
                           'LICENSE')
 end
 

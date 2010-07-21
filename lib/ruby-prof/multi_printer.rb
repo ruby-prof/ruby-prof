@@ -1,9 +1,8 @@
 module RubyProf
+  # Helper class to simplify printing profiles of several types from
+  # one profiling run. Currently prints a flat profile, a callgrind
+  # profile, a call stack profile and a graph profile.
   class MultiPrinter
-    # Helper class to simplify printing profiles of several types from
-    # one profiling run. Currently prints a flat profile, a callgrind
-    # profile, a call stack profile and a graph profile.
-
     def initialize(result)
       @stack_printer = CallStackPrinter.new(result)
       @graph_printer = GraphHtmlPrinter.new(result)

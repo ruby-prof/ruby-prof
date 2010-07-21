@@ -12,7 +12,6 @@ ruby-prof is a fast code profiler for Ruby.  Its features include:
   - Graph profiles - similar to GProf, these show how long a method runs, which methods call it and which methods it calls.
   - Call tree profiles - outputs results in the calltree format suitable for the KCacheGrind profiling tool.
 * Threads - supports profiling multiple threads simultaneously
-* Recursive calls - supports profiling recursive method calls
 
 
 == Requirements
@@ -209,6 +208,7 @@ ruby-prof can generate a number of different reports:
 * Graph Reports
 * HTML Graph Reports
 * Call graphs
+* Call stack reports
 
 Flat profiles show the overall time spent in each method.  They
 are a good of quickly identifying which methods take the most time.
@@ -239,6 +239,13 @@ by KCachegrind.  Call graph support was generously donated by Carl Shimer.
 More information about the format can be found at
 the {KCachegrind}[link:http://kcachegrind.sourceforge.net/cgi-bin/show.cgi/KcacheGrindCalltreeFormat] site.
 
+Call stack reports produce a HTML visualization of the time spent in each
+execution path of the profiled code. An example can be found in
+{examples/stack.html}[link:files/examples/call_stack.html].
+
+Finally, there's a so called MultiPrinter which can generate several reports
+in one profiling run. See {examples/multi.html}[link:files/examples/multi.html].
+
 
 == Printers
 
@@ -249,6 +256,8 @@ Reports are created by printers.  Supported printers include:
 * RubyProf::GraphPrinter - Creates a call graph report in text format
 * RubyProf::GraphHtmlPrinter - Creates a call graph report in HTML (separate files per thread)
 * RubyProf::CallTreePrinter - Creates a call tree report compatible with KCachegrind.
+* RubyProf::CallStackPrinter - Creates a HTML visualization of the Ruby stack
+* RubyProf::MultiPrinter - Uses the other printers to create several reports in one profiling run
 
 To use a printer:
 
@@ -264,6 +273,13 @@ For more information please see the documentation for the different printers.
 
 The other option is :print_file => true (default false), which adds the filename to the
 output (GraphPrinter only).
+
+The MultiPrinter differs from the other printers in that it requires a directory path
+and a basename for the files it produces.
+
+   printer = RubyProf::MultiPrinter.new(result)
+   printer.print(:path => ".", :profile => "profile")
+
 
 == Measurements
 
@@ -370,33 +386,6 @@ You can also directly set the cpu frequency by calling:
 
   RubyProf.cpu_frequency = <value>
 
-
-== Recursive Calls
-
-Recursive calls occur when method A calls method A and cycles
-occur when method A calls method B calls method C calls method A.
-ruby-prof detects both direct recursive calls and cycles.  Both
-are indicated in reports by a "d number" in parentheses following a method
-name.  For example, here is a flat profile from the test method
-
-RecursiveTest#test_recursive:
-
-%self     total     self     wait    child    calls  name
-100.00      2.00     2.00     0.00     0.00        2  Kernel#sleep
-  0.00      2.00     0.00     0.00     2.00        0  RecursiveTest#test_cycle
-  0.00      0.00     0.00     0.00     0.00        2  Fixnum#==
-  0.00      0.00     0.00     0.00     0.00        2  Fixnum#-
-  0.00      1.00     0.00     0.00     1.00        1  Object#sub_cycle(d1)
-  0.00      2.00     0.00     0.00     2.00        1  Object#sub_cycle
-  0.00      2.00     0.00     0.00     2.00        1  Object#cycle
-  0.00      1.00     0.00     0.00     1.00        1  Object#cycle(d1)
-
-Notice the presence of Object#cycle and Object#cycle(d1).  The d1 means
-depth 1 -- the method was either recursively called (directly or indirectly).
-
-However, the self time values for recursive calls should always
-be accurate.  It is also believed that the total times are
-accurate, but these should be carefully analyzed to verify their veracity.
 
 == Multi-threaded Applications
 

@@ -49,8 +49,8 @@ EOF
 
   spec.version = RUBY_PROF_VERSION
 
-  spec.author = "Shugo Maeda, Charlie Savage, Roger Pack"
-  spec.email = "shugo@ruby-lang.org, cfis@savagexi.com, rogerdpack@gmail.com"
+  spec.author = "Shugo Maeda, Charlie Savage, Roger Pack, Stefan Kaes"
+  spec.email = "shugo@ruby-lang.org, cfis@savagexi.com, rogerdpack@gmail.com, skaes@railsexpress.de"
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib"
   spec.bindir = "bin"

@@ -1,3 +1,9 @@
+begin
+  require 'rubygems'
+  require 'redgreen'
+rescue LoadError
+end
+
 require 'test/unit'
 
 require 'aggregate_test'

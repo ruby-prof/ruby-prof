@@ -7,37 +7,43 @@ require 'prime'
 class PrintersTest < Test::Unit::TestCase
 
   def go
-    run_primes
+    run_primes(10000)
   end
 
   def setup
     RubyProf::measure_mode = RubyProf::WALL_TIME # WALL_TIME so we can use sleep in our test
     @result = RubyProf.profile do
-      run_primes
+      run_primes(10000)
       go
     end
 
   end
 
   def test_printers
-    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : ''
+    assert_nothing_raised do
+      output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : ''
 
-    printer = RubyProf::FlatPrinter.new(@result)
-    printer.print(output)
+      printer = RubyProf::FlatPrinter.new(@result)
+      printer.print(output)
 
-    printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
-    printer.print(output)
+      printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
+      printer.print(output)
 
-    printer = RubyProf::GraphHtmlPrinter.new(@result)
-    printer.print(output)
+      printer = RubyProf::GraphHtmlPrinter.new(@result)
+      printer.print(output)
 
-    printer = RubyProf::GraphPrinter.new(@result)
-    printer.print(output)
+      printer = RubyProf::GraphPrinter.new(@result)
+      printer.print(output)
 
-    printer = RubyProf::CallTreePrinter.new(@result)
-    printer.print(output)
+      printer = RubyProf::CallTreePrinter.new(@result)
+      printer.print(output)
 
-    # we should get here
+      printer = RubyProf::CallStackPrinter.new(@result)
+      File.open("examples/stack.html", "w") {|f| printer.print(f, :application => "primes")}
+
+      printer = RubyProf::MultiPrinter.new(@result)
+      printer.print(:path => "examples", :profile => "multi", :application => "primes")
+    end
   end
 
   def test_flat_string

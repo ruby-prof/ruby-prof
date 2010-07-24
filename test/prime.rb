@@ -43,10 +43,7 @@ def find_largest(primes)
   largest
 end
 
-def run_primes
-  length = 10
-  maxnum = 1000
-
+def run_primes(length=10, maxnum=1000)
   # Create random numbers
   random_array = make_random_array(length, maxnum)
 

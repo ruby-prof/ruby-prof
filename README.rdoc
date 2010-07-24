@@ -27,7 +27,7 @@ Windows specific RubyGem which includes an already built extension (see below).
 
 The easiest way to install ruby-prof is by using Ruby Gems.  To install:
 
-<tt>gem install ruby-prof</tt>
+  gem install ruby-prof
 
 If you on windows mswin [not mingw] (check via ruby -v) and
 don't have an MSVC compiler, please install v0.7.3 which

@@ -123,6 +123,28 @@ using a flat profile report.
 This method is provided for backwards compatibility.  Using the
 ruby-prof command provides more flexibility.
 
+== Method Elimination
+
+Starting with release 0.9.0, ruby-prof supports eliminating methods from profiling
+results. This is useful for reducing connectivity in the call graph, making it easier to
+identify the source of performance problems when using a graph printer.
+
+For example, consider Integer#times: it's hardly ever useful to know how much time is
+spent in the method itself. We're much more interested in how much the passed in block
+contributes to the time spent in the method which contains the Integer#times call.
+
+Methods are eliminated from the collected data by calling `eliminate_methods!` on the
+profiling result, before submitting it to a printer.
+
+  result = RubyProf.stop
+  result.eliminate_methods!([/Integer#times/])
+
+The argument given to `eliminate_methods!` is either an array of regular expressions, or
+the name of a file containing a list of regular expressions (line separated text).
+
+After eliminating methods the resulting profile will appear exactly as if those methods
+had been inlined at their call sites.
+
 
 == Profiling Tests
 

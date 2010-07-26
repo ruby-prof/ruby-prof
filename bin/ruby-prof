@@ -15,6 +15,7 @@
 #                                        graph - Prints a graph profile as text.
 #                                        graph_html - Prints a graph profile as html.
 #                                        call_tree - format for KCacheGrind
+#                                        call_stack - prints a HTML visualization of the call tree
 #     -f, --file=path                  Output results to a file instead of standard out.
 #     -m, --min_percent=min_percent    The minimum percent a method must take before ',
 #                                      being included in output reports.  Should be an
@@ -63,13 +64,14 @@ opts = OptionParser.new do |opts|
   opts.separator "Options:"
 
     
-  opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree],
+  opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack],
           'Select a printer:',
           '  flat - Prints a flat profile as text (default).',
           '  flat_with_line_numbers - same as flat, with line numbers.',
           '  graph - Prints a graph profile as text.',
           '  graph_html - Prints a graph profile as html.',
-          '  call_tree - format for KCacheGrind'
+          '  call_tree - format for KCacheGrind',
+          '  call_stack - prints a HTML visualization of the call tree'
            ) do |printer|
 
           
@@ -84,6 +86,8 @@ opts = OptionParser.new do |opts|
         options.printer = RubyProf::GraphHtmlPrinter
       when :call_tree
         options.printer = RubyProf::CallTreePrinter
+      when :call_stack
+        options.printer = RubyProf::CallStackPrinter
     end
   end
     

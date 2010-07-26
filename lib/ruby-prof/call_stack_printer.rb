@@ -1,5 +1,6 @@
 require 'ruby-prof/abstract_printer'
 require 'erb'
+require 'fileutils'
 
 module RubyProf
   # prints a HTML visualization of the call tree

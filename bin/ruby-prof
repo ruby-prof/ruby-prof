@@ -101,6 +101,7 @@ opts = OptionParser.new do |opts|
   opts.on('-f path', '--file=path',
         'Output results to a file instead of standard out.') do |file|
     options.file = file
+    options.old_wd = Dir.pwd
   end
     
   opts.on('--mode=measure_mode',
@@ -195,8 +196,11 @@ at_exit {
 
   # Get output
   if options.file
-    File.open(options.file, 'w') do |file|
-      printer.print(file, {:min_percent => options.min_percent})
+    # write it relative to the dir they *started* in, as it's a bit surprising to write it in the dir they end up in.
+    Dir.chdir(options.old_wd) do
+      File.open(options.file, 'w') do |file|
+        printer.print(file, {:min_percent => options.min_percent})
+      end
     end
   else
     # Print out results 

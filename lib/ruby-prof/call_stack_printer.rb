@@ -94,7 +94,11 @@ module RubyProf
       if file =~ /\/ruby_runtime$/
         h(name(call_info))
       else
-        "<a href=\"txmt://open?url=file://#{file}&line=#{method.line}\">#{h(name(call_info))}</a>"
+        if RUBY_PLATFORM =~ /darwin/
+          "<a href=\"txmt://open?url=file://#{file}&line=#{method.line}\">#{h(name(call_info))}</a>"
+        else
+          "<a href=\"file://#{file}?line=#{method.line}\">#{h(name(call_info))}</a>"
+        end
       end
     end
 

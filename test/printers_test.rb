@@ -39,7 +39,7 @@ class PrintersTest < Test::Unit::TestCase
       printer.print(output)
       
       printer = RubyProf::DotPrinter.new(@result)
-      printer.print(output)
+      File.open("examples/graph.dot", "w") {|f| printer.print(f)}
 
       printer = RubyProf::CallStackPrinter.new(@result)
       File.open("examples/stack.html", "w") {|f| printer.print(f, :application => "primes")}

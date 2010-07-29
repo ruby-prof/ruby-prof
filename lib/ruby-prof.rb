@@ -18,6 +18,7 @@ require "ruby-prof/graph_html_printer"
 require "ruby-prof/call_tree_printer"
 require "ruby-prof/call_stack_printer"
 require "ruby-prof/multi_printer"
+require "ruby-prof/dot_printer"
 require "ruby-prof/symbol_to_proc" # for 1.8's benefit
 #require "ruby-prof/result"
 

@@ -21,7 +21,7 @@ class PrintersTest < Test::Unit::TestCase
 
   def test_printers
     assert_nothing_raised do
-      output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : ''
+      output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new('')
 
       printer = RubyProf::FlatPrinter.new(@result)
       printer.print(output)
@@ -36,6 +36,9 @@ class PrintersTest < Test::Unit::TestCase
       printer.print(output)
 
       printer = RubyProf::CallTreePrinter.new(@result)
+      printer.print(output)
+      
+      printer = RubyProf::DotPrinter.new(@result)
       printer.print(output)
 
       printer = RubyProf::CallStackPrinter.new(@result)

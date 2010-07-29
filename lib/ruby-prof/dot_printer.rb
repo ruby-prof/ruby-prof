@@ -2,7 +2,7 @@ require 'set'
 require 'ruby-prof/abstract_printer'
 
 module RubyProf
-  # Generates graphviz graph in dot format.
+  # Generates a graphviz graph in dot format.
   # To use the dot printer:
   #
   #   result = RubyProf.profile do
@@ -19,6 +19,8 @@ module RubyProf
   # 
   class DotPrinter < RubyProf::AbstractPrinter  
     CLASS_COLOR = '"#666666"'
+    EDGE_COLOR  = '"#666666"'
+    
     # Creates the DotPrinter using a RubyProf::Result.
     def initialize(result)
       super(result)
@@ -27,7 +29,7 @@ module RubyProf
         
     # Print a graph report to the provided output.
     #  
-    # output - Any IO oject, including STDOUT or a file. The default value is
+    # output - Any IO object, including STDOUT or a file. The default value is
     # STDOUT.
     #  
     # options - Hash of print options.  See #setup_options 
@@ -41,16 +43,25 @@ module RubyProf
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
-      mode = RubyProf.constants.find{|c| RubyProf.const_get(c) == RubyProf.measure_mode}
+      
       total_time = thread_times.values.inject{|a,b| a+b}
       
       puts 'digraph "Profile" {'
-      puts "label=\"#{mode} >=#{min_percent}%\\nTotal: #{total_time}\""
+      puts "label=\"#{mode_name} >=#{min_percent}%\\nTotal: #{total_time}\";"
+      puts "labelloc=t;"
+      puts "labeljust=l;"
       print_threads
       puts '}'
     end
 
     private 
+    
+    # Something of a hack, figure out which constant went with the
+    # RubyProf.measure_mode so that we can display it.  Otherwise it's easy to
+    # forget what measurement was made.
+    def mode_name
+      mode = RubyProf.constants.find{|c| RubyProf.const_get(c) == RubyProf.measure_mode}
+    end
     
     # Computes the total time per thread:
     def thread_times
@@ -97,7 +108,7 @@ module RubyProf
         name = method_name(method).split("#").last
         puts "#{dot_id(method)} [label=\"#{name}\\n(#{total_percentage.round}%)\"];"
         @seen_methods << method
-        print_children(total_time, method)
+        print_edges(total_time, method)
       end
     end
       
@@ -110,6 +121,7 @@ module RubyProf
           puts "subgraph cluster_#{cls.object_id} {"
           puts "label = \"#{cls}\";"
           puts "fontcolor = #{CLASS_COLOR};"
+          puts "fontsize = 16;"
           puts "color = #{CLASS_COLOR};"
           big_methods.each do |m|
             puts "#{m.object_id};"
@@ -119,14 +131,14 @@ module RubyProf
       end
     end
     
-    def print_children(total_time, method)
+    def print_edges(total_time, method)
       method.aggregate_children.sort_by(&:total_time).reverse.each do |child|
         
         target_percentage = (child.target.total_time / total_time) * 100.0
         next if target_percentage < min_percent
         
         # Get children method
-        puts "#{dot_id(method)} -> #{dot_id(child.target)} [label=\"#{child.called}/#{child.target.called}\"];"
+        puts "#{dot_id(method)} -> #{dot_id(child.target)} [label=\"#{child.called}/#{child.target.called}\" fontsize=10 fontcolor=#{EDGE_COLOR}];"
       end
     end
     

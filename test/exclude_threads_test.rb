@@ -17,8 +17,8 @@ class ExcludeThreadsTest < Test::Unit::TestCase
       sleep(0.5)
       sleep(2)
     end
-        
-    thread1 = Thread.new do 
+
+    thread1 = Thread.new do
       thread1_proc
     end
 
@@ -27,7 +27,7 @@ class ExcludeThreadsTest < Test::Unit::TestCase
     end
 
     RubyProf::exclude_threads = [ thread2 ]
- 
+
     RubyProf.start
 
     thread1.join

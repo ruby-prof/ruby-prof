@@ -7,6 +7,7 @@ rescue Exception
   require "#{me}/../ext/ruby_prof/ruby_prof"
 end
 
+require "ruby-prof/result"
 require "ruby-prof/method_info"
 require "ruby-prof/call_info"
 require "ruby-prof/aggregate_call_info"
@@ -15,12 +16,15 @@ require "ruby-prof/flat_printer_with_line_numbers"
 require "ruby-prof/graph_printer"
 require "ruby-prof/graph_html_printer"
 require "ruby-prof/call_tree_printer"
+require "ruby-prof/call_stack_printer"
+require "ruby-prof/multi_printer"
+require "ruby-prof/dot_printer"
 require "ruby-prof/symbol_to_proc" # for 1.8's benefit
 require "ruby-prof/rack"
 #require "ruby-prof/result"
 
 module RubyProf
-  # See if the user specified the clock mode via 
+  # See if the user specified the clock mode via
   # the RUBY_PROF_MEASURE_MODE environment variable
   def self.figure_measure_mode
     case ENV["RUBY_PROF_MEASURE_MODE"]

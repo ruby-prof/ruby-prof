@@ -76,7 +76,7 @@ class StackTest < Test::Unit::TestCase
     call_info = method.call_infos[0]
     assert_equal('StackTest#test_call_sequence->StackClass#a', call_info.call_sequence)
     assert_equal(3, call_info.children.length)
-    
+
     # Check Kernel#sleep
     method = methods[2]
     assert_equal('Kernel#sleep', method.full_name)
@@ -107,10 +107,10 @@ class StackTest < Test::Unit::TestCase
     method = methods[3]
     assert_equal('StackClass#c', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(5, method.total_time, 0.01)
+    assert_in_delta(5, method.total_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(5, method.children_time, 0.01)
+    assert_in_delta(5, method.children_time, 0.05)
     assert_equal(1, method.call_infos.length)
 
     call_info = method.call_infos[0]
@@ -121,10 +121,10 @@ class StackTest < Test::Unit::TestCase
     method = methods[4]
     assert_equal('StackClass#b', method.full_name)
     assert_equal(2, method.called)
-    assert_in_delta(4, method.total_time, 0.01)
+    assert_in_delta(4, method.total_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(4, method.children_time, 0.01)
+    assert_in_delta(4, method.children_time, 0.05)
     assert_equal(2, method.call_infos.length)
 
     call_info = method.call_infos[0]

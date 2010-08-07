@@ -19,10 +19,10 @@ class DuplicateNames < Test::Unit::TestCase
       eval str
       Foo::Bar.new.foo
     end
-    
+
     # There should be 3 foo methods
     methods = result.threads.values.first.sort.reverse
-    
+
     methods = methods.select do |method|
       method.full_name == 'DuplicateNames::Foo::Bar#foo'
     end

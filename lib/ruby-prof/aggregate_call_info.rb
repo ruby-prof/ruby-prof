@@ -27,7 +27,7 @@ module RubyProf
     end
 
     def total_time
-      aggregate(:total_time)
+      aggregate_minimal(:total_time)
     end
 
     def self_time
@@ -39,7 +39,7 @@ module RubyProf
     end
 
     def children_time
-      aggregate(:children_time)
+      aggregate_minimal(:children_time)
     end
 
     def called
@@ -55,6 +55,12 @@ module RubyProf
     def aggregate(method_name)
       self.call_infos.inject(0) do |sum, call_info|
         sum += call_info.send(method_name)
+      end
+    end
+
+    def aggregate_minimal(method_name)
+      self.call_infos.inject(0) do |sum, call_info|
+        sum += call_info.send(method_name) if call_info.minimal?
         sum
       end
     end

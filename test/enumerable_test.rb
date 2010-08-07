@@ -11,6 +11,6 @@ class EnumerableTest < Test::Unit::TestCase
     result = RubyProf.profile do
       3.times {  [1,2,3].any? {|n| n} }
     end
-    assert result.threads.to_a.first[1].length == 4    
+    assert result.threads.to_a.first[1].length == 4
   end
 end

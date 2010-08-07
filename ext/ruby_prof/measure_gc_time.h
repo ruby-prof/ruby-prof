@@ -1,4 +1,4 @@
-/* :nodoc: 
+/* :nodoc:
  * Copyright (C) 2008  Shugo Maeda <shugo@ruby-lang.org>
  *                     Charlie Savage <cfis@savagexi.com>
  * All rights reserved.

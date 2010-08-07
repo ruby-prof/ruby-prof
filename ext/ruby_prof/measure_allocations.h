@@ -1,4 +1,4 @@
-/* :nodoc: 
+/* :nodoc:
  * Copyright (C) 2008  Shugo Maeda <shugo@ruby-lang.org>
  *                     Charlie Savage <cfis@savagexi.com>
  * All rights reserved.
@@ -28,17 +28,17 @@
 
 #if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)
 #define MEASURE_ALLOCATIONS 3
- 
+
 static prof_measure_t
 measure_allocations()
-{ 
-    return rb_os_allocated_objects(); 
+{
+    return rb_os_allocated_objects();
 }
 
 static double
 convert_allocations(prof_measure_t c)
-{ 
-    return  c; 
+{
+    return  c;
 }
 
 /* Document-method: prof_measure_allocations

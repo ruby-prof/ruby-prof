@@ -42,7 +42,7 @@ class MeasurementTest < Test::Unit::TestCase
       RubyProf::measure_mode = RubyProf::CPU_TIME
       assert_equal(RubyProf::CPU_TIME, RubyProf::measure_mode)
     end
-    
+
     def test_cpu_time
       RubyProf.cpu_frequency = 2.33e9
 
@@ -82,8 +82,9 @@ class MeasurementTest < Test::Unit::TestCase
       u = RubyProf.measure_memory
       assert(u >= t, [t, u].inspect)
 
+      RubyProf::measure_mode = RubyProf::MEMORY
       result = RubyProf.profile {Array.new}
-      total = result.threads.values.first.methods.inject(0) { |sum, m| sum + m.total_time }
+      total = result.threads.values.first.inject(0) { |sum, m| sum + m.total_time }
 
       assert(total > 0, 'Should measure more than zero kilobytes of memory usage')
       assert_not_equal(0, total % 1, 'Should not truncate fractional kilobyte measurements')

@@ -7,7 +7,7 @@ class C1
   def C1.hello
     sleep(0.1)
   end
-  
+
   def hello
     sleep(0.2)
   end
@@ -115,7 +115,7 @@ class BasicTest < Test::Unit::TestCase
     assert_in_delta(0, methods[2].wait_time, 0.01)
     assert_in_delta(0.1, methods[2].self_time, 0.01)
   end
-  
+
   if RUBY_VERSION < '1.9'
     PARENT = Object
   else
@@ -225,7 +225,7 @@ class BasicTest < Test::Unit::TestCase
     assert_equal('Class#new', names[3])
     assert(names.include?("<Class::#{PARENT}>#allocate"))
     assert(names.include?("#{PARENT}#initialize"))
-    
+
     # Check times
     assert_in_delta(0.3, methods[0].total_time, 0.1)
     assert_in_delta(0, methods[0].wait_time, 0.1)

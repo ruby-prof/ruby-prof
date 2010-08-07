@@ -7,7 +7,7 @@ module RubyProf
     end
 
     # Specify print options.
-    # 
+    #
     # options - Hash table
     #   :min_percent - Number 0 to 100 that specifes the minimum
     #                  %self (the methods self time divided by the
@@ -20,16 +20,16 @@ module RubyProf
     #
     def setup_options(options = {})
       @options = options
-    end      
+    end
 
     def min_percent
       @options[:min_percent] || 0
     end
-    
+
     def print_file
       @options[:print_file] || false
     end
-    
+
     def method_name(method)
       name = method.full_name
       if print_file
@@ -38,4 +38,4 @@ module RubyProf
       name
     end
   end
-end 
+end

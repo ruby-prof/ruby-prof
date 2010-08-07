@@ -8,7 +8,7 @@ module RubyProf
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
-        
+
       # add a header - this information is somewhat arbitrary
       @output << "events: "
       case RubyProf.measure_mode
@@ -55,15 +55,11 @@ module RubyProf
       File.expand_path(method.source_file)
     end
 
-    def name(method)
-      "#{method.klass_name}::#{method.method_name}"
-    end
-
     def print_methods(thread_id, methods)
-      methods.reverse_each do |method| 
+      methods.reverse_each do |method|
         # Print out the file and method name
         @output << "fl=#{file(method)}\n"
-        @output << "fn=#{name(method)}\n"
+        @output << "fn=#{method_name(method)}\n"
 
         # Now print out the function line number and its self time
         @output << "#{method.line} #{convert(method.self_time)}\n"
@@ -71,7 +67,7 @@ module RubyProf
         # Now print out all the children methods
         method.children.each do |callee|
           @output << "cfl=#{file(callee.target)}\n"
-          @output << "cfn=#{name(callee.target)}\n"
+          @output << "cfn=#{method_name(callee.target)}\n"
           @output << "calls=#{callee.called} #{callee.line}\n"
 
           # Print out total times here!

@@ -1,4 +1,4 @@
-/* :nodoc: 
+/* :nodoc:
  * Copyright (C) 2008  Alexander Dymo <adymo@pluron.com>
  *
  * All rights reserved.
@@ -28,7 +28,7 @@
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
 #define MEASURE_MEMORY 4
 #define TOGGLE_GC_STATS 1
- 
+
 static prof_measure_t
 measure_memory()
 {
@@ -41,8 +41,8 @@ measure_memory()
 
 static double
 convert_memory(prof_measure_t c)
-{ 
-    return (double) c / 1024; 
+{
+    return (double) c / 1024;
 }
 
 /* Document-method: prof_measure_memory

@@ -9,6 +9,6 @@ class EnumerableTest < Test::Unit::TestCase
   def test_being_able_to_run_its_binary
     Dir.chdir(File.dirname(__FILE__)) do
       assert system(OS.ruby_bin + " ruby-prof-bin do_nothing.rb")
-    end    
+    end
   end
 end

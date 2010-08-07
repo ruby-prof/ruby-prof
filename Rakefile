@@ -10,12 +10,12 @@ version_header = File.read('ext/ruby_prof/version.h')
 match = version_header.match(/RUBY_PROF_VERSION\s*["](\d.+)["]/)
 raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
 RUBY_PROF_VERSION = match[1]
-  
+
 
 # ------- Default Package ----------
 FILES = FileList[
   'Rakefile',
-  'README',
+  'README.rdoc',
   'LICENSE',
   'CHANGES',
   'bin/*',
@@ -35,24 +35,24 @@ FILES = FileList[
 # Default GEM Specification
 default_spec = Gem::Specification.new do |spec|
   spec.name = "ruby-prof"
-  
+
   spec.homepage = "http://rubyforge.org/projects/ruby-prof/"
   spec.summary = "Fast Ruby profiler"
   spec.description = <<-EOF
 ruby-prof is a fast code profiler for Ruby. It is a C extension and
 therefore is many times faster than the standard Ruby profiler. It
 supports both flat and graph profiles.  For each method, graph profiles
-show how long the method ran, which methods called it and which 
+show how long the method ran, which methods called it and which
 methods it called. RubyProf generate both text and html and can output
 it to standard out or to a file.
 EOF
 
   spec.version = RUBY_PROF_VERSION
 
-  spec.author = "Shugo Maeda, Charlie Savage, Roger Pack"
-  spec.email = "shugo@ruby-lang.org, cfis@savagexi.com, rogerdpack@gmail.com"
+  spec.author = "Shugo Maeda, Charlie Savage, Roger Pack, Stefan Kaes"
+  spec.email = "shugo@ruby-lang.org, cfis@savagexi.com, rogerdpack@gmail.com, skaes@railsexpress.de"
   spec.platform = Gem::Platform::RUBY
-  spec.require_path = "lib" 
+  spec.require_path = "lib"
   spec.bindir = "bin"
   spec.executables = ["ruby-prof"]
   spec.extensions = ["ext/ruby_prof/extconf.rb"]
@@ -63,7 +63,7 @@ EOF
   spec.rubyforge_project = 'ruby-prof'
   spec.add_development_dependency 'os'
   spec.add_development_dependency 'rake-compiler'
-  
+
 end
 
 
@@ -92,7 +92,7 @@ Rake::RDocTask.new("rdoc") do |rdoc|
   # Show source inline with line numbers
   rdoc.options << "--inline-source" << "--line-numbers"
   # Make the readme file the start page for the generated html
-  rdoc.options << '--main' << 'README'
+  rdoc.options << '--main' << 'README.rdoc'
   rdoc.rdoc_files.include('bin/**/*',
                           'doc/*.rdoc',
                           'examples/flat.txt',
@@ -102,7 +102,7 @@ Rake::RDocTask.new("rdoc") do |rdoc|
                           'ext/ruby_prof/ruby_prof.c',
                           'ext/ruby_prof/version.h',
                           'ext/ruby_prof/measure_*.h',
-                          'README',
+                          'README.rdoc',
                           'LICENSE')
 end
 
@@ -118,33 +118,23 @@ end
 
 require 'fileutils'
 
-desc 'Buildr ruby_prof.so'
+desc 'Build ruby_prof.so'
 task :build do
- build(false)
-end
-
-def build(with_debug)
  Dir.chdir('ext/ruby_prof') do
   unless File.exist? 'Makefile'
-    if with_debug
-      system(Gem.ruby + " -d extconf.rb")
-    else
-      system(Gem.ruby + " extconf.rb")
-    end
+    system(Gem.ruby + " extconf.rb")
     system("make clean")
   end
   system("make")
-  FileUtils.cp 'ruby_prof.so', '../../lib' 
+  FileUtils.cp 'ruby_prof.so', '../../lib' if File.exist? 'lib/ruby_prof.so'
+  FileUtils.cp 'ruby_prof.bundle', '../../lib' if File.exist? 'lib/ruby_prof.bundle'
  end
 end
 
-desc 'build ruby_prof.so with verbose debugging enabled'
-task :build_debug do
- build(true)
-end
-
+desc 'clean stuff'
 task :cleanr do
  FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
+ FileUtils.rm 'lib/ruby_prof.bundle' if File.exist? 'lib/ruby_prof.bundle'
  Dir.chdir('ext/ruby_prof') do
   if File.exist? 'Makefile'
     system("make clean")

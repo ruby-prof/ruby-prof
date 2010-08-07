@@ -14,7 +14,7 @@ class AggClass
   def z
     sleep 1
   end
-  
+
   def a
     z
   end
@@ -24,7 +24,7 @@ class AggClass
   end
 
   def c
-   a
+    a
   end
 end
 
@@ -32,6 +32,21 @@ class AggregateTest < Test::Unit::TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME
+  end
+
+  def test_all_call_infos_are_minimal_as_there_is_no_recursion
+    c1 = AggClass.new
+    result = RubyProf.profile do
+      c1.a
+      c1.b
+      c1.c
+    end
+    methods = result.threads.values.first.sort.reverse
+    methods.each do |m|
+      m.call_infos.each do |ci|
+        assert ci.minimal?, "#{ci.call_sequence} should be minimal in the call tree"
+      end
+    end
   end
 
   def test_call_infos
@@ -43,7 +58,7 @@ class AggregateTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-    method = methods.find {|method| method.full_name == 'AggClass#z'}
+    method = methods.find {|meth| meth.full_name == 'AggClass#z'}
 
     # Check AggClass#z
     assert_equal('AggClass#z', method.full_name)
@@ -76,7 +91,7 @@ class AggregateTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-    method = methods.find {|method| method.full_name == 'AggClass#z'}
+    method = methods.find {|meth| meth.full_name == 'AggClass#z'}
 
     # Check AggClass#z
     assert_equal('AggClass#z', method.full_name)
@@ -102,7 +117,7 @@ class AggregateTest < Test::Unit::TestCase
     end
 
     methods = result.threads.values.first.sort.reverse
-    method = methods.find {|method| method.full_name == 'AggClass#a'}
+    method = methods.find {|meth| meth.full_name == 'AggClass#a'}
 
     # Check AggClass#a
     assert_equal('AggClass#a', method.full_name)

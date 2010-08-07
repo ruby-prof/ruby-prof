@@ -27,11 +27,12 @@ module RubyProf
     def total_time
       @total_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.total_time
+          sum += call_info.total_time if call_info.minimal?
+          sum
         end
       end
     end
-    
+
     def self_time
       @self_time ||= begin
         call_infos.inject(0) do |sum, call_info|
@@ -51,7 +52,8 @@ module RubyProf
     def children_time
       @children_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.children_time
+          sum += call_info.children_time if call_info.minimal?
+          sum
         end
       end
     end
@@ -107,5 +109,23 @@ module RubyProf
     def to_s
       full_name
     end
+
+    def dump
+      res = ""
+      res << "MINFO: #{klass_name}##{method_name} total_time: #{total_time} (#{full_name})\n"
+      call_infos.each do |ci|
+        pinfo = ci.root? ? "TOPLEVEL" : (p=ci.parent.target; "#{p.klass_name}##{p.method_name} (#{ci.parent.object_id}) (#{p.full_name})")
+        res << "CINFO[#{ci.object_id}] called #{ci.called} times from #{pinfo}\n"
+      end
+      res
+    end
+
+    # remove method from the call graph. should not be called directly.
+    def eliminate!
+      # $stderr.puts "eliminating #{self}"
+      call_infos.each{ |call_info| call_info.eliminate! }
+      call_infos.clear
+    end
+
   end
 end

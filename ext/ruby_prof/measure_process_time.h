@@ -31,7 +31,7 @@
 static prof_measure_t
 measure_process_time()
 {
-    return clock();
+    return clock(); // cpu usage (with poor precision) in linux (TODO), wall time in doze (TODO)
 }
 
 static double

@@ -51,6 +51,7 @@ module RubyProf
     when "memory"
       RubyProf.measure_mode = RubyProf::MEMORY
     else
+      # the default...
       RubyProf.measure_mode = RubyProf::PROCESS_TIME
     end
   end

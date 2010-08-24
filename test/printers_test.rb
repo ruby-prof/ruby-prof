@@ -2,18 +2,21 @@
 require 'test/unit'
 require 'ruby-prof'
 require 'prime'
+require 'stringio'
+require 'fileutils'
+require 'rubygems'
 
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase
 
   def go
-    run_primes(10000)
+    run_primes(1000)
   end
 
   def setup
-    RubyProf::measure_mode = RubyProf::WALL_TIME # WALL_TIME so we can use sleep in our test
+    RubyProf::measure_mode = RubyProf::WALL_TIME # WALL_TIME so we can use sleep in our test and get same measurements on linux and doze
     @result = RubyProf.profile do
-      run_primes(10000)
+      run_primes(1000)
       go
     end
 
@@ -37,15 +40,24 @@ class PrintersTest < Test::Unit::TestCase
 
       printer = RubyProf::CallTreePrinter.new(@result)
       printer.print(output)
+      output_dir = 'examples2'
+      
+      if ENV['SAVE_NEW_PRINTER_EXAMPLES']
+        output_dir = 'examples'
+      end
       
       printer = RubyProf::DotPrinter.new(@result)
-      File.open("examples/graph.dot", "w") {|f| printer.print(f)}
+      File.open("#{output_dir}/graph.dot", "w") {|f| printer.print(f)}
 
       printer = RubyProf::CallStackPrinter.new(@result)
-      File.open("examples/stack.html", "w") {|f| printer.print(f, :application => "primes")}
+      File.open("#{output_dir}/stack.html", "w") {|f| printer.print(f, :application => "primes")}
 
       printer = RubyProf::MultiPrinter.new(@result)
-      printer.print(:path => "examples", :profile => "multi", :application => "primes")
+      printer.print(:path => "#{output_dir}", :profile => "multi", :application => "primes")
+      for file in ['empty.png', 'graph.dot', 'minus.png', 'multi.flat.txt', 'multi.graph.html', 'multi.grind.dat', 'multi.stack.html', 'plus.png', 'stack.html']
+        existant_file = output_dir + '/' + file
+        assert File.size(existant_file) > 0
+      end
     end
   end
 
@@ -73,13 +85,16 @@ class PrintersTest < Test::Unit::TestCase
     assert_match(/called from/, output)
 
     # should combine common parents
-    if RUBY_VERSION < '1.9'
-        assert_equal(3, output.scan(/Object#is_prime/).length)
-          else
-                  # 1.9
-                  assert_equal(2, output.scan(/Object#is_prime/).length)
-    end
-          assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
+    # lodo remove...
+    #if RUBY_VERSION < '1.9'
+      assert_equal(3, output.scan(/Object#is_prime/).length)
+    #else
+    #  # 1.9
+    #  require 'ruby-debug'
+    #  debugger
+    #  assert_equal(2, output.scan(/Object#is_prime/).length)
+    #end
+    assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
   end
 
   def test_graph_html_string

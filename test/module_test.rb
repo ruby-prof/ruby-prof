@@ -31,24 +31,14 @@ class ModuleTest < Test::Unit::TestCase
       hello
     end
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.values.first
 
     # Length should be 5
     assert_equal(5, methods.length)
 
-    method = methods[0]
-    assert_equal('ModuleTest#test_nested_modules', method.full_name)
-
-    method = methods[1]
-    assert_equal('Bar#hello', method.full_name)
-
-    method = methods[2]
-    assert_equal('Kernel#sleep', method.full_name)
-
-    method = methods[3]
-    assert_equal('<Module::Bar>#hello', method.full_name)
-
-    method = methods[4]
-    assert_equal('<Module::Foo>#hello', method.full_name)
+    # these methods should be in there... (hard to tell order though).
+    for name in ['ModuleTest#test_nested_modules','Bar#hello','Kernel#sleep','<Module::Bar>#hello','<Module::Foo>#hello']
+      assert methods.map(&:full_name).include? name
+    end
   end
 end

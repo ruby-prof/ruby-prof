@@ -58,7 +58,7 @@ class MultiPrinterTest < Test::Unit::TestCase
     assert graph =~ re
     display_time = $1.to_f
     difference = (expected_time-display_time).abs
-    assert_in_delta expected_time, display_time, 0.001
+    assert_in_delta expected_time, display_time, 0.005
   end
 
   private

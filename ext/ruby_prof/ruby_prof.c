@@ -1660,7 +1660,7 @@ prof_profile(VALUE self)
     return prof_stop(self);
 }
 
-/* Get arround annoying limitations in RDOC */
+/* Get around annoying limitations in RDOC */
 
 /* Document-method: measure_process_time
    call-seq:
@@ -1726,8 +1726,10 @@ Returns the total number of garbage collections.*/
 Returns the time spent doing garbage collections in microseconds.*/
 
 
-#if defined(_WIN32)
-__declspec(dllexport)
+#if RUBY_VERSION == 191 // sigh
+# if defined(_WIN32)
+  __declspec(dllexport)
+# endif
 #endif
 void
 

@@ -22,6 +22,23 @@ class StartStopTest < Test::Unit::TestCase
     sleep(2)
     @result = RubyProf.stop
   end
+  
+  def test_extra_stop_should_raise
+    RubyProf.start
+    assert_raise(RuntimeError) do
+      RubyProf.start
+    end
+    
+    assert_raise(RuntimeError) do
+      RubyProf.profile {}
+    end
+    
+    RubyProf.stop # ok
+    assert_raise(RuntimeError) do
+      RubyProf.stop
+    end
+  end
+    
 
   def test_different_methods
     method1

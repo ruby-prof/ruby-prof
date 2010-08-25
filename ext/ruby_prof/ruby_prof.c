@@ -1613,6 +1613,11 @@ prof_resume(VALUE self)
 static VALUE
 prof_stop(VALUE self)
 {
+    if (threads_tbl == NULL)
+    {
+        rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
+    }
+  
     VALUE result = Qnil;
 
     /* close trace file if open */

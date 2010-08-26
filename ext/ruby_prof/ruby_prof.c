@@ -1086,10 +1086,10 @@ prof_pop_threads()
 }
 
 #if RUBY_VERSION == 190
-# error 1.9.0 not supported (ask for it if desired)
+# error 1.9.0 not supported (ask for it if you desire it to be supported)
 #endif
 
-#if RUBY_VERSION == 191
+#if RUBY_VERSION >= 191
 
 /* Avoid bugs in 1.9.1 */
 
@@ -1160,7 +1160,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
 
-   # if RUBY_VERSION == 191
+   # if RUBY_VERSION >= 191
      /* ensure that new threads are hooked [sigh] (bug in core) */
      prof_remove_hook();
      prof_install_hook();
@@ -1194,7 +1194,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       {
         frame->line = rb_sourceline();
 
-        # if RUBY_VERSION == 191
+        # if RUBY_VERSION >= 191
           // disabled it causes
           // us to lose valuable frame information...maybe mid comes in wrong sometimes?
           // walk_up_until_right_frame(frame, thread_data, mid, klass, now);
@@ -1260,7 +1260,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     {
         frame = pop_frame(thread_data, now);
 
-      # if RUBY_VERSION == 191
+      # if RUBY_VERSION >= 191
         // we need to walk up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
         // sometimes frames don't have line and source somehow [like blank]
         // if we hit one there's not much we can do...I guess...
@@ -1273,7 +1273,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     }
 }
 
-#if RUBY_VERSION == 191
+#if RUBY_VERSION >= 191
 
 static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now) {
   // while it doesn't match, pop on up until we have found where we belong...
@@ -1731,7 +1731,7 @@ Returns the total number of garbage collections.*/
 Returns the time spent doing garbage collections in microseconds.*/
 
 
-#if RUBY_VERSION == 191 // sigh
+#if RUBY_VERSION == 191 // accomodate for this: http://redmine.ruby-lang.org/issues/show/3748
 # if defined(_WIN32)
   __declspec(dllexport)
 # endif

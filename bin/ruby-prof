@@ -166,6 +166,26 @@ opts = OptionParser.new do |opts|
   opts.on("-d", "Set $DEBUG to true") do
     $DEBUG = true
   end
+
+  opts.on('-R lib', '--require-noprof lib', 'require a specific library (not profiled)') do |lib|
+      options.pre_libs ||= []
+      options.pre_libs << lib
+  end
+
+  opts.on('-E code', '--eval-noprof code', 'execute the ruby statements (not profiled)') do |code|
+      options.pre_exec ||= []
+      options.pre_exec << code
+  end
+
+  opts.on('-r lib', '--require lib', 'require a specific library') do |lib|
+      options.libs ||= []
+      options.libs << lib
+  end
+
+  opts.on('-e code', '--eval', 'execute the ruby statements') do |code|
+      options.exec ||= []
+      options.exec << code
+  end
 end
 
 begin
@@ -179,7 +199,7 @@ rescue OptionParser::InvalidOption, OptionParser::InvalidArgument,
 end
 
 # Make sure the user specified at least one file
-if ARGV.length < 1
+if ARGV.length < 1 and not options.exec
   puts opts
   puts ""
   puts "Must specify a script to run"
@@ -229,8 +249,28 @@ if options.replace_prog_name
   $0 = File.expand_path(script)
 end
 
+if options.pre_libs
+  options.pre_libs.each { |l| require l }
+end
+
+if options.pre_exec
+  options.pre_exec.each { |c| eval c }
+end
+
+# do not pollute profiling report with OpenStruct#libs
+ol = options.libs
+oe = options.exec
+
 # Start profiling
 RubyProf.start 
 
+if ol
+  ol.each { |l| require l }
+end
+
+if oe
+  oe.each { |c| eval c }
+end
+
 # Load the script
-load script
+load script if script

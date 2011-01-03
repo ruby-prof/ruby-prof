@@ -31,13 +31,24 @@
 static prof_measure_t
 measure_process_time()
 {
-    return clock(); // cpu usage (with poor precision) in linux (TODO), wall time in doze (TODO)
+#if defined(__linux__)
+    struct timespec time;
+    clock_gettime(CLOCK_MONOTONIC, &time);
+    return time.tv_sec * 1000000000 + time.tv_nsec ;
+#else
+    return clock();
+#endif
 }
+
 
 static double
 convert_process_time(prof_measure_t c)
 {
+#if defined(__linux__)
+    return (double) c / 1000000000;
+#else
     return (double) c / CLOCKS_PER_SEC;
+#endif
 }
 
 /* Document-method: measure_process_time

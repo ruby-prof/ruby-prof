@@ -5,6 +5,18 @@ module RubyProf
   # for use by kcachegrind and similar tools.
 
   class CallTreePrinter  < AbstractPrinter
+    # Specify print options.
+    #
+    # options - Hash table
+    #   :min_percent - Number 0 to 100 that specifes the minimum
+    #                  %self (the methods self time divided by the
+    #                  overall total time) that a method must take
+    #                  for it to be printed out in the report.
+    #                  Default value is 0.
+    #
+    #   :print_file  - True or false. Specifies if a method's source
+    #                  file should be printed.  Default value if false.
+    #
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)

@@ -11,6 +11,33 @@ module RubyProf
       super(result)
     end
 
+    # Specify print options.
+    #
+    # options - Hash table
+    #   :min_percent - Number 0 to 100 that specifes the minimum
+    #                  %self (the methods self time divided by the
+    #                  overall total time) that a method must take
+    #                  for it to be printed out in the report.
+    #                  Default value is 0.
+    #
+    #   :print_file  - True or false. Specifies if a method's source
+    #                  file should be printed.  Default value if false.
+    #
+    #   :threshold   - a float from 0 to 100 that sets the threshold of
+    #                  results displayed.
+    #                  Default value is 1.0
+    #
+    #   :title       - a String to overide the default "ruby-prof call tree"
+    #                  title of the report.
+    #
+    #   :expansion   - a float from 0 to 100 that sets the threshold of
+    #                  results that are expanded, if the percent_total
+    #                  exceeds it.
+    #                  Default value is 10.0
+    #
+    #   :application - a String to overide the name of the application,
+    #                  as it appears on the report.
+    #
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)

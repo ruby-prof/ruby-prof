@@ -43,6 +43,13 @@ module RubyProf
     # options - Hash of print options.  See #setup_options
     #           for more information.
     #
+    # unique options are:
+    #   :filename    - specify a file to use that contains the ERB
+    #                  template to use, instead of the built-in self.template
+    #
+    #   :template    - specify an ERB template to use, instead of the
+    #                  built-in self.template
+    #
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)

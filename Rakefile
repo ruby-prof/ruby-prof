@@ -133,8 +133,7 @@ end
 
 desc 'clean stuff'
 task :cleanr do
- FileUtils.rm 'lib/ruby_prof.so' if File.exist? 'lib/ruby_prof.so'
- FileUtils.rm 'lib/ruby_prof.bundle' if File.exist? 'lib/ruby_prof.bundle'
+ Dir['**/*.{so,bundle}'].each{|f| File.delete f}
  Dir.chdir('ext/ruby_prof') do
   if File.exist? 'Makefile'
     system("make clean")

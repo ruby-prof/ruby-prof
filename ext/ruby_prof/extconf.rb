@@ -38,6 +38,9 @@ def add_define(name, value = nil)
     $defs.push("-D#{name}")
   end
 end
-
+require 'rubygems'
+if !Gem.win_platform?
+  $LDFLAGS += " -lrt" # for clock_gettime
+end
 add_define("RUBY_VERSION", RUBY_VERSION.gsub('.', ''))
 create_makefile("ruby_prof")

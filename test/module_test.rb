@@ -38,7 +38,7 @@ class ModuleTest < Test::Unit::TestCase
 
     # these methods should be in there... (hard to tell order though).
     for name in ['ModuleTest#test_nested_modules','Bar#hello','Kernel#sleep','<Module::Bar>#hello','<Module::Foo>#hello']
-      assert methods.map(&:full_name).include? name
+      assert methods.map(&:full_name).include?( name )
     end
   end
 end

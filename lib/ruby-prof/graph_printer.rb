@@ -9,7 +9,7 @@ module RubyProf
   #   end
   #
   #   printer = RubyProf::GraphPrinter.new(result, 5)
-  #   printer.print(STDOUT, 0)
+  #   printer.print(STDOUT, {})
   #
   # The constructor takes two arguments. See the README
 

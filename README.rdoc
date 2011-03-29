@@ -79,7 +79,7 @@ to profile:
 
   # Print a graph profile to text
   printer = RubyProf::GraphPrinter.new(result)
-  printer.print(STDOUT, 0)
+  printer.print(STDOUT, {})
 
 Starting with the 0.6.1 release, ruby-prof also supports pausing and resuming
 profiling runs.

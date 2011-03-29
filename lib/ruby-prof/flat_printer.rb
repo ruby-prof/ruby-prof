@@ -9,7 +9,7 @@ module RubyProf
   #   end
   #
   #   printer = RubyProf::FlatPrinter.new(result)
-  #   printer.print(STDOUT, 0)
+  #   printer.print(STDOUT, {})
   #
   class FlatPrinter < AbstractPrinter
     # Print a flat profile report to the provided output.

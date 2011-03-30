@@ -128,9 +128,9 @@ opts = OptionParser.new do |opts|
   end
   
   opts.on("-v","Show version, set $VERBOSE to true, profile script") do
-      puts "ruby_prof " + RubyProf::VERSION
-      puts "ruby " + RUBY_DESCRIPTION
-      $VERBOSE= true
+      puts "ruby_prof version: " + RubyProf::VERSION
+      puts "ruby version: " + RUBY_DESCRIPTION
+      $VERBOSE = true
   end
   
   opts.on("-d", "Set $DEBUG to true") do

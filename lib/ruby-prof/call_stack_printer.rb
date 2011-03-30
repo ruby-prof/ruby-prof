@@ -1,4 +1,3 @@
-require 'ruby-prof/abstract_printer'
 require 'erb'
 require 'fileutils'
 

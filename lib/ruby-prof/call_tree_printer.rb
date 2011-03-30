@@ -1,4 +1,3 @@
-require 'ruby-prof/abstract_printer'
 
 module RubyProf
   # Generate profiling information in calltree format

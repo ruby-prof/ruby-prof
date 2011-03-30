@@ -1,5 +1,4 @@
 require 'set'
-require 'ruby-prof/abstract_printer'
 
 module RubyProf
   # Generates a graphviz graph in dot format.

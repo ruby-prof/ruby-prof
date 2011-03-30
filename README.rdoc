@@ -120,6 +120,20 @@ The third way of using ruby-prof is by requiring unprof.rb:
 This will start profiling immediately at that point and will output the results
 using a flat profile report after the process ends.
 
+
+== Benchmarking full load time ==
+
+If you want to get a more accurate measurement of what takes a gem's bin/xxx
+command its time to load, you may want to also measure rubygems' startup penalty.
+You can do this by calling into bin/ruby-prof directly, ex:
+
+
+$ ruby C:/installs/Ruby187/lib/ruby/gems/1.8/gems/ruby-prof-0.10.0/bin/ruby-prof D:\Ruby192\bin\ruby-prof
+
+or
+
+$ ruby C:/installs/Ruby187/lib/ruby/gems/1.8/gems/ruby-prof-0.10.0/bin/ruby-prof some_file_that_does_a_require_rubygems_at_the_beginning
+
 == Method Elimination
 
 Starting with release 0.9.0, ruby-prof supports eliminating methods from profiling

@@ -1,4 +1,3 @@
-require 'ruby-prof/abstract_printer'
 
 module RubyProf
   # Generates graph[link:files/examples/graph_txt.html] profile reports as text.

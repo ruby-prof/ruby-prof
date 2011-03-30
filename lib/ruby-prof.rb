@@ -1,4 +1,4 @@
-# require the  .so file...
+# require the .so (ext) file...
 
 me = File.dirname(__FILE__) + '/'
 begin
@@ -8,20 +8,14 @@ rescue Exception
   require "#{me}/../ext/ruby_prof/ruby_prof"
 end
 
-require "ruby-prof/result"
-require "ruby-prof/method_info"
-require "ruby-prof/call_info"
-require "ruby-prof/aggregate_call_info"
-require "ruby-prof/flat_printer"
-require "ruby-prof/flat_printer_with_line_numbers"
-require "ruby-prof/graph_printer"
-require "ruby-prof/graph_html_printer"
-require "ruby-prof/call_tree_printer"
-require "ruby-prof/call_stack_printer"
-require "ruby-prof/multi_printer"
-require "ruby-prof/dot_printer"
-require "ruby-prof/symbol_to_proc" # for 1.8's backward compatibility benefit
-require "ruby-prof/rack"
+# have to load them by hand since we don't want to load 'unprof'
+
+for file in ['abstract_printer', 'result', 'method_info', 'call_info', 'aggregate_call_info', 'flat_printer', 'flat_printer_with_line_numbers', 
+ 'graph_printer', 'graph_html_printer', 'call_tree_printer', 'call_stack_printer', 'multi_printer', 'dot_printer', 'symbol_to_proc', # for 1.8's backward compatible benefit
+ 'rack']
+
+ require File.dirname(__FILE__) + '/ruby-prof/' + file
+end
 
 module RubyProf
   # See if the user specified the clock mode via

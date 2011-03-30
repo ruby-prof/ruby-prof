@@ -9,37 +9,7 @@
 # ruby_prof [options] <script.rb> [--] [script-options]"
 #
 # Options:
-#     -p, --printer=printer            Select a printer:
-#                                        flat - Prints a flat profile as text (default).
-#                                        flat_with_line_numbers - Above, with line numbers
-#                                        graph - Prints a graph profile as text.
-#                                        graph_html - Prints a graph profile as html.
-#                                        call_tree - format for KCacheGrind
-#                                        call_stack - prints a HTML visualization of the call tree
-#																				 dot - Prints a graph profile as a dot file
-#     -f, --file=path                  Output results to a file instead of standard out.
-#     -m, --min_percent=min_percent    The minimum percent a method must take before ',
-#                                      being included in output reports.  Should be an
-#                                      integer between 1 and 100.  0 means all methods are printed.
-#         --mode=measure_mode          Select a measurement mode:
-#                                        process - Use process time (default).
-#                                        wall - Use wall time.
-#                                        cpu - Use the CPU clock counter
-#                                              (only supported on Pentium and PowerPCs).
-#                                        allocations - Tracks object allocations
-#                                              (requires a patched Ruby interpreter).
-#                                        memory - Tracks total memory size
-#                                              (requires a patched Ruby interpreter).
-#                                        gc_runs - Tracks number of garbage collection runs
-#                                              (requires a patched Ruby interpreter).
-#                                        gc_time - Tracks time spent doing garbage collection
-#                                              (requires a patched Ruby interpreter).
-#         --replace-progname           Replace $0 when loading the .rb files.
-#         --specialized-instruction    Turn on specialized instruction.
-#     -h, --help                       Show help message
-#         --version                    Show version
-#     -v                               Show version, set $VERBOSE to true, run file
-#     -d                               Set $DEBUG to true
+#        run "$ ruby-prof --help" to see them
 # 
 #
 # See also: {flat profiles}[link:files/examples/flat_txt.html], {graph profiles}[link:files/examples/graph_txt.html], {html graph profiles}[link:files/examples/graph_html.html]
@@ -47,7 +17,7 @@
 
 require 'ostruct'
 require 'optparse'
-require 'ruby-prof'
+require File.dirname(__FILE__) + "/../lib/ruby-prof"
 
 options = OpenStruct.new
 options.measure_mode = RubyProf::PROCESS_TIME
@@ -59,7 +29,7 @@ options.specialized_instruction = false
 
 opts = OptionParser.new do |opts|
   opts.banner = "ruby_prof #{RubyProf::VERSION}\n" +
-                "Usage: ruby_prof [options] <script.rb> [--] [script-options]"
+                "Usage: ruby-prof [options] <script.rb> [--] [script-options]"
  
   opts.separator ""
   opts.separator "Options:"

@@ -1,3 +1,7 @@
+0.10.0
+=======================
+Some rdoc changes, for linux wall time attempt to use higher granularity (thanks to all the contributors for this round!)
+
 0.9.2
 =======================
 Make graphviz work on 1.8.6

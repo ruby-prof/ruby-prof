@@ -4,6 +4,9 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 require 'date'
 
+
+# to release it, do a git tag, then rake cleanr default and publish that
+
 # ------- Version ----
 # Read version from header file
 version_header = File.read('ext/ruby_prof/version.h')

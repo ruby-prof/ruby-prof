@@ -6,6 +6,10 @@ require 'date'
 
 
 # to release it, do a git tag, then rake cleanr default and publish that
+# git tag 0.10.1
+# git push origin 0.10.1
+# rake cleanr default
+# gem push pkg/ruby-prof-0.10.1.gem
 
 # ------- Version ----
 # Read version from header file

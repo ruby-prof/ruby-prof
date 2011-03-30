@@ -1,3 +1,8 @@
+0.10.1
+=======================
+Fix bug in linux wall time, also load with only relative paths so that you can use it to benchmark rubygems startup overhead,
+itself.
+
 0.10.0
 =======================
 Some rdoc changes, for linux wall time attempt to use higher granularity (thanks to all the contributors for this round!)

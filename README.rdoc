@@ -12,7 +12,6 @@ ruby-prof is a fast code profiler for Ruby.  Its features include:
   - Call tree profiles - outputs results in the calltree format suitable for the KCacheGrind profiling tool.
 * Threads - supports profiling multiple threads simultaneously
 
-
 == Requirements
 
 ruby-prof requires Ruby 1.8.4 or higher.
@@ -450,3 +449,5 @@ See LICENSE for license information.
 == Development
 
 Code is located at http://github.com/rdp/ruby-prof
+
+Google group/mailing list: http://groups.google.com/group/ruby-prof

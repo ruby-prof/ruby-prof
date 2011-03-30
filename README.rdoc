@@ -21,7 +21,7 @@ If you are running Linux or Unix you'll need a C compiler so the extension
 can be compiled when it is installed.
 
 If you are running Windows, then you may need to install the
-Windows specific RubyGem which includes an already built extension (see below).
+Windows specific RubyGem which includes an already built extension (see Install section).
 
 == Install
 
@@ -34,7 +34,7 @@ don't have an MSVC compiler, please install v0.7.3 which
 has a prebuilt binary
 C:> gem install ruby-prof -v0.7.3
 
-If you're on mingw, please install the devkit first, then install the latest version (gem install ruby-prof).
+If you're on mingw, please install the devkit first, then install the latest gem version (gem install ruby-prof).
 
 == Usage
 
@@ -117,11 +117,8 @@ The third way of using ruby-prof is by requiring unprof.rb:
 
   require 'unprof'
 
-This will start profiling immediately and will output the results
-using a flat profile report.
-
-This method is provided for backwards compatibility.  Using the
-ruby-prof command provides more flexibility.
+This will start profiling immediately at that point and will output the results
+using a flat profile report after the process ends.
 
 == Method Elimination
 
@@ -230,6 +227,7 @@ ruby-prof can generate a number of different reports:
 * HTML Graph Reports
 * Call graphs
 * Call stack reports
+* More!
 
 Flat profiles show the overall time spent in each method. They
 are a good of quickly identifying which methods take the most time.
@@ -276,6 +274,7 @@ Reports are created by printers.  Supported printers include:
 * RubyProf::CallTreePrinter - Creates a call tree report compatible with KCachegrind.
 * RubyProf::CallStackPrinter - Creates a HTML visualization of the Ruby stack
 * RubyProf::MultiPrinter - Uses the other printers to create several reports in one profiling run
+* More!
 
 To use a printer:
 

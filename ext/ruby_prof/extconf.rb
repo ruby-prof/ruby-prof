@@ -39,7 +39,7 @@ def add_define(name, value = nil)
   end
 end
 require 'rubygems'
-if !Gem.win_platform?
+unless Gem.win_platform? || RUBY_PLATFORM =~ /darwin/
   $LDFLAGS += " -lrt" # for clock_gettime
 end
 add_define("RUBY_VERSION", RUBY_VERSION.gsub('.', ''))

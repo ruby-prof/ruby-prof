@@ -1160,7 +1160,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
 
-   # if RUBY_VERSION >= 191
+   # if RUBY_VERSION >= 191 && THREADS_INHERIT_EVENT_FLAGS==0
      /* ensure that new threads are hooked [sigh] (bug in core) */
      prof_remove_hook();
      prof_install_hook();

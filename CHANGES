@@ -1,3 +1,7 @@
+0.10.2
+=======================
+Fix for 1.9.2, os x for latest commits (thanks skaes!)
+
 0.10.1
 =======================
 Fix bug in linux wall time, also load with only relative paths so that you can use it to benchmark rubygems startup overhead,

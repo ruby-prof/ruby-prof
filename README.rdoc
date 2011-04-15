@@ -120,19 +120,6 @@ This will start profiling immediately at that point and will output the results
 using a flat profile report after the process ends.
 
 
-== Benchmarking full load time ==
-
-If you want to get a more accurate measurement of what takes a gem's bin/xxx
-command its time to load, you may want to also measure rubygems' startup penalty.
-You can do this by calling into bin/ruby-prof directly, ex:
-
-
-$ ruby C:/installs/Ruby187/lib/ruby/gems/1.8/gems/ruby-prof-0.10.0/bin/ruby-prof D:\Ruby192\bin\ruby-prof
-
-or
-
-$ ruby C:/installs/Ruby187/lib/ruby/gems/1.8/gems/ruby-prof-0.10.0/bin/ruby-prof some_file_that_does_a_require_rubygems_at_the_beginning
-
 == Method Elimination
 
 Starting with release 0.9.0, ruby-prof supports eliminating methods from profiling
@@ -155,6 +142,22 @@ the name of a file containing a list of regular expressions (line separated text
 After eliminating methods the resulting profile will appear exactly as if those methods
 had been inlined at their call sites.
 
+== Benchmarking full load time including rubygems startup cost ==
+
+If you want to get a more accurate measurement of what takes all of a gem's bin/xxx
+command to load, you may want to also measure rubygems' startup penalty.
+You can do this by calling into bin/ruby-prof directly, ex:
+
+$ gem which ruby-prof
+  g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/lib/ruby-prof.rb
+
+now run it thus (substitute lib/ruby-prof.rb with bin/ruby-prof):
+
+$ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof g:\192\bin\some_installed_gem_command
+
+or
+
+$ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof ./some_file_that_does_a_require_rubygems_at_the_beginning.rb
 
 == Profiling Tests
 

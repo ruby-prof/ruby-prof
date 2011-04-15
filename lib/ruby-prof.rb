@@ -1,12 +1,8 @@
 # require the .so (ext) file...
 
 me = File.dirname(__FILE__) + '/'
-begin
-  # fat binaries
-  require "#{me}/#{RUBY_VERSION[0..2]}/ruby_prof"
-rescue Exception
-  require "#{me}/../ext/ruby_prof/ruby_prof"
-end
+
+require "#{me}/../ext/ruby_prof/ruby_prof"
 
 # have to load them by hand since we don't want to load 'unprof'
 

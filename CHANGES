@@ -1,3 +1,11 @@
+0.10.4
+=======================
+Faster load time for ruby-prof itself.
+
+0.10.3
+=======================
+Can cleanly load before rubygems now.
+
 0.10.2
 =======================
 Fix for 1.9.2, os x for latest commits (thanks skaes!)

@@ -71,7 +71,7 @@ task :build do
     system(Gem.ruby + " extconf.rb")
     system("make clean")
   end
-  system("make")
+  raise 'make failed' unless system("make")
   FileUtils.cp 'ruby_prof.so', '../../lib' if File.exist? 'lib/ruby_prof.so'
   FileUtils.cp 'ruby_prof.bundle', '../../lib' if File.exist? 'lib/ruby_prof.bundle'
  end

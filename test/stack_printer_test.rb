@@ -46,7 +46,7 @@ class StackPrinterTest < Test::Unit::TestCase
     assert file_contents =~ /Thread: (\d+) \(100\.00% ~ ([.0-9]+)\)/
     actual_time = $2.to_f
     difference = (expected_time-actual_time).abs
-    assert difference<0.001 # less than 1 ms
+    assert difference < 0.001 # less than 1 ms
   end
 
   def test_method_elimination

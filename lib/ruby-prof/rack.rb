@@ -1,4 +1,3 @@
-require 'tmpdir'
 
 module Rack
   class RubyProf
@@ -16,6 +15,7 @@ module Rack
     end
 
     def print(data)
+      require 'tmpdir' # late require so we load on demand only
       printers = {::RubyProf::FlatPrinter => ::File.join(Dir.tmpdir, 'profile.txt'),
                   ::RubyProf::GraphHtmlPrinter => ::File.join(Dir.tmpdir, 'profile.html')}
 

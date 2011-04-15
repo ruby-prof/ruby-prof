@@ -1,20 +1,35 @@
-# require the .so (ext) file...
-
-me = File.dirname(__FILE__) + '/'
-
-require "#{me}/../ext/ruby_prof/ruby_prof"
-
-# have to load them by hand since we don't want to load 'unprof'
-
-for file in ['abstract_printer', 'result', 'method_info', 'call_info', 'aggregate_call_info', 'flat_printer', 'flat_printer_with_line_numbers', 
- 'graph_printer', 'graph_html_printer', 'call_tree_printer', 'call_stack_printer', 'multi_printer', 'dot_printer', 'symbol_to_proc', # for 1.8's backward compatible benefit
- 'rack']
-
- require File.dirname(__FILE__) + '/ruby-prof/' + file
-end
+# require the .so file...
+require  File.dirname(__FILE__) + "/../ext/ruby_prof/ruby_prof"
 
 module RubyProf
-  # See if the user specified the clock mode via
+  
+  if RUBY_VERSION < '1.8.7'
+    require File.dirname(__FILE__) + '/ruby-prof/symbol_to_proc'
+  end
+  
+  def self.camelcase(phrase)
+    ('_' + phrase).gsub(/_([a-z])/){|b| b[1..1].upcase}
+  end
+  
+  lib_dir = File.dirname(__FILE__) + '/ruby-prof/'
+  
+  for file in ['abstract_printer', 'aggregate_call_info', 'flat_printer', 'flat_printer_with_line_numbers', 
+    'graph_printer', 'graph_html_printer', 'call_tree_printer', 'call_stack_printer', 'multi_printer', 'dot_printer']
+    autoload camelcase(file), lib_dir + file
+  end
+
+  # A few need to be loaded manually their classes were already defined by the .so file so autoload won't work for them.
+  # plus we need them anyway
+  for name in ['result', 'method_info', 'call_info']
+    require lib_dir + name
+  end
+  
+  require File.dirname(__FILE__) + '/ruby-prof/rack' # do we even need to load this every time?
+  
+  # we don't require unprof.rb, as well, purposefully
+  
+  
+  # Checks if the user specified the clock mode via
   # the RUBY_PROF_MEASURE_MODE environment variable
   def self.figure_measure_mode
     case ENV["RUBY_PROF_MEASURE_MODE"]

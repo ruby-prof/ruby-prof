@@ -90,18 +90,12 @@ class PrintersTest < Test::Unit::TestCase
     assert_match(/called from/, output)
 
     # should combine common parents
-    # lodo remove...
-    #if RUBY_VERSION < '1.9'
-    #require 'ruby-debug'
-    #debugger
-    #print output
-      assert_equal(3, output.scan(/Object#is_prime/).length) # failing this is prolly a 1.9.2 core bug
-    #else
-    #  # 1.9
-    #  require 'ruby-debug'
-    #  debugger
-    #  assert_equal(2, output.scan(/Object#is_prime/).length)
-    #end
+    if RUBY_VERSION < '1.9'
+      assert_equal(3, output.scan(/Object#is_prime/).length)
+    else
+      # 1.9 inlines it's  Fixnum#- so we don't see as many
+      assert_equal(2, output.scan(/Object#is_prime/).length)
+    end
     assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
   end
 

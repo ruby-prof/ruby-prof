@@ -4,8 +4,7 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 require 'date'
 
-
-# to release it, do a git tag, then rake cleanr default and publish that
+# to release a version of ruby-prof, do a git tag, then rake cleanr default and publish that
 # git tag 0.10.1
 # git push origin 0.10.1
 # rake cleanr default
@@ -13,8 +12,9 @@ require 'date'
 
 default_spec = eval File.read(File.expand_path('../ruby-prof.gemspec', __FILE__))
 
-desc 'build native .gem files -- use like "native_gems clobber cross native gem"--for non native gem creation use "native_gems clobber" then "clean gem"'
+desc 'deprecated--build native .gem files -- use like "native_gems clobber cross native gem"--for non native gem creation use "native_gems clobber" then "clean gem"'
 task :native_gems do
+  # we don't do cross compiler anymore, now that mingw has devkit
   ENV['RUBY_CC_VERSION'] = '1.8.6:1.9.1'
   require 'rake/extensiontask'
   Rake::ExtensionTask.new('ruby_prof', default_spec) do |ext|

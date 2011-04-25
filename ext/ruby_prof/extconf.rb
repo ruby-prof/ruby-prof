@@ -44,7 +44,7 @@ unless Gem.win_platform? || RUBY_PLATFORM =~ /darwin/
 end
 add_define("RUBY_VERSION", RUBY_VERSION.gsub('.', ''))
 
-# for ruby 1.9, determine whether threads inherit trace flags (skaes patched 1.9 rubies do)
+# for ruby 1.9, determine whether threads inherit trace flags (latest 1.9.2 works correctly)
 if RUBY_VERSION > "1.9"
   require 'set'
   threads = Set.new

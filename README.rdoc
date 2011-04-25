@@ -109,7 +109,6 @@ has not yet started.  In addition, resume can also take a block:
 With this usage, resume will automatically call pause at the
 end of the block.
 
-
 === require unprof
 
 The third way of using ruby-prof is by requiring unprof.rb:
@@ -117,8 +116,7 @@ The third way of using ruby-prof is by requiring unprof.rb:
   require 'unprof'
 
 This will start profiling immediately at that point and will output the results
-using a flat profile report after the process ends.
-
+using a flat profile report when the process ends.
 
 == Method Elimination
 
@@ -442,7 +440,8 @@ profiled.  Most programs will run approximately twice as slow
 while highly recursive programs (like the fibonacci series test)
 will run three times slower.
 
-Because of some threading difficulties in 1.9, it currently runs a bit slower there.
+Because of some threading difficulties in 1.9, it currently runs a 
+bit slower there, as well.
 http://www.ruby-forum.com/topic/201329
 
 == License

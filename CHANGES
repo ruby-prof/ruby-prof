@@ -1,3 +1,7 @@
+0.10.5
+=======================
+1.8.6 compat for -v command (bug fix)
+
 0.10.4
 =======================
 Faster load time for ruby-prof itself.

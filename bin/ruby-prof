@@ -8,12 +8,10 @@
 #
 # ruby_prof [options] <script.rb> [--] [script-options]"
 #
-# Options:
+# Various options:
 #        run "$ ruby-prof --help" to see them
-# 
 #
 # See also: {flat profiles}[link:files/examples/flat_txt.html], {graph profiles}[link:files/examples/graph_txt.html], {html graph profiles}[link:files/examples/graph_html.html]
-#
 
 require 'ostruct'
 require 'optparse'
@@ -29,7 +27,7 @@ options.specialized_instruction = false
 
 opts = OptionParser.new do |opts|
   opts.banner = "ruby_prof #{RubyProf::VERSION}\n" +
-                "Usage: ruby-prof [options] <script.rb> [--] [script-options]"
+                "Usage: ruby-prof [options] <script.rb> [--] [profiled-script-command-line-options]"
  
   opts.separator ""
   opts.separator "Options:"
@@ -127,7 +125,7 @@ opts = OptionParser.new do |opts|
       exit
   end
   
-  opts.on("-v","Show version, set $VERBOSE to true, profile script") do
+  opts.on("-v","Show version, set $VERBOSE to true, profile script if option given") do
       puts "ruby version: " + [RUBY_PATCHLEVEL, RUBY_PLATFORM, RUBY_VERSION].join(' ')
       $VERBOSE = true
   end

@@ -123,7 +123,7 @@ module RubyProf
         if RUBY_PLATFORM =~ /darwin/
           "<a href=\"txmt://open?url=file://#{file}&line=#{method.line}\">#{h(name(call_info))}</a>"
         else
-          "<a href=\"file://#{file}?line=#{method.line}\">#{h(name(call_info))}</a>"
+          "<a href=\"file://#{file}##{method.line}\">#{h(name(call_info))}</a>"
         end
       end
     end

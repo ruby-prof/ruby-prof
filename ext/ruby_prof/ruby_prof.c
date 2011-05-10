@@ -1078,10 +1078,8 @@ pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
 }
 
 static void
-prof_pop_threads()
+prof_pop_threads(prof_measure_t now)
 {
-    /* Get current measurement */
-    prof_measure_t now = get_measurement();
     st_foreach(threads_tbl, pop_frames, (st_data_t) &now);
 }
 
@@ -1613,6 +1611,10 @@ prof_resume(VALUE self)
 static VALUE
 prof_stop(VALUE self)
 {
+    /* get 'now' before prof emove hook because it calls GC.disable_stats
+      which makes the call within prof_pop_threads of now return 0, which is wrong
+    */
+    prof_measure_t now = get_measurement();
     if (threads_tbl == NULL)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
@@ -1626,10 +1628,10 @@ prof_stop(VALUE self)
         fclose(trace_file);
       trace_file = NULL;
     }
-
+    
     prof_remove_hook();
 
-    prof_pop_threads();
+    prof_pop_threads(now);
 
     /* Create the result */
     result = prof_result_new();

@@ -1,3 +1,11 @@
+0.10.7
+======================
+Fix a bug with REE's GC stats. Issue #53 [thanks graaff]
+
+0.10.6
+======================
+Slightly more normalized url for linux/windows links to files.
+
 0.10.5
 =======================
 1.8.6 compat for -v command (bug fix)

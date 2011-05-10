@@ -69,6 +69,14 @@ class MeasurementTest < Test::Unit::TestCase
     end
   end
 
+  def memory_test_helper
+      result = RubyProf.profile {Array.new}
+      total = result.threads.values.first.inject(0) { |sum, m| sum + m.total_time }
+
+      assert(total > 0, 'Should measure more than zero kilobytes of memory usage')
+      assert_not_equal(0, total % 1, 'Should not truncate fractional kilobyte measurements')
+  end
+
   if RubyProf::MEMORY
     def test_memory_mode
       RubyProf::measure_mode = RubyProf::MEMORY
@@ -81,14 +89,24 @@ class MeasurementTest < Test::Unit::TestCase
 
       u = RubyProf.measure_memory
       assert(u >= t, [t, u].inspect)
+      RubyProf::measure_mode = RubyProf::MEMORY
+      memory_test_helper
+    end
+  end
+  
+  def memory_test_helper
+      t = RubyProf.measure_memory
+      assert_kind_of Integer, t
+
+      u = RubyProf.measure_memory
+      assert(u >= t, [t, u].inspect)
 
       RubyProf::measure_mode = RubyProf::MEMORY
       result = RubyProf.profile {Array.new}
       total = result.threads.values.first.inject(0) { |sum, m| sum + m.total_time }
 
       assert(total > 0, 'Should measure more than zero kilobytes of memory usage')
-      assert_not_equal(0, total % 1, 'Should not truncate fractional kilobyte measurements')
-    end
+      assert_not_equal(0, total % 1, 'Should not truncate fractional kilobyte measurements ' + total.inspect)
   end
 
   if RubyProf::GC_RUNS
@@ -105,6 +123,8 @@ class MeasurementTest < Test::Unit::TestCase
 
       u = RubyProf.measure_gc_runs
       assert u > t, [t, u].inspect
+      RubyProf::measure_mode = RubyProf::GC_RUNS
+      memory_test_helper
     end
   end
 
@@ -117,6 +137,8 @@ class MeasurementTest < Test::Unit::TestCase
 
       u = RubyProf.measure_gc_time
       assert u > t, [t, u].inspect
+      RubyProf::measure_mode = RubyProf::GC_TIME
+      memory_test_helper
     end
   end
 end

@@ -452,4 +452,4 @@ See LICENSE for license information.
 
 Code is located at http://github.com/rdp/ruby-prof
 
-Google group/mailing list: http://groups.google.com/group/ruby-prof
+Google group/mailing list: http://groups.google.com/group/ruby-optimization

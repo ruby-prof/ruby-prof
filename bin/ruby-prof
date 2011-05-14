@@ -11,7 +11,7 @@
 # Various options:
 #        run "$ ruby-prof --help" to see them
 #
-# See also: {flat profiles}[link:files/examples/flat_txt.html], {graph profiles}[link:files/examples/graph_txt.html], {html graph profiles}[link:files/examples/graph_html.html]
+# See also the readme "reports" section for the various outputs
 
 require 'ostruct'
 require 'optparse'

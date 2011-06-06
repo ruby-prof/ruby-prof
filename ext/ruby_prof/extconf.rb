@@ -23,6 +23,9 @@ have_func("rb_gc_allocated_size")
 have_func("rb_gc_collections")
 have_func("rb_gc_time")
 
+# 1.9.3 superclass
+have_func("rb_class_superclass")
+
 # Lloyd Hilaiel's heap info patch
 have_func("rb_heap_total_mem")
 have_func("rb_gc_heap_info")

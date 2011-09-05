@@ -1,8 +1,10 @@
-require 'rubygems'
-require 'rake/gempackagetask'
-require 'rake/rdoctask'
-require 'rake/testtask'
-require 'date'
+# encoding: utf-8
+
+require "rubygems/package_task"
+require "rake/extensiontask"
+require "rake/testtask"
+require "rdoc/task"
+require "date"
 
 # to release a version of ruby-prof, do a git tag, then rake cleanr default and publish that
 # git tag 0.10.1
@@ -10,29 +12,45 @@ require 'date'
 # rake cleanr default
 # gem push pkg/ruby-prof-0.10.1.gem
 
-default_spec = eval File.read(File.expand_path('../ruby-prof.gemspec', __FILE__))
+GEM_NAME = 'ruby-prof'
+SO_NAME = 'ruby_prof'
 
-desc 'deprecated--build native .gem files -- use like "native_gems clobber cross native gem"--for non native gem creation use "native_gems clobber" then "clean gem"'
-task :native_gems do
-  # we don't do cross compiler anymore, now that mingw has devkit
-  ENV['RUBY_CC_VERSION'] = '1.8.6:1.9.1'
-  require 'rake/extensiontask'
-  Rake::ExtensionTask.new('ruby_prof', default_spec) do |ext|
-    ext.cross_compile = true
-    ext.cross_platform = ['x86-mswin32-60', 'x86-mingw32-60']
-  end
+default_spec = Gem::Specification.load("#{GEM_NAME}.gemspec")
+
+Rake::ExtensionTask.new do |ext|
+  ext.gem_spec = default_spec
+  ext.name = SO_NAME
+  ext.ext_dir = "ext/#{SO_NAME}"
+  ext.lib_dir = "lib/#{RUBY_VERSION.sub(/\.\d$/, '')}"
+  ext.cross_compile = true
+  ext.cross_platform = ['x86-mswin32-60', 'x86-mingw32-60']
 end
 
 # Rake task to build the default package
-Rake::GemPackageTask.new(default_spec) do |pkg|
+Gem::PackageTask.new(default_spec) do |pkg|
   pkg.need_tar = true
-  #pkg.need_zip = true
 end
 
+# Setup Windows Gem
+if RUBY_PLATFORM.match(/win32|mingw32/)
+  # Windows specification
+  win_spec = default_spec.clone
+  win_spec.platform = Gem::Platform::CURRENT
+  win_spec.files += Dir.glob('lib/**/*.so')
+  win_spec.instance_variable_set(:@cache_file, nil) # Hack to work arond gem issue
+
+  # Unset extensions
+  win_spec.extensions = nil
+
+  # Rake task to build the windows package
+  Gem::PackageTask.new(win_spec) do |pkg|
+    pkg.need_tar = false
+  end
+end
 
 # ---------  RDoc Documentation ------
 desc "Generate rdoc documentation"
-Rake::RDocTask.new("rdoc") do |rdoc|
+RDoc::Task.new("rdoc") do |rdoc|
   rdoc.rdoc_dir = 'doc'
   rdoc.title    = "ruby-prof"
   # Show source inline with line numbers
@@ -60,34 +78,4 @@ Rake::TestTask.new do |t|
   t.test_files = Dir['test/test_suite.rb']
   t.verbose = true
   t.warning = true
-end
-
-require 'fileutils'
-
-desc 'Build ruby_prof.so'
-task :build do
- Dir.chdir('ext/ruby_prof') do
-  unless File.exist? 'Makefile'
-    system(Gem.ruby + " extconf.rb")
-    system("make clean")
-  end
-  raise 'make failed' unless system("make")
-  FileUtils.cp 'ruby_prof.so', '../../lib' if File.exist? 'lib/ruby_prof.so'
-  FileUtils.cp 'ruby_prof.bundle', '../../lib' if File.exist? 'lib/ruby_prof.bundle'
- end
-end
-
-desc 'clean stuff'
-task :cleanr do
- Dir['**/*.{so,bundle}'].each{|f| File.delete f}
- Dir.chdir('ext/ruby_prof') do
-  if File.exist? 'Makefile'
-    system("make clean")
-    FileUtils.rm 'Makefile'
-  end
-  Dir.glob('*~') do |file|
-    FileUtils.rm file
-  end
- end
- system("rm -rf pkg")
 end

@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module RubyProf
   class AbstractPrinter
     def initialize(result)

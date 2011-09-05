@@ -1,3 +1,4 @@
+# encoding: utf-8
 
 module RubyProf
   # Generates graph[link:files/examples/graph_txt.html] profile reports as text.

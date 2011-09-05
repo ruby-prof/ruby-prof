@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 unless (:a.respond_to?(:to_proc))
  class Symbol
    def to_proc

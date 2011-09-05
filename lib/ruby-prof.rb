@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Load the C-based binding.
 begin
   RUBY_VERSION =~ /(\d+.\d+)/

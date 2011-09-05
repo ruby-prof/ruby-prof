@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 # Now load ruby-prof and away we go
 require 'fileutils'
 require 'ruby-prof'

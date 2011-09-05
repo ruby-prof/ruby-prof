@@ -1,3 +1,4 @@
+# encoding: utf-8
 
 module RubyProf
   # Generates flat[link:files/examples/flat_txt.html] profile reports as text.

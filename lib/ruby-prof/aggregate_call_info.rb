@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module RubyProf
   class AggregateCallInfo
     attr_reader :call_infos

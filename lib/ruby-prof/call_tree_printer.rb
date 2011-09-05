@@ -1,3 +1,4 @@
+# encoding: utf-8
 
 module RubyProf
   # Generate profiling information in calltree format

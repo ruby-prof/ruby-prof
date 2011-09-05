@@ -1,3 +1,5 @@
+# encoding: utf-8
+
 module RubyProf
   # Helper class to simplify printing profiles of several types from
   # one profiling run. Currently prints a flat profile, a callgrind

@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
-require 'test/unit'
-require 'ruby-prof'
+# encoding: UTF-8
+
+require './test_helper'
 
 # Need to use wall time for this test due to the sleep calls
 RubyProf::measure_mode = RubyProf::WALL_TIME

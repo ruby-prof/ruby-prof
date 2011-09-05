@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
-require 'test/unit'
-require 'ruby-prof'
-require File.dirname(__FILE__) + '/prime'
+# encoding: UTF-8
+
+require './test_helper'
+require './prime'
 require 'stringio'
 require 'fileutils'
-require 'rubygems'
 
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase

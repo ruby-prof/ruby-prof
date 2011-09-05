@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
+# encoding: UTF-8
 
-require 'test/unit'
-require 'ruby-prof'
+require './test_helper'
 
 class DuplicateNames < Test::Unit::TestCase
   def test_names

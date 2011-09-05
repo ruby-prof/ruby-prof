@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
-require 'ruby-prof'
+# encoding: UTF-8
+
+require './test_helper'
 
 # Make sure this works with no class or method
 result = RubyProf.profile do

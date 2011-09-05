@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
-require 'test/unit'
-require 'ruby-prof'
+# encoding: UTF-8
+
+require './test_helper'
 
 def simple(n)
   sleep(1)

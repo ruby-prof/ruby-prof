@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
-require 'test/unit'
-require 'ruby-prof'
-require 'prime'
+# encoding: UTF-8
+
+require './test_helper'
 
 # --  Tests ----
 class PrimeTest< Test::Unit::TestCase

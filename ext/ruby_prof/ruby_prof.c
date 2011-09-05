@@ -1544,6 +1544,7 @@ prof_running(VALUE self)
 static VALUE
 prof_start(VALUE self)
 {
+	char* trace_file_name;
     if (threads_tbl != NULL)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was already called");
@@ -1554,7 +1555,7 @@ prof_start(VALUE self)
     threads_tbl = threads_table_create();
 
     /* open trace file if environment wants it */
-    char* trace_file_name = getenv("RUBY_PROF_TRACE");
+    trace_file_name = getenv("RUBY_PROF_TRACE");
     if (trace_file_name != NULL) {
       if (0==strcmp(trace_file_name, "stdout")) {
         trace_file = stdout;
@@ -1616,7 +1617,9 @@ prof_resume(VALUE self)
 static VALUE
 prof_stop(VALUE self)
 {
-    /* get 'now' before prof emove hook because it calls GC.disable_stats
+    VALUE result = Qnil;
+
+	/* get 'now' before prof emove hook because it calls GC.disable_stats
       which makes the call within prof_pop_threads of now return 0, which is wrong
     */
     prof_measure_t now = get_measurement();
@@ -1625,8 +1628,6 @@ prof_stop(VALUE self)
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
     }
   
-    VALUE result = Qnil;
-
     /* close trace file if open */
     if (trace_file != NULL) {
       if (trace_file!=stderr && trace_file!=stdout)

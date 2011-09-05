@@ -33,15 +33,15 @@ class LineNumbersTest < Test::Unit::TestCase
 
     method = methods[0]
     assert_equal('LineNumbersTest#test_function_line_no', method.full_name)
-    assert_equal(27, method.line)
+    assert_equal(28, method.line)
 
     method = methods[1]
     assert_equal('LineNumbers#method2', method.full_name)
-    assert_equal(11, method.line)
+    assert_equal(12, method.line)
 
     method = methods[2]
     assert_equal('LineNumbers#method1', method.full_name)
-    assert_equal(7, method.line)
+    assert_equal(8, method.line)
   end
 
   def test_c_function
@@ -65,10 +65,10 @@ class LineNumbersTest < Test::Unit::TestCase
 
     method = methods[1]
     assert_equal('LineNumbers#method3', method.full_name)
-    assert_equal(16, method.line)
+    assert_equal(17, method.line)
 
     method = methods[2]
     assert_equal('LineNumbersTest#test_c_function', method.full_name)
-    assert_equal(50, method.line)
+    assert_equal(51, method.line)
   end
 end

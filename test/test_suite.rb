@@ -1,3 +1,10 @@
+# encoding: utf-8
+
+# Change to current directory so relative
+# requires work.
+dir = File.dirname(__FILE__)
+Dir.chdir(dir)
+
 require './test_helper'
 
 require './aggregate_test'

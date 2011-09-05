@@ -6,11 +6,16 @@ require "rake/testtask"
 require "rdoc/task"
 require "date"
 
-# to release a version of ruby-prof, do a git tag, then rake cleanr default and publish that
-# git tag 0.10.1
-# git push origin 0.10.1
-# rake cleanr default
-# gem push pkg/ruby-prof-0.10.1.gem
+# To release a version of ruby-prof:
+#   * Update version.h
+#   * Update CHANGES
+#   * Update rdocs
+#   * git  commit to commit files
+#   * rake clobber to remove extra files
+#   * rake compile to build windows gems
+#   * rake package to create the gems
+#   * Tag the release in git (tag 0.10.1)
+#   * Push to ruybgems.org (gem push pkg/<gem files>)
 
 GEM_NAME = 'ruby-prof'
 SO_NAME = 'ruby_prof'

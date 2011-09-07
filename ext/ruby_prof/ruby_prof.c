@@ -43,7 +43,20 @@ static thread_data_t* last_thread_data = NULL;
 
 
 /* =======  Helper Functions  ========*/
-static VALUE
+static VALUE figure_superclass(VALUE klass)
+{
+#if defined(HAVE_RB_CLASS_SUPERCLASS)
+        // 1.9.3
+        return rb_class_superclass(klass);
+#elif defined(RCLASS_SUPER)
+        return rb_class_real(RCLASS_SUPER(klass));
+#else
+        return rb_class_real(RCLASS(klass)->super);
+#endif
+}
+
+  
+  static VALUE
 figure_singleton_name(VALUE klass)
 {
     VALUE result = Qnil;
@@ -74,16 +87,7 @@ figure_singleton_name(VALUE klass)
         /* Make sure to get the super class so that we don't
            mistakenly grab a T_ICLASS which would lead to
            unknown method errors. */
-#ifdef HAVE_RB_CLASS_SUPERCLASS
-        // 1.9.3
-        VALUE super = rb_class_superclass(klass);
-#else
-# ifdef RCLASS_SUPER
-        VALUE super = rb_class_real(RCLASS_SUPER(klass));
-# else
-        VALUE super = rb_class_real(RCLASS(klass)->super);
-# endif
-#endif
+        VALUE super = figure_superclass(klass);
         result = rb_str_new2("<Object::");
         rb_str_append(result, rb_inspect(super));
         rb_str_cat2(result, ">");

@@ -406,12 +406,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
 
-   # if RUBY_VERSION >= 191 && THREADS_INHERIT_EVENT_FLAGS==0
-     /* ensure that new threads are hooked [sigh] (bug in core) */
-     prof_remove_hook();
-     prof_install_hook();
-   # endif
-
     if (exclude_threads_tbl &&
         st_lookup(exclude_threads_tbl, (st_data_t) thread_id, 0))
     {
@@ -439,13 +433,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       if (frame)
       {
         frame->line = rb_sourceline();
-
-        # if RUBY_VERSION >= 191
-          // disabled it causes
-          // us to lose valuable frame information...maybe mid comes in wrong sometimes?
-          // walk_up_until_right_frame(frame, thread_data, mid, klass, now);
-        # endif
-
         break;
       }
 
@@ -505,18 +492,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_C_RETURN:
     {
         frame = pop_frame(thread_data, now);
-
-      # if RUBY_VERSION >= 191
-        // we need to walk up the stack to find the right one [http://redmine.ruby-lang.org/issues/show/2610] (for now)
-        // sometimes frames don't have line and source somehow [like blank]
-        // if we hit one there's not much we can do...I guess...
-        // or maybe we don't have one because we're at the top or something.
-        walk_up_until_right_frame(frame, thread_data, mid, klass, now);
-      # endif
-
       break;
     }
-    }
+  }
 }
 
 /* call-seq:

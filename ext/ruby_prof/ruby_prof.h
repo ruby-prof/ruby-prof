@@ -19,7 +19,6 @@
 # error 1.9.1 is not supported.  Please upgrade to 1.9.2 or higher.
 #endif
 
-
 #ifndef RUBY_VM
 #include <node.h>
 #include <st.h>

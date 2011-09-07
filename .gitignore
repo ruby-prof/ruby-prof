@@ -3,3 +3,6 @@ ext/ruby_prof/Makefile
 heap.dump
 nbproject/
 pkg/
+/ext/ruby_prof/vc/ruby_prof/ipch
+/ext/ruby_prof/vc/ruby_prof/Debug
+/ext/ruby_prof/vc/Debug

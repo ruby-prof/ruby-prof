@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ruby_prof", "ruby_prof.vcxproj", "{DDB3E992-BF4B-4413-B061-288E40AECAD3}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ruby_prof", "ruby_prof.vcxproj", "{5AF7F29A-B100-4D61-95DA-DB21D7C8C1B8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{DDB3E992-BF4B-4413-B061-288E40AECAD3}.Debug|Win32.ActiveCfg = Debug|Win32
-		{DDB3E992-BF4B-4413-B061-288E40AECAD3}.Debug|Win32.Build.0 = Debug|Win32
-		{DDB3E992-BF4B-4413-B061-288E40AECAD3}.Release|Win32.ActiveCfg = Release|Win32
-		{DDB3E992-BF4B-4413-B061-288E40AECAD3}.Release|Win32.Build.0 = Release|Win32
+		{5AF7F29A-B100-4D61-95DA-DB21D7C8C1B8}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5AF7F29A-B100-4D61-95DA-DB21D7C8C1B8}.Debug|Win32.Build.0 = Debug|Win32
+		{5AF7F29A-B100-4D61-95DA-DB21D7C8C1B8}.Release|Win32.ActiveCfg = Release|Win32
+		{5AF7F29A-B100-4D61-95DA-DB21D7C8C1B8}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

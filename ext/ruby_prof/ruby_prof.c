@@ -1,29 +1,5 @@
-/*
- * Copyright (C) 2008  Shugo Maeda <shugo@ruby-lang.org>
- *                     Charlie Savage <cfis@savagexi.com>
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- * 1. Redistributions of source code must retain the above copyright
- *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright
- *    notice, this list of conditions and the following disclaimer in the
- *    documentation and/or other materials provided with the distribution.
- *
- * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- * SUCH DAMAGE.
- */
+/* Copyright (C) 2005-2011 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
+   Please see the LICENSE file for copyright and distribution information */
 
 /* ruby-prof tracks the time spent executing every method in ruby programming.
    The main players are:
@@ -51,7 +27,22 @@
 #include <stdio.h>
 #include <assert.h>
 
-/* ================  Helper Functions  =================*/
+#include "rp_measure_process_time.h"
+#include "rp_measure_wall_time.h"
+#include "rp_measure_cpu_time.h"
+#include "rp_measure_allocations.h"
+#include "rp_measure_memory.h"
+#include "rp_measure_gc_runs.h"
+#include "rp_measure_gc_time.h"
+
+
+/* =======  Globals  ========*/
+static st_table *threads_tbl = NULL;
+static st_table *exclude_threads_tbl = NULL;
+static thread_data_t* last_thread_data = NULL;
+
+
+/* =======  Helper Functions  ========*/
 static VALUE
 figure_singleton_name(VALUE klass)
 {
@@ -164,79 +155,8 @@ full_name(VALUE klass, ID mid)
   return result;
 }
 
-/* ================  Stack Handling   =================*/
-/* Creates a stack of prof_frame_t to keep track
-   of timings for active methods. */
-static prof_stack_t *
-stack_create()
-{
-    prof_stack_t *stack = ALLOC(prof_stack_t);
-    stack->start = ALLOC_N(prof_frame_t, INITIAL_STACK_SIZE);
-    stack->ptr = stack->start;
-    stack->end = stack->start + INITIAL_STACK_SIZE;
-    return stack;
-}
-
-static void
-stack_free(prof_stack_t *stack)
-{
-    xfree(stack->start);
-    xfree(stack);
-}
-
-static prof_frame_t *
-stack_push(prof_stack_t *stack)
-{
-  /* Is there space on the stack?  If not, double
-     its size. */
-  if (stack->ptr == stack->end)
-  {
-    size_t len = stack->ptr - stack->start;
-    size_t new_capacity = (stack->end - stack->start) * 2;
-    REALLOC_N(stack->start, prof_frame_t, new_capacity);
-    stack->ptr = stack->start + len;
-    stack->end = stack->start + new_capacity;
-  }
-  return stack->ptr++;
-}
-
-static prof_frame_t *
-stack_pop(prof_stack_t *stack)
-{
-    if (stack->ptr == stack->start)
-      return NULL;
-    else
-      return --stack->ptr;
-}
-
-static prof_frame_t *
-stack_peek(prof_stack_t *stack)
-{
-    if (stack->ptr == stack->start)
-      return NULL;
-    else
-      return stack->ptr - 1;
-}
-
-/* ================  Method Key   =================*/
-static int
-method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2)
-{
-    return (key1->klass != key2->klass) || (key1->mid != key2->mid);
-}
-
-static st_index_t
-method_table_hash(prof_method_key_t *key)
-{
-   return key->key;
-}
-
-static struct st_hash_type type_method_hash = {
-    method_table_cmp,
-    method_table_hash
-};
-
-static void
+/* =======  Method Key   ========*/
+void
 method_key(prof_method_key_t* key, VALUE klass, ID mid)
 {
     key->klass = klass;
@@ -245,675 +165,8 @@ method_key(prof_method_key_t* key, VALUE klass, ID mid)
 }
 
 
-/* ================  Call Info   =================*/
-static st_table *
-call_info_table_create()
-{
-  return st_init_table(&type_method_hash);
-}
 
-static size_t
-call_info_table_insert(st_table *table, const prof_method_key_t *key, prof_call_info_t *val)
-{
-  return st_insert(table, (st_data_t) key, (st_data_t) val);
-}
-
-static prof_call_info_t *
-call_info_table_lookup(st_table *table, const prof_method_key_t *key)
-{
-    st_data_t val;
-    if (st_lookup(table, (st_data_t) key, &val))
-    {
-      return (prof_call_info_t *) val;
-    }
-    else
-    {
-      return NULL;
-    }
-}
-
-static void
-call_info_table_free(st_table *table)
-{
-    st_free_table(table);
-}
-
-/* Document-class: RubyProf::CallInfo
-RubyProf::CallInfo is a helper class used by RubyProf::MethodInfo
-to keep track of which child methods were called and how long
-they took to execute. */
-
-/* :nodoc: */
-static prof_call_info_t *
-prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
-{
-    prof_call_info_t *result = ALLOC(prof_call_info_t);
-    result->object = Qnil;
-    result->target = method;
-    result->parent = parent;
-    result->call_infos = call_info_table_create();
-    result->children = Qnil;
-
-    result->called = 0;
-    result->total_time = 0;
-    result->self_time = 0;
-    result->wait_time = 0;
-    result->line = 0;
-    return result;
-}
-
-static void prof_method_mark(prof_method_t *method);
-
-static void
-prof_call_info_mark(prof_call_info_t *call_info)
-{
-  {
-    VALUE target = call_info->target->object;
-    if (NIL_P(target))
-      prof_method_mark(call_info->target);
-    else
-      rb_gc_mark(target);
-  }
-  rb_gc_mark(call_info->children);
-  if (call_info->parent) {
-    VALUE parent = call_info->parent->object;
-    if (NIL_P(parent)) {
-      prof_call_info_mark(call_info->parent);
-    }
-    else {
-      rb_gc_mark(parent);
-    }
-  }
-}
-
-static void
-prof_call_info_free(prof_call_info_t *call_info)
-{
-  call_info_table_free(call_info->call_infos);
-  xfree(call_info);
-}
-
-static VALUE
-prof_call_info_wrap(prof_call_info_t *call_info)
-{
-  if (call_info->object == Qnil)
-  {
-    call_info->object = Data_Wrap_Struct(cCallInfo, prof_call_info_mark, prof_call_info_free, call_info);
-  }
-  return call_info->object;
-}
-
-static prof_call_info_t *
-prof_get_call_info_result(VALUE obj)
-{
-    if (BUILTIN_TYPE(obj) != T_DATA)
-    {
-        /* Should never happen */
-      rb_raise(rb_eTypeError, "Not a call info object");
-    }
-    return (prof_call_info_t *) DATA_PTR(obj);
-}
-
-
-/* call-seq:
-   called -> MethodInfo
-
-Returns the target method. */
-static VALUE
-prof_call_info_target(VALUE self)
-{
-    /* Target is a pointer to a method_info - so we have to be careful
-       about the GC.  We will wrap the method_info but provide no
-       free method so the underlying object is not freed twice! */
-
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    return prof_method_wrap(result->target);
-}
-
-/* call-seq:
-   called -> int
-
-Returns the total amount of times this method was called. */
-static VALUE
-prof_call_info_called(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    return INT2NUM(result->called);
-}
-
-/* call-seq:
-   called=n -> n
-
-Sets the call count to n. */
-static VALUE
-prof_call_info_set_called(VALUE self, VALUE called)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    result->called = NUM2INT(called);
-    return called;
-}
-
-/* call-seq:
-   line_no -> int
-
-   returns the line number of the method */
-static VALUE
-prof_call_info_line(VALUE self)
-{
-  prof_call_info_t *result = prof_get_call_info_result(self);
-  return rb_int_new(result->line);
-}
-
-/* call-seq:
-   total_time -> float
-
-Returns the total amount of time spent in this method and its children. */
-static VALUE
-prof_call_info_total_time(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    return rb_float_new(convert_measurement(result->total_time));
-}
-
-/* call-seq:
-   add_total_time(call_info) -> nil
-
-adds total time time from call_info to self. */
-static VALUE
-prof_call_info_add_total_time(VALUE self, VALUE other)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    prof_call_info_t *other_info = prof_get_call_info_result(other);
-
-    result->total_time += other_info->total_time;
-    return Qnil;
-}
-
-/* call-seq:
-   self_time -> float
-
-Returns the total amount of time spent in this method. */
-static VALUE
-prof_call_info_self_time(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-
-    return rb_float_new(convert_measurement(result->self_time));
-}
-
-/* call-seq:
-   add_self_time(call_info) -> nil
-
-adds self time from call_info to self. */
-static VALUE
-prof_call_info_add_self_time(VALUE self, VALUE other)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    prof_call_info_t *other_info = prof_get_call_info_result(other);
-
-    result->self_time += other_info->self_time;
-    return Qnil;
-}
-
-/* call-seq:
-   wait_time -> float
-
-Returns the total amount of time this method waited for other threads. */
-static VALUE
-prof_call_info_wait_time(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-
-    return rb_float_new(convert_measurement(result->wait_time));
-}
-
-/* call-seq:
-   add_wait_time(call_info) -> nil
-
-adds wait time from call_info to self. */
-
-static VALUE
-prof_call_info_add_wait_time(VALUE self, VALUE other)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    prof_call_info_t *other_info = prof_get_call_info_result(other);
-
-    result->wait_time += other_info->wait_time;
-    return Qnil;
-}
-
-/* call-seq:
-   parent -> call_info
-
-Returns the call_infos parent call_info object (the method that called this method).*/
-static VALUE
-prof_call_info_parent(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    if (result->parent)
-      return prof_call_info_wrap(result->parent);
-    else
-      return Qnil;
-}
-
-/* call-seq:
-   parent=new_parent -> new_parent
-
-Changes the parent of self to new_parent and returns it.*/
-static VALUE
-prof_call_info_set_parent(VALUE self, VALUE new_parent)
-{
-    prof_call_info_t *result = prof_get_call_info_result(self);
-    if (new_parent == Qnil)
-      result->parent = NULL;
-    else
-      result->parent = prof_get_call_info_result(new_parent);
-    return prof_call_info_parent(self);
-}
-
-static int
-prof_call_info_collect_children(st_data_t key, st_data_t value, st_data_t result)
-{
-    prof_call_info_t *call_info = (prof_call_info_t *) value;
-    VALUE arr = (VALUE) result;
-    rb_ary_push(arr, prof_call_info_wrap(call_info));
-    return ST_CONTINUE;
-}
-
-/* call-seq:
-   children -> hash
-
-Returns an array of call info objects of methods that this method
-called (ie, children).*/
-static VALUE
-prof_call_info_children(VALUE self)
-{
-    prof_call_info_t *call_info = prof_get_call_info_result(self);
-    if (call_info->children == Qnil)
-    {
-      call_info->children = rb_ary_new();
-      st_foreach(call_info->call_infos, prof_call_info_collect_children, call_info->children);
-    }
-    return call_info->children;
-}
-
-/* ================  Call Infos   =================*/
-static prof_call_infos_t*
-prof_call_infos_create()
-{
-   prof_call_infos_t *result = ALLOC(prof_call_infos_t);
-   result->start = ALLOC_N(prof_call_info_t*, INITIAL_CALL_INFOS_SIZE);
-   result->end = result->start + INITIAL_CALL_INFOS_SIZE;
-   result->ptr = result->start;
-   result->object = Qnil;
-   return result;
-}
-
-static void
-prof_call_infos_free(prof_call_infos_t *call_infos)
-{
-  xfree(call_infos->start);
-  xfree(call_infos);
-}
-
-static void
-prof_add_call_info(prof_call_infos_t *call_infos, prof_call_info_t *call_info)
-{
-  if (call_infos->ptr == call_infos->end)
-  {
-    size_t len = call_infos->ptr - call_infos->start;
-    size_t new_capacity = (call_infos->end - call_infos->start) * 2;
-    REALLOC_N(call_infos->start, prof_call_info_t*, new_capacity);
-    call_infos->ptr = call_infos->start + len;
-    call_infos->end = call_infos->start + new_capacity;
-  }
-  *call_infos->ptr = call_info;
-  call_infos->ptr++;
-}
-
-static VALUE
-prof_call_infos_wrap(prof_call_infos_t *call_infos)
-{
-  if (call_infos->object == Qnil)
-  {
-    prof_call_info_t **i;
-    call_infos->object = rb_ary_new();
-    for(i=call_infos->start; i<call_infos->ptr; i++)
-    {
-      VALUE call_info = prof_call_info_wrap(*i);
-      rb_ary_push(call_infos->object, call_info);
-    }
-  }
-  return call_infos->object;
-}
-
-
-/* ================  Method Info   =================*/
-/* Document-class: RubyProf::MethodInfo
-The RubyProf::MethodInfo class stores profiling data for a method.
-One instance of the RubyProf::MethodInfo class is created per method
-called per thread.  Thus, if a method is called in two different
-thread then there will be two RubyProf::MethodInfo objects
-created.  RubyProf::MethodInfo objects can be accessed via
-the RubyProf::Result object.
-*/
-
-static prof_method_t*
-prof_method_create(prof_method_key_t *key, const char* source_file, int line)
-{
-    prof_method_t *result = ALLOC(prof_method_t);
-    result->object = Qnil;
-    result->key = ALLOC(prof_method_key_t);
-    method_key(result->key, key->klass, key->mid);
-
-    result->call_infos = prof_call_infos_create();
-
-    if (source_file != NULL)
-    {
-      size_t len = strlen(source_file) + 1;
-      char *buffer = ALLOC_N(char, len);
-
-      MEMCPY(buffer, source_file, char, len);
-      result->source_file = buffer;
-    }
-    else
-    {
-      result->source_file = source_file;
-    }
-    result->line = line;
-
-    return result;
-}
-
-static void
-prof_method_mark(prof_method_t *method)
-{
-  rb_gc_mark(method->call_infos->object);
-  rb_gc_mark(method->key->klass);
-}
-
-static void
-prof_method_free(prof_method_t *method)
-{
-  if (method->source_file)
-  {
-    xfree((char*)method->source_file);
-  }
-
-  prof_call_infos_free(method->call_infos);
-  xfree(method->key);
-  xfree(method);
-}
-
-static VALUE
-prof_method_wrap(prof_method_t *result)
-{
-  if (result->object == Qnil)
-  {
-    result->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_free, result);
-  }
-  return result->object;
-}
-
-static prof_method_t *
-get_prof_method(VALUE obj)
-{
-    return (prof_method_t *) DATA_PTR(obj);
-}
-
-/* call-seq:
-   line_no -> int
-
-   returns the line number of the method */
-static VALUE
-prof_method_line(VALUE self)
-{
-    return rb_int_new(get_prof_method(self)->line);
-}
-
-/* call-seq:
-   source_file => string
-
-return the source file of the method
-*/
-static VALUE prof_method_source_file(VALUE self)
-{
-    const char* sf = get_prof_method(self)->source_file;
-    if(!sf)
-    {
-      return rb_str_new2("ruby_runtime");
-    }
-    else
-    {
-      return rb_str_new2(sf);
-    }
-}
-
-
-/* call-seq:
-   method_class -> klass
-
-Returns the Ruby klass that owns this method. */
-static VALUE
-prof_method_klass(VALUE self)
-{
-    prof_method_t *result = get_prof_method(self);
-    return result->key->klass;
-}
-
-/* call-seq:
-   method_id -> ID
-
-Returns the id of this method. */
-static VALUE
-prof_method_id(VALUE self)
-{
-    prof_method_t *result = get_prof_method(self);
-    return ID2SYM(result->key->mid);
-}
-
-/* call-seq:
-   klass_name -> string
-
-Returns the name of this method's class.  Singleton classes
-will have the form <Object::Object>. */
-
-static VALUE
-prof_klass_name(VALUE self)
-{
-    prof_method_t *method = get_prof_method(self);
-    return klass_name(method->key->klass);
-}
-
-/* call-seq:
-   method_name -> string
-
-Returns the name of this method in the format Object#method.  Singletons
-methods will be returned in the format <Object::Object>#method.*/
-
-static VALUE
-prof_method_name(VALUE self)
-{
-    prof_method_t *method = get_prof_method(self);
-    return method_name(method->key->mid);
-}
-
-/* call-seq:
-   full_name -> string
-
-Returns the full name of this method in the format Object#method.*/
-
-static VALUE
-prof_full_name(VALUE self)
-{
-    prof_method_t *method = get_prof_method(self);
-    return full_name(method->key->klass, method->key->mid);
-}
-
-/* call-seq:
-   call_infos -> Array of call_info
-
-Returns an array of call info objects that contain profiling information
-about the current method.*/
-static VALUE
-prof_method_call_infos(VALUE self)
-{
-    prof_method_t *method = get_prof_method(self);
-    return prof_call_infos_wrap(method->call_infos);
-}
-
-static int
-collect_methods(st_data_t key, st_data_t value, st_data_t result)
-{
-    /* Called for each method stored in a thread's method table.
-       We want to store the method info information into an array.*/
-    VALUE methods = (VALUE) result;
-    prof_method_t *method = (prof_method_t *) value;
-    rb_ary_push(methods, prof_method_wrap(method));
-
-    /* Wrap call info objects */
-    prof_call_infos_wrap(method->call_infos);
-
-    return ST_CONTINUE;
-}
-
-/* ================  Method Table   =================*/
-static st_table *
-method_table_create()
-{
-  return st_init_table(&type_method_hash);
-}
-
-static size_t
-method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val)
-{
-  return st_insert(table, (st_data_t) key, (st_data_t) val);
-}
-
-static prof_method_t *
-method_table_lookup(st_table *table, const prof_method_key_t* key)
-{
-    st_data_t val;
-    if (st_lookup(table, (st_data_t)key, &val))
-    {
-      return (prof_method_t *) val;
-    }
-    else
-    {
-      return NULL;
-    }
-}
-
-
-static void
-method_table_free(st_table *table)
-{
-    /* Don't free the contents since they are wrapped by
-       Ruby objects! */
-    st_free_table(table);
-}
-
-
-/* ================  Thread Handling   =================*/
-
-/* ---- Keeps track of thread's stack and methods ---- */
-static thread_data_t*
-thread_data_create()
-{
-    thread_data_t* result = ALLOC(thread_data_t);
-    result->stack = stack_create();
-    result->method_table = method_table_create();
-    result->last_switch = get_measurement();
-    return result;
-}
-
-static void
-thread_data_free(thread_data_t* thread_data)
-{
-    method_table_free(thread_data->method_table);
-    stack_free(thread_data->stack);
-    xfree(thread_data);
-}
-
-/* ---- Hash, keyed on thread, that stores thread's stack
-        and methods---- */
-
-static st_table *
-threads_table_create()
-{
-    return st_init_numtable();
-}
-
-static size_t
-threads_table_insert(st_table *table, VALUE thread, thread_data_t *thread_data)
-{
-    /* Its too slow to key on the real thread id so just typecast thread instead. */
-    return st_insert(table, (st_data_t) thread, (st_data_t) thread_data);
-}
-
-static thread_data_t *
-threads_table_lookup(st_table *table, VALUE thread_id)
-{
-    thread_data_t* result;
-    st_data_t val;
-
-    /* Its too slow to key on the real thread id so just typecast thread instead. */
-    if (st_lookup(table, (st_data_t) thread_id, &val))
-    {
-      result = (thread_data_t *) val;
-    }
-    else
-    {
-        result = thread_data_create();
-        result->thread_id = thread_id;
-
-        /* Insert the table */
-        threads_table_insert(threads_tbl, thread_id, result);
-    }
-    return result;
-}
-
-static int
-free_thread_data(st_data_t key, st_data_t value, st_data_t dummy)
-{
-    thread_data_free((thread_data_t*)value);
-    return ST_CONTINUE;
-}
-
-
-static void
-threads_table_free(st_table *table)
-{
-    st_foreach(table, free_thread_data, 0);
-    st_free_table(table);
-}
-
-
-static int
-collect_threads(st_data_t key, st_data_t value, st_data_t result)
-{
-    /* Although threads are keyed on an id, that is actually a
-       pointer to the VALUE object of the thread.  So its bogus.
-       However, in thread_data is the real thread id stored
-       as an int. */
-    thread_data_t* thread_data = (thread_data_t*) value;
-    VALUE threads_hash = (VALUE) result;
-
-    VALUE methods = rb_ary_new();
-
-    /* Now collect an array of all the called methods */
-    st_table* method_table = thread_data->method_table;
-    st_foreach(method_table, collect_methods, methods);
-
-    /* Store the results in the threads hash keyed on the thread id. */
-    rb_hash_aset(threads_hash, thread_data->thread_id, methods);
-
-    return ST_CONTINUE;
-}
-
-
-/* ================  Profiling    =================*/
-
+/* =======  Profiling    ========*/
 /* support tracing ruby events from ruby-prof. useful for getting at
    what actually happens inside the ruby interpreter (and ruby-prof).
    set environment variable RUBY_PROF_TRACE to filename you want to
@@ -1087,20 +340,6 @@ prof_pop_threads(prof_measure_t now)
 {
     st_foreach(threads_tbl, pop_frames, (st_data_t) &now);
 }
-
-#if RUBY_VERSION == 190
-# error 1.9.0 not supported (ask for it if you desire it to be supported)
-#endif
-
-#if RUBY_VERSION >= 191
-
-/* Avoid bugs in 1.9.1 */
-
-static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now);
-void prof_install_hook();
-void prof_remove_hook();
-
-#endif
 
 #ifdef RUBY_VM
 static void
@@ -1276,86 +515,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     }
 }
 
-#if RUBY_VERSION >= 191
-
-static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t* thread_data, ID mid, VALUE klass, prof_measure_t now) {
-  // while it doesn't match, pop on up until we have found where we belong...
-  while( frame && frame->call_info->target->key->mid && frame->call_info->target->key->klass && ((frame->call_info->target->key->mid != mid) || (frame->call_info->target->key->klass != klass))){
-    frame = pop_frame(thread_data, now);
-  }
-}
-#endif
-
-/* ========  ProfResult ============== */
-
-/* Document-class: RubyProf::Result
-The RubyProf::Result class is used to store the results of a
-profiling run.  And instace of the class is returned from
-the methods RubyProf#stop and RubyProf#profile.
-
-RubyProf::Result has one field, called threads, which is a hash
-table keyed on thread ID.  For each thread id, the hash table
-stores another hash table that contains profiling information
-for each method called during the threads execution.  That
-hash table is keyed on method name and contains
-RubyProf::MethodInfo objects. */
-
-static void
-prof_result_mark(prof_result_t *prof_result)
-{
-    VALUE threads = prof_result->threads;
-    rb_gc_mark(threads);
-}
-
-static void
-prof_result_free(prof_result_t *prof_result)
-{
-    prof_result->threads = Qnil;
-    xfree(prof_result);
-}
-
-static VALUE
-prof_result_new()
-{
-    prof_result_t *prof_result = ALLOC(prof_result_t);
-
-    /* Wrap threads in Ruby regular Ruby hash table. */
-    prof_result->threads = rb_hash_new();
-    st_foreach(threads_tbl, collect_threads, prof_result->threads);
-
-    return Data_Wrap_Struct(cResult, prof_result_mark, prof_result_free, prof_result);
-}
-
-
-static prof_result_t *
-get_prof_result(VALUE obj)
-{
-    if (BUILTIN_TYPE(obj) != T_DATA ||
-      RDATA(obj)->dfree != (RUBY_DATA_FUNC) prof_result_free)
-    {
-        /* Should never happen */
-      rb_raise(rb_eTypeError, "wrong result object (%d %d) ", BUILTIN_TYPE(obj) != T_DATA, RDATA(obj)->dfree != (RUBY_DATA_FUNC) prof_result_free);
-    }
-    return (prof_result_t *) DATA_PTR(obj);
-}
-
-/* call-seq:
-   threads -> Hash
-
-Returns a hash table keyed on thread ID.  For each thread id,
-the hash table stores another hash table that contains profiling
-information for each method called during the threads execution.
-That hash table is keyed on method name and contains
-RubyProf::MethodInfo objects. */
-static VALUE
-prof_result_threads(VALUE self)
-{
-    prof_result_t *prof_result = get_prof_result(self);
-    return prof_result->threads;
-}
-
-
-
 /* call-seq:
    measure_mode -> measure_mode
 
@@ -1490,7 +649,7 @@ prof_set_exclude_threads(VALUE self, VALUE threads)
 }
 
 
-/* =========  Profiling ============= */
+/* ===========  Profiling ================= */
 void
 prof_install_hook()
 {
@@ -1521,7 +680,6 @@ prof_remove_hook()
     /* Now unregister from event   */
     rb_remove_event_hook(prof_event_hook);
 }
-
 
 
 /* call-seq:
@@ -1640,7 +798,7 @@ prof_stop(VALUE self)
     prof_pop_threads(now);
 
     /* Create the result */
-    result = prof_result_new();
+    result = prof_result_new(threads_tbl);
 
     /* Unset the last_thread_data (very important!)
        and the threads table */
@@ -1738,17 +896,14 @@ Returns the total number of garbage collections.*/
 
 Returns the time spent doing garbage collections in microseconds.*/
 
-
-#if RUBY_VERSION == 191 // accomodate for this: http://redmine.ruby-lang.org/issues/show/3748
-# if defined(_WIN32)
-  __declspec(dllexport)
-# endif
-#endif
-void
-
-Init_ruby_prof()
+void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
+    
+    rp_init_method_info();
+    rp_init_call_info();
+    rp_init_result();
+
     rb_define_const(mProf, "VERSION", rb_str_new2(RUBY_PROF_VERSION));
     rb_define_module_function(mProf, "start", prof_start, 0);
     rb_define_module_function(mProf, "stop", prof_stop, 0);
@@ -1803,40 +958,4 @@ Init_ruby_prof()
     rb_define_const(mProf, "GC_TIME", INT2NUM(MEASURE_GC_TIME));
     rb_define_singleton_method(mProf, "measure_gc_time", prof_measure_gc_time, 0); /* in measure_gc_time.h */
     #endif
-
-    cResult = rb_define_class_under(mProf, "Result", rb_cObject);
-    rb_undef_method(CLASS_OF(cMethodInfo), "new");
-    rb_define_method(cResult, "threads", prof_result_threads, 0);
-
-    /* MethodInfo */
-    cMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cObject);
-    rb_undef_method(CLASS_OF(cMethodInfo), "new");
-
-    rb_define_method(cMethodInfo, "klass", prof_method_klass, 0);
-    rb_define_method(cMethodInfo, "klass_name", prof_klass_name, 0);
-    rb_define_method(cMethodInfo, "method_name", prof_method_name, 0);
-    rb_define_method(cMethodInfo, "full_name", prof_full_name, 0);
-    rb_define_method(cMethodInfo, "method_id", prof_method_id, 0);
-
-    rb_define_method(cMethodInfo, "source_file", prof_method_source_file,0);
-    rb_define_method(cMethodInfo, "line", prof_method_line, 0);
-
-    rb_define_method(cMethodInfo, "call_infos", prof_method_call_infos, 0);
-
-    /* CallInfo */
-    cCallInfo = rb_define_class_under(mProf, "CallInfo", rb_cObject);
-    rb_undef_method(CLASS_OF(cCallInfo), "new");
-    rb_define_method(cCallInfo, "parent", prof_call_info_parent, 0);
-    rb_define_method(cCallInfo, "parent=", prof_call_info_set_parent, 1);
-    rb_define_method(cCallInfo, "children", prof_call_info_children, 0);
-    rb_define_method(cCallInfo, "target", prof_call_info_target, 0);
-    rb_define_method(cCallInfo, "called", prof_call_info_called, 0);
-    rb_define_method(cCallInfo, "called=", prof_call_info_set_called, 1);
-    rb_define_method(cCallInfo, "total_time", prof_call_info_total_time, 0);
-    rb_define_method(cCallInfo, "add_total_time", prof_call_info_add_total_time, 1);
-    rb_define_method(cCallInfo, "self_time", prof_call_info_self_time, 0);
-    rb_define_method(cCallInfo, "add_self_time", prof_call_info_add_self_time, 1);
-    rb_define_method(cCallInfo, "wait_time", prof_call_info_wait_time, 0);
-    rb_define_method(cCallInfo, "add_wait_time", prof_call_info_add_wait_time, 1);
-    rb_define_method(cCallInfo, "line", prof_call_info_line, 0);
 }

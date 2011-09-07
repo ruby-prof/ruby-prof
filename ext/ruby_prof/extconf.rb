@@ -1,17 +1,12 @@
 require "mkmf"
 
-if RUBY_VERSION >= "1.9"
-  if RUBY_RELEASE_DATE < "2005-03-17"
-    STDERR.print("Ruby version is too old\n")
-    exit(1)
-  end
-elsif RUBY_VERSION >= "1.8"
-  if RUBY_RELEASE_DATE < "2005-03-22"
-    STDERR.print("Ruby version is too old\n")
-    exit(1)
-  end
-else
-  STDERR.print("Ruby version is too old\n")
+if RUBY_VERSION == "1.8.6"
+  STDERR.print("Ruby #{RUBY_VERSION} is no longer supported.  Please upgrade to 1.8.7 or 1.9.2 or higher\n")
+  exit(1)
+end
+
+if RUBY_VERSION == "1.9.0" or RUBY_VERSION == "1.9.1"
+  STDERR.print("Ruby #{RUBY_VERSION} is no longer supported.  Please upgrade to 1.9.2 or higher\n")
   exit(1)
 end
 
@@ -30,9 +25,6 @@ have_func("rb_class_superclass")
 have_func("rb_heap_total_mem")
 have_func("rb_gc_heap_info")
 
-# Ruby 1.9 unexposed methods
-have_func("rb_gc_malloc_allocations")
-have_func("rb_gc_malloc_allocated_size")
 
 def add_define(name, value = nil)
   if value
@@ -41,6 +33,7 @@ def add_define(name, value = nil)
     $defs.push("-D#{name}")
   end
 end
+
 require 'rubygems'
 unless Gem.win_platform? || RUBY_PLATFORM =~ /darwin/
   $LDFLAGS += " -lrt" # for clock_gettime

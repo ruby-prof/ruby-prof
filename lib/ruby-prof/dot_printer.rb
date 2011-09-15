@@ -23,8 +23,8 @@ module RubyProf
     EDGE_COLOR  = '"#666666"'
     
     # Creates the DotPrinter using a RubyProf::Result.
-    def initialize(result)
-      super(result)
+    def initialize(result, options = {})
+      super(result, options)
       @seen_methods = Set.new
     end
         
@@ -100,11 +100,9 @@ module RubyProf
     
     def print_methods(thread_id, methods)
       total_time = thread_times[thread_id]
-      # Print each method in total time order
-      methods.reverse_each do |method|
+      methods.sort_by(&sort_method).reverse_each do |method|
         total_percentage = (method.total_time/total_time) * 100
-        self_percentage = (method.self_time/total_time) * 100
-        
+
         next if total_percentage < min_percent
         name = method_name(method).split("#").last
         puts "#{dot_id(method)} [label=\"#{name}\\n(#{total_percentage.round}%)\"];"

@@ -20,8 +20,8 @@ module RubyProf
 
     # Create a GraphPrinter.  Result is a RubyProf::Result
     # object generated from a profiling run.
-    def initialize(result)
-      super(result)
+    def initialize(result, options = {})
+      super(result, options)
       @thread_times = Hash.new
       calculate_thread_times
     end
@@ -63,7 +63,7 @@ module RubyProf
 
     def print_methods(thread_id, methods)
       # Sort methods from longest to shortest total time
-      methods = methods.sort
+      methods = methods.sort_by(&sort_method)
 
       toplevel = methods.last
       total_time = toplevel.total_time

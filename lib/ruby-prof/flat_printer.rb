@@ -12,6 +12,14 @@ module RubyProf
   #   printer.print(STDOUT, {})
   #
   class FlatPrinter < AbstractPrinter
+
+    def initialize(results, options = {})
+      # Now sort methods by largest self time by default,
+      # not total time like in other printouts
+      options[:sort_method] ||= :self_time
+      super(results, options)
+    end
+
     # Print a flat profile report to the provided output.
     #
     # output - Any IO oject, including STDOUT or a file.
@@ -43,11 +51,7 @@ module RubyProf
         total_time = 0.01
       end
 
-      # Now sort methods by largest self time,
-      # not total time like in other printouts
-      methods = methods.sort do |m1, m2|
-        m1.self_time <=> m2.self_time
-      end.reverse
+      methods = methods.sort_by(&sort_method).reverse
 
       @output << "Thread ID: %d\n" % thread_id
       @output << "Total: %0.6f\n" % total_time

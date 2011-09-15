@@ -5,11 +5,11 @@ module RubyProf
   # one profiling run. Currently prints a flat profile, a callgrind
   # profile, a call stack profile and a graph profile.
   class MultiPrinter
-    def initialize(result)
-      @stack_printer = CallStackPrinter.new(result)
-      @graph_printer = GraphHtmlPrinter.new(result)
-      @tree_printer = CallTreePrinter.new(result)
-      @flat_printer = FlatPrinter.new(result)
+    def initialize(result, options = {})
+      @stack_printer = CallStackPrinter.new(result, options)
+      @graph_printer = GraphHtmlPrinter.new(result, options)
+      @tree_printer = CallTreePrinter.new(result, options)
+      @flat_printer = FlatPrinter.new(result, options)
     end
 
     # create profile files under options[:path] or the current

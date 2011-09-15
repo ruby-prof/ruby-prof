@@ -104,7 +104,26 @@ opts = OptionParser.new do |opts|
         options.measure_mode = RubyProf::GC_TIME
       end
   end
-        
+
+  opts.on('-s sort_mode', '--sort=sort_mode', [:total, :self, :wait, :child],
+      'Select how ruby-prof results should be sorted:',
+      '  total - Total time (default)',
+      '  self - Self time',
+      '  wait - Wait time',
+      '  child - Child time') do |sort_mode|
+
+      options.sort_method = case sort_mode
+        when :total
+          :total_time
+        when :self
+          :self_time
+        when :wait
+          :wait_time
+        when :child
+          :children_time
+       end
+  end
+
   opts.on("--replace-progname", "Replace $0 when loading the .rb files.") do
           options.replace_prog_name = true
   end
@@ -183,19 +202,20 @@ at_exit {
   result = RubyProf.stop
 
   # Create a printer
-  printer = options.printer.new(result)
+  printer_options = {:min_percent => options.min_percent, :sort_method => options.sort_method}
+  printer = options.printer.new(result, printer_options)
 
   # Get output
   if options.file
     # write it relative to the dir they *started* in, as it's a bit surprising to write it in the dir they end up in.
     Dir.chdir(options.old_wd) do
       File.open(options.file, 'w') do |file|
-        printer.print(file, {:min_percent => options.min_percent})
+        printer.print(file, printer_options)
       end
     end
   else
     # Print out results 
-    printer.print(STDOUT, {:min_percent => options.min_percent})
+    printer.print(STDOUT, printer_options)
   end
 }
 

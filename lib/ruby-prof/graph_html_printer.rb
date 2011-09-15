@@ -30,8 +30,8 @@ module RubyProf
 
     # Create a GraphPrinter.  Result is a RubyProf::Result
     # object generated from a profiling run.
-    def initialize(result)
-      super(result)
+    def initialize(result, options = {})
+      super(result, options)
       @thread_times = Hash.new
       calculate_thread_times
     end
@@ -221,7 +221,7 @@ module RubyProf
         </tr>
 
         <% min_time = @options[:min_time] || (@options[:nonzero] ? 0.005 : nil)
-           methods.sort.reverse_each do |method|
+           methods.sort_by(&sort_method).reverse_each do |method|
             total_percentage = (method.total_time/total_time) * 100
             next if total_percentage < min_percent
             next if min_time && method.total_time < min_time

@@ -8,10 +8,6 @@ module RubyProf
   class CallStackPrinter < AbstractPrinter
     include ERB::Util
 
-    def initialize(result)
-      super(result)
-    end
-
     # Specify print options.
     #
     # options - Hash table

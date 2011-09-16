@@ -13,13 +13,6 @@ module RubyProf
   #
   class FlatPrinterWithLineNumbers < FlatPrinter
 
-    def initialize(results, options = {})
-      # Now sort methods by largest self time by default,
-      # not total time like in other printouts
-      options[:sort_method] ||= :self_time
-      super(results, options)
-    end
-
     def print_methods(thread_id, methods)
       # Get total time
       toplevel = methods.max

@@ -107,7 +107,7 @@ opts = OptionParser.new do |opts|
 
   opts.on('-s sort_mode', '--sort=sort_mode', [:total, :self, :wait, :child],
       'Select how ruby-prof results should be sorted:',
-      '  total - Total time (default)',
+      '  total - Total time',
       '  self - Self time',
       '  wait - Wait time',
       '  child - Child time') do |sort_mode|
@@ -202,8 +202,8 @@ at_exit {
   result = RubyProf.stop
 
   # Create a printer
+  printer = options.printer.new(result)
   printer_options = {:min_percent => options.min_percent, :sort_method => options.sort_method}
-  printer = options.printer.new(result, printer_options)
 
   # Get output
   if options.file

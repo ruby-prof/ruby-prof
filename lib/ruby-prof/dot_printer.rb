@@ -23,8 +23,8 @@ module RubyProf
     EDGE_COLOR  = '"#666666"'
     
     # Creates the DotPrinter using a RubyProf::Result.
-    def initialize(result, options = {})
-      super(result, options)
+    def initialize(result)
+      super(result)
       @seen_methods = Set.new
     end
         

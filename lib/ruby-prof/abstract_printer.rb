@@ -2,10 +2,10 @@
 
 module RubyProf
   class AbstractPrinter
-    def initialize(result, options = {})
+    def initialize(result)
       @result = result
       @output = nil
-      @options = options
+      @options = {}
     end
 
     # Specify print options.

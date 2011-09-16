@@ -12,17 +12,9 @@ module RubyProf
   #   printer.print(STDOUT, {})
   #
   class FlatPrinter < AbstractPrinter
-
-    def initialize(results, options = {})
-      # Now sort methods by largest self time by default,
-      # not total time like in other printouts
-      options[:sort_method] ||= :self_time
-      super(results, options)
-    end
-
     # Print a flat profile report to the provided output.
     #
-    # output - Any IO oject, including STDOUT or a file.
+    # output - Any IO object, including STDOUT or a file.
     # The default value is STDOUT.
     #
     # options - Hash of print options.  See #setup_options
@@ -30,6 +22,9 @@ module RubyProf
     #
     def print(output = STDOUT, options = {})
       @output = output
+      # Now sort methods by largest self time by default,
+      # not total time like in other printouts
+      options[:sort_method] ||= :self_time
       setup_options(options)
       print_threads
     end

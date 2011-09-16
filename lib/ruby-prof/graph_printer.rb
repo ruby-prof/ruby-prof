@@ -20,8 +20,8 @@ module RubyProf
 
     # Create a GraphPrinter.  Result is a RubyProf::Result
     # object generated from a profiling run.
-    def initialize(result, options = {})
-      super(result, options)
+    def initialize(result)
+      super(result)
       @thread_times = Hash.new
       calculate_thread_times
     end

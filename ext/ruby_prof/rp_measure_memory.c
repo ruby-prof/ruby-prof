@@ -10,85 +10,39 @@ static VALUE cMeasureMemory;
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
 #define TOGGLE_GC_STATS 1
 
-static prof_measurement_t
+static double
 measure_memory()
 {
 #if defined(HAVE_LONG_LONG)
-    return NUM2LL(rb_gc_allocated_size());
+    return NUM2LL(rb_gc_allocated_size() / 1024);
 #else
-    return NUM2ULONG(rb_gc_allocated_size());
+    return NUM2ULONG(rb_gc_allocated_size() / 1024);
 #endif
-}
-
-static double
-convert_memory(prof_measurement_t c)
-{
-    return (double) c / 1024;
-}
-
-/* Document-method: prof_measure_memory
-   call-seq:
-     measure_memory -> int
-
-Returns total allocated memory in bytes.*/
-static VALUE
-prof_measure_memory(VALUE self)
-{
-    return rb_gc_allocated_size();
 }
 
 #elif defined(HAVE_RB_GC_MALLOC_ALLOCATED_SIZE)
 
-static prof_measurement_t
+static double
 measure_memory()
 {
-    return rb_gc_malloc_allocated_size();
+    return rb_gc_malloc_allocated_size() / 1024;
 }
 
-static double
-convert_memory(prof_measurement_t c)
-{
-    return (double) c / 1024;
-}
-
-static VALUE
-prof_measure_memory(VALUE self)
-{
-    return UINT2NUM(rb_gc_malloc_allocated_size());
-}
 
 #elif defined(HAVE_RB_HEAP_TOTAL_MEM)
 
-static prof_measurement_t
+static double
 measure_memory()
 {
-    return rb_heap_total_mem();
-}
-
-static double
-convert_memory(prof_measurement_t c)
-{
-    return (double) c / 1024;
-}
-
-static VALUE
-prof_measure_memory(VALUE self)
-{
-    return ULONG2NUM(rb_heap_total_mem());
+    return rb_heap_total_mem() / 1024;
 }
 
 #else
 
-static prof_measurement_t
+static double
 measure_memory()
 {
     return 0;
-}
-
-static double
-convert_memory(prof_measurement_t c)
-{
-    return c;
 }
 
 #endif
@@ -97,7 +51,6 @@ prof_measurer_t* prof_measurer_memory()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_memory;
-  measure->convert = convert_memory;
   return measure;
 }
 
@@ -110,7 +63,6 @@ prof_measure_memory(VALUE self)
 {
     return rb_float_new(measure_memory());
 }
-
 
 void rp_init_measure_memory()
 {

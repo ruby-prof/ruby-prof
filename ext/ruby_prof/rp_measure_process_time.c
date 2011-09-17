@@ -6,25 +6,22 @@
 
 static VALUE cMeasureProcessTime;
 
-static prof_measurement_t
+static double
 measure_process_time()
 {
+    double time;
 #if defined(__linux__)
     struct timespec time;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &time);
-    return time.tv_sec * 1000000000 + time.tv_nsec ;
+    time = time.tv_sec * 1000000000 + time.tv_nsec ;
 #else
-    return clock();
+    time = clock();
 #endif
-}
 
-static double
-convert_process_time(prof_measurement_t c)
-{
 #if defined(__linux__)
-    return (double) c / 1000000000;
+    return (double) time / 1000000000;
 #else
-    return (double) c / CLOCKS_PER_SEC;
+    return (double) time / CLOCKS_PER_SEC;
 #endif
 }
 
@@ -35,15 +32,13 @@ Returns the process time.*/
 static VALUE
 prof_measure_process_time(VALUE self)
 {
-    return rb_float_new(convert_process_time(measure_process_time()));
+    return rb_float_new(measure_process_time());
 }
-
 
 prof_measurer_t* prof_measurer_process_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_process_time;
-  measure->convert = convert_process_time;
   return measure;
 }
 

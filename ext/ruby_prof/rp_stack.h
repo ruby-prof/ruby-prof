@@ -16,9 +16,9 @@ typedef struct {
     /* Caching prof_method_t values significantly
        increases performance. */
     prof_call_info_t *call_info;
-    prof_measurement_t start_time;
-    prof_measurement_t wait_time;
-    prof_measurement_t child_time;
+    double start_time;
+    double wait_time;
+    double child_time;
     unsigned int line;
 } prof_frame_t;
 

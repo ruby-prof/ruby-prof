@@ -9,16 +9,10 @@ static VALUE cMeasureAllocations;
 
 #if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)
 
-static prof_measurement_t
+static double
 measure_allocations()
 {
     return rb_os_allocated_objects();
-}
-
-static double
-convert_allocations(prof_measurement_t c)
-{
-    return  c;
 }
 
 /* Document-method: prof_measure_allocations
@@ -38,30 +32,18 @@ prof_measure_allocations(VALUE self)
 
 #elif defined(HAVE_RB_GC_MALLOC_ALLOCATIONS)
 
-static prof_measurement_t
+static double
 measure_allocations()
 {
     return rb_gc_malloc_allocations();
 }
 
-static double
-convert_allocations(prof_measurement_t c)
-{
-    return c;
-}
-
 #else
 
-static prof_measurement_t
+static double
 measure_allocations()
 {
     return 0;
-}
-
-static double
-convert_allocations(prof_measurement_t c)
-{
-    return c;
 }
 
 #endif
@@ -71,7 +53,6 @@ prof_measurer_t* prof_measurer_allocations()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_allocations;
-  measure->convert = convert_allocations;
   return measure;
 }
 
@@ -90,17 +71,10 @@ prof_measure_allocations(VALUE self)
 #endif
 }
 
-static VALUE
-prof_convert_allocations(VALUE self, VALUE measurement)
-{
-    return Qnil;
-}
-
 void rp_init_measure_allocations()
 {
     rb_define_const(mProf, "ALLOCATIONS", INT2NUM(MEASURE_ALLOCATIONS));
 
     cMeasureAllocations = rb_define_class_under(mMeasure, "Allocations", rb_cObject);
-    rb_define_singleton_method(cMeasureAllocations, "measure", prof_measure_allocations, 0); 
-    rb_define_singleton_method(cMeasureAllocations, "convert", prof_convert_allocations, 1);
+    rb_define_singleton_method(cMeasureAllocations, "measure", prof_measure_allocations, 0);    
 }

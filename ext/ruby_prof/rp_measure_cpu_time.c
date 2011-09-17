@@ -5,20 +5,21 @@
 
 static VALUE cMeasureCpuTime;
 
-#if defined(_WIN32) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__ppc__)))
-static unsigned LONG_LONG cpu_frequency;
+static unsigned LONG_LONG cpu_frequency = 0;
 
-#if defined(__GNUC__)
+/* The _WIN32 check is needed for msys (and maybe cygwin?) */
+#if defined(__GNUC__) && !defined(_WIN32)
 
 #include <stdint.h>
 
-static prof_measurement_t
+static double
 measure_cpu_time()
 {
+    unsigned long long time;
 #if defined(__i386__) || defined(__x86_64__)
     uint32_t a, d;
     __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
-    return ((uint64_t)d << 32) + a;
+    time = ((uint64_t)d << 32) + a;
 #elif defined(__powerpc__) || defined(__ppc__)
     unsigned long long x, y;
 
@@ -29,31 +30,10 @@ measure_cpu_time()
   cmpw    %0,%1\n\
   bne-    1b"
   : "=r" (x), "=r" (y));
-    return x;
+    time = x;
 #endif
+    return time / cpu_frequency;
 }
-
-#elif defined(_WIN32)
-
-static prof_measurement_t
-measure_cpu_time()
-{
-    prof_measurement_t cycles = 0;
-
-    __asm
-    {
-        rdtsc
-        mov DWORD PTR cycles, eax
-        mov DWORD PTR [cycles + 4], edx
-    }
-    return cycles;
-}
-
-#endif
-
-
-/* The _WIN32 check is needed for msys (and maybe cygwin?) */
-#if defined(__GNUC__) && !defined(_WIN32)
 
 unsigned long long get_cpu_frequency()
 {
@@ -70,6 +50,20 @@ unsigned long long get_cpu_frequency()
 
 #elif defined(_WIN32)
 
+static double
+measure_cpu_time()
+{
+    double cycles = 0;
+
+    __asm
+    {
+        rdtsc
+        mov DWORD PTR cycles, eax
+        mov DWORD PTR [cycles + 4], edx
+    }
+    return cycles / cpu_frequency;
+}
+
 unsigned LONG_LONG get_cpu_frequency()
 {
     unsigned LONG_LONG x, y;
@@ -85,18 +79,16 @@ unsigned LONG_LONG get_cpu_frequency()
 #endif
 
 static double
-convert_cpu_time(prof_measurement_t c)
+convert_cpu_time(double c)
 {
     return (double) c / cpu_frequency;
 }
 
-#endif
 
 prof_measurer_t* prof_measurer_cpu_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_cpu_time;
-  measure->convert = convert_cpu_time;
   return measure;
 }
 
@@ -107,20 +99,7 @@ Returns the cpu time.*/
 static VALUE
 prof_measure_cpu_time(VALUE self)
 {
-    prof_measurement_t cpu_time = measure_cpu_time();
-    prof_measurement_t converted_time = convert_cpu_time(cpu_time);
-    return rb_float_new(converted_time);
-}
-
-/* Document-method: prof_measure_cpu_time
-   call-seq:
-   convert_cpu_time -> float
-
-Returns the cpu time.*/
-static VALUE
-prof_convert_cpu_time(VALUE self, VALUE measurement)
-{
-    return Qnil;
+    return rb_float_new(measure_cpu_time());
 }
 
 /* call-seq:
@@ -152,7 +131,9 @@ void rp_init_measure_cpu_time()
 
     cMeasureCpuTime = rb_define_class_under(mMeasure, "CpuTime", rb_cObject);
     rb_define_singleton_method(cMeasureCpuTime, "measure", prof_measure_cpu_time, 0);
-    rb_define_singleton_method(cMeasureCpuTime, "convert", prof_convert_cpu_time, 0);
     rb_define_singleton_method(cMeasureCpuTime, "frequency", prof_get_cpu_frequency, 0);
     rb_define_singleton_method(cMeasureCpuTime, "frequency=", prof_set_cpu_frequency, 1);
+
+    /* Get cpu_frequency */
+    cpu_frequency = get_cpu_frequency();
 }

@@ -6,25 +6,18 @@
 
 static VALUE cMeasureWallTime;
 
-static prof_measurement_t
+static double
 measure_wall_time()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return tv.tv_sec * 1000000 + tv.tv_usec;
-}
-
-static double
-convert_wall_time(prof_measurement_t c)
-{
-    return (double) c / 1000000;
+    return (tv.tv_sec * 1000000 + tv.tv_usec) / 1000000.0;
 }
 
 prof_measurer_t* prof_measurer_wall_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_wall_time;
-  measure->convert = convert_wall_time;
   return measure;
 }
 
@@ -36,9 +29,8 @@ Returns the wall time.*/
 static VALUE
 prof_measure_wall_time(VALUE self)
 {
-    return rb_float_new(convert_wall_time(measure_wall_time()));
+    return rb_float_new(measure_wall_time());
 }
-
 
 void rp_init_measure_wall_time()
 {

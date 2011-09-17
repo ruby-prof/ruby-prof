@@ -9,25 +9,19 @@ static VALUE cMeasureGcTimes;
 
 #if defined(HAVE_RB_GC_TIME)
 
-static prof_measurement_t
+static double
 measure_gc_time()
 {
+    int conversion = 1000000
 #if HAVE_LONG_LONG
-    return NUM2LL(rb_gc_time());
+    return NUM2LL(rb_gc_time() / conversion);
 #else
-    return NUM2LONG(rb_gc_time());
+    return NUM2LONG(rb_gc_time() / conversion));
 #endif
 }
 
-static double
-convert_gc_time(prof_measurement_t c)
-{
-    return (double) c / 1000000;
-}
-
-/* Document-method: prof_measure_gc_time
-   call-seq:
-     gc_time -> Integer
+/* call-seq:
+   gc_time -> Integer
 
 Returns the time spent doing garbage collections in microseconds.*/
 static VALUE
@@ -38,28 +32,19 @@ prof_measure_gc_time(VALUE self)
 
 #else
 
-static prof_measurement_t
+static double
 measure_gc_time()
 {
     return 0;
 }
-
-static double
-convert_gc_time(prof_measurement_t c)
-{
-    return c;
-}
-
 #endif
 
 prof_measurer_t* prof_measurer_gc_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_gc_time;
-  measure->convert = convert_gc_time;
   return measure;
 }
-
 
 /* call-seq:
    measure -> float

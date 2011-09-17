@@ -233,11 +233,11 @@ static prof_method_t*
 }
 
 static void
-update_result(prof_measurement_t total_time,
+update_result(double total_time,
               prof_frame_t *parent_frame,
               prof_frame_t *frame)
 {
-    prof_measurement_t self_time = total_time - frame->child_time - frame->wait_time;
+    double self_time = total_time - frame->child_time - frame->wait_time;
     prof_call_info_t *call_info = frame->call_info;
 
     /* Update information about the current method */
@@ -252,10 +252,10 @@ update_result(prof_measurement_t total_time,
 }
 
 static thread_data_t *
-switch_thread(VALUE thread_id, prof_measurement_t now)
+switch_thread(VALUE thread_id, double now)
 {
         prof_frame_t *frame = NULL;
-        prof_measurement_t wait_time = 0;
+        double wait_time = 0;
     /* Get new thread information. */
     thread_data_t *thread_data = threads_table_lookup(threads_tbl, thread_id);
 
@@ -284,11 +284,11 @@ switch_thread(VALUE thread_id, prof_measurement_t now)
 }
 
 static prof_frame_t*
-pop_frame(thread_data_t *thread_data, prof_measurement_t now)
+pop_frame(thread_data_t *thread_data, double now)
 {
   prof_frame_t *frame = NULL;
   prof_frame_t* parent_frame = NULL;
-  prof_measurement_t total_time;
+  double total_time;
 
   frame = stack_pop(thread_data->stack); // only time it's called
   /* Frame can be null.  This can happen if RubProf.start is called from
@@ -315,7 +315,7 @@ pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
 {
     VALUE thread_id = (VALUE)key;
     thread_data_t* thread_data = (thread_data_t *) value;
-    prof_measurement_t now = *(prof_measurement_t *) now_arg;
+    double now = *(double *) now_arg;
 
     if (!last_thread_data || last_thread_data->thread_id != thread_id)
       thread_data = switch_thread(thread_id, now);
@@ -330,7 +330,7 @@ pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
 }
 
 static void
-prof_pop_threads(prof_measurement_t now)
+prof_pop_threads(double now)
 {
     st_foreach(threads_tbl, pop_frames, (st_data_t) &now);
 }
@@ -345,7 +345,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 {
     VALUE thread = Qnil;
     VALUE thread_id = Qnil;
-    prof_measurement_t now = 0;
+    double now = 0;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
 
@@ -700,7 +700,7 @@ prof_stop(VALUE self)
 	/* get 'now' before prof emove hook because it calls GC.disable_stats
       which makes the call within prof_pop_threads of now return 0, which is wrong
     */
-    prof_measurement_t now = measure->measure();
+    double now = measure->measure();
     if (threads_tbl == NULL)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");

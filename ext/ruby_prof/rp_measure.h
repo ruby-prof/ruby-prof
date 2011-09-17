@@ -7,18 +7,10 @@
 VALUE mMeasure;
 void rp_init_measure();
 
-#ifdef HAVE_LONG_LONG
-typedef unsigned LONG_LONG prof_measurement_t; // long long is 8 bytes on 32-bit
-#else
-typedef unsigned long prof_measurement_t;
-#endif
-
-typedef prof_measurement_t (*get_measurement)();
-typedef double (*convert_measurement)(prof_measurement_t);
+typedef double (*get_measurement)();
 
 typedef struct {
     get_measurement measure;
-    convert_measurement convert;
 } prof_measurer_t;
 
 typedef enum 

@@ -27,7 +27,8 @@ module RubyProf
     require lib_dir + name
   end
   
-  require File.dirname(__FILE__) + '/ruby-prof/rack' # do we even need to load this every time?
+  # Compatability layer for suporting old api
+  require lib_dir + 'compatability' 
   
   # we don't require unprof.rb, as well, purposefully
   

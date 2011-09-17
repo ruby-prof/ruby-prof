@@ -15,9 +15,9 @@ typedef struct prof_call_info_t {
     struct prof_call_info_t *parent;
     st_table *call_infos;
     int called;
-    prof_measurement_t total_time;
-    prof_measurement_t self_time;
-    prof_measurement_t wait_time;
+    double total_time;
+    double self_time;
+    double wait_time;
     int line;
     VALUE object;
     VALUE children;

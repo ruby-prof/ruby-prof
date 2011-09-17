@@ -9,16 +9,10 @@ static VALUE cMeasureGcRuns;
 
 #if defined(HAVE_RB_GC_COLLECTIONS)
 
-static prof_measurement_t
+static double
 measure_gc_runs()
 {
     return NUM2INT(rb_gc_collections());
-}
-
-static double
-convert_gc_runs(prof_measurement_t c)
-{
-    return c;
 }
 
 /* call-seq:
@@ -33,17 +27,11 @@ prof_measure_gc_runs(VALUE self)
 
 #elif defined(HAVE_RB_GC_HEAP_INFO)
 
-static prof_measurement_t
+static double
 measure_gc_runs()
 {
   VALUE h = rb_gc_heap_info();
   return NUM2UINT(rb_hash_aref(h, rb_str_new2("num_gc_passes")));
-}
-
-static double
-convert_gc_runs(prof_measurement_t c)
-{
-    return c;
 }
 
 static VALUE
@@ -55,16 +43,10 @@ prof_measure_gc_runs(VALUE self)
 
 #else 
 
-static prof_measurement_t
+static double
 measure_gc_runs()
 {
   return 0;
-}
-
-static double
-convert_gc_runs(prof_measurement_t c)
-{
-    return c;
 }
 #endif
 
@@ -72,7 +54,6 @@ prof_measurer_t* prof_measurer_gc_runs()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_gc_runs;
-  measure->convert = convert_gc_runs;
   return measure;
 }
 

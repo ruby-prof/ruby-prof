@@ -27,20 +27,10 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "rp_measure_process_time.h"
-#include "rp_measure_wall_time.h"
-#include "rp_measure_cpu_time.h"
-#include "rp_measure_allocations.h"
-#include "rp_measure_memory.h"
-#include "rp_measure_gc_runs.h"
-#include "rp_measure_gc_time.h"
-
-
 /* =======  Globals  ========*/
 static st_table *threads_tbl = NULL;
 static st_table *exclude_threads_tbl = NULL;
 static thread_data_t* last_thread_data = NULL;
-
 
 /* =======  Helper Functions  ========*/
 static VALUE figure_superclass(VALUE klass)
@@ -243,11 +233,11 @@ static prof_method_t*
 }
 
 static void
-update_result(prof_measure_t total_time,
+update_result(prof_measurement_t total_time,
               prof_frame_t *parent_frame,
               prof_frame_t *frame)
 {
-    prof_measure_t self_time = total_time - frame->child_time - frame->wait_time;
+    prof_measurement_t self_time = total_time - frame->child_time - frame->wait_time;
     prof_call_info_t *call_info = frame->call_info;
 
     /* Update information about the current method */
@@ -262,10 +252,10 @@ update_result(prof_measure_t total_time,
 }
 
 static thread_data_t *
-switch_thread(VALUE thread_id, prof_measure_t now)
+switch_thread(VALUE thread_id, prof_measurement_t now)
 {
         prof_frame_t *frame = NULL;
-        prof_measure_t wait_time = 0;
+        prof_measurement_t wait_time = 0;
     /* Get new thread information. */
     thread_data_t *thread_data = threads_table_lookup(threads_tbl, thread_id);
 
@@ -294,11 +284,11 @@ switch_thread(VALUE thread_id, prof_measure_t now)
 }
 
 static prof_frame_t*
-pop_frame(thread_data_t *thread_data, prof_measure_t now)
+pop_frame(thread_data_t *thread_data, prof_measurement_t now)
 {
   prof_frame_t *frame = NULL;
   prof_frame_t* parent_frame = NULL;
-  prof_measure_t total_time;
+  prof_measurement_t total_time;
 
   frame = stack_pop(thread_data->stack); // only time it's called
   /* Frame can be null.  This can happen if RubProf.start is called from
@@ -325,7 +315,7 @@ pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
 {
     VALUE thread_id = (VALUE)key;
     thread_data_t* thread_data = (thread_data_t *) value;
-    prof_measure_t now = *(prof_measure_t *) now_arg;
+    prof_measurement_t now = *(prof_measurement_t *) now_arg;
 
     if (!last_thread_data || last_thread_data->thread_id != thread_id)
       thread_data = switch_thread(thread_id, now);
@@ -340,7 +330,7 @@ pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
 }
 
 static void
-prof_pop_threads(prof_measure_t now)
+prof_pop_threads(prof_measurement_t now)
 {
     st_foreach(threads_tbl, pop_frames, (st_data_t) &now);
 }
@@ -355,7 +345,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 {
     VALUE thread = Qnil;
     VALUE thread_id = Qnil;
-    prof_measure_t now = 0;
+    prof_measurement_t now = 0;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
 
@@ -367,7 +357,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     #endif
 
     /* Get current timestamp */
-    now = get_measurement();
+    now = measure->measure();
 
     if (trace_file != NULL)
     {
@@ -530,66 +520,14 @@ prof_get_measure_mode(VALUE self)
 static VALUE
 prof_set_measure_mode(VALUE self, VALUE val)
 {
-    int mode = NUM2INT(val);
+    prof_measurers_t mode = NUM2INT(val);
 
     if (threads_tbl)
     {
       rb_raise(rb_eRuntimeError, "can't set measure_mode while profiling");
     }
 
-    switch (mode) {
-      case MEASURE_PROCESS_TIME:
-        get_measurement = measure_process_time;
-        convert_measurement = convert_process_time;
-        break;
-
-      case MEASURE_WALL_TIME:
-        get_measurement = measure_wall_time;
-        convert_measurement = convert_wall_time;
-        break;
-
-      #if defined(MEASURE_CPU_TIME)
-      case MEASURE_CPU_TIME:
-        if (cpu_frequency == 0)
-            cpu_frequency = get_cpu_frequency();
-        get_measurement = measure_cpu_time;
-        convert_measurement = convert_cpu_time;
-        break;
-      #endif
-
-      #if defined(MEASURE_ALLOCATIONS)
-      case MEASURE_ALLOCATIONS:
-        get_measurement = measure_allocations;
-        convert_measurement = convert_allocations;
-        break;
-      #endif
-
-      #if defined(MEASURE_MEMORY)
-      case MEASURE_MEMORY:
-        get_measurement = measure_memory;
-        convert_measurement = convert_memory;
-        break;
-      #endif
-
-      #if defined(MEASURE_GC_RUNS)
-      case MEASURE_GC_RUNS:
-        get_measurement = measure_gc_runs;
-        convert_measurement = convert_gc_runs;
-        break;
-      #endif
-
-      #if defined(MEASURE_GC_TIME)
-      case MEASURE_GC_TIME:
-        get_measurement = measure_gc_time;
-        convert_measurement = convert_gc_time;
-        break;
-      #endif
-
-      default:
-        rb_raise(rb_eArgError, "invalid mode: %d", mode);
-        break;
-    }
-
+    measure = prof_get_measurer(mode);
     measure_mode = mode;
     return val;
 }
@@ -762,7 +700,7 @@ prof_stop(VALUE self)
 	/* get 'now' before prof emove hook because it calls GC.disable_stats
       which makes the call within prof_pop_threads of now return 0, which is wrong
     */
-    prof_measure_t now = get_measurement();
+    prof_measurement_t now = measure->measure();
     if (threads_tbl == NULL)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
@@ -882,6 +820,7 @@ void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
     
+    rp_init_measure();
     rp_init_method_info();
     rp_init_call_info();
     rp_init_result();
@@ -897,47 +836,4 @@ void Init_ruby_prof()
     rb_define_singleton_method(mProf, "exclude_threads=", prof_set_exclude_threads, 1);
     rb_define_singleton_method(mProf, "measure_mode", prof_get_measure_mode, 0);
     rb_define_singleton_method(mProf, "measure_mode=", prof_set_measure_mode, 1);
-
-    rb_define_const(mProf, "CLOCKS_PER_SEC", INT2NUM(CLOCKS_PER_SEC));
-    rb_define_const(mProf, "PROCESS_TIME", INT2NUM(MEASURE_PROCESS_TIME));
-    rb_define_singleton_method(mProf, "measure_process_time", prof_measure_process_time, 0); /* in measure_process_time.h */
-    rb_define_const(mProf, "WALL_TIME", INT2NUM(MEASURE_WALL_TIME));
-    rb_define_singleton_method(mProf, "measure_wall_time", prof_measure_wall_time, 0); /* in measure_wall_time.h */
-
-    #ifndef MEASURE_CPU_TIME
-    rb_define_const(mProf, "CPU_TIME", Qnil);
-    #else
-    rb_define_const(mProf, "CPU_TIME", INT2NUM(MEASURE_CPU_TIME));
-    rb_define_singleton_method(mProf, "measure_cpu_time", prof_measure_cpu_time, 0); /* in measure_cpu_time.h */
-    rb_define_singleton_method(mProf, "cpu_frequency", prof_get_cpu_frequency, 0); /* in measure_cpu_time.h */
-    rb_define_singleton_method(mProf, "cpu_frequency=", prof_set_cpu_frequency, 1); /* in measure_cpu_time.h */
-    #endif
-
-    #ifndef MEASURE_ALLOCATIONS
-    rb_define_const(mProf, "ALLOCATIONS", Qnil);
-    #else
-    rb_define_const(mProf, "ALLOCATIONS", INT2NUM(MEASURE_ALLOCATIONS));
-    rb_define_singleton_method(mProf, "measure_allocations", prof_measure_allocations, 0); /* in measure_allocations.h */
-    #endif
-
-    #ifndef MEASURE_MEMORY
-    rb_define_const(mProf, "MEMORY", Qnil);
-    #else
-    rb_define_const(mProf, "MEMORY", INT2NUM(MEASURE_MEMORY));
-    rb_define_singleton_method(mProf, "measure_memory", prof_measure_memory, 0); /* in measure_memory.h */
-    #endif
-
-    #ifndef MEASURE_GC_RUNS
-    rb_define_const(mProf, "GC_RUNS", Qnil);
-    #else
-    rb_define_const(mProf, "GC_RUNS", INT2NUM(MEASURE_GC_RUNS));
-    rb_define_singleton_method(mProf, "measure_gc_runs", prof_measure_gc_runs, 0); /* in measure_gc_runs.h */
-    #endif
-
-    #ifndef MEASURE_GC_TIME
-    rb_define_const(mProf, "GC_TIME", Qnil);
-    #else
-    rb_define_const(mProf, "GC_TIME", INT2NUM(MEASURE_GC_TIME));
-    rb_define_singleton_method(mProf, "measure_gc_time", prof_measure_gc_time, 0); /* in measure_gc_time.h */
-    #endif
 }

@@ -1,0 +1,57 @@
+/* Copyright (C) 2005-2011 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
+   Please see the LICENSE file for copyright and distribution information */
+
+#ifndef __RP_MEASUREMENT_H__
+#define __RP_MEASUREMENT_H__
+
+VALUE mMeasure;
+void rp_init_measure();
+
+#ifdef HAVE_LONG_LONG
+typedef unsigned LONG_LONG prof_measurement_t; // long long is 8 bytes on 32-bit
+#else
+typedef unsigned long prof_measurement_t;
+#endif
+
+typedef prof_measurement_t (*get_measurement)();
+typedef double (*convert_measurement)(prof_measurement_t);
+
+typedef struct {
+    get_measurement measure;
+    convert_measurement convert;
+} prof_measurer_t;
+
+typedef enum 
+{
+    MEASURE_ALLOCATIONS,
+    MEASURE_CPU_TIME,
+    MEASURE_GC_RUNS,
+    MEASURE_GC_TIME,
+    MEASURE_MEMORY,
+    MEASURE_PROCESS_TIME,
+    MEASURE_WALL_TIME,
+} prof_measurers_t;
+prof_measurer_t* prof_get_measurer(prof_measurers_t measure);
+
+
+prof_measurer_t* prof_measurer_allocations();
+prof_measurer_t* prof_measurer_cpu_time();
+prof_measurer_t* prof_measurer_gc_runs();
+prof_measurer_t* prof_measurer_gc_time();
+prof_measurer_t* prof_measurer_memory();
+prof_measurer_t* prof_measurer_process_time();
+prof_measurer_t* prof_measurer_wall_time();
+
+void rp_init_measure_allocations();
+void rp_init_measure_cpu_time();
+void rp_init_measure_gc_runs();
+void rp_init_measure_gc_time();
+void rp_init_measure_memory();
+void rp_init_measure_process_time();
+void rp_init_measure_wall_time();
+
+/* Globals */
+prof_measurers_t measure_mode;
+prof_measurer_t* measure;
+
+#endif //__RP_MEASUREMENT_H__

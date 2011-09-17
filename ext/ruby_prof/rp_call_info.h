@@ -4,7 +4,7 @@
 #ifndef __RP_CALL_INFO_H__
 #define __RP_CALL_INFO_H__
 
-#include "rp_measurement.h"
+#include "rp_measure.h"
 #include "rp_method_info.h"
 
 extern VALUE cCallInfo;
@@ -15,9 +15,9 @@ typedef struct prof_call_info_t {
     struct prof_call_info_t *parent;
     st_table *call_infos;
     int called;
-    prof_measure_t total_time;
-    prof_measure_t self_time;
-    prof_measure_t wait_time;
+    prof_measurement_t total_time;
+    prof_measurement_t self_time;
+    prof_measurement_t wait_time;
     int line;
     VALUE object;
     VALUE children;

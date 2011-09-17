@@ -1,19 +1,18 @@
 /* Copyright (C) 2005-2011 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RP_MEASURE_CPU_TIME_H__
-#define __RP_MEASURE_CPU_TIME_H__
+#include "ruby_prof.h"
+
+static VALUE cMeasureCpuTime;
 
 #if defined(_WIN32) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__ppc__)))
-#define MEASURE_CPU_TIME 2
-
 static unsigned LONG_LONG cpu_frequency;
 
 #if defined(__GNUC__)
 
 #include <stdint.h>
 
-static prof_measure_t
+static prof_measurement_t
 measure_cpu_time()
 {
 #if defined(__i386__) || defined(__x86_64__)
@@ -36,10 +35,10 @@ measure_cpu_time()
 
 #elif defined(_WIN32)
 
-static prof_measure_t
+static prof_measurement_t
 measure_cpu_time()
 {
-    prof_measure_t cycles = 0;
+    prof_measurement_t cycles = 0;
 
     __asm
     {
@@ -86,25 +85,46 @@ unsigned LONG_LONG get_cpu_frequency()
 #endif
 
 static double
-convert_cpu_time(prof_measure_t c)
+convert_cpu_time(prof_measurement_t c)
 {
     return (double) c / cpu_frequency;
 }
 
-/* Document-method: prof_measure_cpu_time
-   call-seq:
-     measure_cpu_time -> float
+#endif
+
+prof_measurer_t* prof_measurer_cpu_time()
+{
+  prof_measurer_t* measure = ALLOC(prof_measurer_t);
+  measure->measure = measure_cpu_time;
+  measure->convert = convert_cpu_time;
+  return measure;
+}
+
+/* call-seq:
+   measure -> float
 
 Returns the cpu time.*/
 static VALUE
 prof_measure_cpu_time(VALUE self)
 {
-    return rb_float_new(convert_cpu_time(measure_cpu_time()));
+    prof_measurement_t cpu_time = measure_cpu_time();
+    prof_measurement_t converted_time = convert_cpu_time(cpu_time);
+    return rb_float_new(converted_time);
 }
 
-/* Document-method: prof_get_cpu_frequency
+/* Document-method: prof_measure_cpu_time
    call-seq:
-     cpu_frequency -> int
+   convert_cpu_time -> float
+
+Returns the cpu time.*/
+static VALUE
+prof_convert_cpu_time(VALUE self, VALUE measurement)
+{
+    return Qnil;
+}
+
+/* call-seq:
+   cpu_frequency -> int
 
 Returns the cpu's frequency.  This value is needed when
 RubyProf::measure_mode is set to CPU_TIME. */
@@ -114,9 +134,8 @@ prof_get_cpu_frequency(VALUE self)
     return ULL2NUM(cpu_frequency);
 }
 
-/* Document-method: prof_set_cpu_frequency
-   call-seq:
-     cpu_frequency=value -> void
+/* call-seq:
+   cpu_frequency=value -> void
 
 Sets the cpu's frequency.   This value is needed when
 RubyProf::measure_mode is set to CPU_TIME. */
@@ -127,6 +146,13 @@ prof_set_cpu_frequency(VALUE self, VALUE val)
     return val;
 }
 
-#endif
+void rp_init_measure_cpu_time()
+{
+    rb_define_const(mProf, "CPU_TIME", INT2NUM(MEASURE_CPU_TIME));
 
-#endif // __RP_MEASURE_CPU_TIME_H__
+    cMeasureCpuTime = rb_define_class_under(mMeasure, "CpuTime", rb_cObject);
+    rb_define_singleton_method(cMeasureCpuTime, "measure", prof_measure_cpu_time, 0);
+    rb_define_singleton_method(cMeasureCpuTime, "convert", prof_convert_cpu_time, 0);
+    rb_define_singleton_method(cMeasureCpuTime, "frequency", prof_get_cpu_frequency, 0);
+    rb_define_singleton_method(cMeasureCpuTime, "frequency=", prof_set_cpu_frequency, 1);
+}

@@ -6,7 +6,7 @@
 
 #include <ruby.h>
 
-#include "rp_measurement.h"
+#include "rp_measure.h"
 #include "rp_call_info.h"
 
 
@@ -16,9 +16,9 @@ typedef struct {
     /* Caching prof_method_t values significantly
        increases performance. */
     prof_call_info_t *call_info;
-    prof_measure_t start_time;
-    prof_measure_t wait_time;
-    prof_measure_t child_time;
+    prof_measurement_t start_time;
+    prof_measurement_t wait_time;
+    prof_measurement_t child_time;
     unsigned int line;
 } prof_frame_t;
 

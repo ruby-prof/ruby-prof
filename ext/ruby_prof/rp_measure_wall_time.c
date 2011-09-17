@@ -2,13 +2,11 @@
    Please see the LICENSE file for copyright and distribution information */
 
 /* :nodoc: */
-#ifndef __RP_MEASURE_WALL_TIME_H__
-#define __RP_MEASURE_WALL_TIME_H__
+#include "ruby_prof.h"
 
+static VALUE cMeasureWallTime;
 
-#define MEASURE_WALL_TIME 1
-
-static prof_measure_t
+static prof_measurement_t
 measure_wall_time()
 {
     struct timeval tv;
@@ -17,9 +15,17 @@ measure_wall_time()
 }
 
 static double
-convert_wall_time(prof_measure_t c)
+convert_wall_time(prof_measurement_t c)
 {
     return (double) c / 1000000;
+}
+
+prof_measurer_t* prof_measurer_wall_time()
+{
+  prof_measurer_t* measure = ALLOC(prof_measurer_t);
+  measure->measure = measure_wall_time;
+  measure->convert = convert_wall_time;
+  return measure;
 }
 
 /* Document-method: prof_measure_wall_time
@@ -33,4 +39,11 @@ prof_measure_wall_time(VALUE self)
     return rb_float_new(convert_wall_time(measure_wall_time()));
 }
 
-#endif //__RP_MEASURE_WALL_TIME_H__
+
+void rp_init_measure_wall_time()
+{
+    rb_define_const(mProf, "WALL_TIME", INT2NUM(MEASURE_WALL_TIME));
+
+    cMeasureWallTime = rb_define_class_under(mMeasure, "WallTime", rb_cObject);
+    rb_define_singleton_method(cMeasureWallTime, "measure", prof_measure_wall_time, 0);
+}

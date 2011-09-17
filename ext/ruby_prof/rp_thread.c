@@ -10,7 +10,7 @@ thread_data_create()
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = stack_create();
     result->method_table = method_table_create();
-    result->last_switch = get_measurement();
+    result->last_switch = measure->measure();
     return result;
 }
 

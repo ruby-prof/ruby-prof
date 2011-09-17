@@ -172,7 +172,7 @@ static VALUE
 prof_call_info_total_time(VALUE self)
 {
     prof_call_info_t *result = prof_get_call_info_result(self);
-    return rb_float_new(convert_measurement(result->total_time));
+    return rb_float_new(measure->convert(result->total_time));
 }
 
 /* call-seq:
@@ -198,7 +198,7 @@ prof_call_info_self_time(VALUE self)
 {
     prof_call_info_t *result = prof_get_call_info_result(self);
 
-    return rb_float_new(convert_measurement(result->self_time));
+    return rb_float_new(measure->convert(result->self_time));
 }
 
 /* call-seq:
@@ -224,7 +224,7 @@ prof_call_info_wait_time(VALUE self)
 {
     prof_call_info_t *result = prof_get_call_info_result(self);
 
-    return rb_float_new(convert_measurement(result->wait_time));
+    return rb_float_new(measure->convert(result->wait_time));
 }
 
 /* call-seq:

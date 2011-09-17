@@ -3,15 +3,14 @@
 
 /* :nodoc: */
 
-#ifndef __RP_MEASURE_GC_MEMORY_H__
-#define __RP_MEASURE_GC_MEMORY_H__
+#include "ruby_prof.h"
 
+static VALUE cMeasureMemory;
 
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
-#define MEASURE_MEMORY 4
 #define TOGGLE_GC_STATS 1
 
-static prof_measure_t
+static prof_measurement_t
 measure_memory()
 {
 #if defined(HAVE_LONG_LONG)
@@ -22,7 +21,7 @@ measure_memory()
 }
 
 static double
-convert_memory(prof_measure_t c)
+convert_memory(prof_measurement_t c)
 {
     return (double) c / 1024;
 }
@@ -39,16 +38,15 @@ prof_measure_memory(VALUE self)
 }
 
 #elif defined(HAVE_RB_GC_MALLOC_ALLOCATED_SIZE)
-#define MEASURE_MEMORY 4
 
-static prof_measure_t
+static prof_measurement_t
 measure_memory()
 {
     return rb_gc_malloc_allocated_size();
 }
 
 static double
-convert_memory(prof_measure_t c)
+convert_memory(prof_measurement_t c)
 {
     return (double) c / 1024;
 }
@@ -60,16 +58,15 @@ prof_measure_memory(VALUE self)
 }
 
 #elif defined(HAVE_RB_HEAP_TOTAL_MEM)
-#define MEASURE_MEMORY 4
 
-static prof_measure_t
+static prof_measurement_t
 measure_memory()
 {
     return rb_heap_total_mem();
 }
 
 static double
-convert_memory(prof_measure_t c)
+convert_memory(prof_measurement_t c)
 {
     return (double) c / 1024;
 }
@@ -80,6 +77,45 @@ prof_measure_memory(VALUE self)
     return ULONG2NUM(rb_heap_total_mem());
 }
 
+#else
+
+static prof_measurement_t
+measure_memory()
+{
+    return 0;
+}
+
+static double
+convert_memory(prof_measurement_t c)
+{
+    return c;
+}
+
 #endif
 
-#endif // __RP_MEASURE_GC_MEMORY_H__
+prof_measurer_t* prof_measurer_memory()
+{
+  prof_measurer_t* measure = ALLOC(prof_measurer_t);
+  measure->measure = measure_memory;
+  measure->convert = convert_memory;
+  return measure;
+}
+
+/* call-seq:
+   measure_process_time -> float
+
+Returns the process time.*/
+static VALUE
+prof_measure_memory(VALUE self)
+{
+    return rb_float_new(measure_memory());
+}
+
+
+void rp_init_measure_memory()
+{
+    rb_define_const(mProf, "MEMORY", INT2NUM(MEASURE_MEMORY));
+
+    cMeasureMemory = rb_define_class_under(mMeasure, "Memory", rb_cObject);
+    rb_define_singleton_method(cMeasureMemory, "measure", prof_measure_memory, 0);
+}

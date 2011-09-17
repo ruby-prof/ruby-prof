@@ -34,7 +34,7 @@ typedef rb_event_t rb_event_flag_t;
 #define st_index_t int
 #endif
 
-#include "rp_measurement.h"
+#include "rp_measure.h"
 #include "rp_method_info.h"
 #include "rp_call_info.h"
 #include "rp_stack.h"
@@ -43,5 +43,6 @@ typedef rb_event_t rb_event_flag_t;
 
 VALUE mProf;
 void method_key(prof_method_key_t* key, VALUE klass, ID mid);
+
 
 #endif //__RUBY_PROF_H__

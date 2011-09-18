@@ -27,129 +27,14 @@
 #include <stdio.h>
 #include <assert.h>
 
-/* =======  Globals  ========*/
-static st_table *threads_tbl = NULL;
-static st_table *exclude_threads_tbl = NULL;
-static thread_data_t* last_thread_data = NULL;
-
-/* =======  Helper Functions  ========*/
-static VALUE figure_superclass(VALUE klass)
+static prof_profile_t*
+prof_get_profile(VALUE self)
 {
-#if defined(HAVE_RB_CLASS_SUPERCLASS)
-        // 1.9.3
-        return rb_class_superclass(klass);
-#elif defined(RCLASS_SUPER)
-        return rb_class_real(RCLASS_SUPER(klass));
-#else
-        return rb_class_real(RCLASS(klass)->super);
-#endif
+    /* Can't use Data_Get_Struct because that triggers the event hook
+       endinging up in endless recursion. */
+    return (prof_profile_t*)RDATA(self)->data;
 }
 
-  
-  static VALUE
-figure_singleton_name(VALUE klass)
-{
-    VALUE result = Qnil;
-
-    /* We have come across a singleton object. First
-       figure out what it is attached to.*/
-    VALUE attached = rb_iv_get(klass, "__attached__");
-
-    /* Is this a singleton class acting as a metaclass? */
-    if (BUILTIN_TYPE(attached) == T_CLASS)
-    {
-        result = rb_str_new2("<Class::");
-        rb_str_append(result, rb_inspect(attached));
-        rb_str_cat2(result, ">");
-    }
-
-    /* Is this for singleton methods on a module? */
-    else if (BUILTIN_TYPE(attached) == T_MODULE)
-    {
-        result = rb_str_new2("<Module::");
-        rb_str_append(result, rb_inspect(attached));
-        rb_str_cat2(result, ">");
-    }
-
-    /* Is this for singleton methods on an object? */
-    else if (BUILTIN_TYPE(attached) == T_OBJECT)
-    {
-        /* Make sure to get the super class so that we don't
-           mistakenly grab a T_ICLASS which would lead to
-           unknown method errors. */
-        VALUE super = figure_superclass(klass);
-        result = rb_str_new2("<Object::");
-        rb_str_append(result, rb_inspect(super));
-        rb_str_cat2(result, ">");
-    }
-
-    /* Ok, this could be other things like an array made put onto
-       a singleton object (yeah, it happens, see the singleton
-       objects test case). */
-    else
-    {
-        result = rb_inspect(klass);
-    }
-
-    return result;
-}
-
-static VALUE
-klass_name(VALUE klass)
-{
-    VALUE result = Qnil;
-
-    if (klass == 0 || klass == Qnil)
-    {
-        result = rb_str_new2("Global");
-    }
-    else if (BUILTIN_TYPE(klass) == T_MODULE)
-    {
-        result = rb_inspect(klass);
-    }
-    else if (BUILTIN_TYPE(klass) == T_CLASS && FL_TEST(klass, FL_SINGLETON))
-    {
-        result = figure_singleton_name(klass);
-    }
-    else if (BUILTIN_TYPE(klass) == T_CLASS)
-    {
-        result = rb_inspect(klass);
-    }
-    else
-    {
-        /* Should never happen. */
-        result = rb_str_new2("Unknown");
-    }
-
-    return result;
-}
-
-static VALUE
-method_name(ID mid)
-{
-    VALUE result;
-
-    if (mid == ID_ALLOCATOR)
-        result = rb_str_new2("allocate");
-    else if (mid == 0)
-        result = rb_str_new2("[No method]");
-    else
-        result = rb_String(ID2SYM(mid));
-
-    return result;
-}
-
-static VALUE
-full_name(VALUE klass, ID mid)
-{
-  VALUE result = klass_name(klass);
-  rb_str_cat2(result, "#");
-  rb_str_append(result, method_name(mid));
-
-  return result;
-}
-
-/* =======  Method Key   ========*/
 void
 method_key(prof_method_key_t* key, VALUE klass, ID mid)
 {
@@ -158,9 +43,6 @@ method_key(prof_method_key_t* key, VALUE klass, ID mid)
     key->key = (klass << 4) + (mid << 2);
 }
 
-
-
-/* =======  Profiling    ========*/
 /* support tracing ruby events from ruby-prof. useful for getting at
    what actually happens inside the ruby interpreter (and ruby-prof).
    set environment variable RUBY_PROF_TRACE to filename you want to
@@ -252,17 +134,18 @@ update_result(double total_time,
 }
 
 static thread_data_t *
-switch_thread(VALUE thread_id, double now)
+switch_thread(prof_profile_t* profile, VALUE thread_id)
 {
-        prof_frame_t *frame = NULL;
-        double wait_time = 0;
+    prof_frame_t *frame = NULL;
+    double wait_time = 0;
+
     /* Get new thread information. */
-    thread_data_t *thread_data = threads_table_lookup(threads_tbl, thread_id);
+    thread_data_t *thread_data = threads_table_lookup(profile->threads_tbl, thread_id);
 
     /* How long has this thread been waiting? */
-    wait_time = now - thread_data->last_switch;
+    wait_time = profile->measurement - thread_data->last_switch;
 
-    thread_data->last_switch = now; // XXXX a test that fails if this is 0
+    thread_data->last_switch = profile->measurement; // XXXX a test that fails if this is 0
 
     /* Get the frame at the top of the stack.  This may represent
        the current method (EVENT_LINE, EVENT_RETURN)  or the
@@ -275,16 +158,16 @@ switch_thread(VALUE thread_id, double now)
 
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
-    if (last_thread_data) {
-      last_thread_data->last_switch = now;
+    if (profile->last_thread_data) {
+      profile->last_thread_data->last_switch = profile->measurement;
     }
 
-    last_thread_data = thread_data;
+    profile->last_thread_data = thread_data;
     return thread_data;
 }
 
 static prof_frame_t*
-pop_frame(thread_data_t *thread_data, double now)
+pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
 {
   prof_frame_t *frame = NULL;
   prof_frame_t* parent_frame = NULL;
@@ -298,7 +181,7 @@ pop_frame(thread_data_t *thread_data, double now)
   if (frame == NULL) return NULL;
 
   /* Calculate the total time this method took */
-  total_time = now - frame->start_time;
+  total_time = profile->measurement - frame->start_time;
 
   parent_frame = stack_peek(thread_data->stack);
   if (parent_frame)
@@ -311,18 +194,18 @@ pop_frame(thread_data_t *thread_data, double now)
 }
 
 static int
-pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
+pop_frames(st_data_t key, st_data_t value, st_data_t data)
 {
     VALUE thread_id = (VALUE)key;
     thread_data_t* thread_data = (thread_data_t *) value;
-    double now = *(double *) now_arg;
+    prof_profile_t* profile = (prof_profile_t*) data;
 
-    if (!last_thread_data || last_thread_data->thread_id != thread_id)
-      thread_data = switch_thread(thread_id, now);
+    if (!profile->last_thread_data || profile->last_thread_data->thread_id != thread_id)
+      thread_data = switch_thread(profile, thread_id);
     else
-      thread_data = last_thread_data;
+      thread_data = profile->last_thread_data;
 
-    while (pop_frame(thread_data, now))
+    while (pop_frame(profile, thread_data))
     {
     }
 
@@ -330,9 +213,9 @@ pop_frames(st_data_t key, st_data_t value, st_data_t now_arg)
 }
 
 static void
-prof_pop_threads(double now)
+prof_pop_threads(prof_profile_t* profile)
 {
-    st_foreach(threads_tbl, pop_frames, (st_data_t) &now);
+    st_foreach(profile->threads_tbl, pop_frames, (st_data_t) profile);
 }
 
 #ifdef RUBY_VM
@@ -343,9 +226,9 @@ static void
 prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 #endif
 {
+    prof_profile_t* profile = prof_get_profile(data);
     VALUE thread = Qnil;
     VALUE thread_id = Qnil;
-    double now = 0;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
 
@@ -356,8 +239,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       }
     #endif
 
-    /* Get current timestamp */
-    now = measure->measure();
+    /* Get current measurement */
+    profile->measurement = measure->measure();
 
     if (trace_file != NULL)
     {
@@ -382,32 +265,31 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         }
 
         fprintf(trace_file, "%2u:%2ums %-8s %s:%2d  %s#%s\n",
-               (unsigned int) thread_id, (unsigned int) now, event_name, source_file, source_line, class_name, method_name);
+               (unsigned int) thread_id, (unsigned int) profile->measurement, event_name, source_file, source_line, class_name, method_name);
         /* fflush(trace_file); */
         last_thread_id = thread_id;
     }
 
     /* Special case - skip any methods from the mProf
-       module, such as Prof.stop, since they clutter
+       module or cProfile class since they clutter
        the results but aren't important to them results. */
-    if (self == mProf) return;
+    if (self == mProf || klass == cProfile) return;
 
     /* Get the current thread information. */
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
 
-    if (exclude_threads_tbl &&
-        st_lookup(exclude_threads_tbl, (st_data_t) thread_id, 0))
+    if (profile->exclude_threads_tbl &&
+        st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
     {
       return;
     }
 
-
     /* Was there a context switch? */
-    if (!last_thread_data || last_thread_data->thread_id != thread_id)
-      thread_data = switch_thread(thread_id, now);
+    if (!profile->last_thread_data || profile->last_thread_data->thread_id != thread_id)
+      thread_data = switch_thread(profile, thread_id, profile->measurement);
     else
-      thread_data = last_thread_data;
+      thread_data = profile->last_thread_data;
 
 
     switch (event) {
@@ -472,7 +354,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         frame = stack_push(thread_data->stack);
         frame->call_info = call_info;
-        frame->start_time = now;
+        frame->start_time = profile->measurement;
         frame->wait_time = 0;
         frame->child_time = 0;
         frame->line = rb_sourceline();
@@ -481,103 +363,22 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
-        frame = pop_frame(thread_data, now);
+        frame = pop_frame(profile, thread_data);
       break;
     }
   }
 }
 
-/* call-seq:
-   measure_mode -> measure_mode
-
-   Returns what ruby-prof is measuring.  Valid values include:
-
-   *RubyProf::PROCESS_TIME - Measure process time.  This is default.  It is implemented using the clock functions in the C Runtime library.
-   *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows
-   *RubyProf::CPU_TIME - Measure time using the CPU clock counter.  This mode is only supported on Pentium or PowerPC platforms.
-   *RubyProf::ALLOCATIONS - Measure object allocations.  This requires a patched Ruby interpreter.
-   *RubyProf::MEMORY - Measure memory size.  This requires a patched Ruby interpreter.
-   *RubyProf::GC_RUNS - Measure number of garbage collections.  This requires a patched Ruby interpreter.
-   *RubyProf::GC_TIME - Measure time spent doing garbage collection.  This requires a patched Ruby interpreter.*/
-static VALUE
-prof_get_measure_mode(VALUE self)
-{
-    return INT2NUM(measure_mode);
-}
-
-/* call-seq:
-   measure_mode=value -> void
-
-   Specifies what ruby-prof should measure.  Valid values include:
-
-   *RubyProf::PROCESS_TIME - Measure process time.  This is default.  It is implemented using the clock functions in the C Runtime library.
-   *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows
-   *RubyProf::CPU_TIME - Measure time using the CPU clock counter.  This mode is only supported on Pentium or PowerPC platforms.
-   *RubyProf::ALLOCATIONS - Measure object allocations.  This requires a patched Ruby interpreter.
-   *RubyProf::MEMORY - Measure memory size.  This requires a patched Ruby interpreter.
-   *RubyProf::GC_RUNS - Measure number of garbage collections.  This requires a patched Ruby interpreter.
-   *RubyProf::GC_TIME - Measure time spent doing garbage collection.  This requires a patched Ruby interpreter.*/
-static VALUE
-prof_set_measure_mode(VALUE self, VALUE val)
-{
-    prof_measurers_t mode = NUM2INT(val);
-
-    if (threads_tbl)
-    {
-      rb_raise(rb_eRuntimeError, "can't set measure_mode while profiling");
-    }
-
-    measure = prof_get_measurer(mode);
-    measure_mode = mode;
-    return val;
-}
-
-/* call-seq:
-   exclude_threads= -> void
-
-   Specifies what threads ruby-prof should exclude from profiling */
-static VALUE
-prof_set_exclude_threads(VALUE self, VALUE threads)
-{
-    int i;
-
-    if (threads_tbl != NULL)
-    {
-      rb_raise(rb_eRuntimeError, "can't set exclude_threads while profiling");
-    }
-
-    /* Stay simple, first free the old hash table */
-    if (exclude_threads_tbl)
-    {
-      st_free_table(exclude_threads_tbl);
-      exclude_threads_tbl = NULL;
-    }
-
-    /* Now create a new one if the user passed in any threads */
-    if (threads != Qnil)
-    {
-      Check_Type(threads, T_ARRAY);
-      exclude_threads_tbl = st_init_numtable();
-
-      for (i=0; i < RARRAY_LEN(threads); ++i)
-      {
-        VALUE thread = rb_ary_entry(threads, i);
-        st_insert(exclude_threads_tbl, (st_data_t) rb_obj_id(thread), 0);
-      }
-    }
-    return threads;
-}
-
 
 /* ===========  Profiling ================= */
 void
-prof_install_hook()
+prof_install_hook(VALUE self)
 {
 #ifdef RUBY_VM
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN
-            | RUBY_EVENT_LINE, Qnil); // RUBY_EVENT_SWITCH
+            | RUBY_EVENT_LINE, self); // RUBY_EVENT_SWITCH
 #else
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
@@ -602,6 +403,17 @@ prof_remove_hook()
 }
 
 
+/* ========  Profile Class ====== */
+static VALUE
+prof_allocate(VALUE klass)
+{
+    VALUE result;
+    prof_profile_t* profile;
+    result = Data_Make_Struct(klass, prof_profile_t, NULL, NULL, profile);
+    profile->running = Qfalse;
+    return result;
+}
+
 /* call-seq:
    running? -> boolean
 
@@ -609,10 +421,8 @@ prof_remove_hook()
 static VALUE
 prof_running(VALUE self)
 {
-    if (threads_tbl != NULL)
-        return Qtrue;
-    else
-        return Qfalse;
+    prof_profile_t* profile = prof_get_profile(self);
+    return profile->running;
 }
 
 /* call-seq:
@@ -622,15 +432,17 @@ prof_running(VALUE self)
 static VALUE
 prof_start(VALUE self)
 {
-	char* trace_file_name;
-    if (threads_tbl != NULL)
+	  char* trace_file_name;
+    prof_profile_t* profile = prof_get_profile(self);
+        
+    if (profile->running == Qtrue)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was already called");
     }
 
-    /* Setup globals */
-    last_thread_data = NULL;
-    threads_tbl = threads_table_create();
+    profile->running = Qtrue;
+    profile->last_thread_data = NULL;
+    profile->threads_tbl = threads_table_create();
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
@@ -644,7 +456,7 @@ prof_start(VALUE self)
       }
     }
 
-    prof_install_hook();
+    prof_install_hook(self);
     return self;
 }
 
@@ -655,10 +467,13 @@ prof_start(VALUE self)
 static VALUE
 prof_pause(VALUE self)
 {
-    if (threads_tbl == NULL)
+    prof_profile_t* profile = prof_get_profile(self);
+    if (profile->running == Qfalse)
     {
         rb_raise(rb_eRuntimeError, "RubyProf is not running.");
     }
+
+    profile->running = Qfalse;
 
     prof_remove_hook();
     return self;
@@ -671,13 +486,15 @@ prof_pause(VALUE self)
 static VALUE
 prof_resume(VALUE self)
 {
-    if (threads_tbl == NULL)
+    prof_profile_t* profile = prof_get_profile(self);
+    if (profile->running == Qfalse)
     {
         prof_start(self);
     }
     else
     {
-        prof_install_hook();
+        profile->running = Qtrue;
+        prof_install_hook(self);
     }
 
     if (rb_block_given_p())
@@ -695,13 +512,14 @@ prof_resume(VALUE self)
 static VALUE
 prof_stop(VALUE self)
 {
+    prof_profile_t* profile = prof_get_profile(self);
     VALUE result = Qnil;
 
 	/* get 'now' before prof emove hook because it calls GC.disable_stats
       which makes the call within prof_pop_threads of now return 0, which is wrong
     */
-    double now = measure->measure();
-    if (threads_tbl == NULL)
+    profile->measurement = measure->measure();
+    if (profile->running == Qfalse)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
     }
@@ -715,16 +533,17 @@ prof_stop(VALUE self)
     
     prof_remove_hook();
 
-    prof_pop_threads(now);
+    prof_pop_threads(profile);
 
     /* Create the result */
-    result = prof_result_new(threads_tbl);
+    result = prof_result_new(profile->threads_tbl);
 
     /* Unset the last_thread_data (very important!)
        and the threads table */
-    last_thread_data = NULL;
-    threads_table_free(threads_tbl);
-    threads_tbl = NULL;
+    profile->running = Qfalse;
+    profile->last_thread_data = NULL;
+    threads_table_free(profile->threads_tbl);
+    profile->threads_tbl = NULL;
 
     /* compute minimality of call_infos */
     rb_funcall(result, rb_intern("compute_minimality") , 0);
@@ -737,38 +556,41 @@ prof_stop(VALUE self)
 
 Profiles the specified block and returns a RubyProf::Result object. */
 static VALUE
-prof_profile(VALUE self)
+prof_profile(VALUE klass)
 {
     int result;
+    VALUE profile = rb_class_new_instance(0, 0, cProfile);
 
     if (!rb_block_given_p())
     {
         rb_raise(rb_eArgError, "A block must be provided to the profile method.");
     }
 
-    prof_start(self);
-    rb_protect(rb_yield, self, &result);
-    return prof_stop(self);
+    prof_start(profile);
+    rb_protect(rb_yield, profile, &result);
+    return prof_stop(profile);
 }
 
 void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
+    rb_define_const(mProf, "VERSION", rb_str_new2(RUBY_PROF_VERSION));
+    rb_define_singleton_method(mProf, "exclude_threads=", prof_set_exclude_threads, 1);
+    rb_define_singleton_method(mProf, "measure_mode", prof_get_measure_mode, 0);
+    rb_define_singleton_method(mProf, "measure_mode=", prof_set_measure_mode, 1);
     
     rp_init_measure();
     rp_init_method_info();
     rp_init_call_info();
     rp_init_result();
 
-    rb_define_const(mProf, "VERSION", rb_str_new2(RUBY_PROF_VERSION));
-    rb_define_module_function(mProf, "start", prof_start, 0);
-    rb_define_module_function(mProf, "stop", prof_stop, 0);
-    rb_define_module_function(mProf, "resume", prof_resume, 0);
-    rb_define_module_function(mProf, "pause", prof_pause, 0);
-    rb_define_module_function(mProf, "running?", prof_running, 0);
-    rb_define_module_function(mProf, "profile", prof_profile, 0);
-
-    rb_define_singleton_method(mProf, "exclude_threads=", prof_set_exclude_threads, 1);
-    rb_define_singleton_method(mProf, "measure_mode", prof_get_measure_mode, 0);
-    rb_define_singleton_method(mProf, "measure_mode=", prof_set_measure_mode, 1);
+    cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
+    rb_define_singleton_method(cProfile, "profile", prof_profile, 0);
+    rb_define_alloc_func (cProfile, prof_allocate);
+    rb_define_method(cProfile, "start", prof_start, 0);
+    rb_define_method(cProfile, "start", prof_start, 0);
+    rb_define_method(cProfile, "stop", prof_stop, 0);
+    rb_define_method(cProfile, "resume", prof_resume, 0);
+    rb_define_method(cProfile, "pause", prof_pause, 0);
+    rb_define_method(cProfile, "running?", prof_running, 0);
 }

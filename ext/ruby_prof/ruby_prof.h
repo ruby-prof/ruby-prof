@@ -34,6 +34,7 @@ typedef rb_event_t rb_event_flag_t;
 #define st_index_t int
 #endif
 
+#include "rp_helpers.h"
 #include "rp_measure.h"
 #include "rp_method_info.h"
 #include "rp_call_info.h"
@@ -42,7 +43,19 @@ typedef rb_event_t rb_event_flag_t;
 #include "rp_result.h"
 
 VALUE mProf;
+VALUE cProfile;
+
 void method_key(prof_method_key_t* key, VALUE klass, ID mid);
+
+typedef struct {
+    VALUE running;
+    prof_measurer_t* measure;
+    VALUE threads;
+    st_table* threads_tbl;
+    st_table* exclude_threads_tbl;
+    thread_data_t* last_thread_data;
+    double measurement;
+} prof_profile_t;
 
 
 #endif //__RUBY_PROF_H__

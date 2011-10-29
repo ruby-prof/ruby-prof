@@ -34,7 +34,8 @@ measure_process_time()
 #if defined(__linux__)
     struct timespec time;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &time);
-    return time.tv_sec * 1000000000 + time.tv_nsec ;
+    //cast time.tv_sec to our return type, so it's properly sized, then multiply it out to nanoseconds and add time.tv_nsec
+    return ((prof_measure_t) time.tv_sec) * 1000000000 + time.tv_nsec ;
 #else
     return clock();
 #endif

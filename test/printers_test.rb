@@ -45,12 +45,12 @@ class PrintersTest < Test::Unit::TestCase
       printer = RubyProf::CallTreePrinter.new(@result)
       printer.print(output)
       output_dir = 'examples2'
-      
+
       if ENV['SAVE_NEW_PRINTER_EXAMPLES']
         output_dir = 'examples'
       end
       FileUtils.mkdir_p output_dir
-      
+
       printer = RubyProf::DotPrinter.new(@result)
       File.open("#{output_dir}/graph.dot", "w") {|f| printer.print(f)}
 
@@ -153,6 +153,106 @@ class PrintersTest < Test::Unit::TestCase
 
   end
 
+  def test_flat_result_sorting_by_self_time_is_default
+    printer = RubyProf::FlatPrinter.new(@result)
 
+    printer.print(output = '')
+    self_times = flat_output_nth_column_values(output, 3)
 
+    assert_sorted self_times
+  end
+
+  def test_flat_result_sorting
+    printer = RubyProf::FlatPrinter.new(@result)
+
+    sort_method_with_column_number = {:total_time => 2, :self_time => 3, :wait_time => 4, :children_time => 5}
+
+    sort_method_with_column_number.each_pair do |sort_method, n|
+      printer.print(output = '', :sort_method => sort_method)
+      times = flat_output_nth_column_values(output, n)
+      assert_sorted times
+    end
+  end
+
+  def test_flat_result_with_line_numbers_sorting_by_self_time_is_default
+    printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
+
+    printer.print(output = '')
+    self_times = flat_output_nth_column_values(output, 3)
+
+    assert_sorted self_times
+  end
+
+  def test_flat_with_line_numbers_result_sorting
+    printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
+
+    sort_method_with_column_number = {:total_time => 2, :self_time => 3, :wait_time => 4, :children_time => 5}
+
+    sort_method_with_column_number.each_pair do |sort_method, n|
+      printer.print(output = '', :sort_method => sort_method)
+      times = flat_output_nth_column_values(output, n)
+      assert_sorted times
+    end
+  end
+
+  def test_graph_result_sorting_by_total_time_is_default
+    printer = RubyProf::GraphPrinter.new(@result)
+    printer.print(output = '')
+    total_times = graph_output_nth_column_values(output, 3)
+
+    assert_sorted total_times
+  end
+
+  def test_graph_results_sorting
+    printer = RubyProf::GraphPrinter.new(@result)
+
+    sort_method_with_column_number = {:total_time => 3, :self_time => 4, :wait_time => 5, :children_time => 6}
+
+    sort_method_with_column_number.each_pair do |sort_method, n|
+      printer.print(output = '', :sort_method => sort_method)
+      times = graph_output_nth_column_values(output, n)
+      assert_sorted times
+    end
+  end
+
+  def test_graph_html_result_sorting_by_total_time_is_default
+    printer = RubyProf::GraphHtmlPrinter.new(@result)
+    printer.print(output = '')
+    total_times = graph_html_output_nth_column_values(output, 3)
+
+    assert_sorted total_times
+  end
+
+  def test_graph_html_result_sorting
+    printer = RubyProf::GraphHtmlPrinter.new(@result)
+
+    sort_method_with_column_number = {:total_time => 3, :self_time => 4, :wait_time => 5, :children_time => 6}
+
+    sort_method_with_column_number.each_pair do |sort_method, n|
+      printer.print(output = '', :sort_method => sort_method)
+      times = graph_html_output_nth_column_values(output, n)
+      assert_sorted times
+    end
+  end
+
+  private
+  def flat_output_nth_column_values(output, n)
+    only_method_calls = output.split("\n").select { |line| line =~ /^ +\d+/ }
+    only_method_calls.collect { |line| line.split(/ +/)[n] }
+  end
+
+  def graph_output_nth_column_values(output, n)
+    only_root_calls = output.split("\n").select { |line| line =~ /^ +[\d\.]+%/ }
+    only_root_calls.collect { |line| line.split(/ +/)[n] }
+  end
+
+  def graph_html_output_nth_column_values(output, n)
+    only_root_calls = output.split('<tr class="method">')
+    only_root_calls.delete_at(0)
+    only_root_calls.collect {|line| line.scan(/[\d\.]+/)[n - 1] }
+  end
+
+  def assert_sorted array
+    assert_equal array, array.sort.reverse, "Array #{array.inspect} is not sorted"
+  end
 end

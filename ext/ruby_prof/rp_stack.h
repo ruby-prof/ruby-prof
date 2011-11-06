@@ -12,7 +12,8 @@
 
 /* Temporary object that maintains profiling information
    for active methods - there is one per method.*/
-typedef struct {
+typedef struct 
+{
     /* Caching prof_method_t values significantly
        increases performance. */
     prof_call_info_t *call_info;
@@ -23,7 +24,8 @@ typedef struct {
 } prof_frame_t;
 
 /* Current stack of active methods.*/
-typedef struct {
+typedef struct 
+{
     prof_frame_t *start;
     prof_frame_t *end;
     prof_frame_t *ptr;
@@ -35,5 +37,4 @@ prof_frame_t * stack_push(prof_stack_t *stack);
 prof_frame_t * stack_pop(prof_stack_t *stack);
 prof_frame_t * stack_peek(prof_stack_t *stack);
 
-
-#endif
+#endif //__RP_STACK__

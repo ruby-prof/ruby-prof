@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\MinGW\local\src\ruby-prof\lib</OutDir>
+    <OutDir>C:\MinGW\local\src\ruby-prof\lib\</OutDir>
     <TargetExt>.so</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -82,8 +82,7 @@
   <ItemGroup>
     <ClInclude Include="..\rp_call_info.h" />
     <ClInclude Include="..\rp_measure.h" />
-    <ClInclude Include="..\rp_method_info.h" />
-    <ClInclude Include="..\rp_result.h" />
+    <ClInclude Include="..\rp_method.h" />
     <ClInclude Include="..\rp_stack.h" />
     <ClInclude Include="..\rp_thread.h" />
     <ClInclude Include="..\ruby_prof.h" />
@@ -99,8 +98,7 @@
     <ClCompile Include="..\rp_measure_memory.c" />
     <ClCompile Include="..\rp_measure_process_time.c" />
     <ClCompile Include="..\rp_measure_wall_time.c" />
-    <ClCompile Include="..\rp_method_info.c" />
-    <ClCompile Include="..\rp_result.c" />
+    <ClCompile Include="..\rp_method.c" />
     <ClCompile Include="..\rp_stack.c" />
     <ClCompile Include="..\rp_thread.c" />
     <ClCompile Include="..\ruby_prof.c" />

@@ -5,7 +5,8 @@
 #define __RP_THREAD__
 
 /* Profiling information for a thread. */
-typedef struct {
+typedef struct 
+{
     VALUE thread_id;                  /* Thread id */
     st_table* method_table;           /* Methods called in the thread */
     prof_stack_t* stack;              /* Active methods */
@@ -13,8 +14,7 @@ typedef struct {
 } thread_data_t;
 
 st_table * threads_table_create();
-size_t threads_table_insert(st_table *table, VALUE thread, thread_data_t *thread_data);
-thread_data_t * threads_table_lookup(st_table *table, VALUE thread_id);
+thread_data_t* switch_thread(void* profile, VALUE thread_id);
 void threads_table_free(st_table *table);
 
 #endif //__RP_THREAD__

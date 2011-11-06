@@ -15,7 +15,7 @@
 
 require 'ostruct'
 require 'optparse'
-require File.dirname(__FILE__) + "/../lib/ruby-prof"
+require File.expand_path('../../lib/ruby-prof', __FILE__)
 
 options = OpenStruct.new
 options.measure_mode = RubyProf::PROCESS_TIME

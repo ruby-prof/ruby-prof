@@ -69,12 +69,6 @@ class BasicTest < Test::Unit::TestCase
     assert_raise(RuntimeError) do
       RubyProf.start
     end
-
-    assert_raise(RuntimeError) do
-      RubyProf.profile do
-        puts 1
-      end
-    end
     RubyProf.stop
   end
 

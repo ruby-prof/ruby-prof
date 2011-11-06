@@ -5,11 +5,11 @@
 #define __RP_MEASUREMENT_H__
 
 VALUE mMeasure;
-void rp_init_measure();
 
 typedef double (*get_measurement)();
 
-typedef struct {
+typedef struct
+{
     get_measurement measure;
 } prof_measurer_t;
 
@@ -22,10 +22,9 @@ typedef enum
     MEASURE_MEMORY,
     MEASURE_PROCESS_TIME,
     MEASURE_WALL_TIME,
-} prof_measurers_t;
-prof_measurer_t* prof_get_measurer(prof_measurers_t measure);
+} prof_measure_mode_t;
 
-
+prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure);
 prof_measurer_t* prof_measurer_allocations();
 prof_measurer_t* prof_measurer_cpu_time();
 prof_measurer_t* prof_measurer_gc_runs();
@@ -34,6 +33,7 @@ prof_measurer_t* prof_measurer_memory();
 prof_measurer_t* prof_measurer_process_time();
 prof_measurer_t* prof_measurer_wall_time();
 
+void rp_init_measure();
 void rp_init_measure_allocations();
 void rp_init_measure_cpu_time();
 void rp_init_measure_gc_runs();
@@ -41,9 +41,5 @@ void rp_init_measure_gc_time();
 void rp_init_measure_memory();
 void rp_init_measure_process_time();
 void rp_init_measure_wall_time();
-
-/* Globals */
-prof_measurers_t measure_mode;
-prof_measurer_t* measure;
 
 #endif //__RP_MEASUREMENT_H__

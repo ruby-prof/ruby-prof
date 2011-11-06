@@ -2,7 +2,7 @@
 
 require 'set'
 module RubyProf
-  class Result
+  class Profile
     # this method gets called internally when profiling is stopped.
     # it determines for each call_info whether it is minimal: a
     # call_info is minimal in a call tree if the call_info is not a

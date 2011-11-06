@@ -9,7 +9,8 @@
 extern VALUE cMethodInfo;
 
 /* A key used to identify each method */
-typedef struct {
+typedef struct 
+{
     VALUE klass;                            /* The method's class. */
     ID mid;                                 /* The method id. */
     int depth;                              /* The recursion depth. */
@@ -20,7 +21,8 @@ typedef struct {
 struct prof_call_infos_t;
 
 /* Profiling information for each method. */
-typedef struct {
+typedef struct 
+{
     prof_method_key_t *key;                 /* Method key */
     const char *source_file;                /* The method's source file */
     int line;                               /* The method's line number. */

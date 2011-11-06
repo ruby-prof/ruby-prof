@@ -23,12 +23,12 @@ module RubyProf
 
   # A few need to be loaded manually their classes were already defined by the .so file so autoload won't work for them.
   # plus we need them anyway
-  for name in ['result', 'method_info', 'call_info']
+  for name in ['profile', 'method_info', 'call_info']
     require lib_dir + name
   end
   
   # Compatability layer for suporting old api
-  require lib_dir + 'compatability' 
+  require lib_dir + 'compatibility' 
   
   # we don't require unprof.rb, as well, purposefully
   

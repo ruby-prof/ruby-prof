@@ -1,44 +1,61 @@
+0.11.0
+======================
+* Big internal refactoring of C code to make RubyProf easier to understand and to extend  (Charlie Savage).
+* Profile results are now returned as instances of a new class RubyProf::Profile.  The old api 
+  is supported via a compatability layer  (Charlie Savage).
+* Dropped support for Ruby 1.8.4 and 1.8.6 - does anybody still use these? (Charlie Savage).
+* Added support for sorting results by total, self, wait and child times (Jan Suchal)
+* Added tests for sorting behaviour & removed options from constructor to print method (Jan Suchal)
+* Fix line number tests due to changes at top of file (Charlie Savage).
+* Add encoding statement to top of all files for Ruby 1.9.x compatability (Charlie Savage).
+* Add def file for VC to avoid the whole declspec annoyance (Charlie Savage).
+* Update test suite to ensure current working directory is correct (Charlie Savage).
+* Modernize gem file and remove various custom/home grown solutions that aren't needed anymore (Charlie Savage).
+* Remove custom mingw build scripts, use rake compiler instead  (Charlie Savage).
+* Fixes for compiling with VC 2010 (Charlie Savage).
+* 1.9.3 super class (Roger Pack)
+
 0.10.7
 ======================
-Fix a bug with REE's GC stats. Issue #53 [thanks graaff]
+* Fix a bug with REE's GC stats. Issue #53 [thanks graaff]
 
 0.10.6
 ======================
-Slightly more normalized url for linux/windows links to files.
+* Slightly more normalized url for linux/windows links to files.
 
 0.10.5
 =======================
-1.8.6 compat for -v command (bug fix)
+* 1.8.6 compat for -v command (bug fix)
 
 0.10.4
 =======================
-Faster load time for ruby-prof itself.
+* Faster load time for ruby-prof itself.
 
 0.10.3
 =======================
-Can cleanly load before rubygems now.
+* Can cleanly load before rubygems now.
 
 0.10.2
 =======================
-Fix for 1.9.2, os x for latest commits (thanks skaes!)
+* Fix for 1.9.2, os x for latest commits (thanks skaes!)
 
 0.10.1
 =======================
-Fix bug in linux wall time, also load with only relative paths so that you can use it to benchmark rubygems startup overhead,
-itself.
+* Fix bug in linux wall time, also load with only relative paths so that you can use it to benchmark rubygems startup overhead,
+  itself.
 
 0.10.0
 =======================
-Some rdoc changes, for linux wall time attempt to use higher granularity (thanks to all the contributors for this round!)
+* Some rdoc changes, for linux wall time attempt to use higher granularity (thanks to all the contributors for this round!)
 
 0.9.2
 =======================
-Make graphviz work on 1.8.6
-roll back some 1.9.2 optimizations until I can figure out what caused them.
+* Make graphviz work on 1.8.6
+* Roll back some 1.9.2 optimizations until I can figure out what caused them.
 
 0.9.1
 =======================
-Add a graphviz output
+* Add a graphviz output
 
 0.9.0
 =======================

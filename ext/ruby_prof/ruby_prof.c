@@ -4,16 +4,16 @@
 /* ruby-prof tracks the time spent executing every method in ruby programming.
    The main players are:
 
-     prof_result_t     - Its one field, values,  contains the overall results
+     profile_t         - This represents 1 profile.
      thread_data_t     - Stores data about a single thread.
      prof_stack_t      - The method call stack in a particular thread
-     prof_method_t     - Profiling information for each method
+     prof_method_t     - Profiling information about each method
      prof_call_info_t  - Keeps track a method's callers and callees.
 
-  The final resulut is a hash table of thread_data_t, keyed on the thread
-  id.  Each thread has an hash a table of prof_method_t, keyed on the
-  method id.  A hash table is used for quick look up when doing a profile.
-  However, it is exposed to Ruby as an array.
+  The final result is an instance of a profile object which has a hash table of
+  thread_data_t, keyed on the thread id.  Each thread in turn has a hash table
+  of prof_method_t, keyed on the method id.  A hash table is used for quick 
+  look up when doing a profile.  However, it is exposed to Ruby as an array.
 
   Each prof_method_t has two hash tables, parent and children, of prof_call_info_t.
   These objects keep track of a method's callers (who called the method) and its
@@ -133,39 +133,6 @@ update_result(double total_time,
       call_info->line = parent_frame->line;
 }
 
-static thread_data_t *
-switch_thread(prof_profile_t* profile, VALUE thread_id)
-{
-    prof_frame_t *frame = NULL;
-    double wait_time = 0;
-
-    /* Get new thread information. */
-    thread_data_t *thread_data = threads_table_lookup(profile->threads_tbl, thread_id);
-
-    /* How long has this thread been waiting? */
-    wait_time = profile->measurement - thread_data->last_switch;
-
-    thread_data->last_switch = profile->measurement; // XXXX a test that fails if this is 0
-
-    /* Get the frame at the top of the stack.  This may represent
-       the current method (EVENT_LINE, EVENT_RETURN)  or the
-       previous method (EVENT_CALL).*/
-    frame = stack_peek(thread_data->stack);
-
-    if (frame) {
-      frame->wait_time += wait_time;
-    }
-
-    /* Save on the last thread the time of the context switch
-       and reset this thread's last context switch to 0.*/
-    if (profile->last_thread_data) {
-      profile->last_thread_data->last_switch = profile->measurement;
-    }
-
-    profile->last_thread_data = thread_data;
-    return thread_data;
-}
-
 static prof_frame_t*
 pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
 {
@@ -240,7 +207,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     #endif
 
     /* Get current measurement */
-    profile->measurement = measure->measure();
+    profile->measurement = profile->measurer->measure();
 
     if (trace_file != NULL)
     {
@@ -287,7 +254,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 
     /* Was there a context switch? */
     if (!profile->last_thread_data || profile->last_thread_data->thread_id != thread_id)
-      thread_data = switch_thread(profile, thread_id, profile->measurement);
+      thread_data = switch_thread(profile, thread_id);
     else
       thread_data = profile->last_thread_data;
 
@@ -403,15 +370,111 @@ prof_remove_hook()
 }
 
 
+static int
+collect_methods(st_data_t key, st_data_t value, st_data_t result)
+{
+    /* Called for each method stored in a thread's method table.
+       We want to store the method info information into an array.*/
+    VALUE methods = (VALUE) result;
+    prof_method_t *method = (prof_method_t *) value;
+    rb_ary_push(methods, prof_method_wrap(method));
+
+    /* Wrap call info objects */
+    prof_call_infos_wrap(method->call_infos);
+
+    return ST_CONTINUE;
+}
+
+static int
+collect_threads(st_data_t key, st_data_t value, st_data_t result)
+{
+    /* Although threads are keyed on an id, that is actually a
+       pointer to the VALUE object of the thread.  So its bogus.
+       However, in thread_data is the real thread id stored
+       as an int. */
+    thread_data_t* thread_data = (thread_data_t*) value;
+    VALUE threads_hash = (VALUE) result;
+
+    VALUE methods = rb_ary_new();
+
+    /* Now collect an array of all the called methods */
+    st_table* method_table = thread_data->method_table;
+    st_foreach(method_table, collect_methods, methods);
+
+    /* Store the results in the threads hash keyed on the thread id. */
+    rb_hash_aset(threads_hash, thread_data->thread_id, methods);
+
+    return ST_CONTINUE;
+}
+
+
 /* ========  Profile Class ====== */
+static void
+prof_mark(prof_profile_t *profile)
+{
+    VALUE threads = profile->threads;
+    rb_gc_mark(threads);
+}
+
+static void
+prof_free(prof_profile_t *profile)
+{
+    profile->threads = Qnil;
+    xfree(profile);
+}
+
 static VALUE
 prof_allocate(VALUE klass)
 {
     VALUE result;
     prof_profile_t* profile;
-    result = Data_Make_Struct(klass, prof_profile_t, NULL, NULL, profile);
+    result = Data_Make_Struct(klass, prof_profile_t, prof_mark, prof_free, profile);
     profile->running = Qfalse;
     return result;
+}
+
+/* call-seq:
+   RubyProf::Profile.new(mode, exclude_threads) -> instance
+
+   Returns a new profiler.
+   
+   == Parameters
+   mode::  Measure mode (optional). Specifies the profile measure mode.  If not specified, defaults
+           to RubyProf::WALL_TIME.
+   exclude_threads:: Threads to exclude from the profiling results (optional). */
+static VALUE
+prof_initialize(int argc,  VALUE *argv, VALUE self)
+{
+    prof_profile_t* profile = prof_get_profile(self);
+    VALUE mode;
+	prof_measure_mode_t measurer;
+    VALUE exclude_threads;
+    
+    switch (rb_scan_args(argc, argv, "02", &mode, &exclude_threads))
+    {
+      case 0:
+      {
+        measurer = MEASURE_WALL_TIME;
+        exclude_threads = rb_hash_new();
+		break;
+      }
+      case 1:
+      {
+        measurer = (prof_measure_mode_t)NUM2INT(mode);
+        exclude_threads = rb_hash_new();
+		break;
+      }
+      case 2:
+      {
+        measurer = (prof_measure_mode_t)NUM2INT(mode);
+		break;
+      }
+    }
+
+    profile->measurer = prof_get_measurer(measurer);
+    profile->threads = rb_hash_new();
+
+    return self;
 }
 
 /* call-seq:
@@ -432,7 +495,7 @@ prof_running(VALUE self)
 static VALUE
 prof_start(VALUE self)
 {
-	  char* trace_file_name;
+	char* trace_file_name;
     prof_profile_t* profile = prof_get_profile(self);
         
     if (profile->running == Qtrue)
@@ -506,9 +569,9 @@ prof_resume(VALUE self)
 }
 
 /* call-seq:
-   stop -> RubyProf::Result
+   stop -> self
 
-   Stops collecting profile data and returns a RubyProf::Result object. */
+   Stops collecting profile data.*/
 static VALUE
 prof_stop(VALUE self)
 {
@@ -518,7 +581,7 @@ prof_stop(VALUE self)
 	/* get 'now' before prof emove hook because it calls GC.disable_stats
       which makes the call within prof_pop_threads of now return 0, which is wrong
     */
-    profile->measurement = measure->measure();
+    profile->measurement = profile->measurer->measure();
     if (profile->running == Qfalse)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
@@ -532,23 +595,23 @@ prof_stop(VALUE self)
     }
     
     prof_remove_hook();
-
     prof_pop_threads(profile);
-
-    /* Create the result */
-    result = prof_result_new(profile->threads_tbl);
 
     /* Unset the last_thread_data (very important!)
        and the threads table */
     profile->running = Qfalse;
     profile->last_thread_data = NULL;
-    threads_table_free(profile->threads_tbl);
-    profile->threads_tbl = NULL;
+
+    /* Save the result */
+    st_foreach(profile->threads_tbl, collect_threads, profile->threads);
+	threads_table_free(profile->threads_tbl);
+
+	profile->threads_tbl = NULL;
 
     /* compute minimality of call_infos */
-    rb_funcall(result, rb_intern("compute_minimality") , 0);
+    rb_funcall(self, rb_intern("compute_minimality") , 0);
 
-    return result;
+    return self;
 }
 
 /* call-seq:
@@ -571,26 +634,39 @@ prof_profile(VALUE klass)
     return prof_stop(profile);
 }
 
+/* call-seq:
+   threads -> Hash
+
+Returns a hash table keyed on thread ID.  For each thread id,
+the hash table stores another hash table that contains profiling
+information for each method called during the threads execution.
+That hash table is keyed on method name and contains
+RubyProf::MethodInfo objects. */
+static VALUE
+prof_threads(VALUE self)
+{
+    prof_profile_t* profile = prof_get_profile(self);
+    return profile->threads;
+}
+
 void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
     rb_define_const(mProf, "VERSION", rb_str_new2(RUBY_PROF_VERSION));
-    rb_define_singleton_method(mProf, "exclude_threads=", prof_set_exclude_threads, 1);
-    rb_define_singleton_method(mProf, "measure_mode", prof_get_measure_mode, 0);
-    rb_define_singleton_method(mProf, "measure_mode=", prof_set_measure_mode, 1);
     
     rp_init_measure();
     rp_init_method_info();
     rp_init_call_info();
-    rp_init_result();
 
-    cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
+	cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_singleton_method(cProfile, "profile", prof_profile, 0);
     rb_define_alloc_func (cProfile, prof_allocate);
+    rb_define_method(cProfile, "initialize", prof_initialize, -1);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);
     rb_define_method(cProfile, "resume", prof_resume, 0);
     rb_define_method(cProfile, "pause", prof_pause, 0);
     rb_define_method(cProfile, "running?", prof_running, 0);
+    rb_define_method(cProfile, "threads", prof_threads, 0);
 }

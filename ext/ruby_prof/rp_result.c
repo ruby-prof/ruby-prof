@@ -5,42 +5,6 @@
 
 VALUE cResult;
 
-static int
-collect_methods(st_data_t key, st_data_t value, st_data_t result)
-{
-    /* Called for each method stored in a thread's method table.
-       We want to store the method info information into an array.*/
-    VALUE methods = (VALUE) result;
-    prof_method_t *method = (prof_method_t *) value;
-    rb_ary_push(methods, prof_method_wrap(method));
-
-    /* Wrap call info objects */
-    prof_call_infos_wrap(method->call_infos);
-
-    return ST_CONTINUE;
-}
-
-static int
-collect_threads(st_data_t key, st_data_t value, st_data_t result)
-{
-    /* Although threads are keyed on an id, that is actually a
-       pointer to the VALUE object of the thread.  So its bogus.
-       However, in thread_data is the real thread id stored
-       as an int. */
-    thread_data_t* thread_data = (thread_data_t*) value;
-    VALUE threads_hash = (VALUE) result;
-
-    VALUE methods = rb_ary_new();
-
-    /* Now collect an array of all the called methods */
-    st_table* method_table = thread_data->method_table;
-    st_foreach(method_table, collect_methods, methods);
-
-    /* Store the results in the threads hash keyed on the thread id. */
-    rb_hash_aset(threads_hash, thread_data->thread_id, methods);
-
-    return ST_CONTINUE;
-}
 
 /* ========  ProfResult ============== */
 

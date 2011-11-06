@@ -8,7 +8,8 @@
 
 extern VALUE cResult;
 
-typedef struct {
+typedef struct 
+{
     VALUE threads;
 } prof_result_t;
 
@@ -16,4 +17,4 @@ void rp_init_result();
 VALUE prof_result_new(st_table* threads_tbl);
 
 
-#endif
+#endif //__RP_RESULT__

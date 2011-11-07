@@ -27,6 +27,9 @@
 #include <stdio.h>
 #include <assert.h>
 
+VALUE mProf;
+VALUE cProfile;
+
 static prof_profile_t*
 prof_get_profile(VALUE self)
 {

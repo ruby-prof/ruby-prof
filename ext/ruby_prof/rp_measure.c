@@ -3,6 +3,8 @@
 
 #include "ruby_prof.h"
 
+VALUE mMeasure;
+
 prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure)
 {
     switch (measure)

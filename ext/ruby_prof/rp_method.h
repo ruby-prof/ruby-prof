@@ -44,6 +44,7 @@ void prof_method_mark(prof_method_t *method);
 /* Setup infrastructure to use method keys as hash comparisons */
 int method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2);
 st_index_t method_table_hash(prof_method_key_t *key);
-struct st_hash_type type_method_hash;
+
+extern struct st_hash_type type_method_hash;
 
 #endif

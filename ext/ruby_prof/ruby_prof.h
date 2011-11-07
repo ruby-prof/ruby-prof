@@ -40,12 +40,12 @@ typedef rb_event_t rb_event_flag_t;
 #include "rp_stack.h"
 #include "rp_thread.h"
 
-VALUE mProf;
-VALUE cProfile;
+extern VALUE mProf;
+extern VALUE cProfile;
 
 void method_key(prof_method_key_t* key, VALUE klass, ID mid);
 
-typedef struct prof_profile_t
+typedef struct
 {
     VALUE running;
     prof_measurer_t* measurer;

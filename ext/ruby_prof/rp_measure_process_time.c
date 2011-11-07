@@ -13,7 +13,7 @@ measure_process_time()
     struct timespec clock;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
     return (clock.tv_sec * 1000000000 + clock.tv_nsec) / 1000000000.0;
-#else
+#elsif defined(_win32)
 	FILETIME createTime;
 	FILETIME exitTime;
 	FILETIME sysTime;
@@ -37,6 +37,8 @@ measure_process_time()
 
 	// Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
 	return totalTime / 10000000.0;
+#else
+    return ((double)clock()) / CLOCKS_PER_SEC;
 #endif
 }
 

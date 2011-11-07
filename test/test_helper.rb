@@ -12,3 +12,61 @@ $LOAD_PATH << ext
 
 require 'ruby-prof'
 require 'test/unit'
+
+
+# Some classes used in measurement tests
+module RubyProf
+  class C1
+    def C1.hello
+      sleep(0.1)
+    end
+
+    def hello
+      sleep(0.2)
+    end
+  end
+
+  module M1
+    def hello
+      sleep(0.3)
+    end
+  end
+
+  class C2
+    include M1
+    extend M1
+  end
+
+  class C3
+    def hello
+      sleep(0.4)
+    end
+  end
+
+  module M4
+    def hello
+      sleep(0.5)
+    end
+  end
+
+  module M5
+    include M4
+    def goodbye
+      hello
+    end
+  end
+
+  class C6
+    include M5
+    def test
+      goodbye
+    end
+  end
+  
+  if RUBY_VERSION < '1.9'
+    PARENT = Object
+  else
+    PARENT = BasicObject
+  end
+
+end

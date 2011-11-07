@@ -13,15 +13,31 @@ measure_process_time()
 #if defined(__linux__)
     struct timespec clock;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
-    time = clock.tv_sec * 1000000000 + clock.tv_nsec ;
+    return (clock.tv_sec * 1000000000 + clock.tv_nsec) / 1000000000.0;
 #else
-    time = clock();
-#endif
+	FILETIME createTime;
+	FILETIME exitTime;
+	FILETIME sysTime;
+	FILETIME cpuTime;
 
-#if defined(__linux__)
-    return (double) time / 1000000000;
-#else
-    return (double) time / CLOCKS_PER_SEC;
+	ULARGE_INTEGER sysTimeInt;
+	ULARGE_INTEGER cpuTimeInt;
+	ULONGLONG totalTime;
+
+	GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &cpuTime); 
+
+	/* Doing this based on MSFT's recommendation in the FILETIME structure documentation at
+	  http://msdn.microsoft.com/en-us/library/ms724284%28VS.85%29.aspx*/
+
+	sysTimeInt.LowPart = sysTime.dwLowDateTime;
+	sysTimeInt.HighPart = sysTime.dwHighDateTime;
+	cpuTimeInt.LowPart = cpuTime.dwLowDateTime;
+	cpuTimeInt.HighPart = cpuTime.dwHighDateTime;
+
+	totalTime = sysTimeInt.QuadPart + cpuTimeInt.QuadPart;
+
+	// Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
+	return totalTime / 10000000.0;
 #endif
 }
 

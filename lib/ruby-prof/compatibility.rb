@@ -129,6 +129,6 @@ module RubyProf
     if @profile
       raise(RuntimeError, "RubyProf is already running");
     end
-    Profile.profile(&block)
+    Profile.profile(self.measure_mode, self.exclude_threads, &block)
   end
 end

@@ -45,7 +45,7 @@ VALUE cProfile;
 
 void method_key(prof_method_key_t* key, VALUE klass, ID mid);
 
-typedef struct 
+typedef struct prof_profile_t
 {
     VALUE running;
     prof_measurer_t* measurer;

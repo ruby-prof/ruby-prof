@@ -11,6 +11,7 @@ static unsigned LONG_LONG cpu_frequency = 0;
 #if defined(__GNUC__) && !defined(_WIN32)
 
 #include <stdint.h>
+#include <time.h>
 
 static double
 measure_cpu_time()

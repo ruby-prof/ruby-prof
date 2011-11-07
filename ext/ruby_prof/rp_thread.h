@@ -14,7 +14,7 @@ typedef struct
 } thread_data_t;
 
 st_table * threads_table_create();
-thread_data_t* switch_thread(void* profile, VALUE thread_id);
+thread_data_t* switch_thread(void* prof, VALUE thread_id);
 void threads_table_free(st_table *table);
 
 #endif //__RP_THREAD__

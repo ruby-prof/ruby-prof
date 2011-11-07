@@ -77,8 +77,9 @@ threads_table_free(st_table *table)
 }
 
 thread_data_t *
-switch_thread(prof_profile_t* profile, VALUE thread_id)
+switch_thread(void* prof, VALUE thread_id)
 {
+	prof_profile_t* profile = (prof_profile_t*)prof;
     prof_frame_t *frame = NULL;
     double wait_time = 0;
 

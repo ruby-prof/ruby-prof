@@ -11,9 +11,9 @@ measure_process_time()
 {
     double time;
 #if defined(__linux__)
-    struct timespec time;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &time);
-    time = time.tv_sec * 1000000000 + time.tv_nsec ;
+    struct timespec clock;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
+    time = clock.tv_sec * 1000000000 + clock.tv_nsec ;
 #else
     time = clock();
 #endif

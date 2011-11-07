@@ -3,10 +3,10 @@
 * On Windows, use QueryPerformanceCounter and QueryPerformanceFrequency to measure CPU time instead
   of rdtsc.  This change is based on Microsoft's recommendation (Charlie Savage).
 * On Windows use GetProcessTimes to return real PROCESS_TIME times instead of wall times (Charlie Savage).
-* Big internal refactoring of C code to make RubyProf easier to understand and to extend (Charlie Savage).
+* Big internal refactoring of C code to make RubyProf easier to understand and extend (Charlie Savage).
 * Profile results are now returned as instances of a new class RubyProf::Profile.  The old api 
-  is supported via a compatability layer  (Charlie Savage).
-* Split out tests for cpu_time, process_time and wall_time to separate files (Charlie Savage).
+  is supported via a compatability layer that at some point will be deprecated.  (Charlie Savage).
+* Split out tests for cpu_time, process_time and wall_time into separate files (Charlie Savage).
 * Dropped support for Ruby 1.8.4 and 1.8.6 - does anybody still use these? (Charlie Savage).
 * Added support for sorting results by total, self, wait and child times (Jan Suchal)
 * Added tests for sorting behaviour & removed options from constructor to print method (Jan Suchal)

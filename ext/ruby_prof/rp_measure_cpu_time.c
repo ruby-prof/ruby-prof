@@ -14,13 +14,12 @@ static unsigned LONG_LONG cpu_frequency = 0;
 #include <time.h>
 
 static double
-measure_cpu_time()
+get_cpu_time()
 {
-    unsigned long long time;
 #if defined(__i386__) || defined(__x86_64__)
     uint32_t a, d;
     __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
-    time = ((uint64_t)d << 32) + a;
+   return ((uint64_t)d << 32) + a;
 #elif defined(__powerpc__) || defined(__ppc__)
     unsigned long long x, y;
 
@@ -31,9 +30,8 @@ measure_cpu_time()
   cmpw    %0,%1\n\
   bne-    1b"
   : "=r" (x), "=r" (y));
-    time = x;
+   return x;
 #endif
-    return time / cpu_frequency;
 }
 
 unsigned long long get_cpu_frequency()
@@ -43,16 +41,16 @@ unsigned long long get_cpu_frequency()
     struct timespec ts;
     ts.tv_sec = 0;
     ts.tv_nsec = 500000000;
-    x = measure_cpu_time();
+    x = get_cpu_time();
     nanosleep(&ts, NULL);
-    y = measure_cpu_time();
+    y = get_cpu_time();
     return (y - x) * 2;
 }
 
 #elif defined(_WIN32)
 
 static double
-measure_cpu_time()
+get_cpu_time()
 {
     double cycles = 0;
 
@@ -62,7 +60,7 @@ measure_cpu_time()
         mov DWORD PTR cycles, eax
         mov DWORD PTR [cycles + 4], edx
     }
-    return cycles / cpu_frequency;
+    return cycles;
 }
 
 unsigned LONG_LONG get_cpu_frequency()
@@ -80,9 +78,9 @@ unsigned LONG_LONG get_cpu_frequency()
 #endif
 
 static double
-convert_cpu_time(double c)
+measure_cpu_time()
 {
-    return (double) c / cpu_frequency;
+    return get_cpu_time() / cpu_frequency;
 }
 
 

@@ -9,7 +9,6 @@ static VALUE cMeasureProcessTime;
 static double
 measure_process_time()
 {
-    double time;
 #if defined(__linux__)
     struct timespec clock;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);

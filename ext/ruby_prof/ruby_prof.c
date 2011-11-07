@@ -619,10 +619,10 @@ prof_stop(VALUE self)
 
 Profiles the specified block and returns a RubyProf::Result object. */
 static VALUE
-prof_profile(VALUE klass)
+prof_profile(int argc,  VALUE *argv, VALUE klass)
 {
     int result;
-    VALUE profile = rb_class_new_instance(0, 0, cProfile);
+    VALUE profile = rb_class_new_instance(argc, argv, cProfile);
 
     if (!rb_block_given_p())
     {
@@ -659,7 +659,7 @@ void Init_ruby_prof()
     rp_init_call_info();
 
 	cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
-    rb_define_singleton_method(cProfile, "profile", prof_profile, 0);
+    rb_define_singleton_method(cProfile, "profile", prof_profile, -1);
     rb_define_alloc_func (cProfile, prof_allocate);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
     rb_define_method(cProfile, "start", prof_start, 0);

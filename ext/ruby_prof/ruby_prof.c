@@ -576,7 +576,6 @@ static VALUE
 prof_stop(VALUE self)
 {
     prof_profile_t* profile = prof_get_profile(self);
-    VALUE result = Qnil;
 
 	/* get 'now' before prof emove hook because it calls GC.disable_stats
       which makes the call within prof_pop_threads of now return 0, which is wrong

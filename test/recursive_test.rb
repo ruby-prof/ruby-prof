@@ -58,10 +58,10 @@ class RecursiveTest < Test::Unit::TestCase
     method = methods[1]
     assert_equal('Object#simple', method.full_name)
     assert_equal(2, method.called)
-    assert_in_delta(2, method.total_time, 0.02)
-    assert_in_delta(0, method.self_time, 0.02)
-    assert_in_delta(0, method.wait_time, 0.02)
-    assert_in_delta(2, method.children_time, 0.02)
+    assert_in_delta(2, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(2, method.children_time, 0.05)
 
     assert_equal(2, method.call_infos.length)
     call_info = method.call_infos[0]

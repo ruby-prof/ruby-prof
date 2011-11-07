@@ -63,10 +63,10 @@ class AggregateTest < Test::Unit::TestCase
     # Check AggClass#z
     assert_equal('AggClass#z', method.full_name)
     assert_equal(3, method.called)
-    assert_in_delta(3, method.total_time, 0.01)
-    assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(0, method.self_time, 0.01)
-    assert_in_delta(3, method.children_time, 0.01)
+    assert_in_delta(3, method.total_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(3, method.children_time, 0.05)
     assert_equal(3, method.call_infos.length)
 
     call_info = method.call_infos[0]
@@ -102,7 +102,7 @@ class AggregateTest < Test::Unit::TestCase
     call_info = call_infos.first
     assert_equal('AggClass#a', call_info.parent.target.full_name)
     assert_in_delta(3, call_info.total_time, 0.05)
-    assert_in_delta(0, call_info.wait_time, 0.01)
+    assert_in_delta(0, call_info.wait_time, 0.05)
     assert_in_delta(0, call_info.self_time, 0.05)
     assert_in_delta(3, call_info.children_time, 0.05)
     assert_equal(3, call_info.called)
@@ -128,7 +128,7 @@ class AggregateTest < Test::Unit::TestCase
     call_info = call_infos.first
     assert_equal('AggClass#z', call_info.target.full_name)
     assert_in_delta(3, call_info.total_time, 0.05)
-    assert_in_delta(0, call_info.wait_time, 0.01)
+    assert_in_delta(0, call_info.wait_time, 0.05)
     assert_in_delta(0, call_info.self_time, 0.05)
     assert_in_delta(3, call_info.children_time, 0.05)
     assert_equal(3, call_info.called)

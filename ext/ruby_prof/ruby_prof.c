@@ -1290,7 +1290,7 @@ static inline void walk_up_until_right_frame(prof_frame_t *frame, thread_data_t*
 
 /* Document-class: RubyProf::Result
 The RubyProf::Result class is used to store the results of a
-profiling run.  And instace of the class is returned from
+profiling run.  An instace of the class is returned from
 the methods RubyProf#stop and RubyProf#profile.
 
 RubyProf::Result has one field, called threads, which is a hash

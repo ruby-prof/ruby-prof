@@ -44,7 +44,7 @@ module RubyProf
     # The default value is STDOUT.
     #
     # options - Hash of print options.  See #setup_options
-    #           for more information.
+    # for more information.
     #
     def print(output = STDOUT, options = {})
       @output = output

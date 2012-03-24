@@ -2,7 +2,8 @@
 
 # Read version from header file
 version_header = File.read(File.expand_path('../ext/ruby_prof/version.h', __FILE__))
-match = version_header.match(/RUBY_PROF_VERSION\s*["](\.+)["]/)
+#match = version_header.match(/RUBY_PROF_VERSION\s*"(\.+)"/)
+match = version_header.match(/RUBY_PROF_VERSION\s*"([^"]+)"/)
 raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
 RUBY_PROF_VERSION = match[1]
 
@@ -50,6 +51,6 @@ EOF
   spec.required_ruby_version = '>= 1.8.7'
   spec.date = DateTime.now
   spec.rubyforge_project = 'ruby-prof'
-  spec.home_page = 'https://github.com/rdp/ruby-prof'
+  spec.homepage = 'https://github.com/rdp/ruby-prof'
   spec.add_development_dependency 'rake-compiler'
 end

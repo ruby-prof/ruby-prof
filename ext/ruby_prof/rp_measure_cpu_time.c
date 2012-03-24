@@ -101,6 +101,7 @@ prof_get_cpu_frequency(VALUE self)
 void rp_init_measure_cpu_time()
 {
     rb_define_const(mProf, "CPU_TIME", INT2NUM(MEASURE_CPU_TIME));
+	rb_define_const(mProf, "CPU_TIME_ENABLED", Qtrue);
 
     cMeasureCpuTime = rb_define_class_under(mMeasure, "CpuTime", rb_cObject);
     rb_define_singleton_method(cMeasureCpuTime, "measure", prof_measure_cpu_time, 0);

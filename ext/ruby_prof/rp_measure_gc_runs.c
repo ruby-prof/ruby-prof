@@ -9,6 +9,8 @@ static VALUE cMeasureGcRuns;
 
 #if defined(HAVE_RB_GC_COLLECTIONS)
 
+#define MEASURE_GC_RUNS_ENABLED Qtrue
+
 static double
 measure_gc_runs()
 {
@@ -27,6 +29,8 @@ prof_measure_gc_runs(VALUE self)
 
 #elif defined(HAVE_RB_GC_HEAP_INFO)
 
+#define MEASURE_GC_RUNS_ENABLED Qtrue
+
 static double
 measure_gc_runs()
 {
@@ -42,6 +46,8 @@ prof_measure_gc_runs(VALUE self)
 }
 
 #else 
+
+#define MEASURE_GC_RUNS_ENABLED Qfalse
 
 static double
 measure_gc_runs()
@@ -74,6 +80,8 @@ prof_measure_gc_runs(VALUE self)
 void rp_init_measure_gc_runs()
 {
     rb_define_const(mProf, "GC_RUNS", INT2NUM(MEASURE_GC_RUNS));
+    rb_define_const(mProf, "GC_RUNS_ENABLED", MEASURE_GC_RUNS_ENABLED);
+	
     cMeasureGcRuns = rb_define_class_under(mMeasure, "GcRuns", rb_cObject);
     rb_define_singleton_method(cMeasureGcRuns, "measure", prof_measure_gc_runs, 0);
 }

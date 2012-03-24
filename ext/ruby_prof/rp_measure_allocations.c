@@ -8,6 +8,7 @@
 static VALUE cMeasureAllocations;
 
 #if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)
+#define MEASURE_ALLOCATIONS_ENABLED Qtrue
 
 static double
 measure_allocations()
@@ -32,6 +33,8 @@ prof_measure_allocations(VALUE self)
 
 #elif defined(HAVE_RB_GC_MALLOC_ALLOCATIONS)
 
+#define MEASURE_ALLOCATIONS_ENABLED Qtrue
+
 static double
 measure_allocations()
 {
@@ -39,6 +42,8 @@ measure_allocations()
 }
 
 #else
+
+#define MEASURE_ALLOCATIONS_ENABLED Qfalse
 
 static double
 measure_allocations()
@@ -74,6 +79,7 @@ prof_measure_allocations(VALUE self)
 void rp_init_measure_allocations()
 {
     rb_define_const(mProf, "ALLOCATIONS", INT2NUM(MEASURE_ALLOCATIONS));
+    rb_define_const(mProf, "ALLOCATIONS_ENABLED", MEASURE_ALLOCATIONS_ENABLED);
 
     cMeasureAllocations = rb_define_class_under(mMeasure, "Allocations", rb_cObject);
     rb_define_singleton_method(cMeasureAllocations, "measure", prof_measure_allocations, 0);    

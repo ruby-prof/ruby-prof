@@ -9,6 +9,7 @@ static VALUE cMeasureMemory;
 
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
 #define TOGGLE_GC_STATS 1
+#define MEASURE_GC_TIME_ENABLED Qtrue
 
 static double
 measure_memory()
@@ -22,6 +23,8 @@ measure_memory()
 
 #elif defined(HAVE_RB_GC_MALLOC_ALLOCATED_SIZE)
 
+#define MEASURE_MEMORY_ENABLED Qtrue
+
 static double
 measure_memory()
 {
@@ -31,6 +34,8 @@ measure_memory()
 
 #elif defined(HAVE_RB_HEAP_TOTAL_MEM)
 
+#define MEASURE_MEMORY_ENABLED Qtrue
+
 static double
 measure_memory()
 {
@@ -38,6 +43,8 @@ measure_memory()
 }
 
 #else
+
+#define MEASURE_MEMORY_ENABLED Qfalse
 
 static double
 measure_memory()
@@ -67,6 +74,7 @@ prof_measure_memory(VALUE self)
 void rp_init_measure_memory()
 {
     rb_define_const(mProf, "MEMORY", INT2NUM(MEASURE_MEMORY));
+	rb_define_const(mProf, "MEMORY_ENABLED", MEASURE_MEMORY_ENABLED);
 
     cMeasureMemory = rb_define_class_under(mMeasure, "Memory", rb_cObject);
     rb_define_singleton_method(cMeasureMemory, "measure", prof_measure_memory, 0);

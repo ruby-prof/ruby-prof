@@ -9,6 +9,8 @@ static VALUE cMeasureGcTimes;
 
 #if defined(HAVE_RB_GC_TIME)
 
+#define MEASURE_GC_TIME_ENABLED Qtrue
+
 static double
 measure_gc_time()
 {
@@ -31,6 +33,8 @@ prof_measure_gc_time(VALUE self)
 }
 
 #else
+
+#define MEASURE_GC_TIME_ENABLED Qfalse
 
 static double
 measure_gc_time()
@@ -62,6 +66,7 @@ prof_measure_gc_time(VALUE self)
 void rp_init_measure_gc_time()
 {
     rb_define_const(mProf, "GC_TIME", INT2NUM(MEASURE_GC_TIME));
+    rb_define_const(mProf, "GC_TIME_ENABLED", MEASURE_GC_TIME_ENABLED);
 
     cMeasureGcTimes = rb_define_class_under(mMeasure, "GcTime", rb_cObject);
     rb_define_singleton_method(cMeasureGcTimes, "measure", prof_measure_gc_time, 0);

@@ -5,7 +5,9 @@ version_header = File.read(File.expand_path('../ext/ruby_prof/version.h', __FILE
 #match = version_header.match(/RUBY_PROF_VERSION\s*"(\.+)"/)
 match = version_header.match(/RUBY_PROF_VERSION\s*"([^"]+)"/)
 raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
-RUBY_PROF_VERSION = match[1]
+
+# For now make this an rc1
+RUBY_PROF_VERSION = "#{match[1]}.rc1"
 
 Gem::Specification.new do |spec|
   spec.name = "ruby-prof"

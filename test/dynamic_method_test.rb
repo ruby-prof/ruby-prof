@@ -1,63 +1,61 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-require './test_helper'
+require File.expand_path("../test_helper", __FILE__)
 
 
 class DynamicMethodTest < Test::Unit::TestCase
   def test_dynamic_method
     result = RubyProf.profile do
-      2.times { require 'test_helper.rb' }
+      1.times {RubyProf::C1.new.hello}
     end
 
-
     # Methods called
-    #   BasicTest#test_instance_methods
-    #   Class.new
-    #   Class:Object#allocate
-    #   for Object#initialize
-    #   C1#hello
-    #   Kernel#sleep
+    #  Kernel#sleep
+    #  <Class::BasicObject>#allocate
+    #  BasicObject#initialize
+    #  RubyProf::C1#hello
+    #  Class#new
+    #  Integer#times
+    #  DynamicMethodTest#test_dynamic_method
 
-      printer = RubyProf::FlatPrinterWithLineNumbers.new(result)
-      printer.print(STDOUT)
+    methods = result.threads.values.first.sort.reverse
+    assert_equal(7, methods.length)
 
-    #methods = result.threads.values.first.sort.reverse
-    #puts methods
+    # Check times
+    assert_equal("DynamicMethodTest#test_dynamic_method", methods[0].full_name)
+    assert_in_delta(0.2, methods[0].total_time, 0.02)
+    assert_in_delta(0.0, methods[0].wait_time, 0.02)
+    assert_in_delta(0.0, methods[0].self_time, 0.02)
 
-#    assert_equal(6, methods.length)
-#    names = methods.map(&:full_name)
-#    assert_equal('BasicTest#test_instance_methods', names[0])
-#    assert_equal('C1#hello', names[1])
-#    assert_equal('Kernel#sleep', names[2])
-#    assert_equal('Class#new', names[3])
-#    # order can differ
-#    assert(names.include?("<Class::#{PARENT}>#allocate"))
-#    assert(names.include?("#{PARENT}#initialize"))
-#
-#    # Check times
-#    assert_in_delta(0.2, methods[0].total_time, 0.02)
-#    assert_in_delta(0, methods[0].wait_time, 0.02)
-#    assert_in_delta(0, methods[0].self_time, 0.02)
-#
-#    assert_in_delta(0.2, methods[1].total_time, 0.02)
-#    assert_in_delta(0, methods[1].wait_time, 0.02)
-#    assert_in_delta(0, methods[1].self_time, 0.02)
-#
-#    assert_in_delta(0.2, methods[2].total_time, 0.02)
-#    assert_in_delta(0, methods[2].wait_time, 0.02)
-#    assert_in_delta(0.2, methods[2].self_time, 0.02)
-#
-#    assert_in_delta(0, methods[3].total_time, 0.01)
-#    assert_in_delta(0, methods[3].wait_time, 0.01)
-#    assert_in_delta(0, methods[3].self_time, 0.01)
-#
-#    assert_in_delta(0, methods[4].total_time, 0.01)
-#    assert_in_delta(0, methods[4].wait_time, 0.01)
-#    assert_in_delta(0, methods[4].self_time, 0.01)
-#
-#    assert_in_delta(0, methods[5].total_time, 0.01)
-#    assert_in_delta(0, methods[5].wait_time, 0.01)
-#    assert_in_delta(0, methods[5].self_time, 0.01)
+    assert_equal("Integer#times", methods[1].full_name)
+    assert_in_delta(0.2, methods[1].total_time, 0.02)
+    assert_in_delta(0.0, methods[1].wait_time, 0.02)
+    assert_in_delta(0.0, methods[1].self_time, 0.02)
+
+    assert_equal("RubyProf::C1#hello", methods[2].full_name)
+    assert_in_delta(0.2, methods[2].total_time, 0.02)
+    assert_in_delta(0.0, methods[2].wait_time, 0.02)
+    assert_in_delta(0.0, methods[2].self_time, 0.02)
+
+    assert_equal("Kernel#sleep", methods[3].full_name)
+    assert_in_delta(0.2, methods[3].total_time, 0.01)
+    assert_in_delta(0.0, methods[3].wait_time, 0.01)
+    assert_in_delta(0.2, methods[3].self_time, 0.01)
+
+    assert_equal("Class#new", methods[4].full_name)
+    assert_in_delta(0.0, methods[4].total_time, 0.01)
+    assert_in_delta(0.0, methods[4].wait_time, 0.01)
+    assert_in_delta(0.0, methods[4].self_time, 0.01)
+
+    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[5].full_name)
+    assert_in_delta(0.0, methods[5].total_time, 0.01)
+    assert_in_delta(0.0, methods[5].wait_time, 0.01)
+    assert_in_delta(0.0, methods[5].self_time, 0.01)
+
+    assert_equal("#{RubyProf::PARENT}#initialize", methods[6].full_name)
+    assert_in_delta(0.0, methods[5].total_time, 0.01)
+    assert_in_delta(0.0, methods[5].wait_time, 0.01)
+    assert_in_delta(0.0, methods[5].self_time, 0.01)
   end
 end

@@ -15,7 +15,7 @@ ruby-prof is a fast code profiler for Ruby.  Its features include:
 
 == Requirements
 
-ruby-prof requires Ruby 1.8.4 or higher.
+ruby-prof requires Ruby 1.8.7 or 1.9.1 and higher.
 
 If you are running Linux or Unix you'll need a C compiler so the extension
 can be compiled when it is installed.
@@ -29,16 +29,12 @@ The easiest way to install ruby-prof is by using Ruby Gems.  To install:
 
   gem install ruby-prof
 
-If you're on windows mswin [not mingw] (check via ruby -v) and
-don't have an MSVC compiler, please install v0.8.1 which
-has a prebuilt binary
-C:> gem install ruby-prof -v0.8.1
-
-If you're on mingw, please install the devkit first, then install the latest gem version (via gem install ruby-prof).
+If you're on windows then a prebuilt binary gem is available.  You may of course
+compile it yourself via use of devkit on MinGW.
 
 == Usage
 
-There are three ways of running ruby-prof.
+There are two ways of running ruby-prof, via the command line or via its API.
 
 === ruby-prof executable
 
@@ -81,8 +77,7 @@ to profile:
   printer = RubyProf::GraphPrinter.new(result)
   printer.print(STDOUT, {})
 
-Starting with the 0.6.1 release, ruby-prof also supports pausing and resuming
-profiling runs.
+ruby-prof also supports pausing and resuming profiling runs.
 
   require 'ruby-prof'
 
@@ -110,18 +105,10 @@ has not yet started.  In addition, resume can also take a block:
 With this usage, resume will automatically call pause at the
 end of the block.
 
-=== require unprof
 
-The third way of using ruby-prof is by requiring unprof.rb:
+== Method and Thread Elimination
 
-  require 'unprof'
-
-This will start profiling immediately at that point and will output the results
-using a flat profile report when the process ends.
-
-== Method Elimination
-
-Starting with release 0.9.0, ruby-prof supports eliminating methods from profiling
+ruby-prof supports eliminating specific methods and threads from profiling
 results. This is useful for reducing connectivity in the call graph, making it easier to
 identify the source of performance problems when using a graph printer.
 
@@ -140,6 +127,15 @@ the name of a file containing a list of regular expressions (line separated text
 
 After eliminating methods the resulting profile will appear exactly as if those methods
 had been inlined at their call sites.
+
+In a similar manner, threads can be excluded so they are not profiled at all.  To do this,
+pass an array of threads to exclude to ruby-prof:
+
+  RubyProf::exclude_threads = [ thread2 ]
+  RubyProf.start
+
+Note that the excluded threads must be specified *before* profiling.
+
 
 == Benchmarking full load time including rubygems startup cost ==
 
@@ -160,7 +156,7 @@ $ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof ./some_fil
 
 == Profiling Tests
 
-Starting with the 0.6.1 release, ruby-prof supports profiling tests cases
+ruby-prof supports profiling tests cases
 written using Ruby's built-in unit test framework (ie, test derived from
 Test::Unit::TestCase).  To enable profiling simply add the following line
 of code to within your test class:
@@ -189,49 +185,23 @@ profile.rb.
 
 So to profile Rails:
 
-1.  Create a new profile.rb environment - or simply copy the example file
-    in ruby-prof/rails/environment/profile.rb
+1.  Create a new profile.rb environment.  Make sure to turn on cache_classes
+and cache_template_loading.  Otherwise your profiling results will be
+overwhelemed by the time Rails spends loading required files.
 
-2.  Copy the file:
+2.  Add the ruby prof rack adapter to your middleware stack.  One way to
+do this is by adding the following code to config.ru:
 
-      ruby-prof/rails/profile_test_helper.rb
+  if Rails.env.profile?
+    use Rack::RubyProf, :path => '/temp/profile'
+  end
 
-    To:
+The path is where you want profiling results to be stored.  By default the
+rack adapter will generate a html call graph report and flat text report.
 
-      your_rails_app/test/profile_test_helper.rb
-
-3.  Create a new test directory for profiling:
-
-      your_rails_app/test/profile
-
-
-4.  Write unit, functional or integration tests specifically designed
-    to profile some part of your Rails application.  At the top
-    of each test, replace this line:
-
-      require File.dirname(__FILE__) + '/../test_helper'
-
-    With:
-
-      require File.dirname(__FILE__) + '/../profile_test_helper'
-
-    For example:
-
-    require File.dirname(__FILE__) + '/../profile_test_helper'
-
-    class ExampleTest < Test::Unit::TestCase
-      include RubyProf::Test
-      fixtures ....
-
-      def test_stuff
-        puts "Test method"
-      end
-    end
-
-5.  Now run your tests.  Results will be written to:
-
-      your_rails_app/tmp/profile
-
+3.  Now make a request to your running server.  New profiling information will
+be generated for each request.  Note that each request will overwrite
+the profiling reports created by the previous request!
 
 == Reports
 
@@ -389,8 +359,6 @@ environment variable:
 * export RUBY_PROF_MEASURE_MODE=gc_runs
 * export RUBY_PROF_MEASURE_MODE=gc_time
 
-Note that these values have changed since ruby-prof-0.3.0.
-
 On Linux, process time is measured using the clock method provided
 by the C runtime library. Note that the clock method does not
 report time spent in the kernel or child processes and therefore
@@ -445,10 +413,6 @@ with profiling code varies considerably with the code being
 profiled.  Most programs will run approximately twice as slow
 while highly recursive programs (like the fibonacci series test)
 will run three times slower.
-
-Because of some threading difficulties in 1.9, it currently runs a 
-bit slower there, as well.
-http://www.ruby-forum.com/topic/201329
 
 == License
 

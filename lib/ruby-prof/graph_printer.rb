@@ -8,7 +8,7 @@ module RubyProf
   #     [code to profile]
   #   end
   #
-  #   printer = RubyProf::GraphPrinter.new(result, 5)
+  #   printer = RubyProf::GraphPrinter.new(result)
   #   printer.print(STDOUT, {})
   #
   # The constructor takes two arguments. See the README

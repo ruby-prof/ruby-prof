@@ -34,7 +34,7 @@ module RubyProf
     # STDOUT.
     #  
     # options - Hash of print options.  See #setup_options 
-    #           for more information.
+    # for more information.
     #
     # When profiling results that cover a large number of method calls it
     # helps to use the :min_percent option, for example:

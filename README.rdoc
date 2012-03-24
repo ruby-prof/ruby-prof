@@ -29,7 +29,7 @@ The easiest way to install ruby-prof is by using Ruby Gems.  To install:
 
   gem install ruby-prof
 
-If you on windows mswin [not mingw] (check via ruby -v) and
+If you're on windows mswin [not mingw] (check via ruby -v) and
 don't have an MSVC compiler, please install v0.8.1 which
 has a prebuilt binary
 C:> gem install ruby-prof -v0.8.1

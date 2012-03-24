@@ -42,7 +42,7 @@ module RubyProf
     # The default value is STDOUT.
     #
     # options - Hash of print options.  See #setup_options
-    #           for more information.
+    # for more information.
     #
     # unique options are:
     #   :filename    - specify a file to use that contains the ERB

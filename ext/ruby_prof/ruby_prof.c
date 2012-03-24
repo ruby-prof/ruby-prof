@@ -249,8 +249,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
 
-    if (profile->exclude_threads_tbl &&
-        st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
+    if (st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
     {
       return;
     }
@@ -410,7 +409,6 @@ collect_threads(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
-
 /* ========  Profile Class ====== */
 static void
 prof_mark(prof_profile_t *profile)
@@ -423,6 +421,9 @@ static void
 prof_free(prof_profile_t *profile)
 {
     profile->threads = Qnil;
+    st_free_table(profile->exclude_threads_tbl);
+	profile->exclude_threads_tbl = NULL;
+
     xfree(profile);
 }
 
@@ -432,6 +433,7 @@ prof_allocate(VALUE klass)
     VALUE result;
     prof_profile_t* profile;
     result = Data_Make_Struct(klass, prof_profile_t, prof_mark, prof_free, profile);
+    profile->exclude_threads_tbl = threads_table_create();
     profile->running = Qfalse;
     return result;
 }
@@ -452,19 +454,20 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE mode;
 	prof_measure_mode_t measurer;
     VALUE exclude_threads;
+	int i;
     
     switch (rb_scan_args(argc, argv, "02", &mode, &exclude_threads))
     {
       case 0:
       {
         measurer = MEASURE_WALL_TIME;
-        exclude_threads = rb_hash_new();
+        exclude_threads = rb_ary_new();
 		break;
       }
       case 1:
       {
         measurer = (prof_measure_mode_t)NUM2INT(mode);
-        exclude_threads = rb_hash_new();
+        exclude_threads = rb_ary_new();
 		break;
       }
       case 2:
@@ -476,6 +479,13 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
 
     profile->measurer = prof_get_measurer(measurer);
     profile->threads = rb_hash_new();
+
+	for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
+	{
+		VALUE thread = rb_ary_entry(exclude_threads, i);
+		VALUE thread_id = rb_obj_id(thread);
+	    st_insert(profile->exclude_threads_tbl, thread_id, Qtrue);
+	}
 
     return self;
 }
@@ -607,7 +617,6 @@ prof_stop(VALUE self)
     /* Save the result */
     st_foreach(profile->threads_tbl, collect_threads, profile->threads);
 	threads_table_free(profile->threads_tbl);
-
 	profile->threads_tbl = NULL;
 
     /* compute minimality of call_infos */

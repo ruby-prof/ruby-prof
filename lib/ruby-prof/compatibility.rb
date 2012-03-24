@@ -78,7 +78,7 @@ module RubyProf
   # Specifies what threads ruby-prof should exclude from profiling
   
   def self.exclude_threads
-    @exclude_threads ||= Hash.new
+    @exclude_threads ||= Array.new
   end
   
   def self.exclude_threads=(value)

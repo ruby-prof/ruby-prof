@@ -472,6 +472,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
       }
       case 2:
       {
+		Check_Type(exclude_threads, T_ARRAY);
         measurer = (prof_measure_mode_t)NUM2INT(mode);
 		break;
       }
@@ -479,6 +480,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
 
     profile->measurer = prof_get_measurer(measurer);
     profile->threads = rb_hash_new();
+
 
 	for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
 	{

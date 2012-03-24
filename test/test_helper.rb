@@ -1,5 +1,14 @@
 # encoding: UTF-8
 
+# Make RubyMine happy
+if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]
+  gem 'win32console'
+  gem 'minitest-reporters'
+  require 'minitest/reporters'
+  MiniTest::Unit.runner = MiniTest::SuiteRunner.new
+  MiniTest::Unit.runner.reporters << MiniTest::Reporters::RubyMineReporter.new
+end
+
 # To make testing/debugging easier, test within this source tree versus an installed gem
 
 dir = File.dirname(__FILE__)
@@ -12,7 +21,6 @@ $LOAD_PATH << ext
 
 require 'ruby-prof'
 require 'test/unit'
-
 
 # Some classes used in measurement tests
 module RubyProf

@@ -3,13 +3,17 @@
 
 require './test_helper'
 
-if RubyProf::ALLOCATIONS_ENABLED
-  class MeasureAllocationsTest < Test::Unit::TestCase
-    def test_allocations_mode
-      RubyProf::measure_mode = RubyProf::ALLOCATIONS
-      assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
-    end
+class MeasureAllocationsTest < Test::Unit::TestCase
+  def test_allocations_mode
+    RubyProf::measure_mode = RubyProf::ALLOCATIONS
+    assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
+  end
 
+  def test_allocations_enabled_defined
+    assert(defined?(RubyProf::ALLOCATIONS_ENABLED))
+  end
+
+  if RubyProf::ALLOCATIONS_ENABLED
     def test_allocations
       t = RubyProf.measure_allocations
       assert_kind_of Integer, t

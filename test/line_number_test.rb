@@ -2,7 +2,6 @@
 # encoding: UTF-8
 
 require './test_helper'
-require 'prime'
 
 class LineNumbers
   def method1

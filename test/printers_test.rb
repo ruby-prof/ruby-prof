@@ -2,7 +2,6 @@
 # encoding: UTF-8
 
 require './test_helper'
-require './prime'
 require 'stringio'
 require 'fileutils'
 

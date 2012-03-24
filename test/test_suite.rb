@@ -38,7 +38,3 @@ require './start_stop_test'
 require './thread_test'
 require './unique_call_path_test'
 
-# Can't use this one here cause it breaks
-# the rest of the unit tets (Ruby Prof gets
-# started twice).
-#require './profile_unit_test'

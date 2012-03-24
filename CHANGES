@@ -1,4 +1,4 @@
-0.11.0
+0.11.0.rc1 (2012-03-24)
 ======================
 * On Windows, use QueryPerformanceCounter and QueryPerformanceFrequency to measure CPU time instead
   of rdtsc.  This change is based on Microsoft's recommendation (Charlie Savage).
@@ -17,21 +17,24 @@
 * Modernize gem file and remove various custom/home grown solutions that aren't needed anymore (Charlie Savage).
 * Remove custom mingw build scripts, use rake compiler instead  (Charlie Savage).
 * Fixes for compiling with VC 2010 (Charlie Savage).
+
+0.10.8 (2011-07-06)
+======================
 * 1.9.3 super class (Roger Pack)
 
-0.10.7
+0.10.7 (2011-05-09)
 ======================
 * Fix a bug with REE's GC stats. Issue #53 [thanks graaff]
 
-0.10.6
+0.10.6 (2011-04-29)
 ======================
 * Slightly more normalized url for linux/windows links to files.
 
-0.10.5
+0.10.5 (2011-04-20)
 =======================
 * 1.8.6 compat for -v command (bug fix)
 
-0.10.4
+0.10.4 (2011-04-20)
 =======================
 * Faster load time for ruby-prof itself.
 

@@ -50,7 +50,6 @@ EOF
   spec.test_files = Dir["test/test_*.rb"]
   spec.required_ruby_version = '>= 1.8.7'
   spec.date = DateTime.now
-  spec.rubyforge_project = 'ruby-prof'
   spec.homepage = 'https://github.com/rdp/ruby-prof'
   spec.add_development_dependency 'rake-compiler'
 end

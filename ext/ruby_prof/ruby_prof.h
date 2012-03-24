@@ -21,18 +21,12 @@
 
 #ifndef RUBY_VM
 #include <node.h>
-#include <st.h>
 typedef rb_event_t rb_event_flag_t;
 #define rb_sourcefile() (node ? node->nd_file : 0)
 #define rb_sourceline() (node ? nd_line(node) : 0)
 #endif
 
 #include "version.h"
-
-/* nasty hack to avoid compilation warnings related to 64/32 bit conversions */
-#ifndef SIZEOF_ST_INDEX_T
-#define st_index_t int
-#endif
 
 #include "rp_measure.h"
 #include "rp_method.h"

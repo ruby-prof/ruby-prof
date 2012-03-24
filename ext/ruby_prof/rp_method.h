@@ -6,6 +6,11 @@
 
 #include <ruby.h>
 
+#ifndef RUBY_VM
+#include <st.h>
+typedef st_data_t st_index_t;
+#endif
+
 extern VALUE cMethodInfo;
 
 /* A key used to identify each method */

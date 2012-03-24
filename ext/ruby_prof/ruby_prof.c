@@ -30,11 +30,17 @@
 VALUE mProf;
 VALUE cProfile;
 
+#ifndef RUBY_VM
+/* Global variable to hold current profile - needed 
+   prior to Ruby 1.9 */
+static prof_profile_t* pCurrentProfile;
+#endif
+
 static prof_profile_t*
 prof_get_profile(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
-       endinging up in endless recursion. */
+       ending up in endless recursion. */
     return (prof_profile_t*)RDATA(self)->data;
 }
 
@@ -196,8 +202,13 @@ static void
 prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 #endif
 {
+#ifndef RUBY_VM
+    prof_profile_t* profile = pCurrentProfile;
+#else
     prof_profile_t* profile = prof_get_profile(data);
-    VALUE thread = Qnil;
+#endif	
+	
+	VALUE thread = Qnil;
     VALUE thread_id = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
@@ -353,7 +364,9 @@ prof_install_hook(VALUE self)
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN
           | RUBY_EVENT_LINE);
-#endif
+
+	pCurrentProfile = prof_get_profile(self);
+#endif	
 
 #if defined(TOGGLE_GC_STATS)
     rb_gc_enable_stats();
@@ -365,6 +378,10 @@ prof_remove_hook()
 {
 #if defined(TOGGLE_GC_STATS)
     rb_gc_disable_stats();
+#endif
+
+#ifndef RUBY_VM
+	pCurrentProfile = NULL;
 #endif
 
     /* Now unregister from event   */

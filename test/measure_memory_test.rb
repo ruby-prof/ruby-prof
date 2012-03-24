@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-require './test_helper'
+require File.expand_path('../test_helper', __FILE__)
 
 class MeasureMemoryTest < Test::Unit::TestCase
   def memory_test_helper

@@ -21,7 +21,7 @@ $LOAD_PATH << ext
 
 require 'ruby-prof'
 require 'test/unit'
-require 'prime'
+require File.expand_path('../prime', __FILE__)
 
 # Some classes used in measurement tests
 module RubyProf

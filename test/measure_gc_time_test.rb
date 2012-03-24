@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-require './test_helper'
+require File.expand_path('../test_helper', __FILE__)
 
 class MeasureGCTimeTest < Test::Unit::TestCase
   def test_gc_time_mode

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-require "./test_helper"
+require File.expand_path('../test_helper', __FILE__)
 
 class MeasureProcessTimeTest < Test::Unit::TestCase
   def setup
@@ -65,7 +65,6 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
 
     methods = result.threads.values.first.sort.reverse
     assert_equal(6, methods.length)
-    names = methods.map(&:full_name)
 
     # Check times
     assert_equal("MeasureProcessTimeTest#test_instance_methods", methods[0].full_name)

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-require './test_helper'
+require File.expand_path('../test_helper', __FILE__)
 require 'tmpdir'
 
 # Test data
@@ -45,7 +45,6 @@ class StackPrinterTest < Test::Unit::TestCase
     assert_nothing_raised { file_contents = print(result) }
     assert file_contents =~ /Thread: (\d+) \(100\.00% ~ ([.0-9]+)\)/
     actual_time = $2.to_f
-    difference = (expected_time-actual_time).abs
     assert_in_delta(expected_time, actual_time, 0.01)
   end
 

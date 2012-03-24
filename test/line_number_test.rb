@@ -1,15 +1,15 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-require './test_helper'
+require File.expand_path('../test_helper', __FILE__)
 
 class LineNumbers
   def method1
-    a = 3
+    3
   end
 
   def method2
-    a = 3
+    3
     method1
   end
 

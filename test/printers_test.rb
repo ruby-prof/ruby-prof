@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
 
-require './test_helper'
+require File.expand_path('../test_helper', __FILE__)
 require 'stringio'
 require 'fileutils'
 
@@ -134,7 +134,6 @@ class PrintersTest < Test::Unit::TestCase
   end
 
   def test_all_with_small_percentiles
-
     result = RubyProf.profile do
       sleep 2
       do_nothing
@@ -146,7 +145,7 @@ class PrintersTest < Test::Unit::TestCase
     for klass in [ RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
       printer = klass.new(result)
       out = ''
-      output = printer.print(out, :min_percent => 0.00000001 )
+      printer.print(out, :min_percent => 0.00000001 )
       assert_match(/do_nothing/, out)
     end
 

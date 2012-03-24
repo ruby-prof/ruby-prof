@@ -61,7 +61,7 @@ module RubyProf
     # RubyProf.measure_mode so that we can display it.  Otherwise it's easy to
     # forget what measurement was made.
     def mode_name
-      mode = RubyProf.constants.find{|c| RubyProf.const_get(c) == RubyProf.measure_mode}
+      RubyProf.constants.find{|c| RubyProf.const_get(c) == RubyProf.measure_mode}
     end
     
     # Computes the total time per thread:

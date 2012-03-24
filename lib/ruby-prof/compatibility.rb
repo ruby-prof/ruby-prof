@@ -87,7 +87,7 @@ module RubyProf
   
   # Profiling
   def self.start
-    if @profile
+    if running?
       raise(RuntimeError, "RubyProf is already running");
     end
     @profile = Profile.new(self.measure_mode, self.exclude_threads)
@@ -95,14 +95,14 @@ module RubyProf
   end
 
   def self.pause
-    unless @profile
+    unless running?
       raise(RuntimeError, "RubyProf.start was not yet called");
     end
     @profile.pause
   end
 
   def self.running?
-    if @profile
+    if defined?(@profile) and @profile
       @profile.running?
     else
       false
@@ -110,14 +110,14 @@ module RubyProf
   end
 
   def self.resume
-    unless @profile
+    unless running?
       raise(RuntimeError, "RubyProf.start was not yet called");
     end
     @profile.resume
   end
 
   def self.stop
-    unless @profile
+    unless running?
       raise(RuntimeError, "RubyProf.start was not yet called");
     end
     result = @profile.stop
@@ -126,7 +126,7 @@ module RubyProf
   end
 
   def self.profile(&block)
-    if @profile
+    if running?
       raise(RuntimeError, "RubyProf is already running");
     end
     Profile.profile(self.measure_mode, self.exclude_threads, &block)

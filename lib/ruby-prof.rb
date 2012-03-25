@@ -8,21 +8,22 @@ rescue LoadError
   require "ruby_prof"
 end
 
-require 'ruby-prof/abstract_printer'
 require 'ruby-prof/aggregate_call_info'
 require 'ruby-prof/call_info'
 require 'ruby-prof/compatibility'
-require 'ruby-prof/call_stack_printer'
-require 'ruby-prof/call_tree_printer'
-require 'ruby-prof/dot_printer'
-require 'ruby-prof/flat_printer'
-require 'ruby-prof/flat_printer_with_line_numbers'
-require 'ruby-prof/graph_html_printer'
-require 'ruby-prof/graph_printer'
 require 'ruby-prof/method_info'
-require 'ruby-prof/multi_printer'
 require 'ruby-prof/profile'
 require 'ruby-prof/rack'
+
+require 'ruby-prof/printers/abstract_printer'
+require 'ruby-prof/printers/call_stack_printer'
+require 'ruby-prof/printers/call_tree_printer'
+require 'ruby-prof/printers/dot_printer'
+require 'ruby-prof/printers/flat_printer_with_line_numbers'
+require 'ruby-prof/printers/graph_html_printer'
+require 'ruby-prof/printers/graph_printer'
+require 'ruby-prof/printers/flat_printer'
+require 'ruby-prof/printers/multi_printer'
 
 module RubyProf
   # Checks if the user specified the clock mode via

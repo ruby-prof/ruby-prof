@@ -348,11 +348,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         frame = stack_push(thread_data->stack);
         frame->call_info = call_info;
+		frame->call_info->depth = frame->depth;
         frame->start_time = measurement;
         frame->line = rb_sourceline();
-		frame->child_time = 0;
-		frame->switch_time = 0;
-		frame->wait_time = 0;
         break;
     }
     case RUBY_EVENT_RETURN:

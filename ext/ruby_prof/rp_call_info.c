@@ -154,6 +154,17 @@ prof_call_info_set_called(VALUE self, VALUE called)
 }
 
 /* call-seq:
+   depth -> int
+
+   returns the depth of this call info in the call graph */
+static VALUE
+prof_call_info_depth(VALUE self)
+{
+  prof_call_info_t *result = prof_get_call_info_result(self);
+  return rb_int_new(result->depth);
+}
+
+/* call-seq:
    line_no -> int
 
    returns the line number of the method */
@@ -365,5 +376,6 @@ void rp_init_call_info()
     rb_define_method(cCallInfo, "add_self_time", prof_call_info_add_self_time, 1);
     rb_define_method(cCallInfo, "wait_time", prof_call_info_wait_time, 0);
     rb_define_method(cCallInfo, "add_wait_time", prof_call_info_add_wait_time, 1);
+    rb_define_method(cCallInfo, "depth", prof_call_info_depth, 0);
     rb_define_method(cCallInfo, "line", prof_call_info_line, 0);
 }

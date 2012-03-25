@@ -4,17 +4,6 @@ module RubyProf
   class CallInfo
     attr_accessor :recursive
 
-    def depth
-      result = 0
-      call_info = self.parent
-
-      while call_info
-        result += 1
-        call_info = call_info.parent
-      end
-      result
-    end
-
     def children_time
       children.inject(0) do |sum, call_info|
         sum += call_info.total_time

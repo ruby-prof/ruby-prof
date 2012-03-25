@@ -16,6 +16,7 @@ typedef struct prof_call_info_t
     struct prof_call_info_t *parent;
     st_table *call_infos;
     int called;
+	int depth;
     double total_time;
     double self_time;
     double wait_time;

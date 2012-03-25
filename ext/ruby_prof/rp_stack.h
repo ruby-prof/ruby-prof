@@ -21,6 +21,7 @@ typedef struct
     double switch_time;  /* Time at switch to different thread */
     double wait_time;
     double child_time;
+    int depth;
     unsigned int line;
 } prof_frame_t;
 

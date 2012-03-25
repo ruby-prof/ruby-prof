@@ -29,6 +29,8 @@ stack_free(prof_stack_t *stack)
 prof_frame_t *
 stack_push(prof_stack_t *stack)
 {
+  prof_frame_t* result = NULL;
+
   /* Is there space on the stack?  If not, double
      its size. */
   if (stack->ptr == stack->end  )   
@@ -40,7 +42,19 @@ stack_push(prof_stack_t *stack)
     stack->ptr = stack->start + len;
     stack->end = stack->start + new_capacity;
   }
-  return stack->ptr++;
+
+  // Setup returned stack pointer to be valid
+  result = stack->ptr;
+  result->child_time = 0;
+  result->switch_time = 0;
+  result->wait_time = 0;
+  result->depth = (stack->ptr - stack->start)/sizeof(prof_frame_t);
+
+  // Increment the stack ptr for next time
+  stack->ptr++;
+
+  // Return the result
+  return result;
 }
 
 prof_frame_t *

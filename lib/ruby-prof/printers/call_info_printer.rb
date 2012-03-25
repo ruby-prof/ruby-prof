@@ -24,13 +24,13 @@ module RubyProf
         if event == :enter
           @output << "  " * call_info.depth
           @output << call_info.target.full_name
-          @output << "("
-          @output << "tt: #{sprintf("%#{TIME_WIDTH}.2f", call_info.total_time)}, "
-          @output << "st: #{sprintf("%#{TIME_WIDTH}.2f", call_info.self_time)}, "
-          @output << "wt: #{sprintf("%#{TIME_WIDTH}.2f", call_info.wait_time)}, "
-          @output << "ct: #{sprintf("%#{TIME_WIDTH}.2f", call_info.children_time)}, "
-          @output << "call: #{call_info.called}, "
-          @output << "rec: #{call_info.recursive}"
+          @output << " ("
+          @output << "tt:#{sprintf("%#{TIME_WIDTH}.2f", call_info.total_time)}, "
+          @output << "st:#{sprintf("%#{TIME_WIDTH}.2f", call_info.self_time)}, "
+          @output << "wt:#{sprintf("%#{TIME_WIDTH}.2f", call_info.wait_time)}, "
+          @output << "ct:#{sprintf("%#{TIME_WIDTH}.2f", call_info.children_time)}, "
+          @output << "call:#{call_info.called}, "
+          @output << "rec:#{call_info.recursive}"
           @output << ")"
           @output << "\n"
         end

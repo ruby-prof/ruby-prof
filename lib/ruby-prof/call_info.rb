@@ -43,7 +43,7 @@ module RubyProf
     end
 
     def to_s
-      "#{call_sequence}"
+      "#{self.target.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
     end
 
     def minimal?
@@ -51,6 +51,7 @@ module RubyProf
     end
 
     def compute_minimality(parent_methods)
+      return
       if parent_methods.include?(target)
         @minimal = false
       else

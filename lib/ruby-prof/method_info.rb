@@ -29,7 +29,7 @@ module RubyProf
     def total_time
       @total_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.total_time if call_info.minimal?
+          sum += call_info.total_time
           sum
         end
       end
@@ -54,7 +54,7 @@ module RubyProf
     def children_time
       @children_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.children_time if call_info.minimal?
+          sum += call_info.children_time
           sum
         end
       end
@@ -109,7 +109,7 @@ module RubyProf
     end
 
     def to_s
-      full_name
+      "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
     end
 
     def dump

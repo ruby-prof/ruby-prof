@@ -81,7 +81,7 @@ void rp_init_measure_gc_runs()
 {
     rb_define_const(mProf, "GC_RUNS", INT2NUM(MEASURE_GC_RUNS));
     rb_define_const(mProf, "GC_RUNS_ENABLED", MEASURE_GC_RUNS_ENABLED);
-	
+    
     cMeasureGcRuns = rb_define_class_under(mMeasure, "GcRuns", rb_cObject);
     rb_define_singleton_method(cMeasureGcRuns, "measure", prof_measure_gc_runs, 0);
 }

@@ -145,7 +145,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
      in code that is being profiled and the stack unwinds (RubyProf is
      not notified of that by the ruby runtime. */
   if (frame == NULL) 
-	  return NULL;
+      return NULL;
 
   /* Calculate the total time this method took */
   total_time = measurement - frame->start_time;
@@ -214,7 +214,7 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
     class_name = rb_class2name(klass);
 
     if (last_thread_id != thread_id)
-	{
+    {
         fprintf(trace_file, "\n");
     }
 
@@ -237,12 +237,12 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 #else
     prof_profile_t* profile = prof_get_profile(data);
 #endif	
-	
-	VALUE thread = Qnil;
+    
+    VALUE thread = Qnil;
     VALUE thread_id = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
-	double measurement;
+    double measurement;
 
     #ifdef RUBY_VM
       if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
@@ -256,8 +256,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 
     if (trace_file != NULL)
     {
-		prof_trace(profile, event, mid, klass, measurement);
-	}
+        prof_trace(profile, event, mid, klass, measurement);
+    }
 
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
@@ -322,8 +322,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 
           if (!call_info)
           {
-			/* This call info does not yet exist.  So create it, then add
-			   it to previous callinfo's children and to the current method .*/
+            /* This call info does not yet exist.  So create it, then add
+               it to previous callinfo's children and to the current method .*/
             call_info = prof_call_info_create(method, frame->call_info);
             call_info_table_insert(frame->call_info->call_infos, method->key, call_info);
             prof_add_call_info(method->call_infos, call_info);
@@ -362,7 +362,7 @@ prof_install_hook(VALUE self)
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN
           | RUBY_EVENT_LINE);
 
-	pCurrentProfile = prof_get_profile(self);
+    pCurrentProfile = prof_get_profile(self);
 #endif	
 
 #if defined(TOGGLE_GC_STATS)
@@ -378,7 +378,7 @@ prof_remove_hook()
 #endif
 
 #ifndef RUBY_VM
-	pCurrentProfile = NULL;
+    pCurrentProfile = NULL;
 #endif
 
     /* Now unregister from event   */
@@ -436,7 +436,7 @@ prof_free(prof_profile_t *profile)
 {
     profile->threads = Qnil;
     st_free_table(profile->exclude_threads_tbl);
-	profile->exclude_threads_tbl = NULL;
+    profile->exclude_threads_tbl = NULL;
 
     xfree(profile);
 }
@@ -466,9 +466,9 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
 {
     prof_profile_t* profile = prof_get_profile(self);
     VALUE mode;
-	prof_measure_mode_t measurer;
+    prof_measure_mode_t measurer;
     VALUE exclude_threads;
-	int i;
+    int i;
     
     switch (rb_scan_args(argc, argv, "02", &mode, &exclude_threads))
     {
@@ -476,19 +476,19 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
       {
         measurer = MEASURE_WALL_TIME;
         exclude_threads = rb_ary_new();
-		break;
+        break;
       }
       case 1:
       {
         measurer = (prof_measure_mode_t)NUM2INT(mode);
         exclude_threads = rb_ary_new();
-		break;
+        break;
       }
       case 2:
       {
-		Check_Type(exclude_threads, T_ARRAY);
+        Check_Type(exclude_threads, T_ARRAY);
         measurer = (prof_measure_mode_t)NUM2INT(mode);
-		break;
+        break;
       }
     }
 
@@ -496,12 +496,12 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     profile->threads = rb_hash_new();
 
 
-	for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
-	{
-		VALUE thread = rb_ary_entry(exclude_threads, i);
-		VALUE thread_id = rb_obj_id(thread);
-	    st_insert(profile->exclude_threads_tbl, thread_id, Qtrue);
-	}
+    for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
+    {
+        VALUE thread = rb_ary_entry(exclude_threads, i);
+        VALUE thread_id = rb_obj_id(thread);
+        st_insert(profile->exclude_threads_tbl, thread_id, Qtrue);
+    }
 
     return self;
 }
@@ -524,7 +524,7 @@ prof_running(VALUE self)
 static VALUE
 prof_start(VALUE self)
 {
-	char* trace_file_name;
+    char* trace_file_name;
     prof_profile_t* profile = prof_get_profile(self);
         
     if (profile->running == Qtrue)
@@ -539,17 +539,17 @@ prof_start(VALUE self)
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
     if (trace_file_name != NULL) 
-	{
+    {
       if (strcmp(trace_file_name, "stdout") == 0) 
-	  {
+      {
         trace_file = stdout;
       } 
-	  else if (strcmp(trace_file_name, "stderr") == 0)
-	  {
+      else if (strcmp(trace_file_name, "stderr") == 0)
+      {
         trace_file = stderr;
       }
-	  else 
-	  {
+      else 
+      {
         trace_file = fopen(trace_file_name, "w");
       }
     }
@@ -621,19 +621,19 @@ prof_stop(VALUE self)
 
     /* close trace file if open */
     if (trace_file != NULL) 
-	{
+    {
       if (trace_file !=stderr && trace_file != stdout)
-	  {
+      {
 #ifdef _MSC_VER
-		  _fcloseall();
+          _fcloseall();
 #else
         fclose(trace_file);
 #endif
-	  }
+      }
       trace_file = NULL;
     }
-	
-	prof_pop_threads(profile);
+    
+    prof_pop_threads(profile);
 
     /* Unset the last_thread_data (very important!)
        and the threads table */
@@ -695,7 +695,7 @@ void Init_ruby_prof()
     rp_init_method_info();
     rp_init_call_info();
 
-	cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
+    cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_singleton_method(cProfile, "profile", prof_profile, -1);
     rb_define_alloc_func (cProfile, prof_allocate);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);

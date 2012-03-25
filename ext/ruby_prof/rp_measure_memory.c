@@ -74,7 +74,7 @@ prof_measure_memory(VALUE self)
 void rp_init_measure_memory()
 {
     rb_define_const(mProf, "MEMORY", INT2NUM(MEASURE_MEMORY));
-	rb_define_const(mProf, "MEMORY_ENABLED", MEASURE_MEMORY_ENABLED);
+    rb_define_const(mProf, "MEMORY_ENABLED", MEASURE_MEMORY_ENABLED);
 
     cMeasureMemory = rb_define_class_under(mMeasure, "Memory", rb_cObject);
     rb_define_singleton_method(cMeasureMemory, "measure", prof_measure_memory, 0);

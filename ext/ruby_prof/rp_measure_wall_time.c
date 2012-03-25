@@ -37,6 +37,6 @@ void rp_init_measure_wall_time()
     rb_define_const(mProf, "WALL_TIME", INT2NUM(MEASURE_WALL_TIME));
     rb_define_const(mProf, "WALL_TIME_ENABLED", Qtrue);
 
-	cMeasureWallTime = rb_define_class_under(mMeasure, "WallTime", rb_cObject);
+    cMeasureWallTime = rb_define_class_under(mMeasure, "WallTime", rb_cObject);
     rb_define_singleton_method(cMeasureWallTime, "measure", prof_measure_wall_time, 0);
 }

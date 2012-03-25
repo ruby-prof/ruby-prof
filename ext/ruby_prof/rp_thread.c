@@ -78,7 +78,7 @@ threads_table_free(st_table *table)
 thread_data_t *
 switch_thread(void* prof, VALUE thread_id)
 {
-	prof_profile_t* profile = (prof_profile_t*)prof;
+    prof_profile_t* profile = (prof_profile_t*)prof;
     double measurement = profile->measurer->measure();
 
     /* Get new thread information. */
@@ -88,19 +88,19 @@ switch_thread(void* prof, VALUE thread_id)
     prof_frame_t *frame = stack_peek(thread_data->stack);
 
     /* Update the time this thread waited for another thread */
-	if (frame)
-	{
-		frame->wait_time += measurement - frame->switch_time;
-		frame->switch_time = measurement;
-	}
+    if (frame)
+    {
+        frame->wait_time += measurement - frame->switch_time;
+        frame->switch_time = measurement;
+    }
 
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
     if (profile->last_thread_data)
-	{
+    {
        prof_frame_t *last_frame = stack_peek(profile->last_thread_data->stack);
-	   if (last_frame)
-		 last_frame->switch_time = measurement;
+       if (last_frame)
+         last_frame->switch_time = measurement;
     }
 
     profile->last_thread_data = thread_data;

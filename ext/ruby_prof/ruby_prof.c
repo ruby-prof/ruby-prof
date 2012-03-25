@@ -24,7 +24,6 @@
 */
 
 #include "ruby_prof.h"
-#include <stdio.h>
 #include <assert.h>
 
 VALUE mProf;
@@ -102,6 +101,12 @@ static prof_method_t*
     prof_method_key_t key;
     prof_method_t *method = NULL;
 
+    /* Is this an include for a module?  If so get the actual
+        module class since we want to combine all profiling
+        results for that module. */
+    if (klass != 0)
+        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
+
     method_key(&key, klass, mid);
     method = method_table_lookup(method_table, &key);
 
@@ -123,33 +128,17 @@ static prof_method_t*
     return method;
 }
 
-static void
-update_result(double total_time,
-              prof_frame_t *parent_frame,
-              prof_frame_t *frame)
-{
-    double self_time = total_time - frame->child_time - frame->wait_time;
-    prof_call_info_t *call_info = frame->call_info;
-
-    /* Update information about the current method */
-    call_info->called++;
-    call_info->total_time += total_time;
-    call_info->self_time += self_time;
-    call_info->wait_time += frame->wait_time;
-
-    /* Note where the current method was called from */
-    if (parent_frame)
-      call_info->line = parent_frame->line;
-}
-
 static prof_frame_t*
 pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
 {
   prof_frame_t *frame = NULL;
   prof_frame_t* parent_frame = NULL;
+  prof_call_info_t *call_info;
   double total_time;
+  double self_time;
 
   frame = stack_pop(thread_data->stack); // only time it's called
+
   /* Frame can be null.  This can happen if RubProf.start is called from
      a method that exits.  And it can happen if an exception is raised
      in code that is being profiled and the stack unwinds (RubyProf is
@@ -157,15 +146,23 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   if (frame == NULL) return NULL;
 
   /* Calculate the total time this method took */
-  total_time = profile->measurement - frame->start_time;
+  total_time = frame->end_time - frame->start_time;
+  self_time = total_time - frame->child_time - frame->wait_time;
+
+  /* Update information about the current method */
+  call_info = frame->call_info;
+  call_info->called++;
+  call_info->total_time += total_time;
+  call_info->self_time += self_time;
+  call_info->wait_time += frame->wait_time;
 
   parent_frame = stack_peek(thread_data->stack);
   if (parent_frame)
   {
-        parent_frame->child_time += total_time;
+      parent_frame->child_time += total_time;
+      call_info->line = parent_frame->line;
   }
 
-  update_result(total_time, parent_frame, frame); // only time it's called
   return frame;
 }
 
@@ -194,6 +191,37 @@ prof_pop_threads(prof_profile_t* profile)
     st_foreach(profile->threads_tbl, pop_frames, (st_data_t) profile);
 }
 
+/* ===========  Profiling ================= */
+static void
+prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, double measurement)
+{
+    static VALUE last_thread_id = Qnil;
+
+    VALUE thread = rb_thread_current();
+    VALUE thread_id = rb_obj_id(thread);
+    const char* class_name = NULL;
+    const char* method_name = rb_id2name(mid);
+    const char* source_file = rb_sourcefile();
+    unsigned int source_line = rb_sourceline();
+
+    const char* event_name = get_event_name(event);
+
+    if (klass != 0)
+        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
+
+    class_name = rb_class2name(klass);
+
+    if (last_thread_id != thread_id)
+	{
+        fprintf(trace_file, "\n");
+    }
+
+    fprintf(trace_file, "%2u:%2ums %-8s %s:%2d  %s#%s\n",
+            (unsigned int) thread_id, (unsigned int) measurement, event_name, source_file, source_line, class_name, method_name);
+    fflush(trace_file);
+    last_thread_id = thread_id;
+}
+
 #ifdef RUBY_VM
 static void
 prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
@@ -212,6 +240,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     VALUE thread_id = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
+	double measurement;
 
     #ifdef RUBY_VM
       if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
@@ -221,35 +250,12 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     #endif
 
     /* Get current measurement */
-    profile->measurement = profile->measurer->measure();
+    measurement = profile->measurer->measure();
 
     if (trace_file != NULL)
     {
-        static VALUE last_thread_id = Qnil;
-
-        VALUE thread = rb_thread_current();
-        VALUE thread_id = rb_obj_id(thread);
-        const char* class_name = NULL;
-        const char* method_name = rb_id2name(mid);
-        const char* source_file = rb_sourcefile();
-        unsigned int source_line = rb_sourceline();
-
-        const char* event_name = get_event_name(event);
-
-        if (klass != 0)
-          klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
-
-        class_name = rb_class2name(klass);
-
-        if (last_thread_id != thread_id) {
-          fprintf(trace_file, "\n");
-        }
-
-        fprintf(trace_file, "%2u:%2ums %-8s %s:%2d  %s#%s\n",
-               (unsigned int) thread_id, (unsigned int) profile->measurement, event_name, source_file, source_line, class_name, method_name);
-        /* fflush(trace_file); */
-        last_thread_id = thread_id;
-    }
+		prof_trace(profile, event, mid, klass, measurement);
+	}
 
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
@@ -271,6 +277,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     else
       thread_data = profile->last_thread_data;
 
+    /* Get the current frame for the current thread. */
+    frame = stack_peek(thread_data->stack);
 
     switch (event) {
     case RUBY_EVENT_LINE:
@@ -278,9 +286,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       /* Keep track of the current line number in this method.  When
          a new method is called, we know what line number it was
          called from. */
-
-       /* Get the current frame for the current thread. */
-      frame = stack_peek(thread_data->stack);
 
       if (frame)
       {
@@ -297,16 +302,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     {
         prof_call_info_t *call_info = NULL;
         prof_method_t *method = NULL;
-
-        /* Get the current frame for the current thread. */
-        frame = stack_peek(thread_data->stack);
-
-        /* Is this an include for a module?  If so get the actual
-           module class since we want to combine all profiling
-           results for that module. */
-
-        if (klass != 0)
-          klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
 
         #ifdef RUBY_VM
         method = get_method(event, klass, mid, thread_data->method_table);
@@ -325,6 +320,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 
           if (!call_info)
           {
+			/* This call info does not yet exist.  So create it, then add
+			   it to previous callinfo's children and to the current method .*/
             call_info = prof_call_info_create(method, frame->call_info);
             call_info_table_insert(frame->call_info->call_infos, method->key, call_info);
             prof_add_call_info(method->call_infos, call_info);
@@ -334,7 +331,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         frame = stack_push(thread_data->stack);
         frame->call_info = call_info;
-        frame->start_time = profile->measurement;
+        frame->start_time = measurement;
         frame->wait_time = 0;
         frame->child_time = 0;
         frame->line = rb_sourceline();
@@ -343,14 +340,15 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
-        frame = pop_frame(profile, thread_data);
+		if (frame)
+			frame->end_time = measurement;
+
+        pop_frame(profile, thread_data);
       break;
     }
   }
 }
 
-
-/* ===========  Profiling ================= */
 void
 prof_install_hook(VALUE self)
 {
@@ -541,13 +539,19 @@ prof_start(VALUE self)
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
-    if (trace_file_name != NULL) {
-      if (0==strcmp(trace_file_name, "stdout")) {
+    if (trace_file_name != NULL) 
+	{
+      if (strcmp(trace_file_name, "stdout") == 0) 
+	  {
         trace_file = stdout;
-      } else if (0==strcmp(trace_file_name, "stderr")) {
+      } 
+	  else if (strcmp(trace_file_name, "stderr") == 0)
+	  {
         trace_file = stderr;
-      } else {
-        trace_file = fopen(trace_file_name, "a");
+      }
+	  else 
+	  {
+        trace_file = fopen(trace_file_name, "w");
       }
     }
 
@@ -609,24 +613,28 @@ prof_stop(VALUE self)
 {
     prof_profile_t* profile = prof_get_profile(self);
 
-	/* get 'now' before prof emove hook because it calls GC.disable_stats
-      which makes the call within prof_pop_threads of now return 0, which is wrong
-    */
-    profile->measurement = profile->measurer->measure();
     if (profile->running == Qfalse)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
     }
   
+    prof_remove_hook();
+
     /* close trace file if open */
-    if (trace_file != NULL) {
-      if (trace_file!=stderr && trace_file!=stdout)
+    if (trace_file != NULL) 
+	{
+      if (trace_file !=stderr && trace_file != stdout)
+	  {
+#ifdef _MSC_VER
+		  _fcloseall();
+#else
         fclose(trace_file);
+#endif
+	  }
       trace_file = NULL;
     }
-    
-    prof_remove_hook();
-    prof_pop_threads(profile);
+	
+	prof_pop_threads(profile);
 
     /* Unset the last_thread_data (very important!)
        and the threads table */
@@ -635,8 +643,8 @@ prof_stop(VALUE self)
 
     /* Save the result */
     st_foreach(profile->threads_tbl, collect_threads, profile->threads);
-	threads_table_free(profile->threads_tbl);
-	profile->threads_tbl = NULL;
+    threads_table_free(profile->threads_tbl);
+    profile->threads_tbl = NULL;
 
     /* compute minimality of call_infos */
     rb_funcall(self, rb_intern("compute_minimality") , 0);

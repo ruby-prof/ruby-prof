@@ -5,12 +5,11 @@
 
 /* ======   thread_data_t  ====== */
 thread_data_t*
-thread_data_create(double measure)
+thread_data_create()
 {
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = stack_create();
     result->method_table = method_table_create();
-    result->last_switch = measure;
     return result;
 }
 
@@ -80,32 +79,28 @@ thread_data_t *
 switch_thread(void* prof, VALUE thread_id)
 {
 	prof_profile_t* profile = (prof_profile_t*)prof;
-    prof_frame_t *frame = NULL;
-    double wait_time = 0;
+    double measurement = profile->measurer->measure();
 
     /* Get new thread information. */
     thread_data_t *thread_data = threads_table_lookup(profile, thread_id);
 
-    /* How long has this thread been waiting? */
-    wait_time = profile->measurement - thread_data->last_switch;
+    /* Get current frame for this thread */
+    prof_frame_t *frame = stack_peek(thread_data->stack);
 
-    thread_data->last_switch = profile->measurement; // XXXX a test that fails if this is 0
-
-    /* Get the frame at the top of the stack.  This may represent
-       the current method (EVENT_LINE, EVENT_RETURN)  or the
-       previous method (EVENT_CALL).*/
-    frame = stack_peek(thread_data->stack);
-
-    if (frame)
+    /* Update the time this thread waited for another thread */
+	if (frame)
 	{
-      frame->wait_time += wait_time;
-    }
+		frame->wait_time += measurement - frame->switch_time;
+		frame->switch_time = measurement;
+	}
 
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
     if (profile->last_thread_data)
 	{
-      profile->last_thread_data->last_switch = profile->measurement;
+       prof_frame_t *last_frame = stack_peek(profile->last_thread_data->stack);
+	   if (last_frame)
+		 last_frame->switch_time = measurement;
     }
 
     profile->last_thread_data = thread_data;

@@ -4,8 +4,8 @@
 #ifndef __RUBY_PROF_H__
 #define __RUBY_PROF_H__
 
-#include <stdio.h>
 #include <ruby.h>
+#include <stdio.h>
 
 #if RUBY_VERSION == 186
 # error 1.8.6 is not supported.  Please upgrade to 1.8.7 or 1.9.2 or higher.
@@ -43,7 +43,6 @@ typedef struct
 {
     VALUE running;
     prof_measurer_t* measurer;
-    double measurement;
     VALUE threads;
     st_table* threads_tbl;
     st_table* exclude_threads_tbl;

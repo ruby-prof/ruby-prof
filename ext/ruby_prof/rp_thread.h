@@ -9,8 +9,7 @@ typedef struct
 {
     VALUE thread_id;                  /* Thread id */
     st_table* method_table;           /* Methods called in the thread */
-    prof_stack_t* stack;              /* Active methods */
-    double last_switch;       /* Point of last context switch */
+    prof_stack_t* stack;              /* Stack of frames */
 } thread_data_t;
 
 st_table * threads_table_create();

@@ -18,6 +18,8 @@ typedef struct
        increases performance. */
     prof_call_info_t *call_info;
     double start_time;
+    double end_time;
+	double switch_time;  /* Time at switch to different thread */
     double wait_time;
     double child_time;
     unsigned int line;

@@ -31,7 +31,7 @@ class MeasureCpuTimeTest < Test::Unit::TestCase
     #   <Class::RubyProf::C1>#hello
     #   Kernel#sleep
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 
     # Check the names
@@ -66,7 +66,7 @@ class MeasureCpuTimeTest < Test::Unit::TestCase
     #   C1#hello
     #   Kernel#sleep
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(6, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureCpuTimeTest#test_instance_methods', names[0])
@@ -113,7 +113,7 @@ class MeasureCpuTimeTest < Test::Unit::TestCase
     #   M1#hello
     #   Kernel#sleep
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 
     assert_equal('MeasureCpuTimeTest#test_module_methods', methods[0].full_name)
@@ -147,7 +147,7 @@ class MeasureCpuTimeTest < Test::Unit::TestCase
     #   M1#hello
     #   Kernel#sleep
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(6, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureCpuTimeTest#test_module_instance_methods', names[0])
@@ -195,7 +195,7 @@ class MeasureCpuTimeTest < Test::Unit::TestCase
       c3.hello
     end
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(2, methods.length)
 
     assert_equal('MeasureCpuTimeTest#test_singleton', methods[0].full_name)

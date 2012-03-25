@@ -45,10 +45,8 @@ module RubyProf
       @output = output
       setup_options(options)
       
-      total_time = thread_times.values.inject{|a,b| a+b}
-      
       puts 'digraph "Profile" {'
-      puts "label=\"#{mode_name} >=#{min_percent}%\\nTotal: #{total_time}\";"
+      #puts "label=\"#{mode_name} >=#{min_percent}%\\nTotal: #{total_time}\";"
       puts "labelloc=t;"
       puts "labeljust=l;"
       print_threads
@@ -64,32 +62,14 @@ module RubyProf
       RubyProf.constants.find{|c| RubyProf.const_get(c) == RubyProf.measure_mode}
     end
     
-    # Computes the total time per thread:
-    def thread_times
-      @thread_times ||= begin
-        times = {}
-        @result.threads.each do |thread_id, methods|
-          toplevel = methods.sort.last
-
-          total_time = toplevel.total_time
-          # This looks like a hack for very small times... from GraphPrinter
-          total_time = 0.01 if total_time == 0 
-          times[thread_id] = total_time
-        end
-        
-        times
-      end
-    end
-    
     def print_threads
-      # sort assumes that spawned threads have higher object_ids
-      @result.threads.sort.each do |thread_id, methods|
-        puts "subgraph \"Thread #{thread_id}\" {"
-        
-        print_methods(thread_id, methods)
+      @result.threads.each do |thread|
+        puts "subgraph \"Thread #{thread.id}\" {"
+
+        print_thread(thread)
         puts "}"
         
-        print_classes(thread_id, methods)
+        print_classes(thread)
       end
     end
     
@@ -98,9 +78,9 @@ module RubyProf
       subject.object_id
     end
     
-    def print_methods(thread_id, methods)
-      total_time = thread_times[thread_id]
-      methods.sort_by(&sort_method).reverse_each do |method|
+    def print_thread(thread)
+      total_time = thread.top_method.total_time
+      thread.methods.sort_by(&sort_method).reverse_each do |method|
         total_percentage = (method.total_time/total_time) * 100
 
         next if total_percentage < min_percent
@@ -111,9 +91,9 @@ module RubyProf
       end
     end
       
-    def print_classes(thread_id, methods)
+    def print_classes(thread)
       grouped = {}
-      methods.each{|m| grouped[m.klass_name] ||= []; grouped[m.klass_name] << m}
+      thread.methods.each{|m| grouped[m.klass_name] ||= []; grouped[m.klass_name] << m}
       grouped.each do |cls, methods2|
         # Filter down to just seen methods
         big_methods, small_methods  = methods2.partition{|m| @seen_methods.include? m}

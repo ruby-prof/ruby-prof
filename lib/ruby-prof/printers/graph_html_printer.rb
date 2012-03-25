@@ -28,14 +28,6 @@ module RubyProf
     TIME_WIDTH = 10
     CALL_WIDTH = 20
 
-    # Create a GraphPrinter.  Result is a RubyProf::Result
-    # object generated from a profiling run.
-    def initialize(result)
-      super(result)
-      @thread_times = Hash.new
-      calculate_thread_times
-    end
-
     # Print a graph html report to the provided output.
     #
     # output - Any IO oject, including STDOUT or a file.
@@ -71,52 +63,25 @@ module RubyProf
       a.inject(0.0){|s,t| s+=t}
     end
 
-    # These methods should be private but then ERB doesn't
-    # work.  Turn off RDOC though
-    #--
-    def calculate_thread_times
-      # Cache thread times since this is an expensive
-      # operation with the required sorting
-      @overall_threads_time = 0.0
-      @thread_times = Hash.new
-      @result.threads.each do |thread_id, methods|
-        roots = methods.select{|m| m.root?}
-        thread_total_time = sum(roots.map{|r| self.total_time(r.call_infos)})
-        @overall_threads_time += thread_total_time
-        @thread_times[thread_id] = thread_total_time
-      end
-    end
-
-    def thread_time(thread_id)
-      @thread_times[thread_id]
-    end
-
-    def total_percent(thread_id, method)
-      overall_time = self.thread_time(thread_id)
-      (method.total_time/overall_time) * 100
-    end
-
-    def self_percent(method)
-      overall_time = self.thread_time(method.thread_id)
-      (method.self_time/overall_time) * 100
-    end
 
     # Creates a link to a method.  Note that we do not create
     # links to methods which are under the min_perecent
     # specified by the user, since they will not be
     # printed out.
-    def create_link(thread_id, method)
-      if self.total_percent(thread_id, method) < min_percent
+    def create_link(thread, method)
+      overall_time = thread.top_method.total_time
+      total_percent = (method.total_time/overall_time) * 100
+      if total_percent < min_percent
         # Just return name
         h method.full_name
       else
-        href = '#' + method_href(thread_id, method)
+        href = '#' + method_href(thread, method)
         "<a href=\"#{href}\">#{h method.full_name}</a>"
       end
     end
 
-    def method_href(thread_id, method)
-      h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + thread_id.to_s)
+    def method_href(thread, method)
+      h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + thread.id.to_s)
     end
 
     def file_link(path, linenum)
@@ -193,19 +158,19 @@ module RubyProf
         <th>Thread ID</th>
         <th>Total Time</th>
       </tr>
-      <% for thread_id in @result.threads.keys.sort %>
+      <% for thread in @result.threads %>
       <tr>
-        <td><a href="#<%= thread_id %>"><%= thread_id %></a></td>
-        <td><%= thread_time(thread_id) %></td>
+        <td><a href="#<%= thread.id %>"><%= thread.id %></a></td>
+        <td><%= thread.top_method.total_time %></td>
       </tr>
       <% end %>
     </table>
 
     <!-- Methods Tables -->
-    <% for thread_id in @result.threads.keys.sort
-         methods = @result.threads[thread_id]
-         total_time = thread_time(thread_id) %>
-      <h2><a name="<%= thread_id %>">Thread <%= thread_id %></a></h2>
+    <% for thread in @result.threads
+         methods = thread.methods
+         total_time = thread.top_method.total_time %>
+      <h2><a name="<%= thread.id %>">Thread <%= thread.id %></a></h2>
 
       <table>
         <tr>
@@ -240,7 +205,7 @@ module RubyProf
                 <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.children_time) %></td>
                 <% called = "#{caller.called}/#{method.called}" %>
                 <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
-                <td class="method_name"><%= create_link(thread_id, caller.parent.target) %></td>
+                <td class="method_name"><%= create_link(thread, caller.parent.target) %></td>
                 <td><%= file_link(caller.parent.target.source_file, caller.line) %></td>
               </tr>
             <% end %>
@@ -253,7 +218,7 @@ module RubyProf
               <td><%= sprintf("%#{TIME_WIDTH}.2f", method.wait_time) %></td>
               <td><%= sprintf("%#{TIME_WIDTH}.2f", method.children_time) %></td>
               <td><%= sprintf("%#{CALL_WIDTH}i", method.called) %></td>
-              <td class="method_name"><a name="<%= method_href(thread_id, method) %>"><%= h method.full_name %></a></td>
+              <td class="method_name"><a name="<%= method_href(thread, method) %>"><%= h method.full_name %></a></td>
               <td><%= file_link(method.source_file, method.line) %></td>
             </tr>
 
@@ -269,7 +234,7 @@ module RubyProf
                 <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.children_time) %></td>
                 <% called = "#{callee.called}/#{callee.target.called}" %>
                 <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
-                <td class="method_name"><%= create_link(thread_id, callee.target) %></td>
+                <td class="method_name"><%= create_link(thread, callee.target) %></td>
                 <td><%= file_link(method.source_file, callee.line) %></td>
               </tr>
             <% end %>

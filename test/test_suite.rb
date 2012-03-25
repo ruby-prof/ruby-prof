@@ -4,6 +4,7 @@ require File.expand_path("../test_helper", __FILE__)
 
 %w(aggregate_test
    basic_test
+   call_info_visitor_test
    duplicate_names_test
    dynamic_method_test
    enumerable_test

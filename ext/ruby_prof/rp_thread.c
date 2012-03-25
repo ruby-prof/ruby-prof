@@ -3,6 +3,8 @@
 
 #include "ruby_prof.h"
 
+VALUE cRpThread;
+
 /* ======   thread_data_t  ====== */
 thread_data_t*
 thread_data_create()
@@ -10,6 +12,8 @@ thread_data_create()
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = stack_create();
     result->method_table = method_table_create();
+	result->top = NULL;
+	result->object = Qnil;
     return result;
 }
 
@@ -52,7 +56,7 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id)
     }
     else
     {
-        result = thread_data_create(profile->measurer->measure());
+        result = thread_data_create();
         result->thread_id = thread_id;
 
         /* Insert the table */
@@ -105,4 +109,87 @@ switch_thread(void* prof, VALUE thread_id)
 
     profile->last_thread_data = thread_data;
     return thread_data;
+}
+
+static int
+collect_methods(st_data_t key, st_data_t value, st_data_t result)
+{
+    /* Called for each method stored in a thread's method table.
+       We want to store the method info information into an array.*/
+    VALUE methods = (VALUE) result;
+    prof_method_t *method = (prof_method_t *) value;
+    rb_ary_push(methods, prof_method_wrap(method));
+
+    /* Wrap call info objects */
+    prof_call_infos_wrap(method->call_infos);
+
+    return ST_CONTINUE;
+}
+
+
+static thread_data_t*
+prof_get_thread(VALUE self)
+{
+    /* Can't use Data_Get_Struct because that triggers the event hook
+       ending up in endless recursion. */
+    return (thread_data_t*)RDATA(self)->data;
+}
+
+VALUE
+prof_thread_wrap(thread_data_t *thread)
+{
+  if (thread->object == Qnil)
+  {
+    thread->object = Data_Wrap_Struct(cRpThread, NULL, NULL, thread);
+  }
+  return thread->object;
+}
+
+
+/* call-seq:
+   id -> number
+
+Returns the id of this thread. */
+static VALUE
+prof_thread_id(VALUE self)
+{
+    thread_data_t* thread = prof_get_thread(self);
+	return thread->thread_id;
+}
+
+/* call-seq:
+   methods -> Array of MethodInfo
+
+Returns an array of methods that were called from this
+thread during program execution. */
+static VALUE
+prof_thread_methods(VALUE self)
+{
+	VALUE methods = rb_ary_new();
+    thread_data_t* thread = prof_get_thread(self);
+    st_table* method_table = thread->method_table;
+    st_foreach(method_table, collect_methods, methods);
+	return methods;
+}
+
+/* call-seq:
+   method -> MethodInfo
+
+Returns the top level method for this thread (ie, the starting
+method). */
+static VALUE
+prof_thread_top_method(VALUE self)
+{
+    thread_data_t* thread = prof_get_thread(self);
+	return  prof_method_wrap(thread->top);
+}
+
+void rp_init_thread()
+{
+    cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
+    rb_undef_method(CLASS_OF(cRpThread), "new");
+
+    rb_define_method(cRpThread, "id", prof_thread_id, 0);
+    rb_define_method(cRpThread, "methods", prof_thread_methods, 0);
+    rb_define_method(cRpThread, "top_method", prof_thread_top_method, 0);
 }

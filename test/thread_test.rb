@@ -20,7 +20,7 @@ class ThreadTest < Test::Unit::TestCase
 
     thread.join
     result = RubyProf.stop
-    assert_equal(2, result.threads.keys.length) # this should pass...
+    assert_equal(2, result.threads.length)
   end
 
   def test_thread_identity
@@ -31,9 +31,9 @@ class ThreadTest < Test::Unit::TestCase
     thread.join
     result = RubyProf.stop
 
-    thread_ids = result.threads.keys.sort
+    thread_ids = result.threads.map {|thread| thread.id}.sort
     threads = [Thread.current, thread]
-    assert_equal(2, thread_ids.length) # should pass
+    assert_equal(2, result.threads.length)
 
     assert(thread_ids.include?(threads[0].object_id))
     assert(thread_ids.include?(threads[1].object_id))
@@ -59,7 +59,9 @@ class ThreadTest < Test::Unit::TestCase
 
     # Check background thread
     assert_equal(2, result.threads.length)
-    methods = result.threads[thread.object_id].sort.reverse
+
+    rp_thread = result.threads.detect {|athread| athread.id == thread.object_id}
+    methods = rp_thread.methods.sort.reverse
     assert_equal(2, methods.length)
 
     method = methods[0]
@@ -88,7 +90,8 @@ class ThreadTest < Test::Unit::TestCase
     assert_equal(0, call_info.children.length)
 
     # Check foreground thread
-    methods = result.threads[Thread.current.object_id].sort.reverse
+    rp_thread = result.threads.detect {|athread| athread.id == Thread.current.object_id}
+    methods = rp_thread.methods.sort.reverse
     assert_equal(4, methods.length)
     methods = methods.sort.reverse
 
@@ -150,13 +153,14 @@ class ThreadTest < Test::Unit::TestCase
 
   # useless test
   def test_thread_back_and_forth
-        result = RubyProf.profile do
-                a = Thread.new { 100_000.times { sleep 0 }}
-                b = Thread.new { 100_000.times { sleep 0 }}
-                a.join
-                b.join
-        end
-        assert result.threads.values.flatten.sort[-1].total_time < 10 # 10s. Amazingly, this can fail in OS X at times. Amazing.
+      result = RubyProf.profile do
+              a = Thread.new { 100_000.times { sleep 0 }}
+              b = Thread.new { 100_000.times { sleep 0 }}
+              a.join
+              b.join
+      end
+      methods = result.threads.map {|thread| thread.methods}
+      assert(methods.flatten.sort[-1].total_time < 10) # 10s. Amazingly, this can fail in OS X at times. Amazing.
   end
 
   def test_thread

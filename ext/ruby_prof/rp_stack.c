@@ -13,7 +13,6 @@ stack_create()
 {
     prof_stack_t *stack = ALLOC(prof_stack_t);
     stack->start = ALLOC_N(prof_frame_t, INITIAL_STACK_SIZE);
-    MEMZERO(stack->start, prof_frame_t, INITIAL_STACK_SIZE);
     stack->ptr = stack->start;
     stack->end = stack->start + INITIAL_STACK_SIZE;
 
@@ -40,7 +39,6 @@ stack_push(prof_stack_t *stack)
     /* Memory just got moved, reset pointers */
     stack->ptr = stack->start + len;
     stack->end = stack->start + new_capacity;
-    MEMZERO(stack->ptr, prof_frame_t, stack->end - stack->ptr);
   }
   return stack->ptr++;
 }

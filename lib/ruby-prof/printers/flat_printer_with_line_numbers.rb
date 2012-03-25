@@ -13,17 +13,16 @@ module RubyProf
   #
   class FlatPrinterWithLineNumbers < FlatPrinter
 
-    def print_methods(thread_id, methods)
+    def print_thread(thread)
       # Get total time
-      toplevel = methods.max
-      total_time = toplevel.total_time
+      total_time = thread.top_method.total_time
       if total_time == 0
         total_time = 0.01
       end
 
-      methods = methods.sort_by(&sort_method).reverse
+      methods = thread.methods.sort_by(&sort_method).reverse
 
-      @output << "Thread ID: %d\n" % thread_id
+      @output << "Thread ID: %d\n" % thread.id
       @output << "Total: %0.6f\n" % total_time
       @output << "\n"
       @output << " %self     total     self     wait    child    calls  name\n"

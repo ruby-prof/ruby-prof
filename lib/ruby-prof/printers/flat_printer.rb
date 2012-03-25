@@ -34,23 +34,22 @@ module RubyProf
     private
 
     def print_threads
-      @result.threads.each do |thread_id, methods|
-        print_methods(thread_id, methods)
+      @result.threads.each do |thread|
+        print_thread(thread)
         @output << "\n" * 2
       end
     end
 
-    def print_methods(thread_id, methods)
+    def print_thread(thread)
       # Get total time
-      toplevel = methods.max
-      total_time = toplevel.total_time
+      total_time = thread.top_method.total_time
       if total_time == 0
         total_time = 0.01
       end
 
-      methods = methods.sort_by(&sort_method).reverse
+      methods = thread.methods.sort_by(&sort_method).reverse
 
-      @output << "Thread ID: %d\n" % thread_id
+      @output << "Thread ID: %d\n" % thread.id
       @output << "Total: %0.6f\n" % total_time
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"

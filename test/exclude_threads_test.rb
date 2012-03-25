@@ -40,8 +40,8 @@ class ExcludeThreadsTest < Test::Unit::TestCase
     assert_equal(2, result.threads.length)
 
     output = Array.new
-    result.threads.each do | thread_id, methods |
-      methods.each do | m |
+    result.threads.each do |thread|
+      thread.methods.each do | m |
         if m.full_name.index("ExcludeThreadsTest#thread") == 0
           output.push(m.full_name)
         end

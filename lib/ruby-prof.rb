@@ -10,6 +10,7 @@ end
 
 require 'ruby-prof/aggregate_call_info'
 require 'ruby-prof/call_info'
+require 'ruby-prof/call_info_visitor'
 require 'ruby-prof/compatibility'
 require 'ruby-prof/method_info'
 require 'ruby-prof/profile'

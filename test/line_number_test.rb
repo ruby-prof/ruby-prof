@@ -27,7 +27,7 @@ class LineNumbersTest < Test::Unit::TestCase
       numbers.method2
     end
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 
     method = methods[0]
@@ -50,7 +50,7 @@ class LineNumbersTest < Test::Unit::TestCase
       numbers.method3
     end
 
-    methods = result.threads.values.first.sort_by {|method| method.full_name}
+    methods = result.threads.first.methods.sort_by {|method| method.full_name}
     assert_equal(3, methods.length)
 
     # Methods:

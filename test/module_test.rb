@@ -32,7 +32,7 @@ class ModuleTest < Test::Unit::TestCase
       hello
     end
 
-    methods = result.threads.values.first
+    methods = result.threads.first.methods
 
     # Length should be 5
     assert_equal(5, methods.length)

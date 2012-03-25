@@ -19,7 +19,7 @@ class DynamicMethodTest < Test::Unit::TestCase
     #  Integer#times
     #  DynamicMethodTest#test_dynamic_method
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(7, methods.length)
 
     # Check times

@@ -37,7 +37,7 @@ class MethodEliminationTest < Test::Unit::TestCase
     result = RubyProf.profile do
       1000.times { 1+1 }
     end
-    method_infos = result.threads.values.first
+    method_infos = result.threads.first.methods
     assert(m1 = method_infos[0])
     assert(c1 = m1.call_infos.first)
     assert_equal(c1, c1.parent = c1)
@@ -59,8 +59,8 @@ class MethodEliminationTest < Test::Unit::TestCase
 
   private
   def assert_method_has_been_eliminated(result, eliminated_method)
-    result.threads.each do |thread_id, methods|
-      methods.each do |method|
+    result.threads.each do |thread|
+      thread.methods.each do |method|
         method.call_infos.each do |ci|
           assert(ci.target != eliminated_method, "broken self")
           assert(ci.parent.target != eliminated_method, "broken parent") if ci.parent

@@ -36,8 +36,8 @@ class UniqueCallPathTest < Test::Unit::TestCase
     end
 
     root_methods = Array.new
-    result.threads.each do | thread_id, methods |
-      methods.each do | m |
+    result.threads.each do |thread|
+      thread.methods.each do | m |
         if m.root?
           root_methods.push(m)
         end
@@ -57,8 +57,8 @@ class UniqueCallPathTest < Test::Unit::TestCase
     end
 
     root_methods = Array.new
-    result.threads.each do | thread_id, methods |
-      methods.each do | m |
+    result.threads.each do |thread|
+      thread.methods.each do | m |
         if m.root?
           root_methods.push(m)
         end
@@ -92,8 +92,8 @@ class UniqueCallPathTest < Test::Unit::TestCase
     end
 
     root_methods = Array.new
-    result.threads.each do | thread_id, methods |
-      methods.each do | m |
+    result.threads.each do |thread|
+      thread.methods.each do | m |
         if m.root?
           root_methods.push(m)
         end
@@ -150,8 +150,8 @@ class UniqueCallPathTest < Test::Unit::TestCase
     end
 
     root_methods = Array.new
-    result.threads.each do | thread_id, methods |
-      methods.each do | m |
+    result.threads.each do |thread|
+      thread.methods.each do | m |
         if m.root?
           root_methods.push(m)
         end
@@ -173,8 +173,8 @@ class UniqueCallPathTest < Test::Unit::TestCase
     end
 
     root_methods = Array.new
-    result.threads.each do | thread_id, methods |
-      methods.each do | m |
+    result.threads.each do |thread|
+      thread.methods.each do | m |
         if m.root?
           root_methods.push(m)
         end

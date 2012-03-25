@@ -7,13 +7,13 @@ require 'fileutils'
 
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase
-
   def go
     run_primes(1000)
   end
 
   def setup
-    RubyProf::measure_mode = RubyProf::WALL_TIME # WALL_TIME so we can use sleep in our test and get same measurements on linux and doze
+    # WALL_TIME so we can use sleep in our test and get same measurements on linux and windows
+    RubyProf::measure_mode = RubyProf::WALL_TIME
     @result = RubyProf.profile do
       begin
         run_primes(1000)
@@ -22,7 +22,6 @@ class PrintersTest < Test::Unit::TestCase
         p e
       end
     end
-
   end
 
   def test_printers
@@ -66,11 +65,11 @@ class PrintersTest < Test::Unit::TestCase
   end
 
   def test_flat_string
-    output = helper_test_flat_string RubyProf::FlatPrinter
+    output = helper_test_flat_string(RubyProf::FlatPrinter)
     assert_no_match(/prime.rb/, output)
   end
 
-  def helper_test_flat_string klass
+  def helper_test_flat_string(klass)
     output = ''
 
     printer = klass.new(@result)
@@ -145,7 +144,7 @@ class PrintersTest < Test::Unit::TestCase
     for klass in [ RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
       printer = klass.new(result)
       out = ''
-      printer.print(out, :min_percent => 0.00000001 )
+      printer.print(out, :min_percent => 0.00000001)
       assert_match(/do_nothing/, out)
     end
 

@@ -42,28 +42,23 @@ module RubyProf
         @graph_html = "file://" + @graph_html if @graph_html[0]=="/"
       end
 
-      @overall_threads_time = 0.0
-      @threads_totals = Hash.new
-      @result.threads.each do |thread_id, methods|
-        roots = methods.select{|m| m.root?}
-        thread_total_time = sum(roots.map{|r| self.total_time(r.call_infos)})
-        @overall_threads_time += thread_total_time
-        @threads_totals[thread_id] = thread_total_time
-      end
-
       print_header
 
-      @result.threads.keys.sort.each do |thread_id|
-        @current_thread_id = thread_id
-        @overall_time = @threads_totals[thread_id]
-        @output.print "<div class=\"thread\">Thread: #{thread_id} (#{"%4.2f%%" % ((@overall_time/@overall_threads_time)*100)} ~ #{@overall_time})</div>"
+      @overall_threads_time = @result.threads.inject(0) do |val, thread|
+        val += thread.top_method.total_time
+      end
+
+      @result.threads.each do |thread|
+        @current_thread_id = thread.id
+        @overall_time = thread.top_method.total_time
+        @output.print "<div class=\"thread\">Thread: #{thread.id} (#{"%4.2f%%" % ((@overall_time/@overall_threads_time)*100)} ~ #{@overall_time})</div>"
         @output.print "<ul name=\"thread\">"
-        @result.threads[thread_id].each do |m|
+        thread.methods.each do |m|
           # $stderr.print m.dump
           next unless m.root?
           m.call_infos.each do |ci|
             next unless ci.root?
-            print_stack ci, @threads_totals[thread_id]
+            print_stack ci, thread.top_method.total_time
           end
         end
         @output.print "</ul>"

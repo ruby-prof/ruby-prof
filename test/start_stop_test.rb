@@ -53,7 +53,7 @@ class StartStopTest < Test::Unit::TestCase
     #   StartStopTest#method3
     #   Kernel#sleep
 
-    methods = @result.threads.values.first.sort.reverse
+    methods = @result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
 
     # Check StackTest#test_call_sequence

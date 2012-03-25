@@ -18,26 +18,6 @@ module RubyProf
     TIME_WIDTH = 10
     CALL_WIDTH = 17
 
-    # Create a GraphPrinter.  Result is a RubyProf::Result
-    # object generated from a profiling run.
-    def initialize(result)
-      super(result)
-      @thread_times = Hash.new
-      calculate_thread_times
-    end
-
-    def calculate_thread_times
-      # Cache thread times since this is an expensive
-      # operation with the required sorting
-      @result.threads.each do |thread_id, methods|
-        top = methods.max
-
-        thread_time = [top.total_time, 0.01].max
-
-        @thread_times[thread_id] = thread_time
-      end
-    end
-
     # Print a graph report to the provided output.
     #
     # output - Any IO oject, including STDOUT or a file.
@@ -53,17 +33,17 @@ module RubyProf
     end
 
     private
+
     def print_threads
-      # sort assumes that spawned threads have higher object_ids
-      @result.threads.sort.each do |thread_id, methods|
-        print_methods(thread_id, methods)
+      @result.threads.each do |thread|
+        print_thread(thread)
         @output << "\n" * 2
       end
     end
 
-    def print_methods(thread_id, methods)
+    def print_thread(thread)
       # Sort methods from longest to shortest total time
-      methods = methods.sort_by(&sort_method)
+      methods = thread.methods.sort_by(&sort_method)
 
       toplevel = methods.last
       total_time = toplevel.total_time
@@ -71,7 +51,7 @@ module RubyProf
         total_time = 0.01
       end
 
-      print_heading(thread_id)
+      print_heading(thread)
 
       # Print each method in total time order
       methods.reverse_each do |method|
@@ -82,7 +62,7 @@ module RubyProf
 
         @output << "-" * 80 << "\n"
 
-        print_parents(thread_id, method)
+        print_parents(thread, method)
 
         # 1 is for % sign
         @output << sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", total_percentage)
@@ -102,9 +82,9 @@ module RubyProf
       end
     end
 
-    def print_heading(thread_id)
-      @output << "Thread ID: #{thread_id}\n"
-      @output << "Total Time: #{@thread_times[thread_id]}\n"
+    def print_heading(thread)
+      @output << "Thread ID: #{thread.id}\n"
+      @output << "Total Time: #{thread.top_method.total_time}\n"
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"
 
@@ -120,7 +100,7 @@ module RubyProf
       @output << "\n"
     end
 
-    def print_parents(thread_id, method)
+    def print_parents(thread, method)
       method.aggregate_parents.sort_by(&:total_time).each do |caller|
         next unless caller.parent
         @output << " " * 2 * PERCENTAGE_WIDTH

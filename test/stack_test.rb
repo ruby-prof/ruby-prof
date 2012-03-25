@@ -46,7 +46,7 @@ class StackTest < Test::Unit::TestCase
     #   StackClass#c
     #   StackClass#b
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)
 
     # Check StackTest#test_call_sequence

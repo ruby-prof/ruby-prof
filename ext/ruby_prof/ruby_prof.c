@@ -46,6 +46,12 @@ prof_get_profile(VALUE self)
 void
 method_key(prof_method_key_t* key, VALUE klass, ID mid)
 {
+    /* Is this an include for a module?  If so get the actual
+        module class since we want to combine all profiling
+        results for that module. */
+    if (klass != 0)
+        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
+
     key->klass = klass;
     key->mid = mid;
     key->key = (klass << 4) + (mid << 2);
@@ -90,10 +96,31 @@ get_event_name(rb_event_flag_t event)
   }
 }
 
+static prof_method_t*
+create_method(rb_event_flag_t event, VALUE klass, ID mid)
+{
+    prof_method_key_t key;
+    prof_method_t *method = NULL;
+	const char* source_file = rb_sourcefile();
+    int line = rb_sourceline();
+
+	method_key(&key, klass, mid);
+
+    /* Line numbers are not accurate for c method calls */
+    if (event == RUBY_EVENT_C_CALL)
+    {
+		line = 0;
+		source_file = NULL;
+    }
+
+    method = prof_method_create(&key, source_file, line);
+    return method;
+}
+
 
 static prof_method_t*
 #ifdef RUBY_VM
- get_method(rb_event_flag_t event, VALUE klass, ID mid, st_table* method_table)
+ get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t* thread_data)
 # else
  get_method(rb_event_flag_t event, NODE *node, VALUE klass, ID mid, st_table* method_table)
 #endif
@@ -101,29 +128,17 @@ static prof_method_t*
     prof_method_key_t key;
     prof_method_t *method = NULL;
 
-    /* Is this an include for a module?  If so get the actual
-        module class since we want to combine all profiling
-        results for that module. */
-    if (klass != 0)
-        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
-
     method_key(&key, klass, mid);
-    method = method_table_lookup(method_table, &key);
+    method = method_table_lookup(thread_data->method_table, &key);
 
     if (!method)
     {
-      const char* source_file = rb_sourcefile();
-      int line = rb_sourceline();
+	  method = create_method(event, klass, mid);
+      method_table_insert(thread_data->method_table, method->key, method);
 
-      /* Line numbers are not accurate for c method calls */
-      if (event == RUBY_EVENT_C_CALL)
-      {
-        line = 0;
-        source_file = NULL;
-      }
-
-      method = prof_method_create(&key, source_file, line);
-      method_table_insert(method_table, method->key, method);
+	  /* Is this the first method added to the thread? */
+	  if (!thread_data->top)
+		  thread_data->top = method;
     }
     return method;
 }
@@ -306,9 +321,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         prof_method_t *method = NULL;
 
         #ifdef RUBY_VM
-        method = get_method(event, klass, mid, thread_data->method_table);
+        method = get_method(event, klass, mid, thread_data);
         #else
-        method = get_method(event, node, klass, mid, thread_data->method_table);
+        method = get_method(event, node, klass, mid, thread_data);
         #endif
 
         if (!frame)
@@ -335,6 +350,9 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         frame->call_info = call_info;
         frame->start_time = measurement;
         frame->line = rb_sourceline();
+		frame->child_time = 0;
+		frame->switch_time = 0;
+		frame->wait_time = 0;
         break;
     }
     case RUBY_EVENT_RETURN:
@@ -383,41 +401,12 @@ prof_remove_hook()
     rb_remove_event_hook(prof_event_hook);
 }
 
-
-static int
-collect_methods(st_data_t key, st_data_t value, st_data_t result)
-{
-    /* Called for each method stored in a thread's method table.
-       We want to store the method info information into an array.*/
-    VALUE methods = (VALUE) result;
-    prof_method_t *method = (prof_method_t *) value;
-    rb_ary_push(methods, prof_method_wrap(method));
-
-    /* Wrap call info objects */
-    prof_call_infos_wrap(method->call_infos);
-
-    return ST_CONTINUE;
-}
-
 static int
 collect_threads(st_data_t key, st_data_t value, st_data_t result)
 {
-    /* Although threads are keyed on an id, that is actually a
-       pointer to the VALUE object of the thread.  So its bogus.
-       However, in thread_data is the real thread id stored
-       as an int. */
     thread_data_t* thread_data = (thread_data_t*) value;
-    VALUE threads_hash = (VALUE) result;
-
-    VALUE methods = rb_ary_new();
-
-    /* Now collect an array of all the called methods */
-    st_table* method_table = thread_data->method_table;
-    st_foreach(method_table, collect_methods, methods);
-
-    /* Store the results in the threads hash keyed on the thread id. */
-    rb_hash_aset(threads_hash, thread_data->thread_id, methods);
-
+    VALUE threads_array = (VALUE) result;
+	rb_ary_push(threads_array, prof_thread_wrap(thread_data));
     return ST_CONTINUE;
 }
 
@@ -425,14 +414,16 @@ collect_threads(st_data_t key, st_data_t value, st_data_t result)
 static void
 prof_mark(prof_profile_t *profile)
 {
-    VALUE threads = profile->threads;
-    rb_gc_mark(threads);
+    rb_gc_mark(profile->threads);
 }
 
 static void
 prof_free(prof_profile_t *profile)
 {
-    profile->threads = Qnil;
+    threads_table_free(profile->threads_tbl);
+    profile->threads_tbl = NULL;
+
+	profile->threads = Qnil;
     st_free_table(profile->exclude_threads_tbl);
     profile->exclude_threads_tbl = NULL;
 
@@ -445,7 +436,8 @@ prof_allocate(VALUE klass)
     VALUE result;
     prof_profile_t* profile;
     result = Data_Make_Struct(klass, prof_profile_t, prof_mark, prof_free, profile);
-    profile->exclude_threads_tbl = threads_table_create();
+    profile->threads_tbl = threads_table_create();
+	profile->exclude_threads_tbl = threads_table_create();
     profile->running = Qfalse;
     return result;
 }
@@ -491,8 +483,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     }
 
     profile->measurer = prof_get_measurer(measurer);
-    profile->threads = rb_hash_new();
-
+    profile->threads = rb_ary_new();
 
     for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
     {
@@ -532,7 +523,7 @@ prof_start(VALUE self)
 
     profile->running = Qtrue;
     profile->last_thread_data = NULL;
-    profile->threads_tbl = threads_table_create();
+
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
@@ -640,11 +631,9 @@ prof_stop(VALUE self)
 
     /* Save the result */
     st_foreach(profile->threads_tbl, collect_threads, profile->threads);
-    threads_table_free(profile->threads_tbl);
-    profile->threads_tbl = NULL;
 
     /* compute minimality of call_infos */
-    rb_funcall(self, rb_intern("compute_minimality") , 0);
+   // rb_funcall(self, rb_intern("compute_minimality") , 0);
 
     return self;
 }
@@ -670,13 +659,10 @@ prof_profile(int argc,  VALUE *argv, VALUE klass)
 }
 
 /* call-seq:
-   threads -> Hash
+   threads -> Array of RubyProf::Thread
 
-Returns a hash table keyed on thread ID.  For each thread id,
-the hash table stores another hash table that contains profiling
-information for each method called during the threads execution.
-That hash table is keyed on method name and contains
-RubyProf::MethodInfo objects. */
+Returns an array of RubyProf::Thread instances that were executed
+while the the program was being run. */
 static VALUE
 prof_threads(VALUE self)
 {
@@ -692,6 +678,7 @@ void Init_ruby_prof()
     rp_init_measure();
     rp_init_method_info();
     rp_init_call_info();
+    rp_init_thread();
 
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_singleton_method(cProfile, "profile", prof_profile, -1);

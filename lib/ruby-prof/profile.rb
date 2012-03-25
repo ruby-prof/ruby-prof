@@ -24,8 +24,8 @@ module RubyProf
     def eliminate_methods!(matchers)
       matchers = read_regexps_from_file(matchers) if matchers.is_a?(String)
       eliminated = []
-      threads.each do |thread_id, methods|
-        matchers.each{ |matcher| eliminated.concat(eliminate_methods(methods, matcher)) }
+      threads.each do |thread|
+        matchers.each{ |matcher| eliminated.concat(eliminate_methods(thread.methods, matcher)) }
       end
       compute_minimality # is this really necessary?
       eliminated

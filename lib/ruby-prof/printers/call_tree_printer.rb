@@ -54,8 +54,8 @@ module RubyProf
     end
 
     def print_threads
-      @result.threads.each do |thread_id, methods|
-        print_methods(thread_id, methods)
+      @result.threads.each do |thread|
+        print_thread(thread)
       end
     end
 
@@ -67,8 +67,8 @@ module RubyProf
       File.expand_path(method.source_file)
     end
 
-    def print_methods(thread_id, methods)
-      methods.reverse_each do |method|
+    def print_thread(thread)
+      thread.methods.reverse_each do |method|
         # Print out the file and method name
         @output << "fl=#{file(method)}\n"
         @output << "fn=#{method_name(method)}\n"

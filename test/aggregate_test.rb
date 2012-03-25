@@ -41,7 +41,7 @@ class AggregateTest < Test::Unit::TestCase
       c1.b
       c1.c
     end
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     methods.each do |m|
       m.call_infos.each do |ci|
         assert ci.minimal?, "#{ci.call_sequence} should be minimal in the call tree"
@@ -57,7 +57,7 @@ class AggregateTest < Test::Unit::TestCase
       c1.c
     end
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     method = methods.find {|meth| meth.full_name == 'AggClass#z'}
 
     # Check AggClass#z
@@ -90,7 +90,7 @@ class AggregateTest < Test::Unit::TestCase
       c1.c
     end
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     method = methods.find {|meth| meth.full_name == 'AggClass#z'}
 
     # Check AggClass#z
@@ -116,7 +116,7 @@ class AggregateTest < Test::Unit::TestCase
       c1.c
     end
 
-    methods = result.threads.values.first.sort.reverse
+    methods = result.threads.first.methods.sort.reverse
     method = methods.find {|meth| meth.full_name == 'AggClass#a'}
 
     # Check AggClass#a

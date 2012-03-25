@@ -8,6 +8,7 @@ module RubyProf
     # call_info is minimal in a call tree if the call_info is not a
     # descendant of a call_info of the same method
     def compute_minimality
+      return
       threads.each do |threadid, method_infos|
         root_methods = method_infos.select{|mi| mi.root?}
         root_methods.each do |mi|

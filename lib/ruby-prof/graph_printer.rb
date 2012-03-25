@@ -105,6 +105,7 @@ module RubyProf
     def print_heading(thread_id)
       @output << "Thread ID: #{thread_id}\n"
       @output << "Total Time: #{@thread_times[thread_id]}\n"
+      @output << "Sort by: #{sort_method}\n"
       @output << "\n"
 
       # 1 is for % sign

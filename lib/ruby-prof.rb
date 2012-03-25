@@ -19,10 +19,10 @@ require 'ruby-prof/printers/abstract_printer'
 require 'ruby-prof/printers/call_stack_printer'
 require 'ruby-prof/printers/call_tree_printer'
 require 'ruby-prof/printers/dot_printer'
+require 'ruby-prof/printers/flat_printer'
 require 'ruby-prof/printers/flat_printer_with_line_numbers'
 require 'ruby-prof/printers/graph_html_printer'
 require 'ruby-prof/printers/graph_printer'
-require 'ruby-prof/printers/flat_printer'
 require 'ruby-prof/printers/multi_printer'
 
 module RubyProf

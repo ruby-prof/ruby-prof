@@ -75,5 +75,11 @@ module RubyProf
       print_methods(thread)
       print_footer(thread)
     end
+
+    def print_header(thread)
+    end
+
+    def print_footer(thread)
+    end
   end
 end

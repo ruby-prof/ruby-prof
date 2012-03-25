@@ -30,19 +30,19 @@ module RubyProf
     end
 
     def total_time
-      aggregate_skip_recursion(:total_time)
+      aggregate_without_recursion(:total_time)
     end
 
     def self_time
-      aggregate_skip_recursion(:self_time)
+      aggregate_without_recursion(:self_time)
     end
 
     def wait_time
-      aggregate_skip_recursion(:wait_time)
+      aggregate_without_recursion(:wait_time)
     end
 
     def children_time
-      aggregate_skip_recursion(:children_time)
+      aggregate_without_recursion(:children_time)
     end
 
     def called
@@ -62,7 +62,7 @@ module RubyProf
       end
     end
 
-    def aggregate_skip_recursion(method_name)
+    def aggregate_without_recursion(method_name)
       self.call_infos.inject(0) do |sum, call_info|
         sum += call_info.send(method_name) unless call_info.recursive
         sum

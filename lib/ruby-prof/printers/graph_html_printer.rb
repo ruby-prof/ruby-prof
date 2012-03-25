@@ -13,13 +13,13 @@ module RubyProf
   #   printer = RubyProf::GraphHtmlPrinter.new(result)
   #   printer.print(STDOUT, :min_percent=>0)
   #
-  # The constructor takes two arguments.  The first is
-  # a RubyProf::Result object generated from a profiling
-  # run.  The second is the minimum %total (the methods
-  # total time divided by the overall total time) that
-  # a method must take for it to be printed out in
-  # the report.  Use this parameter to eliminate methods
-  # that are not important to the overall profiling results.
+  # The Graph printer takes the following options in its print methods:
+  #   :filename    - specify a file to use that contains the ERB
+  #                  template to use, instead of the built-in self.template
+  #
+  #   :template    - specify an ERB template to use, instead of the
+  #                  built-in self.template
+  #
 
   class GraphHtmlPrinter < AbstractPrinter
     include ERB::Util
@@ -28,41 +28,21 @@ module RubyProf
     TIME_WIDTH = 10
     CALL_WIDTH = 20
 
-    # Print a graph html report to the provided output.
-    #
-    # output - Any IO oject, including STDOUT or a file.
-    # The default value is STDOUT.
-    #
-    # options - Hash of print options.  See #setup_options
-    # for more information.
-    #
-    # unique options are:
-    #   :filename    - specify a file to use that contains the ERB
-    #                  template to use, instead of the built-in self.template
-    #
-    #   :template    - specify an ERB template to use, instead of the
-    #                  built-in self.template
-    #
-    def print(output = STDOUT, options = {})
-      @output = output
-      setup_options(options)
+    def setup_options(options)
+      super(options)
 
       filename = options[:filename]
       template = filename ? File.read(filename).untaint : (options[:template] || self.template)
+      @erb = ERB.new(template, nil, nil)
+      @erb.filename = filename
+    end
+
+    def print(output = STDOUT, options = {})
+      @output = output
+      setup_options(options)
       _erbout = @output
-      erb = ERB.new(template, nil, nil)
-      erb.filename = filename
-      @output << erb.result(binding)
+      @output << @erb.result(binding)
     end
-
-    def total_time(call_infos)
-      sum(call_infos.map{|ci| ci.total_time})
-    end
-
-    def sum(a)
-      a.inject(0.0){|s,t| s+=t}
-    end
-
 
     # Creates a link to a method.  Note that we do not create
     # links to methods which are under the min_perecent
@@ -218,7 +198,11 @@ module RubyProf
               <td><%= sprintf("%#{TIME_WIDTH}.2f", method.wait_time) %></td>
               <td><%= sprintf("%#{TIME_WIDTH}.2f", method.children_time) %></td>
               <td><%= sprintf("%#{CALL_WIDTH}i", method.called) %></td>
-              <td class="method_name"><a name="<%= method_href(thread, method) %>"><%= h method.full_name %></a></td>
+              <td class="method_name">
+                <a name="<%= method_href(thread, method) %>">
+                  <%= method.recursive? ? "*" : " "%><%= h method.full_name %>
+                </a>
+              </td>
               <td><%= file_link(method.source_file, method.line) %></td>
             </tr>
 

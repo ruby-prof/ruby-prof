@@ -14,17 +14,21 @@ module RubyProf
 
     # This method detect recursive calls in the call graph.
     def detect_recursion(thread)
-      visited_methods = Set.new
+      visited_methods = Hash.new do |hash, key|
+        hash[key] = 0
+      end
 
       visitor = CallInfoVisitor.new(thread)
       visitor.visit do |call_info, event|
-        if event == :enter and visited_methods.include?(call_info.target)
-          call_info.recursive = true
-        elsif event == :enter
-          call_info.recursive = false
-          visited_methods << call_info.target
-        elsif event == :exit
-          visited_methods.delete(call_info.target)
+        case event
+        when :enter
+          visited_methods[call_info.target] += 1
+          call_info.recursive = (visited_methods[call_info.target] > 1)
+        when :exit
+          visited_methods[call_info.target] -= 1
+          if visited_methods[call_info.target] == 0
+            visited_methods.delete(call_info.target)
+          end
         end
       end
     end

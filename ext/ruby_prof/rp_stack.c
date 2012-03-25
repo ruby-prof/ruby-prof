@@ -37,8 +37,10 @@ stack_push(prof_stack_t *stack)
     size_t len = stack->ptr - stack->start;
     size_t new_capacity = (stack->end - stack->start) * 2;
     REALLOC_N(stack->start, prof_frame_t, new_capacity);
+    /* Memory just got moved, reset pointers */
     stack->ptr = stack->start + len;
     stack->end = stack->start + new_capacity;
+    MEMZERO(stack->ptr, prof_frame_t, stack->end - stack->ptr);
   }
   return stack->ptr++;
 }

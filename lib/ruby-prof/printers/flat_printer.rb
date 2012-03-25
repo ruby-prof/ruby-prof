@@ -31,7 +31,7 @@ module RubyProf
       @output << "Total: %0.6f\n" % thread.top_method.total_time
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"
-      @output << " %self     total     self     wait    child    calls   depth  name\n"
+      @output << " %self     total     self     wait    child    calls   name\n"
     end
 
     def print_methods(thread)

@@ -134,6 +134,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   prof_frame_t *frame = NULL;
   prof_frame_t* parent_frame = NULL;
   prof_call_info_t *call_info;
+  double measurement = profile->measurer->measure();
   double total_time;
   double self_time;
 
@@ -143,10 +144,11 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
      a method that exits.  And it can happen if an exception is raised
      in code that is being profiled and the stack unwinds (RubyProf is
      not notified of that by the ruby runtime. */
-  if (frame == NULL) return NULL;
+  if (frame == NULL) 
+	  return NULL;
 
   /* Calculate the total time this method took */
-  total_time = frame->end_time - frame->start_time;
+  total_time = measurement - frame->start_time;
   self_time = total_time - frame->child_time - frame->wait_time;
 
   /* Update information about the current method */
@@ -340,10 +342,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
-		if (frame)
-			frame->end_time = measurement;
-
-        pop_frame(profile, thread_data);
+      pop_frame(profile, thread_data);
       break;
     }
   }

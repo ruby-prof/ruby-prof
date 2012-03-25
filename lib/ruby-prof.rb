@@ -17,6 +17,7 @@ require 'ruby-prof/profile'
 require 'ruby-prof/rack'
 
 require 'ruby-prof/printers/abstract_printer'
+require 'ruby-prof/printers/call_info_printer'
 require 'ruby-prof/printers/call_stack_printer'
 require 'ruby-prof/printers/call_tree_printer'
 require 'ruby-prof/printers/dot_printer'

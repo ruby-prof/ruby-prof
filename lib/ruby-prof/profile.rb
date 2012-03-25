@@ -40,15 +40,6 @@ module RubyProf
       eliminated
     end
 
-    def dump
-      threads.each do |thread_id, methods|
-        $stderr.puts "Call Info Dump for thread id #{thread_id}"
-        methods.each do |method_info|
-          $stderr.puts method_info.dump
-        end
-      end
-    end
-
     private
 
     # read regexps from file

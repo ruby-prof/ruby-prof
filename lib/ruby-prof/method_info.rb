@@ -120,16 +120,6 @@ module RubyProf
       "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
     end
 
-    def dump
-      res = ""
-      res << "MINFO: #{klass_name}##{method_name} total_time: #{total_time} (#{full_name})\n"
-      call_infos.each do |ci|
-        pinfo = ci.root? ? "TOPLEVEL" : (p=ci.parent.target; "#{p.klass_name}##{p.method_name} (#{ci.parent.object_id}) (#{p.full_name})")
-        res << "CINFO[#{ci.object_id}] called #{ci.called} times from #{pinfo}\n"
-      end
-      res
-    end
-
     # remove method from the call graph. should not be called directly.
     def eliminate!
       # $stderr.puts "eliminating #{self}"

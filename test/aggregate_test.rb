@@ -34,7 +34,7 @@ class AggregateTest < Test::Unit::TestCase
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 
-  def test_all_call_infos_are_minimal_as_there_is_no_recursion
+  def test_all_call_infos_are_not_recursive
     c1 = AggClass.new
     result = RubyProf.profile do
       c1.a
@@ -44,7 +44,7 @@ class AggregateTest < Test::Unit::TestCase
     methods = result.threads.first.methods.sort.reverse
     methods.each do |m|
       m.call_infos.each do |ci|
-        assert ci.minimal?, "#{ci.call_sequence} should be minimal in the call tree"
+        assert(!ci.recursive)
       end
     end
   end

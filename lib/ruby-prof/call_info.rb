@@ -48,10 +48,6 @@ module RubyProf
       "#{self.target.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
     end
 
-    def minimal?
-      @minimal
-    end
-
     # eliminate call info from the call tree.
     # adds self and wait time to parent and attaches called methods to parent.
     # merges call trees for methods called from both praent end self.

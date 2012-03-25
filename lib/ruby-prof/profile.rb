@@ -37,7 +37,6 @@ module RubyProf
       threads.each do |thread|
         matchers.each{ |matcher| eliminated.concat(eliminate_methods(thread.methods, matcher)) }
       end
-      compute_minimality # is this really necessary?
       eliminated
     end
 

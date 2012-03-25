@@ -52,17 +52,6 @@ module RubyProf
       @minimal
     end
 
-    def compute_minimality(parent_methods)
-      if parent_methods.include?(target)
-        @minimal = false
-      else
-        @minimal = true
-        parent_methods << target unless children.empty?
-      end
-      children.each {|ci| ci.compute_minimality(parent_methods)}
-      parent_methods.delete(target) if @minimal && !children.empty?
-    end
-
     # eliminate call info from the call tree.
     # adds self and wait time to parent and attaches called methods to parent.
     # merges call trees for methods called from both praent end self.

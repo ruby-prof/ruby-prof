@@ -3,6 +3,7 @@
 module RubyProf
   class AggregateCallInfo
     attr_reader :call_infos
+
     def initialize(call_infos)
       if call_infos.length == 0
         raise(ArgumentError, "Must specify at least one call info.")
@@ -49,14 +50,15 @@ module RubyProf
     end
 
     def to_s
-      "#{call_infos.first.full_name}"
+      "#{call_infos.first.target.full_name}"
     end
 
     private
 
     def aggregate(method_name)
       self.call_infos.inject(0) do |sum, call_info|
-        sum += call_info.send(method_name)
+        sum += call_info.send(method_name) unless call_info.recursive
+        sum
       end
     end
   end

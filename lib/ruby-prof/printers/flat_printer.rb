@@ -12,6 +12,11 @@ module RubyProf
   #   printer.print(STDOUT, {})
   #
   class FlatPrinter < AbstractPrinter
+    # Override for this printer to sort by self time by default
+    def sort_method
+      @options[:sort_method] || :self_time
+    end
+
     # Print a flat profile report to the provided output.
     #
     # output - Any IO object, including STDOUT or a file.
@@ -22,9 +27,6 @@ module RubyProf
     #
     def print(output = STDOUT, options = {})
       @output = output
-      # Now sort methods by largest self time by default,
-      # not total time like in other printouts
-      options[:sort_method] ||= :self_time
       setup_options(options)
       print_threads
     end
@@ -56,8 +58,8 @@ module RubyProf
 
       sum = 0
       methods.each do |method|
-        total_percent = (method.total_time / total_time) * 100
-        next if total_percent < min_percent
+        self_percent = (method.self_time / total_time) * 100
+        next if self_percent < min_percent
 
         sum += method.self_time
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0

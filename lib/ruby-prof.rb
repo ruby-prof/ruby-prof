@@ -8,30 +8,23 @@ rescue LoadError
   require "ruby_prof"
 end
 
+require 'ruby-prof/abstract_printer'
+require 'ruby-prof/aggregate_call_info'
+require 'ruby-prof/call_info'
+require 'ruby-prof/compatibility'
+require 'ruby-prof/call_stack_printer'
+require 'ruby-prof/call_tree_printer'
+require 'ruby-prof/dot_printer'
+require 'ruby-prof/flat_printer'
+require 'ruby-prof/flat_printer_with_line_numbers'
+require 'ruby-prof/graph_html_printer'
+require 'ruby-prof/graph_printer'
+require 'ruby-prof/method_info'
+require 'ruby-prof/multi_printer'
+require 'ruby-prof/profile'
+require 'ruby-prof/rack'
 
 module RubyProf
-  def self.camelcase(phrase)
-    ('_' + phrase).gsub(/_([a-z])/){|b| b[1..1].upcase}
-  end
-  
-  lib_dir = File.dirname(__FILE__) + '/ruby-prof/'
-  
-  for file in ['abstract_printer', 'aggregate_call_info', 'flat_printer', 'flat_printer_with_line_numbers', 
-    'graph_printer', 'graph_html_printer', 'call_tree_printer', 'call_stack_printer', 'multi_printer', 'dot_printer']
-    autoload camelcase(file), lib_dir + file
-  end
-
-  # A few need to be loaded manually their classes were already defined by the .so file so autoload won't work for them.
-  # plus we need them anyway
-  for name in ['profile', 'method_info', 'call_info']
-    require lib_dir + name
-  end
-  
-  # Compatability layer for suporting old api
-  require lib_dir + 'compatibility' 
-  
-  # we don't require unprof.rb, as well, purposefully
-  
   # Checks if the user specified the clock mode via
   # the RUBY_PROF_MEASURE_MODE environment variable
   def self.figure_measure_mode

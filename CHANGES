@@ -1,13 +1,25 @@
+0.11.0.rc2 (2012-03-25)
+======================
+* Add in CallInfoVisitor class to make it easy to iterate over a call graph
+* Lots of improvements to Rack handler - this can be used to profile requests
+  in Rails and other rack-based ruby web frameworks.
+* Reimplemented handling of recursive calls using CallInfoVisitor
+* Fix bug where child times were not correctly reported in complicated
+  call graphs with recursion (ie, rails).
+* Add in recursive call information to Flat, Graph and Graph HTML reports
+* Significant updates to documentation
+* More c code cleanup
+
 0.11.0.rc1 (2012-03-24)
 ======================
+* Big internal refactoring of C code to make RubyProf easier to understand and extend (Charlie Savage).
+* Profile results are now returned as instances of a new class RubyProf::Profile.  The old api
+  is supported via a compatability layer that at some point will be deprecated.  (Charlie Savage).
 * On Windows, use QueryPerformanceCounter and QueryPerformanceFrequency to measure CPU time instead
   of rdtsc.  This change is based on Microsoft's recommendation (Charlie Savage).
 * On Windows use GetProcessTimes to return real PROCESS_TIME times instead of wall times (Charlie Savage).
-* Big internal refactoring of C code to make RubyProf easier to understand and extend (Charlie Savage).
-* Profile results are now returned as instances of a new class RubyProf::Profile.  The old api 
-  is supported via a compatability layer that at some point will be deprecated.  (Charlie Savage).
-* Split out tests for cpu_time, process_time and wall_time into separate files (Charlie Savage).
-* Dropped support for Ruby 1.8.4 and 1.8.6 - does anybody still use these? (Charlie Savage).
+* Split out tests for each time of measurement (cpu_time, process_time, etc.) (Charlie Savage).
+* Dropped support for Ruby 1.8.4 and 1.8.6 and 1.9.0 (Charlie Savage).
 * Added support for sorting results by total, self, wait and child times (Jan Suchal)
 * Added tests for sorting behaviour & removed options from constructor to print method (Jan Suchal)
 * Fix line number tests due to changes at top of file (Charlie Savage).

@@ -6,25 +6,31 @@ module Rack
     def initialize(app, options = {})
       @app = app
       @options = options
-      @options[:min_percent] ||= 0.01
+    #  @options[:min_percent] ||= 0.01
       @tmpdir = options[:path] || Dir.tmpdir
+      @printer_klasses = {::RubyProf::FlatPrinter => 'flat.txt',
+                          ::RubyProf::GraphPrinter => 'graph.txt',
+                          ::RubyProf::GraphHtmlPrinter => 'graph.html'}
     end
 
     def call(env)
-      ::RubyProf::Profile.start
-      result = @app.call(env)
-      data = ::RubyProf.stop
+      result = nil
+      data = ::RubyProf::Profile.profile do
+        result = @app.call(env)
+      end
 
-      print(data)
+      request = Rack::Request.new(env)
+      path = request.path.gsub('/', '-')
+      path.slice!(0)
+
+      print(data, path)
       result
     end
 
-    def print(data)
-      printers = {::RubyProf::FlatPrinter => ::File.join(@tmpdir, 'profile.txt'),
-                  ::RubyProf::GraphHtmlPrinter => ::File.join(@tmpdir, 'profile.html')}
-
-      printers.each do |printer_klass, file_name|
+    def print(data, path)
+      @printer_klasses.each do |printer_klass, base_name|
         printer = printer_klass.new(data)
+        file_name = ::File.join(@tmpdir, "#{path}-#{base_name}")
         ::File.open(file_name, 'wb') do |file|
           printer.print(file, @options)
         end

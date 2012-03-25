@@ -3,22 +3,28 @@
 require 'set'
 module RubyProf
   class Profile
+    # This method gets called once profiling has been completed
+    # but before results are returned to the user.  Thus it provides
+    # a hook to do any necessary post-processing on the call graph.
     def post_process
-
+      self.threads.each do |thread|
+        detect_recursion(thread)
+      end
     end
-    
-    # this method gets called internally when profiling is stopped.
-    # it determines for each call_info whether it is minimal: a
-    # call_info is minimal in a call tree if the call_info is not a
-    # descendant of a call_info of the same method
-    def compute_minimality
-      return
-      threads.each do |threadid, method_infos|
-        root_methods = method_infos.select{|mi| mi.root?}
-        root_methods.each do |mi|
-          mi.call_infos.select{|ci| ci.root?}.each do |call_info_root|
-            call_info_root.compute_minimality(Set.new)
-          end
+
+    # This method detect recursive calls in the call graph.
+    def detect_recursion(thread)
+      visited_methods = Set.new
+
+      visitor = CallInfoVisitor.new(thread)
+      visitor.visit do |call_info, event|
+        if event == :enter and visited_methods.include?(call_info.target)
+          call_info.recursive = true
+        elsif event == :enter
+          call_info.recursive = false
+          visited_methods << call_info.target
+        elsif event == :exit
+          visited_methods.delete(call_info.target)
         end
       end
     end

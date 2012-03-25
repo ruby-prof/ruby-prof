@@ -2,6 +2,8 @@
 
 module RubyProf
   class CallInfo
+    attr_accessor :recursive
+
     def depth
       result = 0
       call_info = self.parent
@@ -51,7 +53,6 @@ module RubyProf
     end
 
     def compute_minimality(parent_methods)
-      return
       if parent_methods.include?(target)
         @minimal = false
       else
@@ -110,6 +111,5 @@ module RubyProf
       other.children.clear
       other.target.call_infos.delete(other)
     end
-
   end
 end

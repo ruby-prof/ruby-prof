@@ -17,43 +17,26 @@ module RubyProf
       @options[:sort_method] || :self_time
     end
 
-    # Print a flat profile report to the provided output.
-    #
-    # output - Any IO object, including STDOUT or a file.
-    # The default value is STDOUT.
-    #
-    # options - Hash of print options.  See #setup_options
-    # for more information.
-    #
-    def print(output = STDOUT, options = {})
-      @output = output
-      setup_options(options)
-      print_threads
-    end
-
     private
 
-    def print_threads
-      @result.threads.each do |thread|
-        print_thread(thread)
-        @output << "\n" * 2
-      end
-    end
+    #def print_threads
+    #  @result.threads.each do |thread|
+    #    print_thread(thread)
+    #    @output << "\n" * 2
+    #  end
+    #end
 
-    def print_thread(thread)
-      # Get total time
-      total_time = thread.top_method.total_time
-      if total_time == 0
-        total_time = 0.01
-      end
-
-      methods = thread.methods.sort_by(&sort_method).reverse
-
+    def print_header(thread)
       @output << "Thread ID: %d\n" % thread.id
-      @output << "Total: %0.6f\n" % total_time
+      @output << "Total: %0.6f\n" % thread.top_method.total_time
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"
-      @output << " %self     total     self     wait    child    calls  name\n"
+      @output << " %self     total     self     wait    child    calls   name\n"
+    end
+
+    def print_methods(thread)
+      total_time = thread.top_method.total_time
+      methods = thread.methods.sort_by(&sort_method).reverse
 
       sum = 0
       methods.each do |method|
@@ -64,16 +47,22 @@ module RubyProf
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0
         #total_time_called = method.called > 0? method.total_time/method.called : 0
 
-        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s\n" % [
+        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s%s \n" % [
                       method.self_time / total_time * 100, # %self
                       method.total_time,                   # total
                       method.self_time,                    # self
                       method.wait_time,                    # wait
                       method.children_time,                # children
                       method.called,                       # calls
+                      method.recursive? ? "*" : " ",       # cycle
                       method_name(method)                  # name
                   ]
       end
+    end
+
+    def print_footer(thread)
+      @output << "\n"
+      @output << "* in front of method name means it is recursively called\n"
     end
   end
 end

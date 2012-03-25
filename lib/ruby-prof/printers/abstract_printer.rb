@@ -47,5 +47,30 @@ module RubyProf
       end
       name
     end
+
+    # Print a profiling report to the provided output.
+    #
+    # output - Any IO object, including STDOUT or a file.
+    # The default value is STDOUT.
+    #
+    # options - Hash of print options.  See #setup_options
+    # for more information.
+    def print(output = STDOUT, options = {})
+      @output = output
+      setup_options(options)
+      print_threads
+    end
+
+    def print_threads
+      @result.threads.each do |thread|
+        print_thread(thread)
+      end
+    end
+
+    def print_thread(thread)
+      print_header(thread)
+      print_methods(thread)
+      print_footer(thread)
+    end
   end
 end

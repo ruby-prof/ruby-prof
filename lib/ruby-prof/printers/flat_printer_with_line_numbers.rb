@@ -12,20 +12,10 @@ module RubyProf
   #   printer.print(STDOUT, {})
   #
   class FlatPrinterWithLineNumbers < FlatPrinter
-
-    def print_thread(thread)
-      # Get total time
+    def print_methods(thread)
       total_time = thread.top_method.total_time
-      if total_time == 0
-        total_time = 0.01
-      end
 
       methods = thread.methods.sort_by(&sort_method).reverse
-
-      @output << "Thread ID: %d\n" % thread.id
-      @output << "Total: %0.6f\n" % total_time
-      @output << "\n"
-      @output << " %self     total     self     wait    child    calls  name\n"
       sum = 0
       methods.each do |method|
         self_percent = (method.self_time / total_time) * 100
@@ -35,15 +25,16 @@ module RubyProf
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0
         #total_time_called = method.called > 0? method.total_time/method.called : 0
 
-        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s " % [
-                      method.self_time / total_time * 100, # %self
-                      method.total_time,                   # total
-                      method.self_time,                    # self
-                      method.wait_time,                    # wait
-                      method.children_time,                # children
-                      method.called,                       # calls
-                      method_name(method),                 # name
-                  ]
+        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s%s \n" % [
+            method.self_time / total_time * 100, # %self
+            method.total_time,                   # total
+            method.self_time,                    # self
+            method.wait_time,                    # wait
+            method.children_time,                # children
+            method.called,                       # calls
+            method.recursive? ? "*" : " ",       # cycle
+            method_name(method)                  # name
+        ]
          if method.source_file != 'ruby_runtime'
            @output << "  %s:%s" % [File.expand_path(method.source_file), method.line]
          end
@@ -64,4 +55,3 @@ module RubyProf
     end
   end
 end
-

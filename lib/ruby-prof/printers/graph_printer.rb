@@ -18,40 +18,30 @@ module RubyProf
     TIME_WIDTH = 10
     CALL_WIDTH = 17
 
-    # Print a graph report to the provided output.
-    #
-    # output - Any IO oject, including STDOUT or a file.
-    # The default value is STDOUT.
-    #
-    # options - Hash of print options.  See #setup_options
-    # for more information.
-    #
-    def print(output = STDOUT, options = {})
-      @output = output
-      setup_options(options)
-      print_threads
-    end
-
     private
 
-    def print_threads
-      @result.threads.each do |thread|
-        print_thread(thread)
-        @output << "\n" * 2
-      end
+    def print_header(thread)
+      @output << "Thread ID: #{thread.id}\n"
+      @output << "Total Time: #{thread.top_method.total_time}\n"
+      @output << "Sort by: #{sort_method}\n"
+      @output << "\n"
+
+      # 1 is for % sign
+      @output << sprintf("%#{PERCENTAGE_WIDTH}s", "%total")
+      @output << sprintf("%#{PERCENTAGE_WIDTH}s", "%self")
+      @output << sprintf("%#{TIME_WIDTH}s", "total")
+      @output << sprintf("%#{TIME_WIDTH}s", "self")
+      @output << sprintf("%#{TIME_WIDTH}s", "wait")
+      @output << sprintf("%#{TIME_WIDTH}s", "child")
+      @output << sprintf("%#{CALL_WIDTH}s", "calls")
+      @output << "    Name"
+      @output << "\n"
     end
 
-    def print_thread(thread)
+    def print_methods(thread)
+      total_time = thread.top_method.total_time
       # Sort methods from longest to shortest total time
       methods = thread.methods.sort_by(&sort_method)
-
-      toplevel = methods.last
-      total_time = toplevel.total_time
-      if total_time == 0
-        total_time = 0.01
-      end
-
-      print_heading(thread)
 
       # Print each method in total time order
       methods.reverse_each do |method|
@@ -72,7 +62,8 @@ module RubyProf
         @output << sprintf("%#{TIME_WIDTH}.2f", method.wait_time)
         @output << sprintf("%#{TIME_WIDTH}.2f", method.children_time)
         @output << sprintf("%#{CALL_WIDTH}i", method.called)
-        @output << sprintf("     %s", method_name(method))
+        @output << sprintf("     %s",  method.recursive? ? "*" : " ", )
+        @output << sprintf("%s", method_name(method))
         if print_file
           @output << sprintf("  %s:%s", method.source_file, method.line)
         end
@@ -80,24 +71,6 @@ module RubyProf
 
         print_children(method)
       end
-    end
-
-    def print_heading(thread)
-      @output << "Thread ID: #{thread.id}\n"
-      @output << "Total Time: #{thread.top_method.total_time}\n"
-      @output << "Sort by: #{sort_method}\n"
-      @output << "\n"
-
-      # 1 is for % sign
-      @output << sprintf("%#{PERCENTAGE_WIDTH}s", "%total")
-      @output << sprintf("%#{PERCENTAGE_WIDTH}s", "%self")
-      @output << sprintf("%#{TIME_WIDTH}s", "total")
-      @output << sprintf("%#{TIME_WIDTH}s", "self")
-      @output << sprintf("%#{TIME_WIDTH}s", "wait")
-      @output << sprintf("%#{TIME_WIDTH}s", "child")
-      @output << sprintf("%#{CALL_WIDTH}s", "calls")
-      @output << "   Name"
-      @output << "\n"
     end
 
     def print_parents(thread, method)
@@ -111,7 +84,7 @@ module RubyProf
 
         call_called = "#{caller.called}/#{method.called}"
         @output << sprintf("%#{CALL_WIDTH}s", call_called)
-        @output << sprintf("     %s", caller.parent.target.full_name)
+        @output << sprintf("      %s", caller.parent.target.full_name)
         @output << "\n"
       end
     end
@@ -129,10 +102,14 @@ module RubyProf
 
         call_called = "#{child.called}/#{child.target.called}"
         @output << sprintf("%#{CALL_WIDTH}s", call_called)
-        @output << sprintf("     %s", child.target.full_name)
+        @output << sprintf("      %s", child.target.full_name)
         @output << "\n"
       end
     end
+
+    def print_footer(thread)
+      @output << "\n"
+      @output << "* in front of method name means it is recursively called\n"
+    end
   end
 end
-

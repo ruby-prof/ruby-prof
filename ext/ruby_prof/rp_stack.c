@@ -48,7 +48,7 @@ stack_push(prof_stack_t *stack)
   result->child_time = 0;
   result->switch_time = 0;
   result->wait_time = 0;
-  result->depth = (stack->ptr - stack->start)/sizeof(prof_frame_t);
+  result->depth = (stack->ptr - stack->start);
 
   // Increment the stack ptr for next time
   stack->ptr++;

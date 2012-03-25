@@ -632,8 +632,8 @@ prof_stop(VALUE self)
     /* Save the result */
     st_foreach(profile->threads_tbl, collect_threads, profile->threads);
 
-    /* compute minimality of call_infos */
-   // rb_funcall(self, rb_intern("compute_minimality") , 0);
+    /* Post process result */
+    rb_funcall(self, rb_intern("post_process") , 0);
 
     return self;
 }

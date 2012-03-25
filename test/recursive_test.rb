@@ -171,88 +171,87 @@ class RecursiveTest < Test::Unit::TestCase
     call_info = method.call_infos[0]
     assert_equal('RecursiveTest#test_cycle', call_info.call_sequence)
     assert_equal(1, call_info.children.length)
+    assert(!call_info.recursive)
 
     method = methods[1]
     assert_equal('Object#render', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(2, method.total_time, 0.05)
+    assert_in_delta(5, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.01)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(2, method.children_time, 0.05)
+    assert_in_delta(5, method.children_time, 0.05)
 
-    assert_equal(2, method.call_infos.length)
+    assert_equal(1, method.call_infos.length)
     call_info = method.call_infos[0]
-    assert_equal('RecursiveTest#test_cycle->Object#cycle', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_cycle->Object#render', call_info.call_sequence)
     assert_equal(1, call_info.children.length)
+    assert(!call_info.recursive)
 
     method = methods[2]
-    assert_equal('Object#sub_cycle', method.full_name)
+    assert_equal('Integer#times', method.full_name)
     assert_equal(2, method.called)
-    assert_in_delta(2, method.total_time, 0.05)
+    assert_in_delta(5, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(2, method.children_time, 0.05)
+    assert_in_delta(5, method.children_time, 0.05)
 
     assert_equal(2, method.call_infos.length)
     call_info = method.call_infos[0]
-    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle', call_info.call_sequence)
-    if RUBY_VERSION < '1.9'
-      assert_equal(4, call_info.children.length)
-    else
-      assert_equal(2, call_info.children.length)
-    end
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times', call_info.call_sequence)
+    assert_equal(1, call_info.children.length)
+    assert(!call_info.recursive)
+
+    call_info = method.call_infos[1]
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Integer#times', call_info.call_sequence)
+    assert_equal(1, call_info.children.length)
+    assert(call_info.recursive)
 
     method = methods[3]
+    assert_equal('Object#render_partial', method.full_name)
+    assert_equal(5, method.called)
+    assert_in_delta(5, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.01)
+    assert_in_delta(5, method.children_time, 0.01)
+
+    assert_equal(3, method.call_infos.length)
+    call_info = method.call_infos[0]
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial', call_info.call_sequence)
+    assert_equal(3, call_info.children.length)
+    assert(!call_info.recursive)
+
+    call_info = method.call_infos[1]
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Object#render_partial', call_info.call_sequence)
+    assert_equal(1, call_info.children.length)
+    assert(call_info.recursive)
+
+    call_info = method.call_infos[2]
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Integer#times->Object#render_partial', call_info.call_sequence)
+    assert_equal(1, call_info.children.length)
+    assert(call_info.recursive)
+
+    method = methods[4]
     assert_equal('Kernel#sleep', method.full_name)
-    assert_equal(2, method.called)
-    assert_in_delta(2, method.total_time, 0.05)
-    assert_in_delta(2, method.self_time, 0.05)
+    assert_equal(5, method.called)
+    assert_in_delta(5, method.total_time, 0.05)
+    assert_in_delta(5, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.children_time, 0.01)
 
-    assert_equal(2, method.call_infos.length)
+    assert_equal(3, method.call_infos.length)
     call_info = method.call_infos[0]
-    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Kernel#sleep', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
+    assert(!call_info.recursive)
 
     call_info = method.call_infos[1]
-    assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle->Object#sub_cycle->Kernel#sleep', call_info.call_sequence)
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Object#render_partial->Kernel#sleep', call_info.call_sequence)
     assert_equal(0, call_info.children.length)
+    assert(!call_info.recursive)
 
-    if RUBY_VERSION < '1.9'
-      method = methods[4]
-      assert_equal('Fixnum#-', method.full_name)
-      assert_equal(2, method.called)
-      assert_in_delta(0, method.total_time, 0.01)
-      assert_in_delta(0, method.self_time, 0.01)
-      assert_in_delta(0, method.wait_time, 0.01)
-      assert_in_delta(0, method.children_time, 0.01)
-
-      assert_equal(2, method.call_infos.length)
-      call_info = method.call_infos[0]
-      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Fixnum#-', call_info.call_sequence)
-      assert_equal(0, call_info.children.length)
-
-      call_info = method.call_infos[1]
-      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle->Object#sub_cycle->Fixnum#-', call_info.call_sequence)
-      assert_equal(0, call_info.children.length)
-
-      method = methods[5]
-      assert_equal('Fixnum#==', method.full_name)
-      assert_equal(2, method.called)
-      assert_in_delta(0, method.total_time, 0.01)
-      assert_in_delta(0, method.self_time, 0.01)
-      assert_in_delta(0, method.wait_time, 0.01)
-      assert_in_delta(0, method.children_time, 0.01)
-
-      assert_equal(2, method.call_infos.length)
-      call_info = method.call_infos[0]
-      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Fixnum#==', call_info.call_sequence)
-      assert_equal(0, call_info.children.length)
-
-      call_info = method.call_infos[1]
-      assert_equal('RecursiveTest#test_cycle->Object#cycle->Object#sub_cycle->Object#cycle->Object#sub_cycle->Fixnum#==', call_info.call_sequence)
-      assert_equal(0, call_info.children.length)
-    end
+    call_info = method.call_infos[2]
+    assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Integer#times->Object#render_partial->Kernel#sleep', call_info.call_sequence)
+    assert_equal(0, call_info.children.length)
+    assert(!call_info.recursive)
   end
 end

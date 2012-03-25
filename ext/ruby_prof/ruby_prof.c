@@ -334,8 +334,6 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         frame = stack_push(thread_data->stack);
         frame->call_info = call_info;
         frame->start_time = measurement;
-        frame->wait_time = 0;
-        frame->child_time = 0;
         frame->line = rb_sourceline();
         break;
     }

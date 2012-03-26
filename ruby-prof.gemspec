@@ -7,7 +7,7 @@ match = version_header.match(/RUBY_PROF_VERSION\s*"([^"]+)"/)
 raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
 
 # For now make this an rc1
-RUBY_PROF_VERSION = "#{match[1]}.rc2"
+RUBY_PROF_VERSION = "#{match[1]}.rc3"
 
 Gem::Specification.new do |spec|
   spec.name = "ruby-prof"
@@ -45,6 +45,8 @@ EOF
                    'ext/ruby_prof/*.h',
                    'ext/ruby_prof/vc/*.sln',
                    'ext/ruby_prof/vc/*.vcxproj',
+                   'lib/ruby-prof.rb',
+                   'lib/unprof.rb',
                    'lib/ruby-prof/*.rb',
                    'lib/ruby-prof/images/*.png',
                    'lib/ruby-prof/printers/*.rb',

@@ -69,7 +69,7 @@ prof_thread_mark(thread_data_t *thread)
 		rb_gc_mark(thread->methods);
 	
 	prof_method_mark(thread->top);
-	st_foreach(thread->method_table, mark_methods, NULL);
+	st_foreach(thread->method_table, mark_methods, 0);
 }
 
 VALUE

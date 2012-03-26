@@ -415,15 +415,23 @@ prof_mark(prof_profile_t *profile)
     rb_gc_mark(profile->threads);
 }
 
+/* Freeing the profile creates a cascade of freeing.
+   It fress the thread table, which frees its methods,
+   which frees its call infos. */
 static void
 prof_free(prof_profile_t *profile)
 {
-    threads_table_free(profile->threads_tbl);
+	profile->last_thread_data = NULL;
+
+	threads_table_free(profile->threads_tbl);
     profile->threads_tbl = NULL;
 
 	profile->threads = Qnil;
     st_free_table(profile->exclude_threads_tbl);
     profile->exclude_threads_tbl = NULL;
+
+	xfree(profile->measurer);
+	profile->measurer = NULL;
 
     xfree(profile);
 }

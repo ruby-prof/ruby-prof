@@ -119,69 +119,7 @@ full_name(VALUE klass, ID mid)
 }
 
 
-/* ================  Method Table   =================*/
-int
-method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2)
-{
-    return (key1->klass != key2->klass) || (key1->mid != key2->mid);
-}
-
-st_index_t
-method_table_hash(prof_method_key_t *key)
-{
-    return key->key;
-}
-
-struct st_hash_type type_method_hash = {
-    method_table_cmp,
-    method_table_hash
-};
-
-st_table *
-method_table_create()
-{
-  return st_init_table(&type_method_hash);
-}
-
-size_t
-method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val)
-{
-  return st_insert(table, (st_data_t) key, (st_data_t) val);
-}
-
-prof_method_t *
-method_table_lookup(st_table *table, const prof_method_key_t* key)
-{
-    st_data_t val;
-    if (st_lookup(table, (st_data_t)key, &val))
-    {
-      return (prof_method_t *) val;
-    }
-    else
-    {
-      return NULL;
-    }
-}
-
-void
-method_table_free(st_table *table)
-{
-    /* Don't free the contents since they are wrapped by
-       Ruby objects! */
-    st_free_table(table);
-}
-
-
-/* ================  Method Info   =================*/
-/* Document-class: RubyProf::MethodInfo
-The RubyProf::MethodInfo class stores profiling data for a method.
-One instance of the RubyProf::MethodInfo class is created per method
-called per thread.  Thus, if a method is called in two different
-thread then there will be two RubyProf::MethodInfo objects
-created.  RubyProf::MethodInfo objects can be accessed via
-the RubyProf::Result object.
-*/
-
+/* ================  prof_method_t   =================*/
 prof_method_t*
 prof_method_create(prof_method_key_t *key, const char* source_file, int line)
 {
@@ -210,23 +148,28 @@ prof_method_create(prof_method_key_t *key, const char* source_file, int line)
 }
 
 void
-prof_method_mark(prof_method_t *method)
+prof_method_free(prof_method_t* method)
 {
-  rb_gc_mark(method->call_infos->object);
-  rb_gc_mark(method->key->klass);
+	prof_call_infos_free(method->call_infos);
+
+	/* Has this thread object been accessed by Ruby?  If
+	   yes clean it up so to avoid a segmentation fault. */
+	if (method->object != Qnil)
+	{
+		RDATA(method->object)->data = NULL;
+		RDATA(method->object)->dfree = NULL;
+		RDATA(method->object)->dmark = NULL;
+    }
+	method->object = Qnil;
+
+	xfree(method);
 }
 
-static void
-prof_method_free(prof_method_t *method)
+void
+prof_method_mark(prof_method_t *method)
 {
-  if (method->source_file)
-  {
-    xfree((char*)method->source_file);
-  }
-
-  prof_call_infos_free(method->call_infos);
-  xfree(method->key);
-  xfree(method);
+  rb_gc_mark(method->object);
+  rb_gc_mark(method->key->klass);
 }
 
 VALUE
@@ -234,16 +177,93 @@ prof_method_wrap(prof_method_t *result)
 {
   if (result->object == Qnil)
   {
-    result->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_free, result);
+    result->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, NULL, result);
   }
   return result->object;
 }
 
 static prof_method_t *
-get_prof_method(VALUE obj)
+get_prof_method(VALUE self)
 {
-    return (prof_method_t *) DATA_PTR(obj);
+    /* Can't use Data_Get_Struct because that triggers the event hook
+       ending up in endless recursion. */
+	prof_method_t* result = DATA_PTR(self);
+
+	if (!result)
+	    rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
+
+   return result;
 }
+
+/* ================  Method Table   =================*/
+int
+method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2)
+{
+    return (key1->klass != key2->klass) || (key1->mid != key2->mid);
+}
+
+st_index_t
+method_table_hash(prof_method_key_t *key)
+{
+    return key->key;
+}
+
+struct st_hash_type type_method_hash = {
+    method_table_cmp,
+    method_table_hash
+};
+
+st_table *
+method_table_create()
+{
+  return st_init_table(&type_method_hash);
+}
+
+int
+method_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
+{
+    thread_data_free((thread_data_t*)value);
+    return ST_CONTINUE;
+}
+
+void
+method_table_free(st_table *table)
+{
+    st_foreach(table, method_table_free_iterator, 0);
+    st_free_table(table);
+}
+
+
+size_t
+method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val)
+{
+  return st_insert(table, (st_data_t) key, (st_data_t) val);
+}
+
+prof_method_t *
+method_table_lookup(st_table *table, const prof_method_key_t* key)
+{
+    st_data_t val;
+    if (st_lookup(table, (st_data_t)key, &val))
+    {
+      return (prof_method_t *) val;
+    }
+    else
+    {
+      return NULL;
+    }
+}
+
+
+/* ================  Method Info   =================*/
+/* Document-class: RubyProf::MethodInfo
+The RubyProf::MethodInfo class stores profiling data for a method.
+One instance of the RubyProf::MethodInfo class is created per method
+called per thread.  Thus, if a method is called in two different
+thread then there will be two RubyProf::MethodInfo objects
+created.  RubyProf::MethodInfo objects can be accessed via
+the RubyProf::Result object.
+*/
 
 /* call-seq:
    line_no -> int

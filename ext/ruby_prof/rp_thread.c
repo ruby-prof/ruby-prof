@@ -20,11 +20,63 @@ thread_data_create()
 void
 thread_data_free(thread_data_t* thread_data)
 {
+    thread_data->top = NULL;
     method_table_free(thread_data->method_table);
     stack_free(thread_data->stack);
-    xfree(thread_data);
+
+	/* Has this thread object been accessed by Ruby?  If
+	   yes clean it up so to avoid a segmentation fault. */
+	if (thread_data->object != Qnil)
+	{
+		RDATA(thread_data->object)->data = NULL;
+		RDATA(thread_data->object)->dfree = NULL;
+		RDATA(thread_data->object)->dmark = NULL;
+    }
+	thread_data->object = Qnil;
+    thread_data->thread_id = Qnil;
+
+	xfree(thread_data);
 }
 
+static int
+mark_methods(st_data_t key, st_data_t value, st_data_t result)
+{
+    prof_method_t *method = (prof_method_t *) value;
+    prof_method_mark(method);
+    return ST_CONTINUE;
+}
+
+VALUE
+prof_thread_mark(thread_data_t *thread)
+{
+	if (thread->object != Qnil)
+		rb_gc_mark(thread->object);
+	
+	prof_method_mark(thread->top);
+	st_foreach(thread->method_table, mark_methods, NULL);
+}
+
+VALUE
+prof_thread_wrap(thread_data_t *thread)
+{
+  if (thread->object == Qnil)
+  {
+    thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, NULL, thread);
+  }
+  return thread->object;
+}
+
+static thread_data_t*
+prof_get_thread(VALUE self)
+{
+    /* Can't use Data_Get_Struct because that triggers the event hook
+       ending up in endless recursion. */
+	thread_data_t* result = DATA_PTR(self);
+	if (!result)
+	    rb_raise(rb_eRuntimeError, "This RubyProf::Thread instance has already been freed, likely because its profile has been freed.");
+
+   return result;
+}
 
 /* ======   Thread Table  ====== */
 /* The thread table is hash keyed on ruby thread_id that stores instances
@@ -34,6 +86,20 @@ st_table *
 threads_table_create()
 {
     return st_init_numtable();
+}
+
+int
+thread_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
+{
+    thread_data_free((thread_data_t*)value);
+    return ST_CONTINUE;
+}
+
+void
+threads_table_free(st_table *table)
+{
+    st_foreach(table, thread_table_free_iterator, 0);
+    st_free_table(table);
 }
 
 size_t
@@ -63,20 +129,6 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id)
         threads_table_insert(profile, thread_id, result);
     }
     return result;
-}
-
-int
-free_thread_data(st_data_t key, st_data_t value, st_data_t dummy)
-{
-    thread_data_free((thread_data_t*)value);
-    return ST_CONTINUE;
-}
-
-void
-threads_table_free(st_table *table)
-{
-    st_foreach(table, free_thread_data, 0);
-    st_free_table(table);
 }
 
 thread_data_t *
@@ -124,25 +176,6 @@ collect_methods(st_data_t key, st_data_t value, st_data_t result)
     prof_call_infos_wrap(method->call_infos);
 
     return ST_CONTINUE;
-}
-
-
-static thread_data_t*
-prof_get_thread(VALUE self)
-{
-    /* Can't use Data_Get_Struct because that triggers the event hook
-       ending up in endless recursion. */
-    return (thread_data_t*)RDATA(self)->data;
-}
-
-VALUE
-prof_thread_wrap(thread_data_t *thread)
-{
-  if (thread->object == Qnil)
-  {
-    thread->object = Data_Wrap_Struct(cRpThread, NULL, NULL, thread);
-  }
-  return thread->object;
 }
 
 

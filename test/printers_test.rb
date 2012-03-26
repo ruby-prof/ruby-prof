@@ -28,6 +28,12 @@ class PrintersTest < Test::Unit::TestCase
     assert_nothing_raised do
       output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new('')
 
+      printer = RubyProf::CallInfoPrinter.new(@result)
+      printer.print(output)
+
+      printer = RubyProf::CallTreePrinter.new(@result)
+      printer.print(output)
+
       printer = RubyProf::FlatPrinter.new(@result)
       printer.print(output)
 
@@ -40,8 +46,11 @@ class PrintersTest < Test::Unit::TestCase
       printer = RubyProf::GraphPrinter.new(@result)
       printer.print(output)
 
-      printer = RubyProf::CallTreePrinter.new(@result)
-      printer.print(output)
+    end
+  end
+
+  def test_print_to_files
+    assert_nothing_raised do
       output_dir = 'examples2'
 
       if ENV['SAVE_NEW_PRINTER_EXAMPLES']

@@ -180,7 +180,7 @@ module RubyProf
     def copy_image_files
       if @output.is_a?(File)
         target_dir = File.dirname(@output.path)
-        image_dir = File.dirname(__FILE__)
+        image_dir = File.join(File.dirname(__FILE__), '..', 'images')
         %w(empty plus minus).each do |img|
           source_file = "#{image_dir}/#{img}.png"
           target_file = "#{target_dir}/#{img}.png"

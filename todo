@@ -1,3 +1,0 @@
-take out the 1.9.2 checks and see if it then passes all unit tests
-email mark moseley "but can't you just use xxx?"
-see if ruby-debug19 installs on 1.9.2

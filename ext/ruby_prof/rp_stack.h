@@ -11,7 +11,8 @@
 
 
 /* Temporary object that maintains profiling information
-   for active methods - there is one per method.*/
+   for active methods.  They are created and destroyed
+   as the program moves up and down its stack. */
 typedef struct 
 {
     /* Caching prof_method_t values significantly

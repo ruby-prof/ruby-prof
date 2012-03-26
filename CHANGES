@@ -1,3 +1,8 @@
+0.11.0.rc3 (2012-03-26)
+======================
+* Include missing files in gemspec (Charlie Savage).
+
+
 0.11.0.rc2 (2012-03-25)
 ======================
 * Lots of improvements to Rack handler - this can be used to profile requests

@@ -83,11 +83,8 @@ get_event_name(rb_event_flag_t event)
 }
 
 static prof_method_t*
-create_method(rb_event_flag_t event, VALUE klass, ID mid)
+create_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_file, int line)
 {
-	const char* source_file = rb_sourcefile();
-    int line = rb_sourceline();
-
     /* Line numbers are not accurate for c method calls */
     if (event == RUBY_EVENT_C_CALL)
     {
@@ -103,7 +100,7 @@ static prof_method_t*
 #ifdef RUBY_VM
  get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t* thread_data)
 # else
- get_method(rb_event_flag_t event, NODE *node, VALUE klass, ID mid, st_table* method_table)
+ get_method(rb_event_flag_t event, NODE *node, VALUE klass, ID mid, thread_data_t* thread_data)
 #endif
 {
     prof_method_key_t key;
@@ -114,7 +111,10 @@ static prof_method_t*
 
     if (!method)
     {
-	  method = create_method(event, klass, mid);
+ 	  const char* source_file = rb_sourcefile();
+      int line = rb_sourceline();
+
+	  method = create_method(event, klass, mid, source_file, line);
       method_table_insert(thread_data->method_table, method->key, method);
 
 	  /* Is this the first method added to the thread? */
@@ -190,8 +190,13 @@ prof_pop_threads(prof_profile_t* profile)
 }
 
 /* ===========  Profiling ================= */
+#ifdef RUBY_VM
 static void
 prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, double measurement)
+#else
+static void
+prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, VALUE klass, double measurement)
+#endif
 {
     static VALUE last_thread_id = Qnil;
 
@@ -252,7 +257,11 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 
     if (trace_file != NULL)
     {
+#ifdef RUBY_VM
         prof_trace(profile, event, mid, klass, measurement);
+#else
+        prof_trace(profile, event, node, mid, klass, measurement);
+#endif
     }
 
     /* Special case - skip any methods from the mProf
@@ -401,7 +410,7 @@ mark_threads(st_data_t key, st_data_t value, st_data_t result)
 static void
 prof_mark(prof_profile_t *profile)
 {
-	st_foreach(profile->threads_tbl, mark_threads, NULL);
+	st_foreach(profile->threads_tbl, mark_threads, 0);
 }
 
 /* Freeing the profile creates a cascade of freeing.

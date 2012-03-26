@@ -1,14 +1,17 @@
 0.11.0.rc2 (2012-03-25)
 ======================
-* Add in CallInfoVisitor class to make it easy to iterate over a call graph
 * Lots of improvements to Rack handler - this can be used to profile requests
-  in Rails and other rack-based ruby web frameworks.
-* Reimplemented handling of recursive calls using CallInfoVisitor
+  in Rails and other rack-based ruby web frameworks (Charlie Savage).
+* Reimplemented handling of recursive calls using CallInfoVisitor (Charlie Savage).
 * Fix bug where child times were not correctly reported in complicated
-  call graphs with recursion (ie, rails).
-* Add in recursive call information to Flat, Graph and Graph HTML reports
-* Significant updates to documentation
-* More c code cleanup
+  call graphs with recursion like in frameworks like Rails (Charlie Savage).
+* Add in recursive call information to Flat, Graph and Graph HTML reports (Charlie Savage).
+* Add in new thread class add added RubyProf::Thread#top_method to
+  make report generation easier (Charlie Savage).
+* Add in CallInfoVisitor class to make it easy to iterate over a call graph (Charlie Savage).
+* Add in CallInfoPrinter to make it visualize RubyProf's internal call graphs (Charlie Savage).
+* Significant updates to documentation (Charlie Savage).
+* More c code cleanup (Charlie Savage).
 
 0.11.0.rc1 (2012-03-24)
 ======================

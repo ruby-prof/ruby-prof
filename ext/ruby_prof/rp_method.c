@@ -118,17 +118,33 @@ full_name(VALUE klass, ID mid)
   return result;
 }
 
+void
+method_key(prof_method_key_t* key, VALUE klass, ID mid)
+{
+    /* Is this an include for a module?  If so get the actual
+        module class since we want to combine all profiling
+        results for that module. */
+    if (klass != 0)
+        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
+
+    key->klass = klass;
+    key->mid = mid;
+    key->key = (klass << 4) + (mid << 2);
+}
 
 /* ================  prof_method_t   =================*/
 prof_method_t*
-prof_method_create(prof_method_key_t *key, const char* source_file, int line)
+prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
 {
     prof_method_t *result = ALLOC(prof_method_t);
     result->object = Qnil;
-    result->key = ALLOC(prof_method_key_t);
-    method_key(result->key, key->klass, key->mid);
-
     result->call_infos = prof_call_infos_create();
+	result->call_infos2 = Qnil;
+
+    result->key = ALLOC(prof_method_key_t);
+    method_key(result->key, klass, mid);
+
+    //result->call_info_table = call_info_table_create();
 
     if (source_file != NULL)
     {
@@ -147,7 +163,7 @@ prof_method_create(prof_method_key_t *key, const char* source_file, int line)
     return result;
 }
 
-void
+static void
 prof_method_free(prof_method_t* method)
 {
 	prof_call_infos_free(method->call_infos);
@@ -162,14 +178,34 @@ prof_method_free(prof_method_t* method)
     }
 	method->object = Qnil;
 
+	xfree(method->key);
+	method->key = NULL;
+
 	xfree(method);
 }
+
+/*static int
+mark_call_infos(st_data_t key, st_data_t value, st_data_t result)
+{
+    prof_call_info_t *call_info = (prof_call_info_t *) value;
+    prof_call_info_mark(call_info);
+    return ST_CONTINUE;
+}
+*/
 
 void
 prof_method_mark(prof_method_t *method)
 {
-  rb_gc_mark(method->object);
-  rb_gc_mark(method->key->klass);
+	if (method->object)
+		rb_gc_mark(method->object);
+
+	if (method->call_infos2)
+		rb_gc_mark(method->call_infos2);
+
+	if (method->call_infos->object)
+		rb_gc_mark(method->call_infos->object);
+
+	//st_foreach(method->call_info_table, mark_call_infos, NULL);
 }
 
 VALUE
@@ -219,10 +255,10 @@ method_table_create()
   return st_init_table(&type_method_hash);
 }
 
-int
+static int
 method_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
-    thread_data_free((thread_data_t*)value);
+    prof_method_free((prof_method_t*)value);
     return ST_CONTINUE;
 }
 
@@ -252,6 +288,18 @@ method_table_lookup(st_table *table, const prof_method_key_t* key)
     {
       return NULL;
     }
+}
+
+static int
+collect_call_infos(st_data_t key, st_data_t value, st_data_t result)
+{
+    /* Called for each method stored in a thread's method table.
+       We want to store the method info information into an array.*/
+    VALUE call_infos = (VALUE) result;
+    prof_call_info_t *call_info = (prof_call_info_t *) value;
+    rb_ary_push(call_infos, prof_call_info_wrap(call_info));
+
+    return ST_CONTINUE;
 }
 
 
@@ -363,7 +411,11 @@ static VALUE
 prof_method_call_infos(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-    return prof_call_infos_wrap(method->call_infos);
+	if (method->call_infos2 == Qnil)
+	{
+		method->call_infos2 = prof_call_infos_wrap(method->call_infos);
+	}
+	return method->call_infos2;
 }
 
 void rp_init_method_info()

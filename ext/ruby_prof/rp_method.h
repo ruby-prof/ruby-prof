@@ -18,9 +18,9 @@ typedef struct
 {
     VALUE klass;                            /* The method's class. */
     ID mid;                                 /* The method id. */
-    int depth;                              /* The recursion depth. */
     st_index_t key;                         /* Cache calculated key */
 } prof_method_key_t;
+
 
 /* Forward declaration, see rp_call_info.h */
 struct prof_call_infos_t;
@@ -31,18 +31,21 @@ typedef struct
     prof_method_key_t *key;                 /* Method key */
     const char *source_file;                /* The method's source file */
     int line;                               /* The method's line number. */
-    struct prof_call_infos_t *call_infos;   /* Call info objects for this method */
+    struct prof_call_infos_t *call_infos;          /* Call info objects for this method */
     VALUE object;                           /* Cached ruby object */
+	VALUE call_infos2;                      /* Cached array of RubyProf::CallInfo */
 } prof_method_t;
 
 void rp_init_method_info(void);
+
+void method_key(prof_method_key_t* key, VALUE klass, ID mid);
 
 st_table * method_table_create();
 prof_method_t * method_table_lookup(st_table *table, const prof_method_key_t* key);
 size_t method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val);
 void method_table_free(st_table *table);
 
-prof_method_t* prof_method_create(prof_method_key_t *key, const char* source_file, int line);
+prof_method_t* prof_method_create(VALUE klass, ID mid, const char* source_file, int line);
 VALUE prof_method_wrap(prof_method_t *result);
 void prof_method_mark(prof_method_t *method);
 

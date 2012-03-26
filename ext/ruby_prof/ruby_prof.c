@@ -43,20 +43,6 @@ prof_get_profile(VALUE self)
     return (prof_profile_t*)RDATA(self)->data;
 }
 
-void
-method_key(prof_method_key_t* key, VALUE klass, ID mid)
-{
-    /* Is this an include for a module?  If so get the actual
-        module class since we want to combine all profiling
-        results for that module. */
-    if (klass != 0)
-        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
-
-    key->klass = klass;
-    key->mid = mid;
-    key->key = (klass << 4) + (mid << 2);
-}
-
 /* support tracing ruby events from ruby-prof. useful for getting at
    what actually happens inside the ruby interpreter (and ruby-prof).
    set environment variable RUBY_PROF_TRACE to filename you want to
@@ -99,12 +85,8 @@ get_event_name(rb_event_flag_t event)
 static prof_method_t*
 create_method(rb_event_flag_t event, VALUE klass, ID mid)
 {
-    prof_method_key_t key;
-    prof_method_t *method = NULL;
 	const char* source_file = rb_sourcefile();
     int line = rb_sourceline();
-
-	method_key(&key, klass, mid);
 
     /* Line numbers are not accurate for c method calls */
     if (event == RUBY_EVENT_C_CALL)
@@ -113,8 +95,7 @@ create_method(rb_event_flag_t event, VALUE klass, ID mid)
 		source_file = NULL;
     }
 
-    method = prof_method_create(&key, source_file, line);
-    return method;
+    return prof_method_create(klass, mid, source_file, line);
 }
 
 
@@ -409,10 +390,18 @@ collect_threads(st_data_t key, st_data_t value, st_data_t result)
 }
 
 /* ========  Profile Class ====== */
+static int
+mark_threads(st_data_t key, st_data_t value, st_data_t result)
+{
+    thread_data_t *thread = (thread_data_t *) value;
+    prof_thread_mark(thread);
+    return ST_CONTINUE;
+}
+
 static void
 prof_mark(prof_profile_t *profile)
 {
-    rb_gc_mark(profile->threads);
+	st_foreach(profile->threads_tbl, mark_threads, NULL);
 }
 
 /* Freeing the profile creates a cascade of freeing.
@@ -426,7 +415,6 @@ prof_free(prof_profile_t *profile)
 	threads_table_free(profile->threads_tbl);
     profile->threads_tbl = NULL;
 
-	profile->threads = Qnil;
     st_free_table(profile->exclude_threads_tbl);
     profile->exclude_threads_tbl = NULL;
 
@@ -489,7 +477,6 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     }
 
     profile->measurer = prof_get_measurer(measurer);
-    profile->threads = rb_ary_new();
 
     for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
     {
@@ -635,9 +622,6 @@ prof_stop(VALUE self)
     profile->running = Qfalse;
     profile->last_thread_data = NULL;
 
-    /* Save the result */
-    st_foreach(profile->threads_tbl, collect_threads, profile->threads);
-
     /* Post process result */
     rb_funcall(self, rb_intern("post_process") , 0);
 
@@ -672,8 +656,10 @@ while the the program was being run. */
 static VALUE
 prof_threads(VALUE self)
 {
+	VALUE result = rb_ary_new();
     prof_profile_t* profile = prof_get_profile(self);
-    return profile->threads;
+    st_foreach(profile->threads_tbl, collect_threads, result);
+    return result;
 }
 
 void Init_ruby_prof()

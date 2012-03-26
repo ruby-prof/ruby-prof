@@ -32,10 +32,10 @@ EOF
   spec.bindir = "bin"
   spec.executables = ["ruby-prof"]
   spec.extensions = ["ext/ruby_prof/extconf.rb"]
-  spec.files = Dir['Rakefile',
-                   'README.rdoc',
+  spec.files = Dir['CHANGES',
                    'LICENSE',
-                   'CHANGES',
+                   'Rakefile',
+                   'README.rdoc',
                    'ruby-prof.gemspec',
                    'bin/ruby-prof',
                    'doc/**/*',

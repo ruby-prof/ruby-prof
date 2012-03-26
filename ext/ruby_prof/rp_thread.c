@@ -14,10 +14,11 @@ thread_data_create()
     result->method_table = method_table_create();
 	result->top = NULL;
 	result->object = Qnil;
+	result->methods = Qnil;
     return result;
 }
 
-void
+static void
 thread_data_free(thread_data_t* thread_data)
 {
     thread_data->top = NULL;
@@ -51,6 +52,9 @@ prof_thread_mark(thread_data_t *thread)
 {
 	if (thread->object != Qnil)
 		rb_gc_mark(thread->object);
+	
+	if (thread->methods != Qnil)
+		rb_gc_mark(thread->methods);
 	
 	prof_method_mark(thread->top);
 	st_foreach(thread->method_table, mark_methods, NULL);
@@ -88,7 +92,7 @@ threads_table_create()
     return st_init_numtable();
 }
 
-int
+static int
 thread_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
     thread_data_free((thread_data_t*)value);
@@ -172,9 +176,6 @@ collect_methods(st_data_t key, st_data_t value, st_data_t result)
     prof_method_t *method = (prof_method_t *) value;
     rb_ary_push(methods, prof_method_wrap(method));
 
-    /* Wrap call info objects */
-    prof_call_infos_wrap(method->call_infos);
-
     return ST_CONTINUE;
 }
 
@@ -198,11 +199,13 @@ thread during program execution. */
 static VALUE
 prof_thread_methods(VALUE self)
 {
-	VALUE methods = rb_ary_new();
     thread_data_t* thread = prof_get_thread(self);
-    st_table* method_table = thread->method_table;
-    st_foreach(method_table, collect_methods, methods);
-	return methods;
+	if (thread->methods == Qnil)
+	{
+		thread->methods = rb_ary_new();
+	    st_foreach(thread->method_table, collect_methods, thread->methods);
+	}
+	return thread->methods;
 }
 
 /* call-seq:

@@ -67,23 +67,11 @@ prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
 static void
 prof_call_info_mark(prof_call_info_t *call_info)
 {
-  {
-    VALUE target = call_info->target->object;
-    if (NIL_P(target))
-      prof_method_mark(call_info->target);
-    else
-      rb_gc_mark(target);
-  }
-  rb_gc_mark(call_info->children);
-  if (call_info->parent) {
-    VALUE parent = call_info->parent->object;
-    if (NIL_P(parent)) {
-      prof_call_info_mark(call_info->parent);
-    }
-    else {
-      rb_gc_mark(parent);
-    }
-  }
+	if (call_info->object)
+		rb_gc_mark(call_info->children);
+
+	if (call_info->children)
+		rb_gc_mark(call_info->children);
 }
 
 static void

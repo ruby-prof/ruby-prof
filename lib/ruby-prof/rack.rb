@@ -6,11 +6,12 @@ module Rack
     def initialize(app, options = {})
       @app = app
       @options = options
-    #  @options[:min_percent] ||= 0.01
+      @options[:min_percent] ||= 1
       @tmpdir = options[:path] || Dir.tmpdir
       @printer_klasses = {::RubyProf::FlatPrinter => 'flat.txt',
                           ::RubyProf::GraphPrinter => 'graph.txt',
-                          ::RubyProf::GraphHtmlPrinter => 'graph.html'}
+                          ::RubyProf::GraphHtmlPrinter => 'graph.html',
+                          ::RubyProf::CallStackPrinter => 'call_stack.html'}
     end
 
     def call(env)

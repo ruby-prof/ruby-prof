@@ -36,18 +36,17 @@ EOF
                    'README.rdoc',
                    'LICENSE',
                    'CHANGES',
-                   'bin/*',
+                   'bin/ruby-prof',
                    'doc/**/*',
                    'examples/*',
                    'ext/ruby_prof/*.c',
                    'ext/ruby_prof/*.h',
-                   'ext/ruby_prof/mingw/Rakefile',
-                   'ext/ruby_prof/mingw/build.rake',
-                   'ext/vc/*.sln',
-                   'ext/vc/*.vcproj',
-                   'lib/**/*',
-                   'rails/**/*',
-                   'test/*']
+                   'ext/ruby_prof/vc/*.sln',
+                   'ext/ruby_prof/vc/*.vcxproj',
+                   'lib/ruby-prof/*.rb',
+                   'lib/ruby-prof/images/*.png',
+                   'lib/ruby-prof/printers/*.rb',
+                   'test/*.rb']
 
   spec.test_files = Dir["test/test_*.rb"]
   spec.required_ruby_version = '>= 1.8.7'

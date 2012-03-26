@@ -18,15 +18,17 @@ thread_data_create()
     return result;
 }
 
+/* The underlying c structures are freed when the parent profile is freed.  
+   However, on shutdown the Ruby GC frees objects in any will-nilly order.
+   That means the ruby thread object wrapping the c thread struct may
+   be freed before the parent profile.  Thus we add in a free function
+   for the garbage collector so that if it does get called will nil 
+   out our Ruby object reference.*/
 static void
-thread_data_free(thread_data_t* thread_data)
+thread_data_ruby_gc_free(thread_data_t* thread_data)
 {
-    thread_data->top = NULL;
-    method_table_free(thread_data->method_table);
-    stack_free(thread_data->stack);
-
 	/* Has this thread object been accessed by Ruby?  If
-	   yes clean it up so to avoid a segmentation fault. */
+	  yes clean it up so to avoid a segmentation fault. */
 	if (thread_data->object != Qnil)
 	{
 		RDATA(thread_data->object)->data = NULL;
@@ -34,6 +36,16 @@ thread_data_free(thread_data_t* thread_data)
 		RDATA(thread_data->object)->dmark = NULL;
     }
 	thread_data->object = Qnil;
+}
+
+static void
+thread_data_free(thread_data_t* thread_data)
+{
+	thread_data_ruby_gc_free(thread_data);
+    thread_data->top = NULL;
+    method_table_free(thread_data->method_table);
+    stack_free(thread_data->stack);
+
     thread_data->thread_id = Qnil;
 
 	xfree(thread_data);
@@ -65,7 +77,7 @@ prof_thread_wrap(thread_data_t *thread)
 {
   if (thread->object == Qnil)
   {
-    thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, NULL, thread);
+    thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, thread_data_ruby_gc_free, thread);
   }
   return thread->object;
 }

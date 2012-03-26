@@ -163,11 +163,15 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
     return result;
 }
 
+/* The underlying c structures are freed when the parent profile is freed.  
+   However, on shutdown the Ruby GC frees objects in any will-nilly order.
+   That means the ruby thread object wrapping the c thread struct may
+   be freed before the parent profile.  Thus we add in a free function
+   for the garbage collector so that if it does get called will nil 
+   out our Ruby object reference.*/
 static void
-prof_method_free(prof_method_t* method)
+prof_method_ruby_gc_free(prof_method_t* method)
 {
-	prof_call_infos_free(method->call_infos);
-
 	/* Has this thread object been accessed by Ruby?  If
 	   yes clean it up so to avoid a segmentation fault. */
 	if (method->object != Qnil)
@@ -177,6 +181,13 @@ prof_method_free(prof_method_t* method)
 		RDATA(method->object)->dmark = NULL;
     }
 	method->object = Qnil;
+}
+
+static void
+prof_method_free(prof_method_t* method)
+{
+	prof_method_ruby_gc_free(method);
+	prof_call_infos_free(method->call_infos);
 
 	xfree(method->key);
 	method->key = NULL;
@@ -213,7 +224,7 @@ prof_method_wrap(prof_method_t *result)
 {
   if (result->object == Qnil)
   {
-    result->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, NULL, result);
+    result->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_ruby_gc_free, result);
   }
   return result->object;
 }

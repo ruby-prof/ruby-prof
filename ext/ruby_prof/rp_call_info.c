@@ -100,7 +100,7 @@ call_info_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 void
 call_info_table_free(st_table *table)
 {
-  //  st_foreach(table, call_info_table_free_iterator, 0);
+  //st_foreach(table, call_info_table_free_iterator, 0);
     st_free_table(table);
 }
 

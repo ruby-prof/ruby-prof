@@ -20,7 +20,7 @@ st_table * threads_table_create();
 thread_data_t* switch_thread(void* prof, VALUE thread_id);
 void threads_table_free(st_table *table);
 VALUE prof_thread_wrap(thread_data_t *thread);
-VALUE prof_thread_mark(thread_data_t *thread);
+void prof_thread_mark(thread_data_t *thread);
 
 
 #endif //__RP_THREAD__

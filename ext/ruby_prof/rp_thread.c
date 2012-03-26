@@ -59,7 +59,7 @@ mark_methods(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
-VALUE
+void
 prof_thread_mark(thread_data_t *thread)
 {
 	if (thread->object != Qnil)

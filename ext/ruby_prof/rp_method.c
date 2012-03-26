@@ -301,19 +301,6 @@ method_table_lookup(st_table *table, const prof_method_key_t* key)
     }
 }
 
-static int
-collect_call_infos(st_data_t key, st_data_t value, st_data_t result)
-{
-    /* Called for each method stored in a thread's method table.
-       We want to store the method info information into an array.*/
-    VALUE call_infos = (VALUE) result;
-    prof_call_info_t *call_info = (prof_call_info_t *) value;
-    rb_ary_push(call_infos, prof_call_info_wrap(call_info));
-
-    return ST_CONTINUE;
-}
-
-
 /* ================  Method Info   =================*/
 /* Document-class: RubyProf::MethodInfo
 The RubyProf::MethodInfo class stores profiling data for a method.

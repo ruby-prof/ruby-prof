@@ -59,8 +59,7 @@ prof_call_info_mark(prof_call_info_t *call_info)
 		rb_gc_mark(call_info->children);
 }
 
-
-static VALUE
+VALUE
 prof_call_info_wrap(prof_call_info_t *call_info)
 {
   if (call_info->object == Qnil)
@@ -90,12 +89,12 @@ call_info_table_create()
   return st_init_table(&type_method_hash);
 }
 
-static int
+/*static int
 call_info_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
     prof_call_info_free((prof_call_info_t*)value);
     return ST_CONTINUE;
-}
+}*/
 
 void
 call_info_table_free(st_table *table)

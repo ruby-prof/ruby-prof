@@ -50,9 +50,10 @@ class RecursiveTest < Test::Unit::TestCase
       method.full_name.match(/Fixnum/)
     end
 
-    assert_equal(3, methods.length) # which don't show up in 1.9
+    assert_equal(3, methods.length)
 
     # Method 0: RecursiveTest#test_simple
+    methods.sort!.reverse!
     method = methods[0]
     assert_equal('RecursiveTest#test_simple', method.full_name)
     assert_equal(1, method.called)
@@ -79,16 +80,12 @@ class RecursiveTest < Test::Unit::TestCase
     assert_equal(2, method.call_infos.length)
 
     call_info = method.call_infos.first
-    if RUBY_VERSION < '1.9'
-      assert_equal(4, call_info.children.length)
-    else
-      assert_equal(2, call_info.children.length)
-    end
+    assert_equal(2 + (RUBY_VERSION < '1.9.0' ? 2 : 0), call_info.children.length)
     assert_equal('RecursiveTest#test_simple->Object#simple', call_info.call_sequence)
     assert(!call_info.recursive)
 
     call_info = method.call_infos.last
-    assert_equal(1, call_info.children.length)
+    assert_equal(1 + (RUBY_VERSION < '1.9.0' ? 2 : 0), call_info.children.length)
     assert_equal('RecursiveTest#test_simple->Object#simple->Object#simple', call_info.call_sequence)
     assert(call_info.recursive)
 
@@ -112,6 +109,7 @@ class RecursiveTest < Test::Unit::TestCase
     assert(!call_info.recursive)
 
     if RUBY_VERSION < '1.9'
+      methods = result.threads.first.methods.dup.sort!.reverse!
       method = methods[3]
       assert_equal('Fixnum#-', method.full_name)
       assert_equal(2, method.called)
@@ -207,7 +205,7 @@ class RecursiveTest < Test::Unit::TestCase
 
     call_info = method.call_infos[1]
     assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Integer#times', call_info.call_sequence)
-    assert_equal(1, call_info.children.length)
+    assert_equal(1 + (RUBY_VERSION < '1.9.0' ? 1 : 0), call_info.children.length)
     assert(call_info.recursive)
 
     method = methods[3]
@@ -221,17 +219,17 @@ class RecursiveTest < Test::Unit::TestCase
     assert_equal(3, method.call_infos.length)
     call_info = method.call_infos[0]
     assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial', call_info.call_sequence)
-    assert_equal(3, call_info.children.length)
+    assert_equal(3 + (RUBY_VERSION < '1.9.0' ? 1 : 0), call_info.children.length)
     assert(!call_info.recursive)
 
     call_info = method.call_infos[1]
     assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Object#render_partial', call_info.call_sequence)
-    assert_equal(1, call_info.children.length)
+    assert_equal(1 + (RUBY_VERSION < '1.9.0' ? 1 : 0), call_info.children.length)
     assert(call_info.recursive)
 
     call_info = method.call_infos[2]
     assert_equal('RecursiveTest#test_cycle->Object#render->Integer#times->Object#render_partial->Integer#times->Object#render_partial', call_info.call_sequence)
-    assert_equal(1, call_info.children.length)
+    assert_equal(1 + (RUBY_VERSION < '1.9.0' ? 1 : 0), call_info.children.length)
     assert(call_info.recursive)
 
     method = methods[4]

@@ -22,6 +22,7 @@ SO_NAME = 'ruby_prof'
 
 default_spec = Gem::Specification.load("#{GEM_NAME}.gemspec")
 
+# specify which versions/builds to cross compile
 Rake::ExtensionTask.new do |ext|
   ext.gem_spec = default_spec
   ext.name = SO_NAME

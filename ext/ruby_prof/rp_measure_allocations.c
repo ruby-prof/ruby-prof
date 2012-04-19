@@ -8,50 +8,29 @@
 static VALUE cMeasureAllocations;
 
 #if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)
-#define MEASURE_ALLOCATIONS_ENABLED Qtrue
+  unsigned LONG_LONG rb_os_allocated_objects();
+#endif
+
+#if defined(HAVE_RB_GC_MALLOC_ALLOCATIONS)
+  unsigned LONG_LONG rb_gc_malloc_allocations();
+#endif
 
 static double
 measure_allocations()
 {
+#if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)
+#define MEASURE_ALLOCATIONS_ENABLED Qtrue
     return rb_os_allocated_objects();
-}
-
-/* Document-method: prof_measure_allocations
-   call-seq:
-     measure_allocations -> int
-
-Returns the total number of object allocations since Ruby started.*/
-static VALUE
-prof_measure_allocations(VALUE self)
-{
-#if defined(HAVE_LONG_LONG)
-    return ULL2NUM(rb_os_allocated_objects());
-#else
-    return ULONG2NUM(rb_os_allocated_objects());
-#endif
-}
 
 #elif defined(HAVE_RB_GC_MALLOC_ALLOCATIONS)
-
 #define MEASURE_ALLOCATIONS_ENABLED Qtrue
-
-static double
-measure_allocations()
-{
     return rb_gc_malloc_allocations();
-}
 
 #else
-
 #define MEASURE_ALLOCATIONS_ENABLED Qfalse
-
-static double
-measure_allocations()
-{
     return 0;
-}
-
 #endif
+}
 
 
 prof_measurer_t* prof_measurer_allocations()

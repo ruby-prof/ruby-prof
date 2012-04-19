@@ -459,7 +459,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
 {
     prof_profile_t* profile = prof_get_profile(self);
     VALUE mode;
-    prof_measure_mode_t measurer;
+    prof_measure_mode_t measurer = MEASURE_WALL_TIME;
     VALUE exclude_threads;
     int i;
     

@@ -8,40 +8,27 @@
 static VALUE cMeasureGcTimes;
 
 #if defined(HAVE_RB_GC_TIME)
+  VALUE rb_gc_time();
+#endif
 
-#define MEASURE_GC_TIME_ENABLED Qtrue
 
 static double
 measure_gc_time()
 {
-    int conversion = 1000000
+#if defined(HAVE_RB_GC_TIME)
+#define MEASURE_GC_TIME_ENABLED Qtrue
+    const int conversion = 1000000;
 #if HAVE_LONG_LONG
     return NUM2LL(rb_gc_time() / conversion);
 #else
     return NUM2LONG(rb_gc_time() / conversion));
 #endif
-}
-
-/* call-seq:
-   gc_time -> Integer
-
-Returns the time spent doing garbage collections in microseconds.*/
-static VALUE
-prof_measure_gc_time(VALUE self)
-{
-    return rb_gc_time();
-}
 
 #else
-
 #define MEASURE_GC_TIME_ENABLED Qfalse
-
-static double
-measure_gc_time()
-{
     return 0;
-}
 #endif
+}
 
 prof_measurer_t* prof_measurer_gc_time()
 {
@@ -63,6 +50,7 @@ prof_measure_gc_time(VALUE self)
     return ULONG2NUM(measure_gc_time());
 #endif
 }
+
 void rp_init_measure_gc_time()
 {
     rb_define_const(mProf, "GC_TIME", INT2NUM(MEASURE_GC_TIME));

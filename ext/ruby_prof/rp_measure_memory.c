@@ -7,52 +7,45 @@
 
 static VALUE cMeasureMemory;
 
+
+#if defined(HAVE_RB_GC_ALLOCATED_SIZE)
+  VALUE rb_gc_allocated_size();
+#endif
+
+#if defined(HAVE_RB_GC_MALLOC_ALLOCATED_SIZE)
+  size_t rb_gc_malloc_allocated_size();
+#endif
+
+#if defined(HAVE_RB_HEAP_TOTAL_MEM)
+  //FIXME: did not find the patch to check prototype, assuming it to return size_t
+  size_t rb_heap_total_mem();
+#endif
+
+static double
+measure_memory()
+{
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
 #define TOGGLE_GC_STATS 1
-#define MEASURE_GC_TIME_ENABLED Qtrue
-
-static double
-measure_memory()
-{
+#define MEASURE_MEMORY_ENABLED Qtrue
 #if defined(HAVE_LONG_LONG)
-    return NUM2LL(rb_gc_allocated_size() / 1024);
+    return NUM2LL(rb_gc_allocated_size()) / 1024.0;
 #else
-    return NUM2ULONG(rb_gc_allocated_size() / 1024);
+    return NUM2ULONG(rb_gc_allocated_size()) / 1024.0;
 #endif
-}
 
 #elif defined(HAVE_RB_GC_MALLOC_ALLOCATED_SIZE)
-
 #define MEASURE_MEMORY_ENABLED Qtrue
-
-static double
-measure_memory()
-{
-    return rb_gc_malloc_allocated_size() / 1024;
-}
-
+    return rb_gc_malloc_allocated_size() / 1024.0;
 
 #elif defined(HAVE_RB_HEAP_TOTAL_MEM)
-
 #define MEASURE_MEMORY_ENABLED Qtrue
-
-static double
-measure_memory()
-{
-    return rb_heap_total_mem() / 1024;
-}
+    return rb_heap_total_mem() / 1024.0;
 
 #else
-
 #define MEASURE_MEMORY_ENABLED Qfalse
-
-static double
-measure_memory()
-{
     return 0;
-}
-
 #endif
+}
 
 prof_measurer_t* prof_measurer_memory()
 {

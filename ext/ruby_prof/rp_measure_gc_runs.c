@@ -8,53 +8,31 @@
 static VALUE cMeasureGcRuns;
 
 #if defined(HAVE_RB_GC_COLLECTIONS)
+  VALUE rb_gc_collections(void);
+#endif
 
-#define MEASURE_GC_RUNS_ENABLED Qtrue
+#if defined(HAVE_RB_GC_HEAP_INFO)
+  VALUE rb_gc_heap_info(void);
+#endif
+
 
 static double
 measure_gc_runs()
 {
-    return NUM2INT(rb_gc_collections());
-}
-
-/* call-seq:
-   gc_runs -> Integer
-
-Returns the total number of garbage collections.*/
-static VALUE
-prof_measure_gc_runs(VALUE self)
-{
-    return rb_gc_collections();
-}
+#if defined(HAVE_RB_GC_COLLECTIONS)
+#define MEASURE_GC_RUNS_ENABLED Qtrue
+  return NUM2INT(rb_gc_collections());
 
 #elif defined(HAVE_RB_GC_HEAP_INFO)
-
 #define MEASURE_GC_RUNS_ENABLED Qtrue
-
-static double
-measure_gc_runs()
-{
   VALUE h = rb_gc_heap_info();
   return NUM2UINT(rb_hash_aref(h, rb_str_new2("num_gc_passes")));
-}
 
-static VALUE
-prof_measure_gc_runs(VALUE self)
-{
-  VALUE h = rb_gc_heap_info();
-  return rb_hash_aref(h, rb_str_new2("num_gc_passes"));
-}
-
-#else 
-
+#else
 #define MEASURE_GC_RUNS_ENABLED Qfalse
-
-static double
-measure_gc_runs()
-{
   return 0;
-}
 #endif
+}
 
 prof_measurer_t* prof_measurer_gc_runs()
 {

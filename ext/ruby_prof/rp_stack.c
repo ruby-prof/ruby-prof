@@ -48,7 +48,7 @@ stack_push(prof_stack_t *stack)
   result->child_time = 0;
   result->switch_time = 0;
   result->wait_time = 0;
-  result->depth = (stack->ptr - stack->start);
+  result->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32
 
   // Increment the stack ptr for next time
   stack->ptr++;

@@ -7,3 +7,5 @@ pkg/
 /ext/ruby_prof/vc/ruby_prof/Debug
 /ext/ruby_prof/vc/Debug
 /.idea
+*.bundle
+*.so

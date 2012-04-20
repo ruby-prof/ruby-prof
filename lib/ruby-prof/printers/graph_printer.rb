@@ -109,7 +109,7 @@ module RubyProf
 
     def print_footer(thread)
       @output << "\n"
-      @output << "* in front of method name means it is recursively called\n"
+      @output << "* indicates recursively called methods\n"
     end
   end
 end

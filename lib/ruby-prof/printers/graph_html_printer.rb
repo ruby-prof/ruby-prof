@@ -235,7 +235,7 @@ module RubyProf
         </tbody>
         <tfoot>
           <tr>
-            <td colspan="9">* in front of method name means it is recursively called</td>
+            <td colspan="9">* indicates recursively called methods</td>
           </tr>
         </tfoot>
       </table>

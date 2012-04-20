@@ -686,7 +686,6 @@ void Init_ruby_prof()
     rb_define_alloc_func (cProfile, prof_allocate);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
     rb_define_method(cProfile, "start", prof_start, 0);
-    rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);
     rb_define_method(cProfile, "resume", prof_resume, 0);
     rb_define_method(cProfile, "pause", prof_pause, 0);

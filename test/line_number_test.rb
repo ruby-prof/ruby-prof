@@ -5,11 +5,9 @@ require File.expand_path('../test_helper', __FILE__)
 
 class LineNumbers
   def method1
-    3
   end
 
   def method2
-    3
     method1
   end
 
@@ -32,11 +30,11 @@ class LineNumbersTest < Test::Unit::TestCase
 
     method = methods[0]
     assert_equal('LineNumbersTest#test_function_line_no', method.full_name)
-    assert_equal(27, method.line)
+    assert_equal(25, method.line)
 
     method = methods[1]
     assert_equal('LineNumbers#method2', method.full_name)
-    assert_equal(11, method.line)
+    assert_equal(10, method.line)
 
     method = methods[2]
     assert_equal('LineNumbers#method1', method.full_name)
@@ -64,10 +62,10 @@ class LineNumbersTest < Test::Unit::TestCase
 
     method = methods[1]
     assert_equal('LineNumbers#method3', method.full_name)
-    assert_equal(16, method.line)
+    assert_equal(14, method.line)
 
     method = methods[2]
     assert_equal('LineNumbersTest#test_c_function', method.full_name)
-    assert_equal(50, method.line)
+    assert_equal(48, method.line)
   end
 end

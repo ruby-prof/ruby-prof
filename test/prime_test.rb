@@ -6,7 +6,7 @@ require File.expand_path('../test_helper', __FILE__)
 # --  Tests ----
 class PrimeTest< Test::Unit::TestCase
   def test_consistency
-    result = RubyProf.profile do
+    RubyProf.profile do
       run_primes
     end
   end

@@ -148,7 +148,7 @@ private
   end
 
   def self.disable_gc_stats_if_needed(was_enabled=nil)
-    was_enabled ||= @gc_stat_was_enabled
+    was_enabled ||= defined?(@gc_stat_was_enabled) && @gc_stat_was_enabled
     GC.disable_stats if self.measure_mode == RubyProf::MEMORY && GC.respond_to?(:disable_stats) && !was_enabled
   end
 end

@@ -17,7 +17,6 @@ class UniqueCallPath
   end
 
   def method_c
-    c = 3
   end
 
   def method_k(i)

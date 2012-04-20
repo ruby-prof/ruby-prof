@@ -25,14 +25,14 @@ class ThreadTest < Test::Unit::TestCase
 
   def test_thread_identity
     RubyProf.start
-    thread = Thread.new do
+    sleep_thread = Thread.new do
       sleep(1)
     end
-    thread.join
+    sleep_thread.join
     result = RubyProf.stop
 
     thread_ids = result.threads.map {|thread| thread.id}.sort
-    threads = [Thread.current, thread]
+    threads = [Thread.current, sleep_thread]
     assert_equal(2, result.threads.length)
 
     assert(thread_ids.include?(threads[0].object_id))
@@ -164,9 +164,9 @@ class ThreadTest < Test::Unit::TestCase
   end
 
   def test_thread
-    result = RubyProf.profile do
+    RubyProf.profile do
       begin
-        status = Timeout::timeout(2) do
+        Timeout::timeout(2) do
           while true
             next
           end

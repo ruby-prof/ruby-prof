@@ -10,3 +10,4 @@ pkg/
 *.bundle
 *.so
 tmp
+.*.swp

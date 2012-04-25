@@ -22,9 +22,14 @@ typedef struct
     double switch_time;  /* Time at switch to different thread */
     double wait_time;
     double child_time;
+    double pause_time; // Time pause() was initiated
+    double dead_time; // Time to ignore (i.e. total amount of time between pause/resume blocks)
     int depth;
     unsigned int line;
 } prof_frame_t;
+
+void frame_pause(prof_frame_t*, double current_measurement);
+void frame_unpause(prof_frame_t*, double current_measurement);
 
 /* Current stack of active methods.*/
 typedef struct 

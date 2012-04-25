@@ -5,11 +5,11 @@
 
 #define INITIAL_STACK_SIZE 8
 
-
 void
 frame_pause(prof_frame_t *frame, double current_measurement)
 {
-	frame->pause_time = current_measurement;
+    if (frame->pause_time < 0)
+        frame->pause_time = current_measurement;
 }
 
 void
@@ -20,7 +20,6 @@ frame_unpause(prof_frame_t *frame, double current_measurement)
 		frame->pause_time = -1;
 	}
 }
-
 
 
 /* Creates a stack of prof_frame_t to keep track

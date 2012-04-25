@@ -133,6 +133,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   double measurement = profile->measurer->measure();
   double total_time;
   double self_time;
+  double pause_time;
 
   frame = stack_pop(thread_data->stack); // only time it's called
 
@@ -144,6 +145,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
       return NULL;
 
   /* Calculate the total time this method took */
+  pause_time = frame->pause_time;
   frame_unpause(frame, measurement);
   total_time = measurement - frame->start_time - frame->dead_time;
   self_time = total_time - frame->child_time - frame->wait_time;
@@ -158,6 +160,9 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   parent_frame = stack_peek(thread_data->stack);
   if (parent_frame)
   {
+	  if (pause_time >= 0 && pause_time < parent_frame->pause_time)
+          parent_frame->pause_time = pause_time;
+      parent_frame->dead_time += frame->dead_time;
       parent_frame->child_time += total_time;
       call_info->line = parent_frame->line;
   }
@@ -505,17 +510,18 @@ static int pause_or_unpause_thread(st_data_t key, st_data_t value, st_data_t dat
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
 
-	prof_frame_t* frame = stack_peek(thread_data->stack);
-	if (profile->paused == Qtrue)
-		frame_pause(frame, profile->measurement_at_pause_resume);
-	else
-		frame_unpause(frame, profile->measurement_at_pause_resume);
+    prof_frame_t* frame = stack_peek(thread_data->stack);
+    if (frame)
+        if (profile->paused == Qtrue)
+            frame_pause(frame, profile->measurement_at_pause_resume);
+        else
+            frame_unpause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
 }
 
 static void prof_pause_or_unpause_threads(prof_profile_t* profile) {
-	profile->measurement_at_pause_resume = profile->measurer->measure();
+    profile->measurement_at_pause_resume = profile->measurer->measure();
     st_foreach(profile->threads_tbl, pause_or_unpause_thread, (st_data_t) profile);
 }
 

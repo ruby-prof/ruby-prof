@@ -39,4 +39,55 @@ class BasicTest < Test::Unit::TestCase
 
     RubyProf.stop
   end
+
+  def test_pause_seq
+    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start ; refute p.paused?
+    p.pause ; assert p.paused?
+    p.resume; refute p.paused?
+    p.pause ; assert p.paused?
+    p.pause ; assert p.paused?
+    p.resume; refute p.paused?
+    p.resume; refute p.paused?
+    p.stop  ; refute p.paused?
+  end
+
+  def test_pause_block
+    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start
+    p.pause
+    assert p.paused?
+
+    times_block_invoked = 0
+    p.resume{
+      times_block_invoked += 1
+    }
+    assert_equal 1, times_block_invoked
+    assert p.paused?
+
+    p.stop
+  end
+
+  def test_pause_block_with_error
+    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start
+    p.pause
+    assert p.paused?
+
+    begin
+      p.resume{ raise }
+      flunk 'Exception expected.'
+    rescue
+      assert p.paused?
+    end
+
+    p.stop
+  end
+
+  def test_resume_when_not_paused
+    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start ; refute p.paused?
+    p.resume; refute p.paused?
+    p.stop  ; refute p.paused?
+  end
 end

@@ -182,6 +182,35 @@ opts = OptionParser.new do |opts|
     options.eliminate_methods_files ||= []
     options.eliminate_methods_files << file
   end
+
+  opts.on('--exclude-common-cycles', 'make common iterators like Integer#times appear inlined') do|meth|
+    options.eliminate_methods ||= []
+    options.eliminate_methods += %w{
+      Integer#times
+      Integer#upto
+      Integer#downto
+      Enumerator#each
+      Enumerator#each_with_index
+      Enumerator#each_with_object
+
+      Array#each
+      Array#each_index
+      Array#reverse_each
+
+      Hash#each
+      Hash#each_pair
+      Hash#each_key
+      Hash#each_value
+
+      Range#each
+      Enumerable#each_cons
+      Enumerable#each_entry
+      Enumerable#each_slice
+      Enumerable#each_with_index
+      Enumerable#each_with_object
+      Enumerable#reverse_each
+    }
+  end
 end
 
 begin

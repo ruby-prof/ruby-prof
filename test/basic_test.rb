@@ -59,11 +59,14 @@ class BasicTest < Test::Unit::TestCase
     assert p.paused?
 
     times_block_invoked = 0
-    p.resume{
+    retval= p.resume{
       times_block_invoked += 1
+      120 + times_block_invoked
     }
     assert_equal 1, times_block_invoked
     assert p.paused?
+
+    assert_equal 121, retval, "resume() should return the result of the given block."
 
     p.stop
   end

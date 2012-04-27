@@ -642,12 +642,7 @@ prof_resume(VALUE self)
         st_foreach(profile->threads_tbl, unpause_thread, (st_data_t) profile);
     }
 
-    if (rb_block_given_p())
-    {
-      rb_ensure(rb_yield, self, prof_pause, self);
-    }
-
-    return self;
+    return rb_block_given_p() ? rb_ensure(rb_yield, self, prof_pause, self) : self;
 }
 
 /* call-seq:

@@ -7,7 +7,8 @@ match = version_header.match(/RUBY_PROF_VERSION\s*"([^"]+)"/)
 raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
 
 # For now make this an rc1
-RUBY_PROF_VERSION = "#{match[1]}.rc3"
+version = "#{match[1]}.rc3"
+RUBY_PROF_VERSION = version unless defined?(RUBY_PROF_VERSION)
 
 Gem::Specification.new do |spec|
   spec.name = "ruby-prof"

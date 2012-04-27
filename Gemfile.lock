@@ -1,3 +1,8 @@
+PATH
+  remote: .
+  specs:
+    ruby-prof (0.11.0.rc3)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -11,3 +16,4 @@ PLATFORMS
 DEPENDENCIES
   rake
   rake-compiler
+  ruby-prof!

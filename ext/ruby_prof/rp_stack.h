@@ -28,8 +28,11 @@ typedef struct
     unsigned int line;
 } prof_frame_t;
 
-void frame_pause(prof_frame_t*, double current_measurement);
-void frame_unpause(prof_frame_t*, double current_measurement);
+#define frame_is_paused(f) (f->pause_time >= 0)
+#define frame_is_unpaused(f) (f->pause_time < 0)
+inline void frame_pause(prof_frame_t*, double current_measurement);
+inline void frame_unpause(prof_frame_t*, double current_measurement);
+
 
 /* Current stack of active methods.*/
 typedef struct 

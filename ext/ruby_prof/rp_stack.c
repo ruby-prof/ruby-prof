@@ -5,20 +5,20 @@
 
 #define INITIAL_STACK_SIZE 8
 
-void
+inline void
 frame_pause(prof_frame_t *frame, double current_measurement)
 {
-    if (frame->pause_time < 0)
+    if (frame && frame_is_unpaused(frame))
         frame->pause_time = current_measurement;
 }
 
-void
+inline void
 frame_unpause(prof_frame_t *frame, double current_measurement)
 {
-	if (frame->pause_time >= 0) {
-		frame->dead_time += (current_measurement - frame->pause_time);
-		frame->pause_time = -1;
-	}
+    if (frame && frame_is_paused(frame)) {
+        frame->dead_time += (current_measurement - frame->pause_time);
+        frame->pause_time = -1;
+    }
 }
 
 

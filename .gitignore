@@ -9,3 +9,5 @@ pkg/
 /.idea
 *.bundle
 *.so
+tmp
+.*.swp

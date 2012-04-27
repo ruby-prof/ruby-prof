@@ -5,6 +5,22 @@
 
 #define INITIAL_STACK_SIZE 8
 
+inline void
+frame_pause(prof_frame_t *frame, double current_measurement)
+{
+    if (frame && frame_is_unpaused(frame))
+        frame->pause_time = current_measurement;
+}
+
+inline void
+frame_unpause(prof_frame_t *frame, double current_measurement)
+{
+    if (frame && frame_is_paused(frame)) {
+        frame->dead_time += (current_measurement - frame->pause_time);
+        frame->pause_time = -1;
+    }
+}
+
 
 /* Creates a stack of prof_frame_t to keep track
    of timings for active methods. */

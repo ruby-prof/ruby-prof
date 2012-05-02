@@ -172,6 +172,59 @@ opts = OptionParser.new do |opts|
       options.exec ||= []
       options.exec << code
   end
+
+  opts.on('-x regexp', '--exclude regexp', 'exclude methods by regexp (see method elimination)') do|meth|
+    options.eliminate_methods ||= []
+    options.eliminate_methods << Regexp.new(meth)
+  end
+
+  opts.on('-X file', '--exclude-file file', 'exclude methods by regexp listed in file (see method elimination)') do|file|
+    options.eliminate_methods_files ||= []
+    options.eliminate_methods_files << file
+  end
+
+  opts.on('--exclude-common-cycles', 'make common iterators like Integer#times appear inlined') do|meth|
+    options.eliminate_methods ||= []
+    options.eliminate_methods += %w{
+      Integer#times
+      Integer#upto
+      Integer#downto
+      Enumerator#each
+      Enumerator#each_with_index
+      Enumerator#each_with_object
+
+      Array#each
+      Array#each_index
+      Array#reverse_each
+      Array#map
+
+      Hash#each
+      Hash#each_pair
+      Hash#each_key
+      Hash#each_value
+
+      Range#each
+      Enumerable#each_cons
+      Enumerable#each_entry
+      Enumerable#each_slice
+      Enumerable#each_with_index
+      Enumerable#each_with_object
+      Enumerable#reverse_each
+      Enumerable#inject
+      Enumerable#collect
+      Enumerable#reduce
+    }
+    #TODO: may be the whole Enumerable module should be excluded via 'Enumerable#.*', we need feedback on use cases.
+  end
+
+  opts.on('--exclude-common-callbacks', 'make common callbacks invocations like Integer#times appear inlined so you can see call origins in graph') do|meth|
+    options.eliminate_methods ||= []
+    options.eliminate_methods += %w{
+      Method#call
+      Proc#call
+      ActiveSupport::Callbacks::ClassMethods#__run_callback
+    }
+  end
 end
 
 begin
@@ -200,6 +253,10 @@ end
 at_exit {
   # Stop profiling
   result = RubyProf.stop
+
+  # Eliminate unwanted methods from call graph
+  result.eliminate_methods! options.eliminate_methods if options.eliminate_methods
+  options.eliminate_methods_files.each{|f| result.eliminate_methods!(f)} if options.eliminate_methods_files
 
   # Create a printer
   printer = options.printer.new(result)

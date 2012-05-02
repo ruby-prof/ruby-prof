@@ -196,6 +196,7 @@ opts = OptionParser.new do |opts|
       Array#each
       Array#each_index
       Array#reverse_each
+      Array#map
 
       Hash#each
       Hash#each_pair
@@ -209,6 +210,19 @@ opts = OptionParser.new do |opts|
       Enumerable#each_with_index
       Enumerable#each_with_object
       Enumerable#reverse_each
+      Enumerable#inject
+      Enumerable#collect
+      Enumerable#reduce
+    }
+    #TODO: may be the whole Enumerable module should be excluded via 'Enumerable#.*', we need feedback on use cases.
+  end
+
+  opts.on('--exclude-common-callbacks', 'make common callbacks invocations like Integer#times appear inlined so you can see call origins in graph') do|meth|
+    options.eliminate_methods ||= []
+    options.eliminate_methods += %w{
+      Method#call
+      Proc#call
+      ActiveSupport::Callbacks::ClassMethods#__run_callback
     }
   end
 end

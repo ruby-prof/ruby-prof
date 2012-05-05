@@ -23,9 +23,6 @@ class MeasureCpuTimeTest < Test::Unit::TestCase
       RubyProf::C1.hello
     end
 
-    printer = RubyProf::FlatPrinter.new(result)
-    printer.print
-
     # Length should be 3:
     #   MeasureCpuTimeTest#test_class_methods
     #   <Class::RubyProf::C1>#hello

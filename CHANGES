@@ -1,3 +1,8 @@
+0.11.2 (2012-05-06)
+======================
+* Fix compile issue with BOOL.  Should be _Bool for C99.
+
+
 0.11.1 (2012-05-06)
 ======================
 * Added option --exclude-common-callbacks, plus exclude #map and #inject in common cycles (Vasily Fedoseyev)

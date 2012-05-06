@@ -1,3 +1,14 @@
+0.11.0 (2012-05-05)
+======================
+* Fix pause/resume so it actually works and add tests (David Barri)
+* Resume now returns the result of the block when given (David Barri)
+* Make recursive method explanation more clear (Charlie Savage)
+* Fix ruby warnings (Charlie Savage)
+* Toggle GC.enable_stats when profiling for memory to get the data (Vasily Fedoseyev)
+* Fix patched ruby support and remove some warnings (Vasily Fedoseyev)
+* Fix tests on 1.8.7 (rogerdpack)
+
+
 0.11.0.rc3 (2012-03-26)
 ======================
 * Include missing files in gemspec (Charlie Savage).

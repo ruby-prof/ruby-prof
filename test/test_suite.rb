@@ -24,6 +24,7 @@ require File.expand_path("../test_helper", __FILE__)
    module_test
    multi_printer_test
    no_method_class_test
+   pause_test
    prime_test
    printers_test
    recursive_test
@@ -35,4 +36,3 @@ require File.expand_path("../test_helper", __FILE__)
    unique_call_path_test).each do |test|
   require File.expand_path("../#{test}", __FILE__)
 end
-

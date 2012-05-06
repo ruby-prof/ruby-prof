@@ -42,14 +42,14 @@ class BasicTest < Test::Unit::TestCase
 
   def test_pause_seq
     p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
-    p.start ; refute p.paused?
+    p.start ; assert !p.paused?
     p.pause ; assert p.paused?
-    p.resume; refute p.paused?
+    p.resume; assert !p.paused?
     p.pause ; assert p.paused?
     p.pause ; assert p.paused?
-    p.resume; refute p.paused?
-    p.resume; refute p.paused?
-    p.stop  ; refute p.paused?
+    p.resume; assert !p.paused?
+    p.resume; assert !p.paused?
+    p.stop  ; assert !p.paused?
   end
 
   def test_pause_block
@@ -89,8 +89,8 @@ class BasicTest < Test::Unit::TestCase
 
   def test_resume_when_not_paused
     p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
-    p.start ; refute p.paused?
-    p.resume; refute p.paused?
-    p.stop  ; refute p.paused?
+    p.start ; assert !p.paused?
+    p.resume; assert !p.paused?
+    p.stop  ; assert !p.paused?
   end
 end

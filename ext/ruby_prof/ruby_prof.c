@@ -133,7 +133,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   double measurement = profile->measurer->measure();
   double total_time;
   double self_time;
-  _Bool frame_paused;
+  BOOL frame_paused;
 
   frame = stack_pop(thread_data->stack); // only time it's called
 
@@ -565,12 +565,20 @@ static VALUE
 prof_start(VALUE self)
 {
     char* trace_file_name;
+
     prof_profile_t* profile = prof_get_profile(self);
         
     if (profile->running == Qtrue)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was already called");
     }
+
+#ifndef RUBY_VM
+	if (pCurrentProfile != NULL)
+    {
+        rb_raise(rb_eRuntimeError, "Only one profile can run at a time on Ruby 1.8.*");
+    }
+#endif
 
     profile->running = Qtrue;
     profile->paused = Qfalse;

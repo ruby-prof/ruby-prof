@@ -133,7 +133,11 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   double measurement = profile->measurer->measure();
   double total_time;
   double self_time;
+#ifdef _MSC_VER
   BOOL frame_paused;
+#else
+  _Bool frame_paused;
+#endif
 
   frame = stack_pop(thread_data->stack); // only time it's called
 

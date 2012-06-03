@@ -13,11 +13,6 @@ module Rack
                                                   ::RubyProf::GraphHtmlPrinter => 'graph.html',
                                                   ::RubyProf::CallStackPrinter => 'call_stack.html'}
 
-      @printer_klasses = @options[:printers]  || {::RubyProf::FlatPrinter => 'flat.txt',
-                                                  ::RubyProf::GraphPrinter => 'graph.txt',
-                                                  ::RubyProf::GraphHtmlPrinter => 'graph.html',
-                                                  ::RubyProf::CallStackPrinter => 'call_stack.html'}
-
       @skip_paths = options[:skip_paths] || [%r{^/assets}, %r{\.css$}, %r{\.js}, %r{\.png}, %r{\.jpeg}]
     end
 

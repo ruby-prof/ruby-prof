@@ -15,7 +15,7 @@ ruby-prof is a fast code profiler for Ruby.  Its features include:
 
 == Requirements
 
-ruby-prof requires Ruby 1.8.7 or 1.9.1 and higher.
+ruby-prof requires Ruby 1.8.7 or 1.9.2 and higher.
 
 If you are running Linux or Unix you'll need a C compiler so the extension
 can be compiled when it is installed.

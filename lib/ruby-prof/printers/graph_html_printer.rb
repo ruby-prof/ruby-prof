@@ -40,7 +40,6 @@ module RubyProf
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
-      _erbout = @output
       @output << @erb.result(binding)
     end
 

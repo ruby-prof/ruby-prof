@@ -51,5 +51,5 @@ def run_primes(length=10, maxnum=1000)
   primes = find_primes(random_array)
 
   # Find the largest primes
-  largest = find_largest(primes)
+  find_largest(primes)
 end

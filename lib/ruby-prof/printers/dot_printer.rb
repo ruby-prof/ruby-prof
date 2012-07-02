@@ -96,7 +96,7 @@ module RubyProf
       thread.methods.each{|m| grouped[m.klass_name] ||= []; grouped[m.klass_name] << m}
       grouped.each do |cls, methods2|
         # Filter down to just seen methods
-        big_methods, small_methods  = methods2.partition{|m| @seen_methods.include? m}
+        big_methods = methods2.select{|m| @seen_methods.include? m}
         
         if !big_methods.empty?
           puts "subgraph cluster_#{cls.object_id} {"

@@ -73,13 +73,18 @@ module RubyProf
   end
 
   # call-seq:
-  # exclude_threads= -> void
+  # exclude_threads -> exclude_threads
   #
-  # Specifies what threads ruby-prof should exclude from profiling
+  # Returns threads ruby-prof should exclude from profiling
 
   def self.exclude_threads
     @exclude_threads ||= Array.new
   end
+
+  # call-seq:
+  # exclude_threads= -> void
+  #
+  # Specifies what threads ruby-prof should exclude from profiling
 
   def self.exclude_threads=(value)
     @exclude_threads = value

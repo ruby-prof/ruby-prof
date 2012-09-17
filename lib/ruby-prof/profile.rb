@@ -49,7 +49,7 @@ module RubyProf
     # read regexps from file
     def read_regexps_from_file(file_name)
       matchers = []
-      File.open(matchers).each_line do |l|
+      File.open(file_name).each_line do |l|
         next if (l =~ /^(#.*|\s*)$/) # emtpy lines and lines starting with #
         matchers << Regexp.new(l.strip)
       end

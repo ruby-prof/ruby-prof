@@ -5,6 +5,7 @@ require "rake/extensiontask"
 require "rake/testtask"
 require "rdoc/task"
 require "date"
+require 'rake/clean'
 
 # To release a version of ruby-prof:
 #   * Update version.h
@@ -77,6 +78,10 @@ RDoc::Task.new("rdoc") do |rdoc|
 end
 
 task :default => :package
+
+for file in Dir['**/*.so']
+  CLEAN.include file
+end
 
 desc 'Run the ruby-prof test suite'
 Rake::TestTask.new do |t|

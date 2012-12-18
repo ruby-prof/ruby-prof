@@ -10,7 +10,7 @@ thread_data_t*
 thread_data_create()
 {
     thread_data_t* result = ALLOC(thread_data_t);
-    result->stack = stack_create();
+    result->stack = prof_stack_create();
     result->method_table = method_table_create();
 	result->top = NULL;
 	result->object = Qnil;
@@ -44,7 +44,7 @@ thread_data_free(thread_data_t* thread_data)
 	thread_data_ruby_gc_free(thread_data);
     thread_data->top = NULL;
     method_table_free(thread_data->method_table);
-    stack_free(thread_data->stack);
+    prof_stack_free(thread_data->stack);
 
     thread_data->thread_id = Qnil;
 
@@ -157,7 +157,7 @@ switch_thread(void* prof, VALUE thread_id)
     thread_data_t *thread_data = threads_table_lookup(profile, thread_id);
 
     /* Get current frame for this thread */
-    prof_frame_t *frame = stack_peek(thread_data->stack);
+    prof_frame_t *frame = prof_stack_peek(thread_data->stack);
 
     /* Update the time this thread waited for another thread */
     if (frame)
@@ -170,7 +170,7 @@ switch_thread(void* prof, VALUE thread_id)
        and reset this thread's last context switch to 0.*/
     if (profile->last_thread_data)
     {
-       prof_frame_t *last_frame = stack_peek(profile->last_thread_data->stack);
+       prof_frame_t *last_frame = prof_stack_peek(profile->last_thread_data->stack);
        if (last_frame)
          last_frame->switch_time = measurement;
     }

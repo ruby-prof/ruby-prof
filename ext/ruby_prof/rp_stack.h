@@ -28,10 +28,10 @@ typedef struct
     unsigned int line;
 } prof_frame_t;
 
-#define frame_is_paused(f) (f->pause_time >= 0)
-#define frame_is_unpaused(f) (f->pause_time < 0)
-void frame_pause(prof_frame_t*, double current_measurement);
-void frame_unpause(prof_frame_t*, double current_measurement);
+#define prof_frame_is_paused(f) (f->pause_time >= 0)
+#define prof_frame_is_unpaused(f) (f->pause_time < 0)
+void prof_frame_pause(prof_frame_t*, double current_measurement);
+void prof_frame_unpause(prof_frame_t*, double current_measurement);
 
 
 /* Current stack of active methods.*/
@@ -42,10 +42,10 @@ typedef struct
     prof_frame_t *ptr;
 } prof_stack_t;
 
-prof_stack_t * stack_create();
-void stack_free(prof_stack_t *stack);
-prof_frame_t * stack_push(prof_stack_t *stack);
-prof_frame_t * stack_pop(prof_stack_t *stack);
-prof_frame_t * stack_peek(prof_stack_t *stack);
+prof_stack_t * prof_stack_create();
+void prof_stack_free(prof_stack_t *stack);
+prof_frame_t * prof_stack_push(prof_stack_t *stack);
+prof_frame_t * prof_stack_pop(prof_stack_t *stack);
+prof_frame_t * prof_stack_peek(prof_stack_t *stack);
 
 #endif //__RP_STACK__

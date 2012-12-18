@@ -139,7 +139,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   _Bool frame_paused;
 #endif
 
-  frame = stack_pop(thread_data->stack); // only time it's called
+  frame = prof_stack_pop(thread_data->stack); // only time it's called
 
   /* Frame can be null.  This can happen if RubProf.start is called from
      a method that exits.  And it can happen if an exception is raised
@@ -149,8 +149,8 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
       return NULL;
 
   /* Calculate the total time this method took */
-  frame_paused = frame_is_paused(frame);
-  frame_unpause(frame, measurement);
+  frame_paused = prof_frame_is_paused(frame);
+  prof_frame_unpause(frame, measurement);
   total_time = measurement - frame->start_time - frame->dead_time;
   self_time = total_time - frame->child_time - frame->wait_time;
 
@@ -161,7 +161,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
   call_info->self_time += self_time;
   call_info->wait_time += frame->wait_time;
 
-  parent_frame = stack_peek(thread_data->stack);
+  parent_frame = prof_stack_peek(thread_data->stack);
   if (parent_frame)
   {
       parent_frame->child_time += total_time;
@@ -169,7 +169,7 @@ pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
 
       // Repause parent if currently paused
       if (frame_paused)
-          frame_pause(parent_frame, measurement);
+          prof_frame_pause(parent_frame, measurement);
 
       call_info->line = parent_frame->line;
   }
@@ -298,7 +298,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
       thread_data = profile->last_thread_data;
 
     /* Get the current frame for the current thread. */
-    frame = stack_peek(thread_data->stack);
+    frame = prof_stack_peek(thread_data->stack);
 
     switch (event) {
     case RUBY_EVENT_LINE:
@@ -350,11 +350,11 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
           // Unpause the parent frame. If currently paused then:
           // 1) The child frame will begin paused.
           // 2) The parent will inherit the child's dead time.
-          frame_unpause(frame, measurement);
+          prof_frame_unpause(frame, measurement);
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        frame = stack_push(thread_data->stack);
+        frame = prof_stack_push(thread_data->stack);
         frame->call_info = call_info;
 		frame->call_info->depth = frame->depth;
         frame->start_time = measurement;
@@ -522,8 +522,8 @@ static int pause_thread(st_data_t key, st_data_t value, st_data_t data)
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
 
-    prof_frame_t* frame = stack_peek(thread_data->stack);
-    frame_pause(frame, profile->measurement_at_pause_resume);
+    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
+    prof_frame_pause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
 }
@@ -533,8 +533,8 @@ static int unpause_thread(st_data_t key, st_data_t value, st_data_t data)
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
 
-    prof_frame_t* frame = stack_peek(thread_data->stack);
-    frame_unpause(frame, profile->measurement_at_pause_resume);
+    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
+    prof_frame_unpause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
 }

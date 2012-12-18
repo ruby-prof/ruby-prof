@@ -6,16 +6,16 @@
 #define INITIAL_STACK_SIZE 8
 
 void
-frame_pause(prof_frame_t *frame, double current_measurement)
+prof_frame_pause(prof_frame_t *frame, double current_measurement)
 {
-    if (frame && frame_is_unpaused(frame))
+    if (frame && prof_frame_is_unpaused(frame))
         frame->pause_time = current_measurement;
 }
 
 void
-frame_unpause(prof_frame_t *frame, double current_measurement)
+prof_frame_unpause(prof_frame_t *frame, double current_measurement)
 {
-    if (frame && frame_is_paused(frame)) {
+    if (frame && prof_frame_is_paused(frame)) {
         frame->dead_time += (current_measurement - frame->pause_time);
         frame->pause_time = -1;
     }
@@ -25,7 +25,7 @@ frame_unpause(prof_frame_t *frame, double current_measurement)
 /* Creates a stack of prof_frame_t to keep track
    of timings for active methods. */
 prof_stack_t *
-stack_create()
+prof_stack_create()
 {
     prof_stack_t *stack = ALLOC(prof_stack_t);
     stack->start = ALLOC_N(prof_frame_t, INITIAL_STACK_SIZE);
@@ -36,14 +36,14 @@ stack_create()
 }
 
 void
-stack_free(prof_stack_t *stack)
+prof_stack_free(prof_stack_t *stack)
 {
     xfree(stack->start);
     xfree(stack);
 }
 
 prof_frame_t *
-stack_push(prof_stack_t *stack)
+prof_stack_push(prof_stack_t *stack)
 {
   prof_frame_t* result = NULL;
 
@@ -74,7 +74,7 @@ stack_push(prof_stack_t *stack)
 }
 
 prof_frame_t *
-stack_pop(prof_stack_t *stack)
+prof_stack_pop(prof_stack_t *stack)
 {
     if (stack->ptr == stack->start)
       return NULL;
@@ -83,7 +83,7 @@ stack_pop(prof_stack_t *stack)
 }
 
 prof_frame_t *
-stack_peek(prof_stack_t *stack)
+prof_stack_peek(prof_stack_t *stack)
 {
     if (stack->ptr == stack->start)
       return NULL;

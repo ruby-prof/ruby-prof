@@ -260,6 +260,7 @@ class PrintersTest < Test::Unit::TestCase
 
   def assert_sorted array
     array = array.map{|n| n.to_f} # allow for > 10s times to sort right, since lexographically 4.0 > 10.0
-    assert_equal array.map, array.sort.reverse, "Array #{array.inspect} is not sorted"
+    assert_equal array, array.sort.reverse, "Array #{array.inspect} is not sorted"
   end
+
 end

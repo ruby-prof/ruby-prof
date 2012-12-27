@@ -5,7 +5,7 @@ require File.expand_path('../test_helper', __FILE__)
 
 class MeasureProcessTimeTest < Test::Unit::TestCase
   def setup
-    # Need to use wall time for this test due to the sleep calls
+    # Need to fix this for linux (windows works since PROCESS_TIME is WALL_TIME anyway)
     RubyProf::measure_mode = RubyProf::PROCESS_TIME
   end
 

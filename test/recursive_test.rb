@@ -214,7 +214,7 @@ class RecursiveTest < Test::Unit::TestCase
     assert_in_delta(5, method.total_time, 0.1)
     assert_in_delta(0, method.self_time, 0.1)
     assert_in_delta(0, method.wait_time, 0.01)
-    assert_in_delta(5, method.children_time, 0.01)
+    assert_in_delta(5, method.children_time, 0.05)
 
     assert_equal(3, method.call_infos.length)
     call_info = method.call_infos[0]

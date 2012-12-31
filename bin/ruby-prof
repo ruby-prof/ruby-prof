@@ -309,9 +309,6 @@ end
 ol = rubyprof_options.libs
 oe = rubyprof_options.exec
 
-# Start profiling
-RubyProf.start 
-
 if ol
   ol.each { |l| require l }
 end
@@ -321,4 +318,4 @@ if oe
 end
 
 # Load the script
-load script if script
+RubyProf.start_script(script) if script

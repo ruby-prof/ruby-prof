@@ -91,6 +91,11 @@ module RubyProf
   end
 
   # Profiling
+  def self.start_script(script)
+    start
+    load script
+  end
+
   def self.start
     ensure_not_running!
     @profile = Profile.new(self.measure_mode, self.exclude_threads)

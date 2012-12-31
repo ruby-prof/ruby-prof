@@ -11,3 +11,5 @@ pkg/
 *.so
 tmp
 .*.swp
+ipch
+/ext/ruby_prof/vc/*.user

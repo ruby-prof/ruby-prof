@@ -3,6 +3,9 @@
 * Fix issue where profiling results could exceed 100% if profile code had multiple top level methods (Charlie Savage)
 * Replaced RubyProf::Thread#top_method with RubyProf::Thread#top_methods (Charlie Savage)
 * Added RubyProf::Thread#total_time (Charlie Savage)
+* Remove the -r and -e command line options.  If you need specific libraries or code profiled then add them
+  to your code (Charlie Savage).
+* Rewrite ruby-prof script to be more self-contained.
 
 
 0.11.3 (2012-12-??)

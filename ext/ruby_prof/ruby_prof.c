@@ -276,7 +276,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
        the results but aren't important to them results. */
-    if (self == mProf || klass == cProfile) return;
+    if (self == mProf || klass == cProfile)
+		return;
 
     /* Get the current thread information. */
     thread = rb_thread_current();

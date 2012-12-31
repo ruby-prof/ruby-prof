@@ -33,7 +33,7 @@ require File.expand_path("../test_helper", __FILE__)
    stack_printer_test
    start_stop_test
    thread_test
-   trick_test
+   tricky_test
    unique_call_path_test).each do |test|
   require File.expand_path("../#{test}", __FILE__)
 end

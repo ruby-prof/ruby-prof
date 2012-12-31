@@ -10,10 +10,34 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\rp_call_info.h" />
+    <ClInclude Include="..\rp_measure.h" />
+    <ClInclude Include="..\rp_method.h" />
+    <ClInclude Include="..\rp_stack.h" />
+    <ClInclude Include="..\rp_thread.h" />
+    <ClInclude Include="..\ruby_prof.h" />
+    <ClInclude Include="..\version.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\rp_call_info.c" />
+    <ClCompile Include="..\rp_measure.c" />
+    <ClCompile Include="..\rp_measure_allocations.c" />
+    <ClCompile Include="..\rp_measure_cpu_time.c" />
+    <ClCompile Include="..\rp_measure_gc_runs.c" />
+    <ClCompile Include="..\rp_measure_gc_time.c" />
+    <ClCompile Include="..\rp_measure_memory.c" />
+    <ClCompile Include="..\rp_measure_process_time.c" />
+    <ClCompile Include="..\rp_measure_wall_time.c" />
+    <ClCompile Include="..\rp_method.c" />
+    <ClCompile Include="..\rp_stack.c" />
+    <ClCompile Include="..\rp_thread.c" />
+    <ClCompile Include="..\ruby_prof.c" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5AF7F29A-B100-4D61-95DA-DB21D7C8C1B8}</ProjectGuid>
+    <ProjectGuid>{7789FC23-D053-4733-9ED1-D6CE099E1237}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>ruby_prof</RootNamespace>
+    <RootNamespace>ruby_prof_18</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -39,38 +63,37 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\MinGW\local\ruby\lib\ruby\gems\1.9.1\gems\ruby-prof-0.11.4-x86-mswin32-100\lib\1.9</OutDir>
+    <OutDir>C:\MinGW\local\src\ruby-prof\lib\1.8</OutDir>
     <TargetExt>.so</TargetExt>
+    <TargetName>ruby_prof</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;RUBY_PROF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\MinGW\local\ruby193vc\include\ruby-1.9.1;C:\MinGW\local\ruby193vc\include\ruby-1.9.1\i386-mswin32_100;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;RUBY_PROF_18_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\MinGW\local\ruby187vc\lib\ruby\1.8\i386-mswin32_100</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\MinGW\local\ruby193vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>msvcr100-ruby191.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\MinGW\local\ruby187vc\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>msvcr100-ruby18.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>ruby_prof.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;RUBY_PROF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;RUBY_PROF_18_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -79,30 +102,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\rp_call_info.h" />
-    <ClInclude Include="..\rp_measure.h" />
-    <ClInclude Include="..\rp_method.h" />
-    <ClInclude Include="..\rp_stack.h" />
-    <ClInclude Include="..\rp_thread.h" />
-    <ClInclude Include="..\ruby_prof.h" />
-    <ClInclude Include="..\version.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\rp_call_info.c" />
-    <ClCompile Include="..\rp_measure.c" />
-    <ClCompile Include="..\rp_measure_allocations.c" />
-    <ClCompile Include="..\rp_measure_cpu_time.c" />
-    <ClCompile Include="..\rp_measure_gc_runs.c" />
-    <ClCompile Include="..\rp_measure_gc_time.c" />
-    <ClCompile Include="..\rp_measure_memory.c" />
-    <ClCompile Include="..\rp_measure_process_time.c" />
-    <ClCompile Include="..\rp_measure_wall_time.c" />
-    <ClCompile Include="..\rp_method.c" />
-    <ClCompile Include="..\rp_stack.c" />
-    <ClCompile Include="..\rp_thread.c" />
-    <ClCompile Include="..\ruby_prof.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

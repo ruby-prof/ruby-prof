@@ -41,7 +41,7 @@ class BasicTest < Test::Unit::TestCase
   end
 
   def test_pause_seq
-    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
     p.start ; assert !p.paused?
     p.pause ; assert p.paused?
     p.resume; assert !p.paused?

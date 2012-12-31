@@ -13,7 +13,7 @@ module RubyProf
   #
   class FlatPrinterWithLineNumbers < FlatPrinter
     def print_methods(thread)
-      total_time = thread.top_method.total_time
+      total_time = thread.total_time
 
       methods = thread.methods.sort_by(&sort_method).reverse
       sum = 0
@@ -25,7 +25,7 @@ module RubyProf
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0
         #total_time_called = method.called > 0? method.total_time/method.called : 0
 
-        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s%s \n" % [
+        @output << "%6.2f  %9.3f %9.3f %9.3f %9.3f %8d  %s%s \n" % [
             method.self_time / total_time * 100, # %self
             method.total_time,                   # total
             method.self_time,                    # self

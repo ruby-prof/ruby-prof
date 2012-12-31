@@ -48,7 +48,7 @@ module RubyProf
     # specified by the user, since they will not be
     # printed out.
     def create_link(thread, method)
-      overall_time = thread.top_method.total_time
+      overall_time = thread.total_time
       total_percent = (method.total_time/overall_time) * 100
       if total_percent < min_percent
         # Just return name
@@ -144,7 +144,7 @@ module RubyProf
       <% for thread in @result.threads %>
       <tr>
         <td><a href="#<%= thread.id %>"><%= thread.id %></a></td>
-        <td><%= thread.top_method.total_time %></td>
+        <td><%= thread.total_time %></td>
       </tr>
       <% end %>
     </table>
@@ -152,7 +152,7 @@ module RubyProf
     <!-- Methods Tables -->
     <% for thread in @result.threads
          methods = thread.methods
-         total_time = thread.top_method.total_time %>
+         total_time = thread.total_time %>
       <h2><a name="<%= thread.id %>">Thread <%= thread.id %></a></h2>
 
       <table>

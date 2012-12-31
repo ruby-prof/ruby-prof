@@ -29,7 +29,6 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
-    puts methods[0].total_time
 
     assert_equal(3, methods.length)
 

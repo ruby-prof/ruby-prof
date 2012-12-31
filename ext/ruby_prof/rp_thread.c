@@ -12,7 +12,6 @@ thread_data_create()
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = prof_stack_create();
     result->method_table = method_table_create();
-	result->top = NULL;
 	result->object = Qnil;
 	result->methods = Qnil;
     return result;
@@ -42,7 +41,6 @@ static void
 thread_data_free(thread_data_t* thread_data)
 {
 	thread_data_ruby_gc_free(thread_data);
-    thread_data->top = NULL;
     method_table_free(thread_data->method_table);
     prof_stack_free(thread_data->stack);
 
@@ -68,7 +66,6 @@ prof_thread_mark(thread_data_t *thread)
 	if (thread->methods != Qnil)
 		rb_gc_mark(thread->methods);
 	
-	prof_method_mark(thread->top);
 	st_foreach(thread->method_table, mark_methods, 0);
 }
 
@@ -179,6 +176,29 @@ switch_thread(void* prof, VALUE thread_id)
     return thread_data;
 }
 
+
+int pause_thread(st_data_t key, st_data_t value, st_data_t data) 
+{
+    thread_data_t* thread_data = (thread_data_t *) value;
+    double measurement = (double) data;
+
+    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
+    prof_frame_pause(frame, measurement);
+
+    return ST_CONTINUE;
+}
+
+int unpause_thread(st_data_t key, st_data_t value, st_data_t data) 
+{
+    thread_data_t* thread_data = (thread_data_t *) value;
+    double measurement = (double) data;
+
+    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
+    prof_frame_unpause(frame, measurement);
+
+    return ST_CONTINUE;
+}
+
 static int
 collect_methods(st_data_t key, st_data_t value, st_data_t result)
 {
@@ -220,18 +240,6 @@ prof_thread_methods(VALUE self)
 	return thread->methods;
 }
 
-/* call-seq:
-   method -> MethodInfo
-
-Returns the top level method for this thread (ie, the starting
-method). */
-static VALUE
-prof_thread_top_method(VALUE self)
-{
-    thread_data_t* thread = prof_get_thread(self);
-	return  prof_method_wrap(thread->top);
-}
-
 void rp_init_thread()
 {
     cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
@@ -239,5 +247,4 @@ void rp_init_thread()
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
     rb_define_method(cRpThread, "methods", prof_thread_methods, 0);
-    rb_define_method(cRpThread, "top_method", prof_thread_top_method, 0);
 }

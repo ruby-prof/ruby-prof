@@ -2,15 +2,16 @@
 
 # Make RubyMine happy
 if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]
-  gem 'win32console'
-  gem 'minitest-reporters'
+  if RUBY_PLATFORM =~ /(win32|w32)/
+    gem "win32console"
+  end
+  gem "minitest"
+  gem "minitest-reporters"
   require 'minitest/reporters'
-  MiniTest::Unit.runner = MiniTest::SuiteRunner.new
-  MiniTest::Unit.runner.reporters << MiniTest::Reporters::RubyMineReporter.new
+  MiniTest::Reporters.use!
 end
 
 # To make testing/debugging easier, test within this source tree versus an installed gem
-
 dir = File.dirname(__FILE__)
 root = File.expand_path(File.join(dir, '..'))
 lib = File.expand_path(File.join(root, 'lib'))

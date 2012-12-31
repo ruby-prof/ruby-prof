@@ -26,8 +26,10 @@ module RubyProf
     def visit(&block)
       @block = block
 
-      self.thread.top_method.call_infos.each do |call_info|
-        self.visit_call_info(call_info)
+      self.thread.top_methods.each do |method_info|
+        method_info.call_infos.each do |call_info|
+          self.visit_call_info(call_info)
+        end
       end
     end
 

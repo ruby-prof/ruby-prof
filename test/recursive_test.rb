@@ -151,9 +151,6 @@ class RecursiveTest < Test::Unit::TestCase
       render
     end
 
-    printer = RubyProf::GraphPrinter.new(result)
-    printer.print(STDOUT)
-
     methods = result.threads.first.methods.sort.reverse
     if RUBY_VERSION < '1.9' # Fixnum#+, Fixnum#===, Kernel#===
       assert_equal(8, methods.length)

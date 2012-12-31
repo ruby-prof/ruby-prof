@@ -28,14 +28,14 @@ module RubyProf
 
     def print_header(thread)
       @output << "Thread ID: %d\n" % thread.id
-      @output << "Total: %0.6f\n" % thread.top_method.total_time
+      @output << "Total: %0.6f\n" % thread.total_time
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"
-      @output << " %self     total     self     wait    child    calls   name\n"
+      @output << " %self      total      self      wait     child     calls  name\n"
     end
 
     def print_methods(thread)
-      total_time = thread.top_method.total_time
+      total_time = thread.total_time
       methods = thread.methods.sort_by(&sort_method).reverse
 
       sum = 0
@@ -47,7 +47,7 @@ module RubyProf
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0
         #total_time_called = method.called > 0? method.total_time/method.called : 0
 
-        @output << "%6.2f  %8.2f %8.2f %8.2f %8.2f %8d  %s%s \n" % [
+        @output << "%6.2f  %9.3f %9.3f %9.3f %9.3f %8d  %s%s \n" % [
                       method.self_time / total_time * 100, # %self
                       method.total_time,                   # total
                       method.self_time,                    # self

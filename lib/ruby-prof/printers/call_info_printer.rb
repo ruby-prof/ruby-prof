@@ -12,7 +12,7 @@ module RubyProf
 
     def print_header(thread)
       @output << "Thread ID: #{thread.id}\n"
-      @output << "Total Time: #{thread.top_method.total_time}\n"
+      @output << "Total Time: #{thread.total_time}\n"
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"
     end

@@ -10,6 +10,7 @@ class PauseTest < Test::Unit::TestCase
   end
 
   def test_pause_resume
+  #  ENV['RUBY_PROF_TRACE'] = 'c:\\temp\\trace.txt'
     RubyProf.start
     # Measured
     RubyProf::C1.hello
@@ -17,13 +18,13 @@ class PauseTest < Test::Unit::TestCase
 
     # Not measured
     RubyProf::C1.hello
-
+sleep 1
     RubyProf.resume
     # Measured
     RubyProf::C1.hello
     result = RubyProf.stop
 
-    printer = RubyProf::FlatPrinter.new(result)
+    printer = RubyProf::GraphPrinter.new(result)
     printer.print
 
     # Length should be 3:
@@ -51,7 +52,5 @@ class PauseTest < Test::Unit::TestCase
     assert_in_delta(0.3, methods[2].total_time, 0.01)
     assert_in_delta(0, methods[2].wait_time, 0.01)
     assert_in_delta(0.3, methods[2].self_time, 0.01)
-
   end
-
 end

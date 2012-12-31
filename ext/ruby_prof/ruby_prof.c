@@ -116,10 +116,6 @@ static prof_method_t*
 
 	  method = create_method(event, klass, mid, source_file, line);
       method_table_insert(thread_data->method_table, method->key, method);
-
-	  /* Is this the first method added to the thread? */
-	  if (!thread_data->top)
-		  thread_data->top = method;
     }
     return method;
 }

@@ -15,6 +15,7 @@ require 'ruby-prof/compatibility'
 require 'ruby-prof/method_info'
 require 'ruby-prof/profile'
 require 'ruby-prof/rack'
+require 'ruby-prof/thread'
 
 require 'ruby-prof/printers/abstract_printer'
 require 'ruby-prof/printers/call_info_printer'

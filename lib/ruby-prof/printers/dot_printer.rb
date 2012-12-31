@@ -79,7 +79,7 @@ module RubyProf
     end
     
     def print_thread(thread)
-      total_time = thread.top_method.total_time
+      total_time = thread.total_time
       thread.methods.sort_by(&sort_method).reverse_each do |method|
         total_percentage = (method.total_time/total_time) * 100
 

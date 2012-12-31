@@ -45,12 +45,12 @@ module RubyProf
       print_header
 
       @overall_threads_time = @result.threads.inject(0) do |val, thread|
-        val += thread.top_method.total_time
+        val += thread.total_time
       end
 
       @result.threads.each do |thread|
         @current_thread_id = thread.id
-        @overall_time = thread.top_method.total_time
+        @overall_time = thread.total_time
         @output.print "<div class=\"thread\">Thread: #{thread.id} (#{"%4.2f%%" % ((@overall_time/@overall_threads_time)*100)} ~ #{@overall_time})</div>"
         @output.print "<ul name=\"thread\">"
         thread.methods.each do |m|
@@ -58,7 +58,7 @@ module RubyProf
           next unless m.root?
           m.call_infos.each do |ci|
             next unless ci.root?
-            print_stack ci, thread.top_method.total_time
+            print_stack ci, thread.total_time
           end
         end
         @output.print "</ul>"

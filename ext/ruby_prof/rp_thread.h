@@ -12,7 +12,6 @@ typedef struct
     VALUE thread_id;                  /* Thread id */
     st_table* method_table;           /* Methods called in the thread */
     prof_stack_t* stack;              /* Stack of frames */
-    prof_method_t* top;               /* The top method called in this thread */
 } thread_data_t;
 
 void rp_init_thread();
@@ -21,6 +20,7 @@ thread_data_t* switch_thread(void* prof, VALUE thread_id);
 void threads_table_free(st_table *table);
 VALUE prof_thread_wrap(thread_data_t *thread);
 void prof_thread_mark(thread_data_t *thread);
-
+int pause_thread(st_data_t key, st_data_t value, st_data_t data);
+int unpause_thread(st_data_t key, st_data_t value, st_data_t data);
 
 #endif //__RP_THREAD__

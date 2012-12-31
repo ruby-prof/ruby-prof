@@ -8,7 +8,7 @@ require 'fileutils'
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase
   def go
-    run_primes(1000)
+    run_primes(10)
   end
 
   def setup

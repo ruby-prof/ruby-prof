@@ -18,7 +18,7 @@ class PauseTest < Test::Unit::TestCase
 
     # Not measured
     RubyProf::C1.hello
-sleep 1
+    sleep 1
     RubyProf.resume
     # Measured
     RubyProf::C1.hello
@@ -52,5 +52,59 @@ sleep 1
     assert_in_delta(0.3, methods[2].total_time, 0.01)
     assert_in_delta(0, methods[2].wait_time, 0.01)
     assert_in_delta(0.3, methods[2].self_time, 0.01)
+  end
+
+  def test_pause_seq
+    p = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start ; assert !p.paused?
+    p.pause ; assert p.paused?
+    p.resume; assert !p.paused?
+    p.pause ; assert p.paused?
+    p.pause ; assert p.paused?
+    p.resume; assert !p.paused?
+    p.resume; assert !p.paused?
+    p.stop  ; assert !p.paused?
+  end
+
+  def test_pause_block
+    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start
+    p.pause
+    assert p.paused?
+
+    times_block_invoked = 0
+    retval= p.resume{
+      times_block_invoked += 1
+      120 + times_block_invoked
+    }
+    assert_equal 1, times_block_invoked
+    assert p.paused?
+
+    assert_equal 121, retval, "resume() should return the result of the given block."
+
+    p.stop
+  end
+
+  def test_pause_block_with_error
+    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start
+    p.pause
+    assert p.paused?
+
+    begin
+      p.resume{ raise }
+      flunk 'Exception expected.'
+    rescue
+      assert p.paused?
+    end
+
+    p.stop
+  end
+
+  def test_resume_when_not_paused
+    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    p.start ; assert !p.paused?
+    p.resume; assert !p.paused?
+    p.stop  ; assert !p.paused?
   end
 end

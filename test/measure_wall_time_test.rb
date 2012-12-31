@@ -23,6 +23,13 @@ class MeasureWallTimeTest < Test::Unit::TestCase
       RubyProf::C1.hello
     end
 
+    thread = result.threads.first
+    assert_in_delta(0.1, thread.total_time, 0.01)
+
+    top_methods = thread.top_methods
+    assert_equal(1, top_methods.count)
+    assert_equal("MeasureWallTimeTest#test_class_methods", top_methods[0].full_name)
+
     # Length should be 3:
     #   MeasureWallTimeTest#test_class_methods
     #   <Class::RubyProf::C1>#hello
@@ -54,6 +61,13 @@ class MeasureWallTimeTest < Test::Unit::TestCase
     result = RubyProf.profile do
       RubyProf::C1.new.hello
     end
+
+    thread = result.threads.first
+    assert_in_delta(0.2, thread.total_time, 0.01)
+
+    top_methods = thread.top_methods
+    assert_equal(1, top_methods.count)
+    assert_equal("MeasureWallTimeTest#test_instance_methods", top_methods[0].full_name)
 
     # Methods called
     #   MeasureWallTimeTest#test_instance_methods
@@ -105,6 +119,13 @@ class MeasureWallTimeTest < Test::Unit::TestCase
       RubyProf::C2.hello
     end
 
+    thread = result.threads.first
+    assert_in_delta(0.3, thread.total_time, 0.01)
+
+    top_methods = thread.top_methods
+    assert_equal(1, top_methods.count)
+    assert_equal("MeasureWallTimeTest#test_module_methods", top_methods[0].full_name)
+
     # Methods:
     #   MeasureWallTimeTest#test_module_methods
     #   M1#hello
@@ -135,6 +156,13 @@ class MeasureWallTimeTest < Test::Unit::TestCase
     result = RubyProf.profile do
       RubyProf::C2.new.hello
     end
+
+    thread = result.threads.first
+    assert_in_delta(0.3, thread.total_time, 0.01)
+
+    top_methods = thread.top_methods
+    assert_equal(1, top_methods.count)
+    assert_equal("MeasureWallTimeTest#test_module_instance_methods", top_methods[0].full_name)
 
     # Methods:
     #   MeasureWallTimeTest#test_module_instance_methods
@@ -191,6 +219,13 @@ class MeasureWallTimeTest < Test::Unit::TestCase
     result = RubyProf.profile do
       c3.hello
     end
+
+    thread = result.threads.first
+    assert_in_delta(0.0, thread.total_time, 0.01)
+
+    top_methods = thread.top_methods
+    assert_equal(1, top_methods.count)
+    assert_equal("MeasureWallTimeTest#test_singleton", top_methods[0].full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(2, methods.length)

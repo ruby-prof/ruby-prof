@@ -9,6 +9,11 @@ class BasicTest < Test::Unit::TestCase
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 
+  def start
+    RubyProf.start
+    RubyProf::C1.hello
+  end
+
   def test_running
     assert(!RubyProf.running?)
     RubyProf.start
@@ -40,57 +45,83 @@ class BasicTest < Test::Unit::TestCase
     RubyProf.stop
   end
 
-  def test_pause_seq
-    p = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
-    p.start ; assert !p.paused?
-    p.pause ; assert p.paused?
-    p.resume; assert !p.paused?
-    p.pause ; assert p.paused?
-    p.pause ; assert p.paused?
-    p.resume; assert !p.paused?
-    p.resume; assert !p.paused?
-    p.stop  ; assert !p.paused?
+  def test_leave_method
+    start
+    sleep 0.1
+    profile = RubyProf.stop
+
+    assert_equal(1, profile.threads.count)
+
+    thread = profile.threads.first
+    assert_in_delta(0.2, thread.total_time, 0.01)
+
+    top_methods = thread.top_methods
+    assert_equal(2, top_methods.count)
+    assert_equal("BasicTest#start", top_methods[0].full_name)
+    assert_equal("BasicTest#test_leave_method", top_methods[1].full_name)
+
+    assert_equal(4, thread.methods.length)
+    methods = profile.threads.first.methods
+
+    # Check times
+    assert_equal("BasicTest#start", thread.methods[0].full_name)
+    assert_in_delta(0.1, methods[0].total_time, 0.01)
+    assert_in_delta(0.0, methods[0].wait_time, 0.01)
+    assert_in_delta(0.0, methods[0].self_time, 0.01)
+
+    assert_equal("<Class::RubyProf::C1>#hello", methods[1].full_name)
+    assert_in_delta(0.1, methods[1].total_time, 0.01)
+    assert_in_delta(0.0, methods[1].wait_time, 0.01)
+    assert_in_delta(0.0, methods[1].self_time, 0.01)
+
+    assert_equal("Kernel#sleep", methods[2].full_name)
+    assert_in_delta(0.2, methods[2].total_time, 0.01)
+    assert_in_delta(0.0, methods[2].wait_time, 0.01)
+    assert_in_delta(0.2, methods[2].self_time, 0.01)
+
+    assert_equal("BasicTest#test_leave_method", methods[3].full_name)
+    assert_in_delta(0.1, methods[3].total_time, 0.01)
+    assert_in_delta(0.0, methods[3].wait_time, 0.01)
+    assert_in_delta(0.0, methods[3].self_time, 0.01)
   end
 
-  def test_pause_block
-    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
-    p.start
-    p.pause
-    assert p.paused?
+  def test_leave_method_2
+    start
+    RubyProf::C1.hello
+    profile = RubyProf.stop
 
-    times_block_invoked = 0
-    retval= p.resume{
-      times_block_invoked += 1
-      120 + times_block_invoked
-    }
-    assert_equal 1, times_block_invoked
-    assert p.paused?
+    assert_equal(1, profile.threads.count)
 
-    assert_equal 121, retval, "resume() should return the result of the given block."
+    thread = profile.threads.first
+    assert_in_delta(0.2, thread.total_time, 0.01)
 
-    p.stop
-  end
+    top_methods = thread.top_methods
+    assert_equal(2, top_methods.count)
+    assert_equal("BasicTest#start", top_methods[0].full_name)
+    assert_equal("BasicTest#test_leave_method_2", top_methods[1].full_name)
 
-  def test_pause_block_with_error
-    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
-    p.start
-    p.pause
-    assert p.paused?
+    assert_equal(4, thread.methods.length)
+    methods = profile.threads.first.methods
 
-    begin
-      p.resume{ raise }
-      flunk 'Exception expected.'
-    rescue
-      assert p.paused?
-    end
+    # Check times
+    assert_equal("BasicTest#start", thread.methods[0].full_name)
+    assert_in_delta(0.1, methods[0].total_time, 0.01)
+    assert_in_delta(0.0, methods[0].wait_time, 0.01)
+    assert_in_delta(0.0, methods[0].self_time, 0.01)
 
-    p.stop
-  end
+    assert_equal("<Class::RubyProf::C1>#hello", methods[1].full_name)
+    assert_in_delta(0.2, methods[1].total_time, 0.01)
+    assert_in_delta(0.0, methods[1].wait_time, 0.01)
+    assert_in_delta(0.0, methods[1].self_time, 0.01)
 
-  def test_resume_when_not_paused
-    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
-    p.start ; assert !p.paused?
-    p.resume; assert !p.paused?
-    p.stop  ; assert !p.paused?
+    assert_equal("Kernel#sleep", methods[2].full_name)
+    assert_in_delta(0.2, methods[2].total_time, 0.01)
+    assert_in_delta(0.0, methods[2].wait_time, 0.01)
+    assert_in_delta(0.2, methods[2].self_time, 0.01)
+
+    assert_equal("BasicTest#test_leave_method_2", methods[3].full_name)
+    assert_in_delta(0.1, methods[3].total_time, 0.01)
+    assert_in_delta(0.0, methods[3].wait_time, 0.01)
+    assert_in_delta(0.0, methods[3].self_time, 0.01)
   end
 end

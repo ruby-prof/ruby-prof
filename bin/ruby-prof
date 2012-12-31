@@ -13,9 +13,13 @@
 #
 # See also the readme "reports" section for the various outputs
 
+# First require ruby-prof
+require 'rubygems'
+require 'ruby-prof'
+
+# Now setup option parser
 require 'ostruct'
 require 'optparse'
-require File.expand_path('../../lib/ruby-prof', __FILE__)
 
 rubyprof_options = OpenStruct.new
 rubyprof_options.measure_mode = RubyProf::PROCESS_TIME

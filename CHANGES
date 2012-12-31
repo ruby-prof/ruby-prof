@@ -1,3 +1,15 @@
+0.11.2 (2013-01-03)
+======================
+* Fix issue where profiling results could exceed 100% if profile code had multiple top level methods (Charlie Savage)
+* Replaced RubyProf::Thread#top_method with RubyProf::Thread#top_methods (Charlie Savage)
+* Added RubyProf::Thread#total_time (Charlie Savage)
+
+
+0.11.3 (2012-12-??)
+======================
+* ??
+
+
 0.11.2 (2012-05-06)
 ======================
 * Fix compile issue with BOOL.  Should be _Bool for C99.

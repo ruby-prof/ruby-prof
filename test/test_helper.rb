@@ -2,7 +2,7 @@
 
 # Make RubyMine happy
 if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]
-  if RUBY_PLATFORM =~ /(win32|w32)/
+  if RUBY_PLATFORM =~ /(win32|mingw)/
     gem "win32console"
   end
   gem "minitest"

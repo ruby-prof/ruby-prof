@@ -460,28 +460,6 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     return self;
 }
 
-static int pause_thread(st_data_t key, st_data_t value, st_data_t data) 
-{
-    thread_data_t* thread_data = (thread_data_t *) value;
-    prof_profile_t* profile = (prof_profile_t*) data;
-
-    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_pause(frame, profile->measurement_at_pause_resume);
-
-    return ST_CONTINUE;
-}
-
-static int unpause_thread(st_data_t key, st_data_t value, st_data_t data) 
-{
-    thread_data_t* thread_data = (thread_data_t *) value;
-    prof_profile_t* profile = (prof_profile_t*) data;
-
-    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_unpause(frame, profile->measurement_at_pause_resume);
-
-    return ST_CONTINUE;
-}
-
 /* call-seq:
    paused? -> boolean
 

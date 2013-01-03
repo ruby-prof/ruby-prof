@@ -4,22 +4,71 @@
 require File.expand_path('../test_helper', __FILE__)
 
 class PauseResumeTest < Test::Unit::TestCase
+  def setup
+    # Need to use wall time for this test due to the sleep calls
+    RubyProf::measure_mode = RubyProf::WALL_TIME
+  end
+
+  def test_pause_resume
+    # Measured
+    RubyProf.start
+    RubyProf::C1.hello
+
+    # Not measured
+    RubyProf.pause
+    sleep 1
+    RubyProf::C1.hello
+
+    # Measured
+    RubyProf.resume
+    RubyProf::C1.hello
+
+    result = RubyProf.stop
+
+    # Length should be 3:
+    #   PauseResumeTest#test_pause_resume
+    #   <Class::RubyProf::C1>#hello
+    #   Kernel#sleep
+
+    methods = result.threads.first.methods.sort_by {|method_info| method_info.full_name}
+    assert_equal(3, methods.length)
+
+    # Check the names
+    assert_equal('<Class::RubyProf::C1>#hello', methods[0].full_name)
+    assert_equal('Kernel#sleep', methods[1].full_name)
+    assert_equal('PauseResumeTest#test_pause_resume', methods[2].full_name)
+
+    # Check times
+    assert_in_delta(0.2, methods[0].total_time, 0.01)
+    assert_in_delta(0, methods[0].wait_time, 0.01)
+    assert_in_delta(0, methods[0].self_time, 0.01)
+
+    assert_in_delta(0.2, methods[1].total_time, 0.01)
+    assert_in_delta(0, methods[1].wait_time, 0.01)
+    assert_in_delta(0.2, methods[1].self_time, 0.01)
+
+    assert_in_delta(0.2, methods[2].total_time, 0.01)
+    assert_in_delta(0, methods[2].wait_time, 0.01)
+    assert_in_delta(0, methods[2].self_time, 0.01)
+  end
 
   # pause/resume in the same frame
   def test_pause_resume_1
-    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
 
-    p.start
+    profile.start
     method_1a
 
-    p.pause
+    profile.pause
     method_1b
 
-    p.resume
+    profile.resume
     method_1c
 
-    r= p.stop
-    assert_in_delta(0.6, r.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_1$/}[0].total_time, 0.05)
+    result = profile.stop
+    printer = RubyProf::GraphPrinter.new(result)
+    printer.print
+    assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_1$/}[0].total_time, 0.05)
   end
   def method_1a; sleep 0.2 end
   def method_1b; sleep 1   end
@@ -27,35 +76,89 @@ class PauseResumeTest < Test::Unit::TestCase
 
   # pause in parent frame, resume in child
   def test_pause_resume_2
-    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
 
-    p.start
+    profile.start
     method_2a
 
-    p.pause
+    profile.pause
     sleep 0.5
     method_2b(p)
 
-    r= p.stop
+    r= profile.stop
     assert_in_delta(0.6, r.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_2$/}[0].total_time, 0.05)
   end
   def method_2a; sleep 0.2 end
-  def method_2b(p); sleep 0.5; p.resume; sleep 0.4 end
+  def method_2b(p); sleep 0.5; profile.resume; sleep 0.4 end
 
   # pause in child frame, resume in parent
   def test_pause_resume_3
-    p= RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
 
-    p.start
+    profile.start
     method_3a(p)
 
     sleep 0.5
-    p.resume
+    profile.resume
     method_3b
 
-    r= p.stop
+    r= profile.stop
     assert_in_delta(0.6, r.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_3$/}[0].total_time, 0.05)
   end
-  def method_3a(p); sleep 0.2; p.pause; sleep 0.5 end
+  def method_3a(p); sleep 0.2; profile.pause; sleep 0.5 end
   def method_3b; sleep 0.4 end
+
+  def test_pause_seq
+    p = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile.start ; assert !profile.paused?
+    profile.pause ; assert profile.paused?
+    profile.resume; assert !profile.paused?
+    profile.pause ; assert profile.paused?
+    profile.pause ; assert profile.paused?
+    profile.resume; assert !profile.paused?
+    profile.resume; assert !profile.paused?
+    profile.stop  ; assert !profile.paused?
+  end
+
+  def test_pause_block
+    profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile.start
+    profile.pause
+    assert profile.paused?
+
+    times_block_invoked = 0
+    retval= profile.resume{
+      times_block_invoked += 1
+      120 + times_block_invoked
+    }
+    assert_equal 1, times_block_invoked
+    assert profile.paused?
+
+    assert_equal 121, retval, "resume() should return the result of the given block."
+
+    profile.stop
+  end
+
+  def test_pause_block_with_error
+    profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile.start
+    profile.pause
+    assert profile.paused?
+
+    begin
+      profile.resume{ raise }
+      flunk 'Exception expected.'
+    rescue
+      assert profile.paused?
+    end
+
+    profile.stop
+  end
+
+  def test_resume_when_not_paused
+    profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile.start ; assert !profile.paused?
+    profile.resume; assert !profile.paused?
+    profile.stop  ; assert !profile.paused?
+  end
 end

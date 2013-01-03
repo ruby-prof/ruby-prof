@@ -39,7 +39,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <OutDir>C:\MinGW\local\ruby\lib\ruby\gems\1.9.1\gems\ruby-prof-0.11.4-x86-mswin32-100\lib\1.9</OutDir>
+    <OutDir>..\..\..\lib\1.9</OutDir>
     <TargetExt>.so</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

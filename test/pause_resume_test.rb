@@ -66,8 +66,6 @@ class PauseResumeTest < Test::Unit::TestCase
     method_1c
 
     result = profile.stop
-    printer = RubyProf::GraphPrinter.new(result)
-    printer.print
     assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_1$/}[0].total_time, 0.05)
   end
   def method_1a; sleep 0.2 end
@@ -83,33 +81,33 @@ class PauseResumeTest < Test::Unit::TestCase
 
     profile.pause
     sleep 0.5
-    method_2b(p)
+    method_2b(profile)
 
-    r= profile.stop
-    assert_in_delta(0.6, r.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_2$/}[0].total_time, 0.05)
+    result = profile.stop
+    assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_2$/}[0].total_time, 0.05)
   end
   def method_2a; sleep 0.2 end
-  def method_2b(p); sleep 0.5; profile.resume; sleep 0.4 end
+  def method_2b(profile); sleep 0.5; profile.resume; sleep 0.4 end
 
   # pause in child frame, resume in parent
   def test_pause_resume_3
     profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
 
     profile.start
-    method_3a(p)
+    method_3a(profile)
 
     sleep 0.5
     profile.resume
     method_3b
 
-    r= profile.stop
-    assert_in_delta(0.6, r.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_3$/}[0].total_time, 0.05)
+    result = profile.stop
+    assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_3$/}[0].total_time, 0.05)
   end
-  def method_3a(p); sleep 0.2; profile.pause; sleep 0.5 end
+  def method_3a(profile); sleep 0.2; profile.pause; sleep 0.5 end
   def method_3b; sleep 0.4 end
 
   def test_pause_seq
-    p = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
+    profile = RubyProf::Profile.new(RubyProf::WALL_TIME,[])
     profile.start ; assert !profile.paused?
     profile.pause ; assert profile.paused?
     profile.resume; assert !profile.paused?

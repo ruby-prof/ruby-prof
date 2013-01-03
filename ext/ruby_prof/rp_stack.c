@@ -43,7 +43,7 @@ prof_stack_free(prof_stack_t *stack)
 }
 
 prof_frame_t *
-prof_stack_push(prof_stack_t *stack)
+prof_stack_push(prof_stack_t *stack, double measurement)
 {
   prof_frame_t* result = NULL;
 
@@ -64,7 +64,9 @@ prof_stack_push(prof_stack_t *stack)
   result->child_time = 0;
   result->switch_time = 0;
   result->wait_time = 0;
+  result->dead_time = 0;
   result->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32
+  result->start_time = measurement;
 
   // Increment the stack ptr for next time
   stack->ptr++;
@@ -74,12 +76,51 @@ prof_stack_push(prof_stack_t *stack)
 }
 
 prof_frame_t *
-prof_stack_pop(prof_stack_t *stack)
+prof_stack_pop(prof_stack_t *stack, double measurement)
 {
-    if (stack->ptr == stack->start)
-      return NULL;
-    else
-      return --stack->ptr;
+  prof_frame_t *frame = NULL;
+  prof_frame_t* parent_frame = NULL;
+  prof_call_info_t *call_info;
+
+  double total_time;
+  double self_time;
+#ifdef _MSC_VER
+  BOOL frame_paused;
+#else
+  _Bool frame_paused;
+#endif
+
+  /* Frame can be null.  This can happen if RubProf.start is called from
+     a method that exits.  And it can happen if an exception is raised
+     in code that is being profiled and the stack unwinds (RubyProf is
+     not notified of that by the ruby runtime. */
+  if (stack->ptr == stack->start)
+    return NULL;
+  
+  frame = --stack->ptr;
+
+  /* Calculate the total time this method took */
+  //prof_frame_unpause(frame, measurement);
+  total_time = measurement - frame->start_time - frame->dead_time;
+  self_time = total_time - frame->child_time - frame->wait_time;
+
+  /* Update information about the current method */
+  call_info = frame->call_info;
+  call_info->called++;
+  call_info->total_time += total_time;
+  call_info->self_time += self_time;
+  call_info->wait_time += frame->wait_time;
+
+  parent_frame = prof_stack_peek(stack);
+  if (parent_frame)
+  {
+      parent_frame->child_time += total_time;
+      parent_frame->dead_time += frame->dead_time;
+
+      call_info->line = parent_frame->line;
+  }
+
+  return frame;
 }
 
 prof_frame_t *

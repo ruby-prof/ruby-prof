@@ -44,8 +44,8 @@ typedef struct
 
 prof_stack_t * prof_stack_create();
 void prof_stack_free(prof_stack_t *stack);
-prof_frame_t * prof_stack_push(prof_stack_t *stack);
-prof_frame_t * prof_stack_pop(prof_stack_t *stack);
+prof_frame_t * prof_stack_push(prof_stack_t *stack, double measurement);
+prof_frame_t * prof_stack_pop(prof_stack_t *stack, double measurement);
 prof_frame_t * prof_stack_peek(prof_stack_t *stack);
 
 #endif //__RP_STACK__

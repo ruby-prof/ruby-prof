@@ -120,72 +120,20 @@ static prof_method_t*
     return method;
 }
 
-static prof_frame_t*
-pop_frame(prof_profile_t* profile, thread_data_t *thread_data)
-{
-  prof_frame_t *frame = NULL;
-  prof_frame_t* parent_frame = NULL;
-  prof_call_info_t *call_info;
-  double measurement = profile->measurer->measure();
-  double total_time;
-  double self_time;
-#ifdef _MSC_VER
-  BOOL frame_paused;
-#else
-  _Bool frame_paused;
-#endif
-
-  frame = prof_stack_pop(thread_data->stack); // only time it's called
-
-  /* Frame can be null.  This can happen if RubProf.start is called from
-     a method that exits.  And it can happen if an exception is raised
-     in code that is being profiled and the stack unwinds (RubyProf is
-     not notified of that by the ruby runtime. */
-  if (frame == NULL)
-      return NULL;
-
-  /* Calculate the total time this method took */
-  frame_paused = prof_frame_is_paused(frame);
-  prof_frame_unpause(frame, measurement);
-  total_time = measurement - frame->start_time - frame->dead_time;
-  self_time = total_time - frame->child_time - frame->wait_time;
-
-  /* Update information about the current method */
-  call_info = frame->call_info;
-  call_info->called++;
-  call_info->total_time += total_time;
-  call_info->self_time += self_time;
-  call_info->wait_time += frame->wait_time;
-
-  parent_frame = prof_stack_peek(thread_data->stack);
-  if (parent_frame)
-  {
-      parent_frame->child_time += total_time;
-      parent_frame->dead_time += frame->dead_time;
-
-      // Repause parent if currently paused
-      if (frame_paused)
-          prof_frame_pause(parent_frame, measurement);
-
-      call_info->line = parent_frame->line;
-  }
-
-  return frame;
-}
-
 static int
 pop_frames(st_data_t key, st_data_t value, st_data_t data)
 {
     VALUE thread_id = (VALUE)key;
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
+	double measurement = profile->measurer->measure();
 
     if (!profile->last_thread_data || profile->last_thread_data->thread_id != thread_id)
       thread_data = switch_thread(profile, thread_id);
     else
       thread_data = profile->last_thread_data;
 
-    while (pop_frame(profile, thread_data))
+    while (prof_stack_pop(thread_data->stack, measurement))
     {
     }
 
@@ -351,19 +299,17 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        frame = prof_stack_push(thread_data->stack);
+        frame = prof_stack_push(thread_data->stack, measurement);
         frame->call_info = call_info;
 		frame->call_info->depth = frame->depth;
-        frame->start_time = measurement;
         frame->pause_time = profile->paused == Qtrue ? measurement : -1;
-        frame->dead_time = 0;
         frame->line = rb_sourceline();
         break;
     }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
-      pop_frame(profile, thread_data);
+	  prof_stack_pop(thread_data->stack, measurement);
       break;
     }
   }

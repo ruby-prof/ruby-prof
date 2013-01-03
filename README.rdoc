@@ -186,29 +186,29 @@ profile.rb.
 So to profile Rails:
 
 1.  Create a new profile.rb environment.  Make sure to turn on cache_classes
-and cache_template_loading.  Otherwise your profiling results will be
-overwhelemed by the time Rails spends loading required files.  You should
-likely turn off caching.
+    and cache_template_loading.  Otherwise your profiling results will be
+    overwhelemed by the time Rails spends loading required files.  You should
+    likely turn off caching.
 
 2.  Add the ruby-prof to your gemfile:
 
-  group :profile do
-    gem 'ruby-prof'
-  end
+      group :profile do
+        gem 'ruby-prof'
+      end
 
 3.  Add the ruby prof rack adapter to your middleware stack.  One way to
-do this is by adding the following code to config.ru:
+    do this is by adding the following code to config.ru:
 
-  if Rails.env.profile?
-    use Rack::RubyProf, :path => '/temp/profile'
-  end
+      if Rails.env.profile?
+        use Rack::RubyProf, :path => '/temp/profile'
+      end
 
-The path is where you want profiling results to be stored.  By default the
-rack adapter will generate a html call graph report and flat text report.
+    The path is where you want profiling results to be stored.  By default the
+    rack adapter will generate a html call graph report and flat text report.
 
 4.  Now make a request to your running server.  New profiling information will
-be generated for each request.  Note that each request will overwrite
-the profiling reports created by the previous request!
+    be generated for each request.  Note that each request will overwrite
+    the profiling reports created by the previous request!
 
 == Reports
 

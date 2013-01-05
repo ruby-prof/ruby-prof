@@ -18,187 +18,40 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
     assert(defined?(RubyProf::PROCESS_TIME_ENABLED))
   end
 
-  def test_class_methods
+  def test_primes
+    start = Process.times
     result = RubyProf.profile do
-      RubyProf::C1.hello
+      run_primes(10000)
     end
+    finish = Process.times
 
-    # Length should be 3:
-    #   MeasureProcessTimeTest#test_class_methods
-    #   <Class::RubyProf::C1>#hello
-    #   Kernel#sleep
+    total_time = (finish.utime - start.utime) + (finish.stime - start.stime)
+
+    thread = result.threads.first
+    assert_in_delta(total_time, thread.total_time, 0.01)
 
     methods = result.threads.first.methods.sort.reverse
+    puts methods
 
-    assert_equal(3, methods.length)
+    assert_equal(16, methods.length)
 
     # Check times
-    assert_equal("MeasureProcessTimeTest#test_class_methods", methods[0].full_name)
-    assert_in_delta(0.1, methods[0].total_time, 0.01)
+    assert_equal("MeasureProcessTimeTest#test_primes", methods[0].full_name)
+    assert_in_delta(total_time, methods[0].total_time, 0.01)
     assert_in_delta(0.0, methods[0].wait_time, 0.01)
     assert_in_delta(0.0, methods[0].self_time, 0.01)
 
-    assert_equal("<Class::RubyProf::C1>#hello", methods[1].full_name)
-    assert_in_delta(0.1, methods[1].total_time, 0.01)
+    assert_equal("Object#run_primes", methods[1].full_name)
+    assert_in_delta(total_time, methods[1].total_time, 0.01)
     assert_in_delta(0.0, methods[1].wait_time, 0.01)
     assert_in_delta(0.0, methods[1].self_time, 0.01)
 
-    assert_equal("Kernel#sleep", methods[2].full_name)
-    assert_in_delta(0.1, methods[2].total_time, 0.01)
-    assert_in_delta(0.0, methods[2].wait_time, 0.01)
-    assert_in_delta(0.1, methods[2].self_time, 0.01)
-  end
-
-  def test_instance_methods
-    result = RubyProf.profile do
-      RubyProf::C1.new.hello
-    end
-
-    # Methods called
-    #   MeasureProcessTimeTest#test_instance_methods
-    #   Class.new
-    #   Class:Object#allocate
-    #   for Object#initialize
-    #   C1#hello
-    #   Kernel#sleep
-
-    methods = result.threads.first.methods.sort.reverse
-    assert_equal(6, methods.length)
-
-    # Check times
-    assert_equal("MeasureProcessTimeTest#test_instance_methods", methods[0].full_name)
-    assert_in_delta(0.2, methods[0].total_time, 0.02)
-    assert_in_delta(0.0, methods[0].wait_time, 0.02)
-    assert_in_delta(0.0, methods[0].self_time, 0.02)
-
-    assert_equal("RubyProf::C1#hello", methods[1].full_name)
-    assert_in_delta(0.2, methods[1].total_time, 0.02)
-    assert_in_delta(0.0, methods[1].wait_time, 0.02)
-    assert_in_delta(0.0, methods[1].self_time, 0.02)
-
-    assert_equal("Kernel#sleep", methods[2].full_name)
-    assert_in_delta(0.2, methods[2].total_time, 0.02)
-    assert_in_delta(0.0, methods[2].wait_time, 0.02)
-    assert_in_delta(0.2, methods[2].self_time, 0.02)
-
-    assert_equal("Class#new", methods[3].full_name)
-    assert_in_delta(0.0, methods[3].total_time, 0.01)
-    assert_in_delta(0.0, methods[3].wait_time, 0.01)
-    assert_in_delta(0.0, methods[3].self_time, 0.01)
-
-    assert_equal("#{RubyProf::PARENT}#initialize", methods[4].full_name)
-    assert_in_delta(0.0, methods[4].total_time, 0.01)
-    assert_in_delta(0.0, methods[4].wait_time, 0.01)
-    assert_in_delta(0.0, methods[4].self_time, 0.01)
-
-    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[5].full_name)
-    assert_in_delta(0.0, methods[5].total_time, 0.01)
-    assert_in_delta(0.0, methods[5].wait_time, 0.01)
-    assert_in_delta(0.0, methods[5].self_time, 0.01)
-  end
-
-  def test_module_methods
-    result = RubyProf.profile do
-      RubyProf::C2.hello
-    end
-
-    # Methods:
-    #   MeasureProcessTimeTest#test_module_methods
-    #   M1#hello
-    #   Kernel#sleep
-
-    methods = result.threads.first.methods.sort.reverse
-    assert_equal(3, methods.length)
-
-    # Check times
-    assert_equal("MeasureProcessTimeTest#test_module_methods", methods[0].full_name)
-    assert_in_delta(0.3, methods[0].total_time, 0.1)
-    assert_in_delta(0.0, methods[0].wait_time, 0.02)
-    assert_in_delta(0.0, methods[0].self_time, 0.02)
-
-    assert_equal("RubyProf::M1#hello", methods[1].full_name)
-    assert_in_delta(0.3, methods[1].total_time, 0.1)
-    assert_in_delta(0.0, methods[1].wait_time, 0.02)
-    assert_in_delta(0.0, methods[1].self_time, 0.02)
-
-    assert_equal("Kernel#sleep", methods[2].full_name)
-    assert_in_delta(0.3, methods[2].total_time, 0.1)
-    assert_in_delta(0.0, methods[2].wait_time, 0.02)
-    assert_in_delta(0.3, methods[2].self_time, 0.1)
-  end
-
-  def test_module_instance_methods
-    result = RubyProf.profile do
-      RubyProf::C2.new.hello
-    end
-
-    # Methods:
-    #   MeasureProcessTimeTest#test_module_instance_methods
-    #   Class#new
-    #   <Class::Object>#allocate
-    #   Object#initialize
-    #   M1#hello
-    #   Kernel#sleep
-
-    methods = result.threads.first.methods.sort.reverse
-    assert_equal(6, methods.length)
-
-    # Check times
-    assert_equal("MeasureProcessTimeTest#test_module_instance_methods", methods[0].full_name)
-    assert_in_delta(0.3, methods[0].total_time, 0.1)
-    assert_in_delta(0.0, methods[0].wait_time, 0.1)
-    assert_in_delta(0.0, methods[0].self_time, 0.1)
-
-    assert_equal("RubyProf::M1#hello", methods[1].full_name)
-    assert_in_delta(0.3, methods[1].total_time, 0.02)
-    assert_in_delta(0.0, methods[1].wait_time, 0.01)
-    assert_in_delta(0.0, methods[1].self_time, 0.01)
-
-    assert_equal("Kernel#sleep", methods[2].full_name)
-    assert_in_delta(0.3, methods[2].total_time, 0.02)
-    assert_in_delta(0.0, methods[2].wait_time, 0.01)
-    assert_in_delta(0.3, methods[2].self_time, 0.02)
-
-    assert_equal("Class#new", methods[3].full_name)
-    assert_in_delta(0.0, methods[3].total_time, 0.01)
-    assert_in_delta(0.0, methods[3].wait_time, 0.01)
-    assert_in_delta(0.0, methods[3].self_time, 0.01)
-
-    assert_equal("#{RubyProf::PARENT}#initialize", methods[4].full_name)
-    assert_in_delta(0.0, methods[4].total_time, 0.01)
-    assert_in_delta(0.0, methods[4].wait_time, 0.01)
-    assert_in_delta(0.0, methods[4].self_time, 0.01)
-
-    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[5].full_name)
-    assert_in_delta(0.0, methods[5].total_time, 0.01)
-    assert_in_delta(0.0, methods[5].wait_time, 0.01)
-    assert_in_delta(0.0, methods[5].self_time, 0.01)
-  end
-
-  def test_singleton
-    c3 = RubyProf::C3.new
-
-    class << c3
-      def hello
-      end
-    end
-
-    result = RubyProf.profile do
-      c3.hello
-    end
-
-    methods = result.threads.first.methods.sort.reverse
-    assert_equal(2, methods.length)
-
-    assert_equal("MeasureProcessTimeTest#test_singleton", methods[0].full_name)
-    assert_equal("<Object::RubyProf::C3>#hello", methods[1].full_name)
-
-    assert_in_delta(0.0, methods[0].total_time, 0.01)
-    assert_in_delta(0.0, methods[0].wait_time, 0.01)
-    assert_in_delta(0.0, methods[0].self_time, 0.01)
-
-    assert_in_delta(0.0, methods[1].total_time, 0.01)
-    assert_in_delta(0.0, methods[1].wait_time, 0.01)
-    assert_in_delta(0.0, methods[1].self_time, 0.01)
+    assert_equal("Object#find_primes", methods[2].full_name)
+    assert_equal("Array#select", methods[3].full_name)
+    assert_equal("Object#is_prime", methods[4].full_name)
+    assert_equal("Integer#upto", methods[5].full_name)
+    assert_equal("Object#make_random_array", methods[6].full_name)
+    assert_equal("Array#each_index", methods[7].full_name)
+    assert_equal("Kernel#rand", methods[8].full_name)
   end
 end

@@ -7,20 +7,11 @@ require 'fileutils'
 
 # --  Tests ----
 class PrintersTest < Test::Unit::TestCase
-  def go
-    run_primes(10)
-  end
-
   def setup
     # WALL_TIME so we can use sleep in our test and get same measurements on linux and windows
     RubyProf::measure_mode = RubyProf::WALL_TIME
     @result = RubyProf.profile do
-      begin
-        run_primes(1000)
-        go
-      rescue => e
-        p e
-      end
+      run_primes(200)
     end
   end
 
@@ -45,7 +36,6 @@ class PrintersTest < Test::Unit::TestCase
 
       printer = RubyProf::GraphPrinter.new(@result)
       printer.print(output)
-
     end
   end
 
@@ -111,9 +101,9 @@ class PrintersTest < Test::Unit::TestCase
     printer = RubyProf::GraphHtmlPrinter.new(@result)
     printer.print(output)
 
-    assert_match( /DTD HTML 4\.01/i, output )
-    assert_match( %r{<th>Total Time</th>}i, output )
-    assert_match( /Object#run_primes/i, output )
+    assert_match(/DTD HTML 4\.01/i, output)
+    assert_match( %r{<th>Total Time</th>}i, output)
+    assert_match(/Object#run_primes/i, output)
   end
 
   def test_graph_string
@@ -121,9 +111,9 @@ class PrintersTest < Test::Unit::TestCase
     printer = RubyProf::GraphPrinter.new(@result)
     printer.print(output)
 
-    assert_match( /Thread ID: -?\d+/i, output )
-    assert_match( /Total Time: \d+\.\d+/i, output )
-    assert_match( /Object#run_primes/i, output )
+    assert_match(/Thread ID: -?\d+/i, output)
+    assert_match(/Total Time: \d+\.\d+/i, output)
+    assert_match(/Object#run_primes/i, output)
   end
 
   def test_call_tree_string
@@ -262,5 +252,4 @@ class PrintersTest < Test::Unit::TestCase
     array = array.map{|n| n.to_f} # allow for > 10s times to sort right, since lexographically 4.0 > 10.0
     assert_equal array, array.sort.reverse, "Array #{array.inspect} is not sorted"
   end
-
 end

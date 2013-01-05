@@ -6,7 +6,7 @@ require File.expand_path('../test_helper', __FILE__)
 class CallInfoVisitorTest < Test::Unit::TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::CPU_TIME
+    RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 
   def test_visit

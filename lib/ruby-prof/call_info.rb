@@ -57,7 +57,7 @@ module RubyProf
       parent.children.delete(self)
     end
 
-    # find a sepcific call in list of children. returns nil if not found.
+    # find a specific call in list of children. returns nil if not found.
     # note: there can't be more than one child with a given target method. in other words:
     # x.children.grep{|y|y.target==m}.size <= 1 for all method infos m and call infos x
     def find_call(other)

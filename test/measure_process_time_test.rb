@@ -86,12 +86,12 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
     assert_in_delta(0.0, methods[3].wait_time, 0.01)
     assert_in_delta(0.0, methods[3].self_time, 0.01)
 
-    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[4].full_name)
+    assert_equal("#{RubyProf::PARENT}#initialize", methods[4].full_name)
     assert_in_delta(0.0, methods[4].total_time, 0.01)
     assert_in_delta(0.0, methods[4].wait_time, 0.01)
     assert_in_delta(0.0, methods[4].self_time, 0.01)
 
-    assert_equal("#{RubyProf::PARENT}#initialize", methods[5].full_name)
+    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[5].full_name)
     assert_in_delta(0.0, methods[5].total_time, 0.01)
     assert_in_delta(0.0, methods[5].wait_time, 0.01)
     assert_in_delta(0.0, methods[5].self_time, 0.01)
@@ -164,12 +164,12 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
     assert_in_delta(0.0, methods[3].wait_time, 0.01)
     assert_in_delta(0.0, methods[3].self_time, 0.01)
 
-    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[4].full_name)
+    assert_equal("#{RubyProf::PARENT}#initialize", methods[4].full_name)
     assert_in_delta(0.0, methods[4].total_time, 0.01)
     assert_in_delta(0.0, methods[4].wait_time, 0.01)
     assert_in_delta(0.0, methods[4].self_time, 0.01)
 
-    assert_equal("#{RubyProf::PARENT}#initialize", methods[5].full_name)
+    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[5].full_name)
     assert_in_delta(0.0, methods[5].total_time, 0.01)
     assert_in_delta(0.0, methods[5].wait_time, 0.01)
     assert_in_delta(0.0, methods[5].self_time, 0.01)

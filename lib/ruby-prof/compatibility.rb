@@ -125,8 +125,8 @@ module RubyProf
 
   def self.stop
     ensure_running!
-    disable_gc_stats_if_needed
     result = @profile.stop
+    disable_gc_stats_if_needed
     @profile = nil
     result
   end

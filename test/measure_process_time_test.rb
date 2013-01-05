@@ -31,7 +31,6 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
     assert_in_delta(total_time, thread.total_time, 0.01)
 
     methods = result.threads.first.methods.sort.reverse
-    puts methods
 
     assert_equal(16, methods.length)
 

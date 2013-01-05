@@ -20,7 +20,5 @@ thread_data_t* switch_thread(void* prof, VALUE thread_id);
 void threads_table_free(st_table *table);
 VALUE prof_thread_wrap(thread_data_t *thread);
 void prof_thread_mark(thread_data_t *thread);
-int pause_thread(st_data_t key, st_data_t value, st_data_t data);
-int unpause_thread(st_data_t key, st_data_t value, st_data_t data);
 
 #endif //__RP_THREAD__

@@ -291,18 +291,12 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
             call_info_table_insert(frame->call_info->call_infos, method->key, call_info);
             prof_add_call_info(method->call_infos, call_info);
           }
-
-          // Unpause the parent frame. If currently paused then:
-          // 1) The child frame will begin paused.
-          // 2) The parent will inherit the child's dead time.
-          prof_frame_unpause(frame, measurement);
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         frame = prof_stack_push(thread_data->stack, measurement);
         frame->call_info = call_info;
 		frame->call_info->depth = frame->depth;
-        frame->pause_time = profile->paused == Qtrue ? measurement : -1;
         frame->line = rb_sourceline();
         break;
     }
@@ -461,17 +455,6 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
 }
 
 /* call-seq:
-   paused? -> boolean
-
-   Returns whether a profile is currently paused.*/
-static VALUE
-prof_paused(VALUE self)
-{
-    prof_profile_t* profile = prof_get_profile(self);
-    return profile->paused;
-}
-
-/* call-seq:
    running? -> boolean
 
    Returns whether a profile is currently running.*/
@@ -506,11 +489,9 @@ prof_start(VALUE self)
 #endif
 
     profile->running = Qtrue;
-    profile->paused = Qfalse;
     profile->last_thread_data = NULL;
 
-
-    /* open trace file if environment wants it */
+	/* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
     if (trace_file_name != NULL) 
     {
@@ -530,52 +511,6 @@ prof_start(VALUE self)
 
     prof_install_hook(self);
     return self;
-}
-
-/* call-seq:
-   pause -> RubyProf
-
-   Pauses collecting profile data. */
-static VALUE
-prof_pause(VALUE self)
-{
-    prof_profile_t* profile = prof_get_profile(self);
-    if (profile->running == Qfalse)
-    {
-        rb_raise(rb_eRuntimeError, "RubyProf is not running.");
-    }
-
-    if (profile->paused == Qfalse)
-    {
-        profile->paused = Qtrue;
-        profile->measurement_at_pause_resume = profile->measurer->measure();
-        st_foreach(profile->threads_tbl, pause_thread, (st_data_t) profile);
-    }
-
-    return self;
-}
-
-/* call-seq:
-   resume {block} -> RubyProf
-
-   Resumes recording profile data.*/
-static VALUE
-prof_resume(VALUE self)
-{
-    prof_profile_t* profile = prof_get_profile(self);
-    if (profile->running == Qfalse)
-    {
-        rb_raise(rb_eRuntimeError, "RubyProf is not running.");
-    }
-
-    if (profile->paused == Qtrue)
-    {
-        profile->paused = Qfalse;
-        profile->measurement_at_pause_resume = profile->measurer->measure();
-        st_foreach(profile->threads_tbl, unpause_thread, (st_data_t) profile);
-    }
-
-    return rb_block_given_p() ? rb_ensure(rb_yield, self, prof_pause, self) : self;
 }
 
 /* call-seq:
@@ -612,7 +547,6 @@ prof_stop(VALUE self)
 
     /* Unset the last_thread_data (very important!)
        and the threads table */
-    profile->running = profile->paused = Qfalse;
     profile->last_thread_data = NULL;
 
     /* Post process result */
@@ -671,9 +605,6 @@ void Init_ruby_prof()
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);
-    rb_define_method(cProfile, "resume", prof_resume, 0);
-    rb_define_method(cProfile, "pause", prof_pause, 0);
     rb_define_method(cProfile, "running?", prof_running, 0);
-    rb_define_method(cProfile, "paused?", prof_paused, 0);
     rb_define_method(cProfile, "threads", prof_threads, 0);
 }

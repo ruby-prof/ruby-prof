@@ -176,29 +176,6 @@ switch_thread(void* prof, VALUE thread_id)
     return thread_data;
 }
 
-
-int pause_thread(st_data_t key, st_data_t value, st_data_t data) 
-{
-    thread_data_t* thread_data = (thread_data_t *) value;
-    double measurement = (double) data;
-
-    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_pause(frame, measurement);
-
-    return ST_CONTINUE;
-}
-
-int unpause_thread(st_data_t key, st_data_t value, st_data_t data) 
-{
-    thread_data_t* thread_data = (thread_data_t *) value;
-    double measurement = (double) data;
-
-    prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_unpause(frame, measurement);
-
-    return ST_CONTINUE;
-}
-
 static int
 collect_methods(st_data_t key, st_data_t value, st_data_t result)
 {

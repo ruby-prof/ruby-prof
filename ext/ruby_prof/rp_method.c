@@ -2,6 +2,7 @@
    Please see the LICENSE file for copyright and distribution information */
 
 #include "ruby_prof.h"
+#include <ruby/version.h>
 
 VALUE cMethodInfo;
 
@@ -98,10 +99,12 @@ method_name(ID mid)
 {
     VALUE result;
 
-    if (mid == ID_ALLOCATOR)
-        result = rb_str_new2("allocate");
-    else if (mid == 0)
+    if (mid == 0)
         result = rb_str_new2("[No method]");
+#if RUBY_API_VERSION_MAJOR < 2
+    else if (mid == ID_ALLOCATOR)
+        result = rb_str_new2("allocate");
+#endif
     else
         result = rb_String(ID2SYM(mid));
 

@@ -11,19 +11,17 @@ require 'tmpdir'
 #        \
 #         B
 
-class ESTPT
-  def a
-    100.times{b}
-    300.times{c}
-    c;c;c
+module MethodElimination
+  def self.a
+    1.times {|i| c}
   end
 
-  def b
-    sleep 0
+  def self.b
+    sleep 0.1
   end
 
-  def c
-    5.times{b}
+  def self.c
+    1.times {|i| b}
   end
 end
 
@@ -40,24 +38,37 @@ class MethodEliminationTest < Test::Unit::TestCase
     method_infos = result.threads.first.methods
     assert(m1 = method_infos[0])
     assert(c1 = m1.call_infos.first)
-    assert_equal(c1, c1.parent = c1)
-    assert_equal c1, c1.parent
+    assert_nil(c1.parent)
   end
 
   def test_methods_can_be_eliminated
     RubyProf.start
-    5.times{ESTPT.new.a}
+    5.times {MethodElimination.a}
     result = RubyProf.stop
-    # result.dump
-    eliminated = result.eliminate_methods!([/Integer#times/])
-    # puts eliminated.inspect
-    # result.dump
-    eliminated.each do |m|
-      assert_method_has_been_eliminated(result, m)
-    end
+
+    methods = result.threads.first.methods.sort.reverse
+
+    assert_equal(6, methods.count)
+    assert_equal('MethodEliminationTest#test_methods_can_be_eliminated', methods[0].full_name)
+    assert_equal('Integer#times', methods[1].full_name)
+    assert_equal('<Module::MethodElimination>#a', methods[2].full_name)
+    assert_equal('<Module::MethodElimination>#c', methods[3].full_name)
+    assert_equal('<Module::MethodElimination>#b', methods[4].full_name)
+    assert_equal('Kernel#sleep', methods[5].full_name)
+
+    result.eliminate_methods!([/Integer#times/])
+
+    methods = result.threads.first.methods.sort.reverse
+    assert_equal(5, methods.count)
+    assert_equal('MethodEliminationTest#test_methods_can_be_eliminated', methods[0].full_name)
+    assert_equal('<Module::MethodElimination>#a', methods[1].full_name)
+    assert_equal('<Module::MethodElimination>#c', methods[2].full_name)
+    assert_equal('<Module::MethodElimination>#b', methods[3].full_name)
+    assert_equal('Kernel#sleep', methods[4].full_name)
   end
 
   private
+
   def assert_method_has_been_eliminated(result, eliminated_method)
     result.threads.each do |thread|
       thread.methods.each do |method|

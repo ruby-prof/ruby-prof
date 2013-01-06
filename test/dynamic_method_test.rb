@@ -19,9 +19,6 @@ class DynamicMethodTest < Test::Unit::TestCase
     #  Integer#times
     #  DynamicMethodTest#test_dynamic_method
 
-    printer = RubyProf::GraphPrinter.new(result)
-    printer.print(STDOUT)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(7, methods.length)
 

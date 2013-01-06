@@ -33,7 +33,6 @@ typedef struct
     int line;                               /* The method's line number. */
     struct prof_call_infos_t *call_infos;   /* Call info objects for this method */
     VALUE object;                           /* Cached ruby object */
-	VALUE call_infos2;                      /* Cached array of RubyProf::CallInfo */
 } prof_method_t;
 
 void rp_init_method_info(void);

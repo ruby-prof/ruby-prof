@@ -139,7 +139,6 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
     prof_method_t *result = ALLOC(prof_method_t);
     result->object = Qnil;
     result->call_infos = prof_call_infos_create();
-	result->call_infos2 = Qnil;
 
     result->key = ALLOC(prof_method_key_t);
     method_key(result->key, klass, mid);
@@ -209,9 +208,6 @@ prof_method_mark(prof_method_t *method)
 {
 	if (method->object)
 		rb_gc_mark(method->object);
-
-	if (method->call_infos2)
-		rb_gc_mark(method->call_infos2);
 
 	if (method->call_infos->object)
 		rb_gc_mark(method->call_infos->object);
@@ -409,11 +405,11 @@ static VALUE
 prof_method_call_infos(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-	if (method->call_infos2 == Qnil)
+	if (method->call_infos->object == Qnil)
 	{
-		method->call_infos2 = prof_call_infos_wrap(method->call_infos);
+		method->call_infos->object = prof_call_infos_wrap(method->call_infos);
 	}
-	return method->call_infos2;
+	return method->call_infos->object;
 }
 
 void rp_init_method_info()

@@ -5,6 +5,11 @@ require File.expand_path("../test_helper", __FILE__)
 
 
 class DynamicMethodTest < Test::Unit::TestCase
+  def setup
+    # Need to use wall time for this test due to the sleep calls
+    RubyProf::measure_mode = RubyProf::WALL_TIME
+  end
+
   def test_dynamic_method
     result = RubyProf.profile do
       1.times {RubyProf::C1.new.hello}

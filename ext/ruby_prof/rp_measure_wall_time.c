@@ -11,7 +11,7 @@ measure_wall_time()
 {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    return (tv.tv_sec * 1000000 + tv.tv_usec) / 1000000.0;
+    return tv.tv_sec + (tv.tv_usec/1000000.0);
 }
 
 prof_measurer_t* prof_measurer_wall_time()

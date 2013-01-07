@@ -12,7 +12,7 @@ measure_process_time()
 #if defined(__linux__)
     struct timespec clock;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
-    return (clock.tv_sec * 1000000000 + clock.tv_nsec) / 1000000000.0;
+    return clock.tv_sec + (clock.tv_nsec/1000000000.0);
 #elif defined(_win32)
 	FILETIME createTime;
 	FILETIME exitTime;

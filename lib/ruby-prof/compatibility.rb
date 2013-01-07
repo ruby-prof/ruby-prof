@@ -103,12 +103,24 @@ module RubyProf
     @profile.start
   end
 
+  def self.pause
+    ensure_running!
+    disable_gc_stats_if_needed
+    @profile.pause
+  end
+
   def self.running?
     if defined?(@profile) and @profile
       @profile.running?
     else
       false
     end
+  end
+
+  def self.resume
+    ensure_running!
+    enable_gc_stats_if_needed
+    @profile.resume
   end
 
   def self.stop

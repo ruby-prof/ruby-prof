@@ -5,6 +5,23 @@
 
 #define INITIAL_STACK_SIZE 8
 
+void
+prof_frame_pause(prof_frame_t *frame, double current_measurement)
+{
+    if (frame && prof_frame_is_unpaused(frame))
+        frame->pause_time = current_measurement;
+}
+
+void
+prof_frame_unpause(prof_frame_t *frame, double current_measurement)
+{
+    if (frame && prof_frame_is_paused(frame)) {
+        frame->dead_time += (current_measurement - frame->pause_time);
+        frame->pause_time = -1;
+    }
+}
+
+
 /* Creates a stack of prof_frame_t to keep track
    of timings for active methods. */
 prof_stack_t *
@@ -47,6 +64,7 @@ prof_stack_push(prof_stack_t *stack, double measurement)
   result->child_time = 0;
   result->switch_time = 0;
   result->wait_time = 0;
+  result->dead_time = 0;
   result->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32
   result->start_time = measurement;
 
@@ -66,6 +84,11 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
 
   double total_time;
   double self_time;
+#ifdef _MSC_VER
+  BOOL frame_paused;
+#else
+  _Bool frame_paused;
+#endif
 
   /* Frame can be null.  This can happen if RubProf.start is called from
      a method that exits.  And it can happen if an exception is raised
@@ -77,7 +100,8 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   frame = --stack->ptr;
 
   /* Calculate the total time this method took */
-  total_time = measurement - frame->start_time;
+  //prof_frame_unpause(frame, measurement);
+  total_time = measurement - frame->start_time - frame->dead_time;
   self_time = total_time - frame->child_time - frame->wait_time;
 
   /* Update information about the current method */
@@ -91,6 +115,8 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   if (parent_frame)
   {
       parent_frame->child_time += total_time;
+      parent_frame->dead_time += frame->dead_time;
+
       call_info->line = parent_frame->line;
   }
 

@@ -72,11 +72,26 @@ module RubyProf
       goodbye
     end
   end
-  
-  if RUBY_VERSION < '1.9'
-    PARENT = Object
-  else
-    PARENT = BasicObject
+
+  def self.ruby_major_version
+    match = RUBY_VERSION.match(/(\d)\.(\d)/)
+    return Integer(match[1])
   end
 
+  def self.ruby_minor_version
+    match = RUBY_VERSION.match(/(\d)\.(\d)/)
+    return Integer(match[2])
+  end
+
+  def self.parent_object
+    if ruby_major_version == 1 && ruby_major_version < 9
+      Object
+    else
+      BasicObject
+    end
+  end
+
+  def self.ruby_2?
+    ruby_major_version == 2
+  end
 end

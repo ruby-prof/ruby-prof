@@ -78,15 +78,18 @@ class MeasureWallTimeTest < Test::Unit::TestCase
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(6, methods.length)
+    assert_equal(RubyProf.ruby_2? ? 5 : 6, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureWallTimeTest#test_instance_methods', names[0])
     assert_equal('RubyProf::C1#hello', names[1])
     assert_equal('Kernel#sleep', names[2])
     assert_equal('Class#new', names[3])
+
     # order can differ
-    assert(names.include?("<Class::#{RubyProf::PARENT}>#allocate"))
-    assert(names.include?("#{RubyProf::PARENT}#initialize"))
+    assert(names.include?("#{RubyProf.parent_object}#initialize"))
+    unless RubyProf.ruby_2?
+      assert(names.include?("<Class::#{RubyProf.parent_object}>#allocate"))
+    end
 
     # Check times
     assert_in_delta(0.2, methods[0].total_time, 0.02)
@@ -109,9 +112,11 @@ class MeasureWallTimeTest < Test::Unit::TestCase
     assert_in_delta(0, methods[4].wait_time, 0.01)
     assert_in_delta(0, methods[4].self_time, 0.01)
 
-    assert_in_delta(0, methods[5].total_time, 0.01)
-    assert_in_delta(0, methods[5].wait_time, 0.01)
-    assert_in_delta(0, methods[5].self_time, 0.01)
+    unless RubyProf.ruby_2?
+      assert_in_delta(0, methods[5].total_time, 0.01)
+      assert_in_delta(0, methods[5].wait_time, 0.01)
+      assert_in_delta(0, methods[5].self_time, 0.01)
+    end
   end
 
   def test_module_methods
@@ -173,14 +178,18 @@ class MeasureWallTimeTest < Test::Unit::TestCase
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(6, methods.length)
+    assert_equal(RubyProf.ruby_2? ? 5 : 6, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureWallTimeTest#test_module_instance_methods', names[0])
     assert_equal('RubyProf::M1#hello', names[1])
     assert_equal('Kernel#sleep', names[2])
     assert_equal('Class#new', names[3])
-    assert(names.include?("<Class::#{RubyProf::PARENT}>#allocate"))
-    assert(names.include?("#{RubyProf::PARENT}#initialize"))
+
+    # order can differ
+    assert(names.include?("#{RubyProf.parent_object}#initialize"))
+    unless RubyProf.ruby_2?
+      assert(names.include?("<Class::#{RubyProf.parent_object}>#allocate"))
+    end
 
     # Check times
     assert_in_delta(0.3, methods[0].total_time, 0.1)
@@ -203,9 +212,11 @@ class MeasureWallTimeTest < Test::Unit::TestCase
     assert_in_delta(0, methods[4].wait_time, 0.01)
     assert_in_delta(0, methods[4].self_time, 0.01)
 
-    assert_in_delta(0, methods[5].total_time, 0.01)
-    assert_in_delta(0, methods[5].wait_time, 0.01)
-    assert_in_delta(0, methods[5].self_time, 0.01)
+    unless RubyProf.ruby_2?
+      assert_in_delta(0, methods[5].total_time, 0.01)
+      assert_in_delta(0, methods[5].wait_time, 0.01)
+      assert_in_delta(0, methods[5].self_time, 0.01)
+    end
   end
 
   def test_singleton

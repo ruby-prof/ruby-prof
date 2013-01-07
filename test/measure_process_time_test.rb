@@ -32,7 +32,7 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
 
     methods = result.threads.first.methods.sort.reverse
 
-    assert_equal(16, methods.length)
+    assert_equal(RubyProf.ruby_2? ? 15 : 16, methods.length)
 
     # Check times
     assert_equal("MeasureProcessTimeTest#test_primes", methods[0].full_name)

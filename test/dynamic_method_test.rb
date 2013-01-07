@@ -25,7 +25,7 @@ class DynamicMethodTest < Test::Unit::TestCase
     #  DynamicMethodTest#test_dynamic_method
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(7, methods.length)
+    assert_equal(RubyProf.ruby_2? ? 6 : 7, methods.length)
 
     # Check times
     assert_equal("DynamicMethodTest#test_dynamic_method", methods[0].full_name)
@@ -53,14 +53,16 @@ class DynamicMethodTest < Test::Unit::TestCase
     assert_in_delta(0.0, methods[4].wait_time, 0.01)
     assert_in_delta(0.0, methods[4].self_time, 0.01)
 
-    assert_equal("#{RubyProf::PARENT}#initialize", methods[5].full_name)
+    assert_equal("#{RubyProf.parent_object}#initialize", methods[5].full_name)
     assert_in_delta(0.0, methods[5].total_time, 0.01)
     assert_in_delta(0.0, methods[5].wait_time, 0.01)
     assert_in_delta(0.0, methods[5].self_time, 0.01)
 
-    assert_equal("<Class::#{RubyProf::PARENT}>#allocate", methods[6].full_name)
-    assert_in_delta(0.0, methods[6].total_time, 0.01)
-    assert_in_delta(0.0, methods[6].wait_time, 0.01)
-    assert_in_delta(0.0, methods[6].self_time, 0.01)
+    unless RubyProf.ruby_2?
+      assert_equal("<Class::#{RubyProf.parent_object}>#allocate", methods[6].full_name)
+      assert_in_delta(0.0, methods[6].total_time, 0.01)
+      assert_in_delta(0.0, methods[6].wait_time, 0.01)
+      assert_in_delta(0.0, methods[6].self_time, 0.01)
+    end
   end
 end

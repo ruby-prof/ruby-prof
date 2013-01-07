@@ -37,6 +37,7 @@ typedef struct prof_call_infos_t
 
 void rp_init_call_info(void);
 prof_call_infos_t* prof_call_infos_create();
+void prof_call_infos_mark(prof_call_infos_t *call_infos);
 void prof_call_infos_free(prof_call_infos_t *call_infos);
 void prof_add_call_info(prof_call_infos_t *call_infos, prof_call_info_t *call_info);
 VALUE prof_call_infos_wrap(prof_call_infos_t *call_infos);

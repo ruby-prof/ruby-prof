@@ -10,7 +10,6 @@ VALUE cCallInfo;
 
 // Forward declarations
 st_table * call_info_table_create();
-void call_info_table_free(st_table *table);
 
 
 /* =======  prof_call_info_t   ========*/
@@ -31,9 +30,8 @@ prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
     result->line = 0;
     return result;
 }
-
 static void
-prof_call_info_free(prof_call_info_t *call_info)
+prof_call_info_ruby_gc_free(prof_call_info_t *call_info)
 {
 	/* Has this thread object been accessed by Ruby?  If
 	   yes clean it up so to avoid a segmentation fault. */
@@ -44,8 +42,13 @@ prof_call_info_free(prof_call_info_t *call_info)
 		RDATA(call_info->object)->dmark = NULL;
     }
 	call_info->object = Qnil;
+}
 
-	call_info_table_free(call_info->call_infos);
+static void
+prof_call_info_free(prof_call_info_t *call_info)
+{
+	prof_call_info_ruby_gc_free(call_info);
+	xfree(call_info->call_infos);
 	xfree(call_info);
 }
 
@@ -53,10 +56,13 @@ static void
 prof_call_info_mark(prof_call_info_t *call_info)
 {
 	if (call_info->object)
-		rb_gc_mark(call_info->children);
+		rb_gc_mark(call_info->object);
 
 	if (call_info->children)
 		rb_gc_mark(call_info->children);
+
+	/* We don't mark the call info child table since that will be done
+	   via the appropriate method */
 }
 
 VALUE
@@ -64,7 +70,7 @@ prof_call_info_wrap(prof_call_info_t *call_info)
 {
   if (call_info->object == Qnil)
   {
-    call_info->object = Data_Wrap_Struct(cCallInfo, prof_call_info_mark, prof_call_info_free, call_info);
+    call_info->object = Data_Wrap_Struct(cCallInfo, prof_call_info_mark, prof_call_info_ruby_gc_free, call_info);
   }
   return call_info->object;
 }
@@ -87,20 +93,6 @@ st_table *
 call_info_table_create()
 {
   return st_init_table(&type_method_hash);
-}
-
-/*static int
-call_info_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
-{
-    prof_call_info_free((prof_call_info_t*)value);
-    return ST_CONTINUE;
-}*/
-
-void
-call_info_table_free(st_table *table)
-{
-  //st_foreach(table, call_info_table_free_iterator, 0);
-    st_free_table(table);
 }
 
 size_t
@@ -338,10 +330,28 @@ prof_call_infos_create()
 }
 
 void
+prof_call_infos_mark(prof_call_infos_t *call_infos)
+{
+    prof_call_info_t **call_info;
+
+	if (call_infos->object)
+		rb_gc_mark(call_infos->object);
+
+    for(call_info=call_infos->start; call_info<call_infos->ptr; call_info++)
+    {
+		prof_call_info_mark(*call_info);
+    }
+}
+
+void
 prof_call_infos_free(prof_call_infos_t *call_infos)
 {
-  xfree(call_infos->start);
-  xfree(call_infos);
+    prof_call_info_t **call_info;
+
+    for(call_info=call_infos->start; call_info<call_infos->ptr; call_info++)
+    {
+		prof_call_info_free(*call_info);
+    }
 }
 
 void
@@ -374,7 +384,6 @@ prof_call_infos_wrap(prof_call_infos_t *call_infos)
   }
   return call_infos->object;
 }
-
 
 void rp_init_call_info()
 {

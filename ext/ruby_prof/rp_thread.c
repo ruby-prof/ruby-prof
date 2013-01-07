@@ -66,6 +66,9 @@ prof_thread_mark(thread_data_t *thread)
 	if (thread->methods != Qnil)
 		rb_gc_mark(thread->methods);
 	
+	if (thread->thread_id != Qnil)
+		rb_gc_mark(thread->thread_id);
+
 	st_foreach(thread->method_table, mark_methods, 0);
 }
 

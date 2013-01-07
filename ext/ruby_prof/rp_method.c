@@ -189,6 +189,7 @@ prof_method_free(prof_method_t* method)
 {
 	prof_method_ruby_gc_free(method);
 	prof_call_infos_free(method->call_infos);
+	xfree(method->call_infos);
 
 	xfree(method->key);
 	method->key = NULL;
@@ -196,25 +197,13 @@ prof_method_free(prof_method_t* method)
 	xfree(method);
 }
 
-/*static int
-mark_call_infos(st_data_t key, st_data_t value, st_data_t result)
-{
-    prof_call_info_t *call_info = (prof_call_info_t *) value;
-    prof_call_info_mark(call_info);
-    return ST_CONTINUE;
-}
-*/
-
 void
 prof_method_mark(prof_method_t *method)
 {
 	if (method->object)
 		rb_gc_mark(method->object);
 
-	if (method->call_infos->object)
-		rb_gc_mark(method->call_infos->object);
-
-	//st_foreach(method->call_info_table, mark_call_infos, NULL);
+	prof_call_infos_mark(method->call_infos);
 }
 
 VALUE

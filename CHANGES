@@ -1,3 +1,7 @@
+0.12.1 (2013-01-07)
+======================
+* Add back in pause/resume support since Rails uses it
+
 0.12.0 (2013-01-06)
 ======================
 * Ruby 2.0.0 support (Charlie Savage)
@@ -8,7 +12,7 @@
   to your code (Charlie Savage).
 * Rewrite ruby-prof script to be more self-contained (Gary Weaver)
 * Fix list formatting in readme (Thilo Rusche)
-
+* Remove pause/resume support since its buggy and complicates the code
 
 0.11.3 (2012-12-27)
 ======================

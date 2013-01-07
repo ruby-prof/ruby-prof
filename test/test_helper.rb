@@ -84,7 +84,7 @@ module RubyProf
   end
 
   def self.parent_object
-    if ruby_major_version == 1 && ruby_major_version < 9
+    if ruby_major_version == 1 && ruby_minor_version == 8
       Object
     else
       BasicObject

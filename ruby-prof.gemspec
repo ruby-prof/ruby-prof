@@ -55,5 +55,5 @@ EOF
   spec.required_ruby_version = '>= 1.8.7'
   spec.date = DateTime.now
   spec.homepage = 'https://github.com/rdp/ruby-prof'
-  spec.add_development_dependency 'rake-compiler'
+  spec.add_development_dependency 'minitest', 'rake-compiler'
 end

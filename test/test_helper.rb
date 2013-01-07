@@ -1,11 +1,12 @@
 # encoding: UTF-8
 
 # Make RubyMine happy
+gem "minitest"
+
 if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]
   if RUBY_PLATFORM =~ /(win32|mingw)/
     gem "win32console"
   end
-  gem "minitest"
   gem "minitest-reporters"
   require 'minitest/reporters'
   MiniTest::Reporters.use!

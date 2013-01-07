@@ -179,14 +179,13 @@ switch_thread(void* prof, VALUE thread_id)
     return thread_data;
 }
 
-
 int pause_thread(st_data_t key, st_data_t value, st_data_t data) 
 {
     thread_data_t* thread_data = (thread_data_t *) value;
-    double measurement = (double) data;
+	prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_pause(frame, measurement);
+	prof_frame_pause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
 }
@@ -194,10 +193,10 @@ int pause_thread(st_data_t key, st_data_t value, st_data_t data)
 int unpause_thread(st_data_t key, st_data_t value, st_data_t data) 
 {
     thread_data_t* thread_data = (thread_data_t *) value;
-    double measurement = (double) data;
+	prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_unpause(frame, measurement);
+	prof_frame_unpause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
 }

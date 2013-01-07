@@ -100,7 +100,7 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   frame = --stack->ptr;
 
   /* Calculate the total time this method took */
-  //prof_frame_unpause(frame, measurement);
+  prof_frame_unpause(frame, measurement);
   total_time = measurement - frame->start_time - frame->dead_time;
   self_time = total_time - frame->child_time - frame->wait_time;
 

@@ -3,7 +3,6 @@
 
 require File.expand_path("../test_helper", __FILE__)
 
-
 class DynamicMethodTest < Test::Unit::TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
@@ -18,7 +17,7 @@ class DynamicMethodTest < Test::Unit::TestCase
     # Methods called
     #  Kernel#sleep
     #  <Class::BasicObject>#allocate
-    #  BasicObject#initialize
+    #  #{RubyProf.parent_object}
     #  RubyProf::C1#hello
     #  Class#new
     #  Integer#times

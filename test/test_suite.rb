@@ -24,6 +24,7 @@ require File.expand_path("../test_helper", __FILE__)
    module_test
    multi_printer_test
    no_method_class_test
+   pause_resume_test
    printers_test
    recursive_test
    singleton_test

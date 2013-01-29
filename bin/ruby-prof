@@ -240,7 +240,7 @@ module RubyProf
     def parse_args
       # Make sure the user specified at least one file
       if ARGV.length < 1 and not options.exec
-        puts opts
+        puts self.option_parser
         puts ""
         puts "Must specify a script to run"
         exit(-1)
@@ -248,7 +248,7 @@ module RubyProf
 
       self.option_parser.parse! ARGV
     rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument => e
-      puts opts
+      puts self.option_parser
       puts e.message
       exit(-1)
     end

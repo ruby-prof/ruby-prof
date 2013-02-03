@@ -35,7 +35,7 @@ class MethodEliminationTest < Test::Unit::TestCase
     result = RubyProf.profile do
       1000.times { 1+1 }
     end
-    method_infos = result.threads.first.methods
+    method_infos = result.threads.first.methods.sort.reverse
     assert(m1 = method_infos[0])
     assert(c1 = m1.call_infos.first)
     assert_nil(c1.parent)

@@ -17,16 +17,16 @@ measure_gc_time()
 {
 #if defined(HAVE_RB_GC_TIME)
 #define MEASURE_GC_TIME_ENABLED Qtrue
-    const int conversion = 1000000;
+    const double conversion = 1000000.0;
 #if HAVE_LONG_LONG
-    return NUM2LL(rb_gc_time() / conversion);
+    return NUM2LL(rb_gc_time()) / conversion;
 #else
-    return NUM2LONG(rb_gc_time() / conversion));
+    return NUM2LONG(rb_gc_time()) / conversion;
 #endif
 
 #else
 #define MEASURE_GC_TIME_ENABLED Qfalse
-    return 0;
+    return 0.0;
 #endif
 }
 
@@ -40,15 +40,11 @@ prof_measurer_t* prof_measurer_gc_time()
 /* call-seq:
    measure -> float
 
-Returns the number of GC runs.*/
+Returns the time spent performing GC.*/
 static VALUE
 prof_measure_gc_time(VALUE self)
 {
-#if defined(HAVE_LONG_LONG)
-    return ULL2NUM(measure_gc_time());
-#else
-    return ULONG2NUM(measure_gc_time());
-#endif
+    return rb_float_new(measure_gc_time());
 }
 
 void rp_init_measure_gc_time()

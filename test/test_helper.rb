@@ -96,3 +96,12 @@ module RubyProf
     ruby_major_version == 2
   end
 end
+
+module MemoryTestHelper
+  def memory_test_helper
+    result = RubyProf.profile {Array.new}
+    total = result.threads.first.methods.inject(0) { |sum, m| sum + m.total_time }
+    assert(total < 1_000_000, 'Total should not have subtract overflow error')
+    total
+  end
+end

@@ -4,6 +4,8 @@
 require File.expand_path('../test_helper', __FILE__)
 
 class MeasureGCTimeTest < Test::Unit::TestCase
+  include MemoryTestHelper
+
   def test_gc_time_mode
     RubyProf::measure_mode = RubyProf::GC_TIME
     assert_equal(RubyProf::GC_TIME, RubyProf::measure_mode)
@@ -15,15 +17,20 @@ class MeasureGCTimeTest < Test::Unit::TestCase
 
   if RubyProf::GC_TIME_ENABLED
     def test_gc_time
+      RubyProf::measure_mode = RubyProf::GC_TIME
+      RubyProf.enable_gc_stats_if_needed
+
       t = RubyProf.measure_gc_time
-      assert_kind_of Integer, t
+      assert_kind_of Float, t
 
       GC.start
 
       u = RubyProf.measure_gc_time
       assert u > t, [t, u].inspect
-      RubyProf::measure_mode = RubyProf::GC_TIME
+
       memory_test_helper
+    ensure
+      RubyProf.disable_gc_stats_if_needed
     end
   end
 end

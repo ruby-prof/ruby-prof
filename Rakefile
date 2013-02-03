@@ -77,7 +77,7 @@ RDoc::Task.new("rdoc") do |rdoc|
                           'LICENSE')
 end
 
-task :default => :package
+task :default => :test
 
 for file in Dir['**/*.{o,so,bundle}']
   CLEAN.include file

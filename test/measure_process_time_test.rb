@@ -10,7 +10,6 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
   end
 
   def test_mode
-    RubyProf::measure_mode = RubyProf::PROCESS_TIME
     assert_equal(RubyProf::PROCESS_TIME, RubyProf::measure_mode)
   end
 
@@ -32,6 +31,9 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
 
     methods = result.threads.first.methods.sort.reverse
 
+    if RUBY_VERSION =~ /1.8/
+      methods.reject!{|m| m.full_name =~ /^Fixnum/ || m.full_name == 'Object#find_largest'}
+    end
     assert_equal(RubyProf.ruby_2? ? 15 : 16, methods.length)
 
     # Check times

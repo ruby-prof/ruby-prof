@@ -3,7 +3,9 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class MeasuremeGCRunsTest < Test::Unit::TestCase
+class MeasureGCRunsTest < Test::Unit::TestCase
+  include MemoryTestHelper
+
   def test_gc_runs_mode
     RubyProf::measure_mode = RubyProf::GC_RUNS
     assert_equal(RubyProf::GC_RUNS, RubyProf::measure_mode)
@@ -18,6 +20,7 @@ class MeasuremeGCRunsTest < Test::Unit::TestCase
       t = RubyProf.measure_gc_runs
       assert_kind_of Integer, t
 
+      GC.enable_stats
       GC.start
 
       u = RubyProf.measure_gc_runs

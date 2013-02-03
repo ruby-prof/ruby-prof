@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 # Make RubyMine happy
+require "rubygems"
 gem "minitest"
 
 if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]

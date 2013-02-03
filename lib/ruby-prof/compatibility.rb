@@ -152,13 +152,18 @@ private
 
   # for GC.allocated_size to work GC statistics should be enabled
   def self.enable_gc_stats_if_needed
-    if self.measure_mode == RubyProf::MEMORY && GC.respond_to?(:enable_stats)
+    if measure_mode_requires_gc_stats_enabled?
       @gc_stat_was_enabled = GC.enable_stats
     end
   end
 
   def self.disable_gc_stats_if_needed(was_enabled=nil)
     was_enabled ||= defined?(@gc_stat_was_enabled) && @gc_stat_was_enabled
-    GC.disable_stats if self.measure_mode == RubyProf::MEMORY && GC.respond_to?(:disable_stats) && !was_enabled
+    GC.disable_stats if measure_mode_requires_gc_stats_enabled? && !was_enabled
+  end
+
+  def self.measure_mode_requires_gc_stats_enabled?
+    GC.respond_to?(:enable_stats) &&
+      [RubyProf::MEMORY, RubyProf::GC_TIME, RubyProf::GC_RUNS].include?(measure_mode)
   end
 end

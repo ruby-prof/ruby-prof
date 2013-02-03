@@ -79,7 +79,7 @@ end
 
 task :default => :package
 
-for file in Dir['**/*.so']
+for file in Dir['**/*.{o,so,bundle}']
   CLEAN.include file
 end
 

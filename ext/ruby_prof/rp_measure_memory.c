@@ -25,7 +25,6 @@ static double
 measure_memory()
 {
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
-#define TOGGLE_GC_STATS 1
 #define MEASURE_MEMORY_ENABLED Qtrue
 #if defined(HAVE_LONG_LONG)
     return NUM2LL(rb_gc_allocated_size()) / 1024.0;

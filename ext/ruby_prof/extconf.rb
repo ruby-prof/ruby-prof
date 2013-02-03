@@ -34,6 +34,10 @@ def add_define(name, value = nil)
   end
 end
 
+# if have_func("rb_gc_enable_stats")
+#   add_define("TOGGLE_GC_STATS", 1)
+# end
+
 require 'rubygems'
 unless Gem.win_platform? || RUBY_PLATFORM =~ /darwin/
   $LDFLAGS += " -lrt" # for clock_gettime

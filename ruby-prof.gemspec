@@ -57,4 +57,5 @@ EOF
   spec.homepage = 'https://github.com/rdp/ruby-prof'
   spec.add_development_dependency('minitest')
   spec.add_development_dependency('rake-compiler')
+  spec.add_development_dependency('rdoc')
 end

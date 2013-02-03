@@ -84,11 +84,6 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
 
   double total_time;
   double self_time;
-#ifdef _MSC_VER
-  BOOL frame_paused;
-#else
-  _Bool frame_paused;
-#endif
 
   /* Frame can be null.  This can happen if RubProf.start is called from
      a method that exits.  And it can happen if an exception is raised

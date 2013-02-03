@@ -48,7 +48,7 @@ static void
 prof_call_info_free(prof_call_info_t *call_info)
 {
 	prof_call_info_ruby_gc_free(call_info);
-	xfree(call_info->call_infos);
+	st_free_table(call_info->call_infos);
 	xfree(call_info);
 }
 

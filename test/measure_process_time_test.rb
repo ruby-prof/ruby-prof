@@ -27,7 +27,7 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
     total_time = (finish.utime - start.utime) + (finish.stime - start.stime)
 
     thread = result.threads.first
-    assert_in_delta(total_time, thread.total_time, 0.01)
+    assert_in_delta(total_time, thread.total_time, 0.03)
 
     methods = result.threads.first.methods.sort.reverse
 

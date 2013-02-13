@@ -56,7 +56,7 @@ class MultiPrinterTest < Test::Unit::TestCase
 \s*</table>')
     assert_match(re, graph)
     display_time = $1.to_f
-    assert_in_delta expected_time, display_time, 0.3
+    assert_in_delta expected_time, display_time, 0.5
   end
 
   private

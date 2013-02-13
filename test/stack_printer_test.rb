@@ -45,7 +45,7 @@ class StackPrinterTest < Test::Unit::TestCase
     # TODO: why are thread ids negative on travis-ci.org (32 bit build maybe?)
     assert_match(/Thread: (-?\d+) \(100\.00% ~ ([\.0-9]+)\)/, file_contents)
     actual_time = $2.to_f
-    assert_in_delta(expected_time, actual_time, 0.3)
+    assert_in_delta(expected_time, actual_time, 0.5)
   end
 
   def test_method_elimination

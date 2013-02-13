@@ -96,6 +96,11 @@ module RubyProf
   def self.ruby_2?
     ruby_major_version == 2
   end
+
+  # store printer output in this directory
+  def self.tmpdir
+    File.expand_path('../../tmp', __FILE__)
+  end
 end
 
 module MemoryTestHelper

@@ -2,7 +2,6 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
-require 'tmpdir'
 
 # Test data
 #     A
@@ -63,7 +62,7 @@ class MultiPrinterTest < Test::Unit::TestCase
   private
   def print(result)
     test = caller.first =~ /in `(.*)'/ ? $1 : "test"
-    path = Dir::tmpdir
+    path = RubyProf.tmpdir
     profile = "ruby_prof_#{test}"
     printer = RubyProf::MultiPrinter.new(result)
     printer.print(:path => path, :profile => profile,

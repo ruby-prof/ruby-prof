@@ -2,7 +2,6 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
-require 'tmpdir'
 
 # Test data
 #     A
@@ -64,7 +63,7 @@ class StackPrinterTest < Test::Unit::TestCase
   private
   def print(result)
     test = caller.first =~ /in `(.*)'/ ? $1 : "test"
-    testfile_name = "#{Dir::tmpdir}/ruby_prof_#{test}.html"
+    testfile_name = "#{RubyProf.tmpdir}/ruby_prof_#{test}.html"
     printer = RubyProf::CallStackPrinter.new(result)
     File.open(testfile_name, "w") {|f| printer.print(f, :threshold => 0, :min_percent => 0, :title => "ruby_prof #{test}")}
     system("open '#{testfile_name}'") if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"

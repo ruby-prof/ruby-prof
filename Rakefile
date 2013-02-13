@@ -83,6 +83,10 @@ for file in Dir['**/*.{o,so,bundle}']
   CLEAN.include file
 end
 
+for file in Dir['tmp/*.{txt,dat,png,html}']
+  CLEAN.include file
+end
+
 desc 'Run the ruby-prof test suite'
 Rake::TestTask.new do |t|
   t.libs += %w(lib ext test)

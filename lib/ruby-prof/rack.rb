@@ -13,7 +13,7 @@ module Rack
                                                   ::RubyProf::GraphHtmlPrinter => 'graph.html',
                                                   ::RubyProf::CallStackPrinter => 'call_stack.html'}
 
-      @skip_paths = options[:skip_paths] || [%r{^/assets}, %r{\.css$}, %r{\.js}, %r{\.png}, %r{\.jpeg}]
+      @skip_paths = options[:skip_paths] || [%r{^/assets}, %r{\.css$}, %r{\.js$}, %r{\.png$}, %r{\.jpeg$}, %r{\.jpg$}, %r{\.gif$}]
     end
 
     def call(env)

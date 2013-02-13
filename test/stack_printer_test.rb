@@ -67,6 +67,8 @@ class StackPrinterTest < Test::Unit::TestCase
     printer = RubyProf::CallStackPrinter.new(result)
     File.open(testfile_name, "w") {|f| printer.print(f, :threshold => 0, :min_percent => 0, :title => "ruby_prof #{test}")}
     system("open '#{testfile_name}'") if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"
-    File.open(testfile_name, "r"){|f| f.read}
+    assert File.exist?(testfile_name), "#{testfile_name} does not exist"
+    assert File.readable?(testfile_name), "#{testfile_name} is no readable"
+    File.read(testfile_name)
   end
 end

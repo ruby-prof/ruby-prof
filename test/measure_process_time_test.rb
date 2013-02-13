@@ -31,10 +31,14 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
 
     methods = result.threads.first.methods.sort.reverse
 
-    if RUBY_VERSION =~ /1.8/
+    if RUBY_VERSION =~ /^1\.8/
       methods.reject!{|m| m.full_name =~ /^Fixnum/ || m.full_name == 'Object#find_largest'}
     end
-    assert_equal(RubyProf.ruby_2? ? 15 : 16, methods.length)
+    if RUBY_VERSION =~ /^(1\.9\.2|2\.0)/
+      assert_equal 15, methods.length
+    else
+      assert_equal 16, methods.length
+    end
 
     # Check times
     assert_equal("MeasureProcessTimeTest#test_primes", methods[0].full_name)

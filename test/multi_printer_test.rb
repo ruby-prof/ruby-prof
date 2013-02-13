@@ -49,7 +49,7 @@ class MultiPrinterTest < Test::Unit::TestCase
 \s*</tr>
 \s*
 \s*<tr>
-\s*<td><a href="#\d+">\d+</a></td>
+\s*<td><a href="#-?\d+">\d+</a></td>
 \s*<td>([\.0-9]+)</td>
 \s*</tr>
 \s*

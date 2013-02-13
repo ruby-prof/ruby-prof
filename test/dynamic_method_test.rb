@@ -17,7 +17,7 @@ class DynamicMethodTest < Test::Unit::TestCase
     # Methods called
     #  Kernel#sleep
     #  <Class::BasicObject>#allocate
-    #  #{RubyProf.parent_object}
+    #  #{RubyProf.parent_object}#inizialize
     #  RubyProf::C1#hello
     #  Class#new
     #  Integer#times
@@ -51,6 +51,13 @@ class DynamicMethodTest < Test::Unit::TestCase
     assert_in_delta(0.0, methods[4].total_time, 0.01)
     assert_in_delta(0.0, methods[4].wait_time, 0.01)
     assert_in_delta(0.0, methods[4].self_time, 0.01)
+
+    # the timing difference between #initialize and #allocate is so small
+    # that we cannot rely on #initialize appearing first.
+    # so switch them, if necessary
+    if methods[5].full_name =~ /#allocate/
+      methods[5], methods[6] = methods[6], methods[5]
+    end
 
     assert_equal("#{RubyProf.parent_object}#initialize", methods[5].full_name)
     assert_in_delta(0.0, methods[5].total_time, 0.01)

@@ -49,14 +49,14 @@ class MultiPrinterTest < Test::Unit::TestCase
 \s*</tr>
 \s*
 \s*<tr>
-\s*<td><a href="#-?\d+">\d+</a></td>
+\s*<td><a href="#-?\d+">-?\d+</a></td>
 \s*<td>([\.0-9]+)</td>
 \s*</tr>
 \s*
 \s*</table>')
     assert_match(re, graph)
     display_time = $1.to_f
-    assert_in_delta expected_time, display_time, 0.03
+    assert_in_delta expected_time, display_time, 0.3
   end
 
   private

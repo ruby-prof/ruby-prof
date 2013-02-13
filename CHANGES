@@ -1,3 +1,7 @@
+0.12.2 (2013-02-13)
+======================
+* Fixed segfault when using falcon or railsexpress patches for 1.9.3
+
 0.12.1 (2013-01-07)
 ======================
 * Add back in pause/resume support since Rails uses it

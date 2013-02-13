@@ -5,18 +5,28 @@ require "rake/extensiontask"
 require "rake/testtask"
 require "rdoc/task"
 require "date"
-require 'rake/clean'
+require "rake/clean"
+begin
+  require "bundler/setup"
+  Bundler::GemHelper.install_tasks
+  [:build, :install, :release].each {|t| Rake::Task[t].enhance [:rdoc] }
+rescue LoadError
+  $stderr.puts "Install bundler to get support for simplified gem publishing"
+end
 
 # To release a version of ruby-prof:
 #   * Update version.h
 #   * Update CHANGES
-#   * Update rdocs
-#   * git  commit to commit files
+#   * git commit to commit files
 #   * rake clobber to remove extra files
 #   * rake compile to build windows gems
 #   * rake package to create the gems
-#   * Tag the release in git (tag 0.10.1)
+#   * Tag the release (git tag 0.10.1)
 #   * Push to ruybgems.org (gem push pkg/<gem files>)
+# For a ruby only release, just run
+#   * rake release
+# it will push changes to github, tag the release, build the package and upload it to rubygems.org
+# and in case you forgot to increment the version number or have uncommitted changes, it will refuse to work
 
 GEM_NAME = 'ruby-prof'
 SO_NAME = 'ruby_prof'
@@ -37,6 +47,10 @@ end
 Gem::PackageTask.new(default_spec) do |pkg|
   pkg.need_tar = true
 end
+
+# make sure rdoc has been built when packaging
+# why do we ship rdoc as part of the gem?
+Rake::Task[:package].enhance [:rdoc]
 
 # Setup Windows Gem
 if RUBY_PLATFORM.match(/win32|mingw32/)

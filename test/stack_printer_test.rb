@@ -42,9 +42,9 @@ class StackPrinterTest < Test::Unit::TestCase
 
     file_contents = nil
     assert_nothing_raised { file_contents = print(result) }
-    assert(file_contents =~ /Thread: (\d+) \(100\.00% ~ ([.0-9]+)\)/)
+    assert_match(/Thread: (\d+) \(100\.00% ~ ([\.0-9]+)\)/, file_contents)
     actual_time = $2.to_f
-    assert_in_delta(expected_time, actual_time, 0.01)
+    assert_in_delta(expected_time, actual_time, 0.02)
   end
 
   def test_method_elimination
@@ -64,7 +64,7 @@ class StackPrinterTest < Test::Unit::TestCase
   def print(result)
     test = caller.first =~ /in `(.*)'/ ? $1 : "test"
     testfile_name = "#{RubyProf.tmpdir}/ruby_prof_#{test}.html"
-    puts "printing to #{testfile_name}"
+    # puts "printing to #{testfile_name}"
     printer = RubyProf::CallStackPrinter.new(result)
     File.open(testfile_name, "w") {|f| printer.print(f, :threshold => 0, :min_percent => 0, :title => "ruby_prof #{test}")}
     system("open '#{testfile_name}'") if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"

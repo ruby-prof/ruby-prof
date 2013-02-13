@@ -54,9 +54,9 @@ class MultiPrinterTest < Test::Unit::TestCase
 \s*</tr>
 \s*
 \s*</table>')
-    assert graph =~ re
+    assert_match(re, graph)
     display_time = $1.to_f
-    assert_in_delta expected_time, display_time, 0.005
+    assert_in_delta expected_time, display_time, 0.03
   end
 
   private
@@ -74,6 +74,6 @@ class MultiPrinterTest < Test::Unit::TestCase
       GC.start
       GC.dump_file_and_line_info("heap.dump")
     end
-    [File.open(printer.stack_profile){|f|f.read}, File.open(printer.graph_profile){|f|f.read}]
+    [File.read(printer.stack_profile), File.read(printer.graph_profile)]
   end
 end

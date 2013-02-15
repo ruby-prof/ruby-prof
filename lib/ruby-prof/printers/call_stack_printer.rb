@@ -195,14 +195,14 @@ module RubyProf
       @output.puts "<title>#{h title}</title>"
       print_css
       print_java_script
-      @output.puts '</head><body>'
+      @output.puts '</head><body><div style="display: inline-block;">'
       print_title_bar
       print_commands
       print_help
     end
 
     def print_footer
-      @output.puts '<div id="sentinel"></div></body></html>'
+      @output.puts '<div id="sentinel"></div></div></body></html>'
     end
 
     def print_css

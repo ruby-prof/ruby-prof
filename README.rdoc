@@ -276,7 +276,7 @@ Reports are created by printers.  Supported printers include:
 To use a printer:
 
   ...
-  result = RubyProf.end
+  result = RubyProf.stop
   printer = RubyProf::GraphPrinter.new(result)
   printer.print(STDOUT, :min_percent => 2)
 

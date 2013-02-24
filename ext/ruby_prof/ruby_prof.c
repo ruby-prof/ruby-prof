@@ -159,6 +159,12 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, V
 
     VALUE thread = rb_thread_current();
     VALUE thread_id = rb_obj_id(thread);
+#if defined(HAVE_RB_FIBER_CURRENT)
+    VALUE fiber = rb_fiber_current();
+    VALUE fiber_id = rb_obj_id(fiber);
+#else
+    #define fiber_id 0
+#endif
     const char* class_name = NULL;
     const char* method_name = rb_id2name(mid);
     const char* source_file = rb_sourcefile();
@@ -176,8 +182,9 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, V
         fprintf(trace_file, "\n");
     }
 
-    fprintf(trace_file, "%2u:%2ums %-8s %s:%2d  %s#%s\n",
-            (unsigned int) thread_id, (unsigned int) measurement, event_name, source_file, source_line, class_name, method_name);
+    fprintf(trace_file, "%2u:%2u:%2ums %-8s %s:%2d  %s#%s\n",
+            (unsigned int) thread_id, (unsigned int) fiber_id, (unsigned int) measurement,
+            event_name, source_file, source_line, class_name, method_name);
     fflush(trace_file);
     last_thread_id = thread_id;
 }

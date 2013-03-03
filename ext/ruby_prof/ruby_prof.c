@@ -123,13 +123,13 @@ static prof_method_t*
 static int
 pop_frames(st_data_t key, st_data_t value, st_data_t data)
 {
-    VALUE thread_id = (VALUE)key;
+    VALUE fiber_id = (VALUE)key;
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
 	double measurement = profile->measurer->measure();
 
-    if (!profile->last_thread_data || profile->last_thread_data->thread_id != thread_id)
-      thread_data = switch_thread(profile, thread_id);
+    if (!profile->last_thread_data || profile->last_thread_data->fiber_id != fiber_id)
+      thread_data = switch_thread(profile, Qnil, fiber_id);
     else
       thread_data = profile->last_thread_data;
 
@@ -155,7 +155,7 @@ static void
 prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, VALUE klass, double measurement)
 #endif
 {
-    static VALUE last_thread_id = Qnil;
+    static VALUE last_fiber_id = Qnil;
 
     VALUE thread = rb_thread_current();
     VALUE thread_id = rb_obj_id(thread);
@@ -163,7 +163,7 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, V
     VALUE fiber = rb_fiber_current();
     VALUE fiber_id = rb_obj_id(fiber);
 #else
-    #define fiber_id 0
+    VALUE fiber_id = thread_id;
 #endif
     const char* class_name = NULL;
     const char* method_name = rb_id2name(mid);
@@ -177,16 +177,16 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, V
 
     class_name = rb_class2name(klass);
 
-    if (last_thread_id != thread_id)
+    if (last_fiber_id != fiber_id)
     {
         fprintf(trace_file, "\n");
     }
 
-    fprintf(trace_file, "%2u:%2u:%2ums %-8s %s:%2d  %s#%s\n",
-            (unsigned int) thread_id, (unsigned int) fiber_id, (unsigned int) measurement,
+    fprintf(trace_file, "%2lu:%2lu:%2ums %-8s %s:%2d  %s#%s\n",
+            (unsigned long) thread_id, (unsigned long) fiber_id, (unsigned int) measurement*1000,
             event_name, source_file, source_line, class_name, method_name);
     fflush(trace_file);
-    last_thread_id = thread_id;
+    last_fiber_id = fiber_id;
 }
 
 #ifdef RUBY_VM
@@ -205,6 +205,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     
     VALUE thread = Qnil;
     VALUE thread_id = Qnil;
+    VALUE fiber = Qnil;
+    VALUE fiber_id = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
     double measurement;
@@ -237,6 +239,13 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     /* Get the current thread information. */
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
+#if defined(HAVE_RB_FIBER_CURRENT)
+    fiber = rb_fiber_current();
+    fiber_id = rb_obj_id(fiber);
+#else
+    fiber = thread;
+    fiber_id = thread_id;
+#endif
 
     if (st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
     {
@@ -244,8 +253,8 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     }
 
     /* Was there a context switch? */
-    if (!profile->last_thread_data || profile->last_thread_data->thread_id != thread_id)
-      thread_data = switch_thread(profile, thread_id);
+    if (!profile->last_thread_data || profile->last_thread_data->fiber_id != fiber_id)
+      thread_data = switch_thread(profile, thread_id, fiber_id);
     else
       thread_data = profile->last_thread_data;
 

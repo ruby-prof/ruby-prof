@@ -42,12 +42,12 @@ class MeasureProcessTimeTest < Test::Unit::TestCase
 
     # Check times
     assert_equal("MeasureProcessTimeTest#test_primes", methods[0].full_name)
-    assert_in_delta(total_time, methods[0].total_time, 0.01)
+    assert_in_delta(total_time, methods[0].total_time, 0.02)
     assert_in_delta(0.0, methods[0].wait_time, 0.01)
     assert_in_delta(0.0, methods[0].self_time, 0.01)
 
     assert_equal("Object#run_primes", methods[1].full_name)
-    assert_in_delta(total_time, methods[1].total_time, 0.01)
+    assert_in_delta(total_time, methods[1].total_time, 0.02)
     assert_in_delta(0.0, methods[1].wait_time, 0.01)
     assert_in_delta(0.0, methods[1].self_time, 0.01)
 

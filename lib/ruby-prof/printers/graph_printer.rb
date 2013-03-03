@@ -22,6 +22,7 @@ module RubyProf
 
     def print_header(thread)
       @output << "Thread ID: #{thread.id}\n"
+      @output << "Fiber ID: #{thread.fiber_id}\n" unless thread.id == thread.fiber_id
       @output << "Total Time: #{thread.total_time}\n"
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"

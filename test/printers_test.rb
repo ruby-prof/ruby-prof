@@ -75,6 +75,7 @@ class PrintersTest < Test::Unit::TestCase
     printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output)
+    assert_match(/Fiber ID: -?\d+/i, output) unless RUBY_VERSION =~ /^1.8/
     assert_match(/Total: \d+\.\d+/i, output)
     assert_match(/Object#run_primes/i, output)
     output
@@ -112,6 +113,7 @@ class PrintersTest < Test::Unit::TestCase
     printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output)
+    assert_match(/Fiber ID: -?\d+/i, output) unless RUBY_VERSION =~ /^1.8/
     assert_match(/Total Time: \d+\.\d+/i, output)
     assert_match(/Object#run_primes/i, output)
   end

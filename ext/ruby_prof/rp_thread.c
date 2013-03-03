@@ -70,7 +70,7 @@ prof_thread_mark(thread_data_t *thread)
 		rb_gc_mark(thread->thread_id);
 
 	if (thread->fiber_id != Qnil)
-		rb_gc_mark(thread->thread_id);
+		rb_gc_mark(thread->fiber_id);
 
 	st_foreach(thread->method_table, mark_methods, 0);
 }

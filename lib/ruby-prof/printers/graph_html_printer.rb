@@ -159,8 +159,11 @@ module RubyProf
     <% for thread in @result.threads
          methods = thread.methods
          total_time = thread.total_time %>
+      <% if RUBY_VERSION >= "1.9" %>
+      <h2><a name="<%= thread.fiber_id %>">Thread <%= thread.id %>, Fiber: <%= thread.fiber_id %></a></h2>
+      <% else %>
       <h2><a name="<%= thread.fiber_id %>">Thread <%= thread.fiber_id %></a></h2>
-
+      <% end %>
       <table>
         <thead>
           <tr>

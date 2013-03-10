@@ -45,17 +45,19 @@ class MultiPrinterTest < Test::Unit::TestCase
 \s*<table>
 \s*<tr>
 \s*<th>Thread ID</th>
+\s*(<th>Fiber ID</th>)?
 \s*<th>Total Time</th>
 \s*</tr>
 \s*
 \s*<tr>
+\s*(<td>([\.0-9]+)</td>)?
 \s*<td><a href="#-?\d+">-?\d+</a></td>
-\s*<td>([\.0-9]+)</td>
+\s*<td>([\.0-9e]+)</td>
 \s*</tr>
 \s*
 \s*</table>')
     assert_match(re, graph)
-    display_time = $1.to_f
+    display_time = $4.to_f
     assert_in_delta expected_time, display_time, 0.5
   end
 

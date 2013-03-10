@@ -60,7 +60,7 @@ module RubyProf
     end
 
     def method_href(thread, method)
-      h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + thread.id.to_s)
+      h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + thread.fiber_id.to_s)
     end
 
     def file_link(path, linenum)
@@ -139,11 +139,17 @@ module RubyProf
     <table>
       <tr>
         <th>Thread ID</th>
+        <% if RUBY_VERSION >= "1.9" %>
+        <th>Fiber ID</th>
+        <% end %>
         <th>Total Time</th>
       </tr>
       <% for thread in @result.threads %>
       <tr>
-        <td><a href="#<%= thread.id %>"><%= thread.id %></a></td>
+        <% if RUBY_VERSION >= "1.9" %>
+        <td><%= thread.id %></td>
+        <% end %>
+        <td><a href="#<%= thread.fiber_id %>"><%= thread.fiber_id %></a></td>
         <td><%= thread.total_time %></td>
       </tr>
       <% end %>
@@ -153,8 +159,11 @@ module RubyProf
     <% for thread in @result.threads
          methods = thread.methods
          total_time = thread.total_time %>
-      <h2><a name="<%= thread.id %>">Thread <%= thread.id %></a></h2>
-
+      <% if RUBY_VERSION >= "1.9" %>
+      <h2><a name="<%= thread.fiber_id %>">Thread <%= thread.id %>, Fiber: <%= thread.fiber_id %></a></h2>
+      <% else %>
+      <h2><a name="<%= thread.fiber_id %>">Thread <%= thread.fiber_id %></a></h2>
+      <% end %>
       <table>
         <thead>
           <tr>

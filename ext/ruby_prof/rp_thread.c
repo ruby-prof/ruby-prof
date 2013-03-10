@@ -65,9 +65,12 @@ prof_thread_mark(thread_data_t *thread)
 	
 	if (thread->methods != Qnil)
 		rb_gc_mark(thread->methods);
-	
+
 	if (thread->thread_id != Qnil)
 		rb_gc_mark(thread->thread_id);
+
+	if (thread->fiber_id != Qnil)
+		rb_gc_mark(thread->fiber_id);
 
 	st_foreach(thread->method_table, mark_methods, 0);
 }
@@ -119,20 +122,20 @@ threads_table_free(st_table *table)
 }
 
 size_t
-threads_table_insert(prof_profile_t* profile, VALUE thread, thread_data_t *thread_data)
+threads_table_insert(prof_profile_t* profile, VALUE fiber, thread_data_t *thread_data)
 {
     /* Its too slow to key on the real thread id so just typecast thread instead. */
-    return st_insert(profile->threads_tbl, (st_data_t) thread, (st_data_t) thread_data);
+    return st_insert(profile->threads_tbl, (st_data_t) fiber, (st_data_t) thread_data);
 }
 
 thread_data_t *
-threads_table_lookup(prof_profile_t* profile, VALUE thread_id)
+threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
 {
     thread_data_t* result;
     st_data_t val;
 
     /* Its too slow to key on the real thread id so just typecast thread instead. */
-    if (st_lookup(profile->threads_tbl, (st_data_t) thread_id, &val))
+    if (st_lookup(profile->threads_tbl, (st_data_t) fiber_id, &val))
     {
       result = (thread_data_t *) val;
     }
@@ -140,21 +143,22 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id)
     {
         result = thread_data_create();
         result->thread_id = thread_id;
+        result->fiber_id = fiber_id;
 
         /* Insert the table */
-        threads_table_insert(profile, thread_id, result);
+        threads_table_insert(profile, fiber_id, result);
     }
     return result;
 }
 
 thread_data_t *
-switch_thread(void* prof, VALUE thread_id)
+switch_thread(void* prof, VALUE thread_id, VALUE fiber_id)
 {
     prof_profile_t* profile = (prof_profile_t*)prof;
     double measurement = profile->measurer->measure();
 
     /* Get new thread information. */
-    thread_data_t *thread_data = threads_table_lookup(profile, thread_id);
+    thread_data_t *thread_data = threads_table_lookup(profile, thread_id, fiber_id);
 
     /* Get current frame for this thread */
     prof_frame_t *frame = prof_stack_peek(thread_data->stack);
@@ -226,6 +230,17 @@ prof_thread_id(VALUE self)
 }
 
 /* call-seq:
+   fiber_id -> number
+
+Returns the fiber id of this thread. */
+static VALUE
+prof_fiber_id(VALUE self)
+{
+    thread_data_t* thread = prof_get_thread(self);
+	return thread->fiber_id;
+}
+
+/* call-seq:
    methods -> Array of MethodInfo
 
 Returns an array of methods that were called from this
@@ -248,5 +263,6 @@ void rp_init_thread()
     rb_undef_method(CLASS_OF(cRpThread), "new");
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
+    rb_define_method(cRpThread, "fiber_id", prof_fiber_id, 0);
     rb_define_method(cRpThread, "methods", prof_thread_methods, 0);
 }

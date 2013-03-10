@@ -13,6 +13,8 @@ if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]
   MiniTest::Reporters.use!
 end
 
+require "minitest/pride"
+
 # To make testing/debugging easier, test within this source tree versus an installed gem
 dir = File.dirname(__FILE__)
 root = File.expand_path(File.join(dir, '..'))

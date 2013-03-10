@@ -53,7 +53,7 @@ EOF
 
   spec.test_files = Dir["test/test_*.rb"]
   spec.required_ruby_version = '>= 1.8.7'
-  spec.date = DateTime.now
+  spec.date = Time.now.strftime('%Y-%m-%d')
   spec.homepage = 'https://github.com/rdp/ruby-prof'
   spec.add_development_dependency('minitest')
   spec.add_development_dependency('rake-compiler')

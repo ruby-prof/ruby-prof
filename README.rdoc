@@ -427,6 +427,6 @@ See LICENSE for license information.
 
 == Development
 
-Code is located at http://github.com/rdp/ruby-prof
+Code is located at http://github.com/ruby-prof/ruby-prof
 
-Google group/mailing list: http://groups.google.com/group/ruby-optimization
+Google group/mailing list: http://groups.google.com/group/ruby-optimization or start a github issue.

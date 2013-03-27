@@ -224,7 +224,7 @@ ruby-prof can generate a number of different reports:
 Flat profiles show the overall time spent in each method. They
 are a good of quickly identifying which methods take the most time.
 An example of a flat profile and an explanation can be found in
-{examples/flat.txt}[http://github.com/rdp/ruby-prof/tree/master/examples/flat.txt].
+{examples/flat.txt}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/flat.txt].
 
 There are several varieties of these -- run $ ruby-prof --help
 
@@ -233,13 +233,13 @@ addition, they also show which methods call the current method and which
 methods its calls.  Thus they are good for understanding how methods
 gets called and provide insight into the flow of your program. An
 example text graph profile is located at
-{examples/graph.txt}[http://github.com/rdp/ruby-prof/tree/master/examples/graph.txt].
+{examples/graph.txt}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/graph.txt].
 
 HTML Graph profiles are the same as graph profiles, except output is
 generated in hyper-linked HTML. Since graph profiles can be quite large,
 the embedded links make it much easier to navigate the results. An
 example html graph profile is located at
-{examples/graph.html}[http://github.com/rdp/ruby-prof/tree/master/examples/graph.html].
+{examples/graph.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/graph.html].
 
 Call graphs output results in the calltree profile format which is used
 by KCachegrind. Call graph support was generously donated by Carl
@@ -249,13 +249,13 @@ site.
 
 Call stack reports produce a HTML visualization of the time spent in
 each execution path of the profiled code. An example can be found at
-{examples/stack.html}[http://github.com/rdp/ruby-prof/tree/master/examples/call_stack.html].
+{examples/stack.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/call_stack.html].
 
 Another good example: [http://twitpic.com/28z94a]
 
 Finally, there's a so called MultiPrinter which can generate several
 reports in one profiling run. See
-{examples/multi.stack.html}[http://github.com/rdp/ruby-prof/tree/master/examples/multi.stack.html].
+{examples/multi.stack.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/multi.stack.html].
 
 There is also a graphviz .dot visualiser.
 
@@ -427,6 +427,6 @@ See LICENSE for license information.
 
 == Development
 
-Code is located at http://github.com/ruby-prof/ruby-prof
+Code is located at https://github.com/ruby-prof/ruby-prof
 
 Google group/mailing list: http://groups.google.com/group/ruby-optimization or start a github issue.

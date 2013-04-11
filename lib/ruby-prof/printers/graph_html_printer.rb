@@ -47,8 +47,7 @@ module RubyProf
     # links to methods which are under the min_perecent
     # specified by the user, since they will not be
     # printed out.
-    def create_link(thread, method)
-      overall_time = thread.total_time
+    def create_link(thread, overall_time, method)
       total_percent = (method.total_time/overall_time) * 100
       if total_percent < min_percent
         # Just return name
@@ -200,7 +199,7 @@ module RubyProf
                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.children_time) %></td>
                   <% called = "#{caller.called}/#{method.called}" %>
                   <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
-                  <td class="method_name"><%= create_link(thread, caller.parent.target) %></td>
+                  <td class="method_name"><%= create_link(thread, total_time, caller.parent.target) %></td>
                   <td><%= file_link(caller.parent.target.source_file, caller.line) %></td>
                 </tr>
               <% end %>
@@ -233,7 +232,7 @@ module RubyProf
                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.children_time) %></td>
                   <% called = "#{callee.called}/#{callee.target.called}" %>
                   <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
-                  <td class="method_name"><%= create_link(thread, callee.target) %></td>
+                  <td class="method_name"><%= create_link(thread, total_time, callee.target) %></td>
                   <td><%= file_link(method.source_file, callee.line) %></td>
                 </tr>
               <% end %>

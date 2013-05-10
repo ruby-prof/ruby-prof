@@ -41,7 +41,7 @@ end
 # end
 
 require 'rubygems'
-unless Gem.win_platform? || RUBY_PLATFORM =~ /darwin/
+unless Gem.win_platform? || RUBY_PLATFORM =~ /(darwin|openbsd)/
   $LDFLAGS += " -lrt" # for clock_gettime
 end
 add_define("RUBY_VERSION", RUBY_VERSION.gsub('.', ''))

@@ -1,4 +1,5 @@
 = ruby-prof
+{<img src="https://travis-ci.org/ruby-prof/ruby-prof.png?branch=master" alt="Build Status" />}[https://travis-ci.org/ruby-prof/ruby-prof]
 
 == Overview
 

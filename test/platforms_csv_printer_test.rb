@@ -48,8 +48,8 @@ class PlatformsCSVTest < Test::Unit::TestCase
 	printer = RubyProf::PlatformsCSVPrinter.new(result)
 	printer.print(output)	
 	data = CSV.parse(output.string)
-	
-	assert(data.length == 14)
+
+	assert(data.length > 8)
 	
 	# func1 has invocation count 1
 	func1_row = data.select {|item| item[0].start_with? "PlatformsCSVTestClass#func1"} [0]

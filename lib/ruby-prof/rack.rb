@@ -6,13 +6,15 @@ module Rack
     def initialize(app, options = {})
       @app = app
       @options = options
+      if options[:measure_mode] != nil
+        ::RubyProf.measure_mode = options[:measure_mode]
+      end
       @options[:min_percent] ||= 1
       @tmpdir = options[:path] || Dir.tmpdir
       @printer_klasses = @options[:printers]  || {::RubyProf::FlatPrinter => 'flat.txt',
                                                   ::RubyProf::GraphPrinter => 'graph.txt',
                                                   ::RubyProf::GraphHtmlPrinter => 'graph.html',
                                                   ::RubyProf::CallStackPrinter => 'call_stack.html'}
-
       @skip_paths = options[:skip_paths] || [%r{^/assets}, %r{\.css$}, %r{\.js$}, %r{\.png$}, %r{\.jpeg$}, %r{\.jpg$}, %r{\.gif$}]
     end
 

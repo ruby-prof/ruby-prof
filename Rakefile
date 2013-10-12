@@ -8,6 +8,7 @@ require "date"
 require "rake/clean"
 begin
   require "bundler/setup"
+  require "bundler"
   Bundler::GemHelper.install_tasks
   [:build, :install, :release].each {|t| Rake::Task[t].enhance [:rdoc] }
 rescue LoadError

@@ -35,7 +35,7 @@ module RubyProf
           method_name.slice! slice_index, method_name.length
         end
 
-        @output << '%s, %s, %.3f, %.3f, %.3f, %d, %d\n' % [
+        @output << "%s, %s, %.3f, %.3f, %.3f, %d, %d\n" % [
                       method_name,
                       method.source_file.to_s,                  
                       method.total_time * 1000,                   

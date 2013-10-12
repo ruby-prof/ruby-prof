@@ -48,8 +48,6 @@ class PlatformsCSVTest < Test::Unit::TestCase
 	printer = RubyProf::PlatformsCSVPrinter.new(result)
 	printer.print(output)	
 
-	print output.string.to_s
-
 	data = CSV.parse(output.string)
 
 	assert(data.length > 8)

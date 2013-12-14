@@ -11,7 +11,7 @@ RUBY_PROF_VERSION = "#{match[1]}"
 Gem::Specification.new do |spec|
   spec.name = "ruby-prof"
 
-  spec.homepage = "http://rubyforge.org/projects/ruby-prof/"
+  spec.homepage = "https://github.com/ruby-prof/ruby-prof/"
   spec.summary = "Fast Ruby profiler"
   spec.description = <<-EOF
 ruby-prof is a fast code profiler for Ruby. It is a C extension and

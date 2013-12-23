@@ -23,7 +23,7 @@ class FiberTest < Test::Unit::TestCase
       end
     while true
       begin
-        x = enum.next
+        enum.next
       rescue StopIteration
         break
       end

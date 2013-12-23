@@ -48,7 +48,7 @@ class CallInfoTest < Test::Unit::TestCase
     assert_in_delta(0.1, methods[2].self_time, 0.01)
     assert_equal(1, methods[2].called)
 
-    result2 = RubyProf.profile do
+    RubyProf.profile do
       RubyProf::C1.hello
     end
 

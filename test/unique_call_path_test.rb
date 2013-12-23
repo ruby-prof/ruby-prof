@@ -121,24 +121,14 @@ class UniqueCallPathTest < Test::Unit::TestCase
       end
     end
 
-    if RUBY_VERSION < '1.9'
-      assert_equal(4, call_info_a.target.children.length)
-    else
-      assert_equal(2, call_info_a.target.children.length)
-    end
+    assert_equal(2, call_info_a.target.children.length)
 
     children_of_a = children_of_a.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
-    if RUBY_VERSION < '1.9'
-      assert_equal(2, children_of_a.length)
-      assert_equal("Fixnum#==", children_of_a[0].target.full_name)
-      assert_equal("UniqueCallPath#method_b", children_of_a[1].target.full_name)
-    else
-      assert_equal(1, children_of_a.length)
-      assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
-    end
 
+    assert_equal(1, children_of_a.length)
+    assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
   end
 
   def test_id2ref
@@ -199,26 +189,14 @@ class UniqueCallPathTest < Test::Unit::TestCase
       end
     end
 
-    if RUBY_VERSION < '1.9'
-      assert_equal(4, call_info_a.target.children.length)
-    else
-      assert_equal(2, call_info_a.target.children.length)
-    end
+    assert_equal(2, call_info_a.target.children.length)
 
     children_of_a = children_of_a.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
 
-    if RUBY_VERSION < '1.9'
-      assert_equal(2, children_of_a.length)
-      assert_equal(1, children_of_a[0].called)
-      assert_equal("Fixnum#==", children_of_a[0].target.full_name)
-      assert_equal(1, children_of_a[1].called)
-      assert_equal("UniqueCallPath#method_b", children_of_a[1].target.full_name)
-    else
-      assert_equal(1, children_of_a.length)
-      assert_equal(1, children_of_a[0].called)
-      assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
-    end
+    assert_equal(1, children_of_a.length)
+    assert_equal(1, children_of_a[0].called)
+    assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
   end
 end

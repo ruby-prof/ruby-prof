@@ -75,7 +75,7 @@ class PrintersTest < Test::Unit::TestCase
     printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output)
-    assert_match(/Fiber ID: -?\d+/i, output) unless RUBY_VERSION =~ /^1.8/
+    assert_match(/Fiber ID: -?\d+/i, output)
     assert_match(/Total: \d+\.\d+/i, output)
     assert_match(/Object#run_primes/i, output)
     output
@@ -88,12 +88,8 @@ class PrintersTest < Test::Unit::TestCase
     assert_match(/called from/, output)
 
     # should combine common parents
-    if RUBY_VERSION < '1.9'
-      assert_equal(3, output.scan(/Object#is_prime/).length)
-    else
-      # 1.9 inlines it's  Fixnum#- so we don't see as many
-      assert_equal(2, output.scan(/Object#is_prime/).length)
-    end
+    # 1.9 inlines it's  Fixnum#- so we don't see as many
+    assert_equal(2, output.scan(/Object#is_prime/).length)
     assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
   end
 
@@ -113,7 +109,7 @@ class PrintersTest < Test::Unit::TestCase
     printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output)
-    assert_match(/Fiber ID: -?\d+/i, output) unless RUBY_VERSION =~ /^1.8/
+    assert_match(/Fiber ID: -?\d+/i, output)
     assert_match(/Total Time: \d+\.\d+/i, output)
     assert_match(/Object#run_primes/i, output)
   end

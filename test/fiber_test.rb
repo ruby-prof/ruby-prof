@@ -62,4 +62,4 @@ class FiberTest < Test::Unit::TestCase
     # RubyProf::CallInfoPrinter.new(@result).print
   end
 
-end if RUBY_VERSION >= "1.9"
+end

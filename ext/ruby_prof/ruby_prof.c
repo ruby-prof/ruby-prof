@@ -29,12 +29,6 @@
 VALUE mProf;
 VALUE cProfile;
 
-#ifndef RUBY_VM
-/* Global variable to hold current profile - needed 
-   prior to Ruby 1.9 */
-static prof_profile_t* pCurrentProfile;
-#endif
-
 static prof_profile_t*
 prof_get_profile(VALUE self)
 {
@@ -50,35 +44,32 @@ prof_get_profile(VALUE self)
  */
 static FILE* trace_file = NULL;
 
-/* Copied from eval.c (1.8.x) / thread.c (1.9.2) */
+/* Copied from thread.c (1.9.3) */
 static const char *
 get_event_name(rb_event_flag_t event)
 {
   switch (event) {
-    case RUBY_EVENT_LINE:
-  return "line";
-    case RUBY_EVENT_CLASS:
-  return "class";
-    case RUBY_EVENT_END:
-  return "end";
-    case RUBY_EVENT_CALL:
-  return "call";
-    case RUBY_EVENT_RETURN:
-  return "return";
-    case RUBY_EVENT_C_CALL:
-  return "c-call";
-    case RUBY_EVENT_C_RETURN:
-  return "c-return";
-    case RUBY_EVENT_RAISE:
-  return "raise";
-
-#ifdef RUBY_VM
-    case RUBY_EVENT_SWITCH:
-  return "thread-interrupt";
-#endif
-
-    default:
-  return "unknown";
+  case RUBY_EVENT_LINE:
+    return "line";
+  case RUBY_EVENT_CLASS:
+    return "class";
+  case RUBY_EVENT_END:
+    return "end";
+  case RUBY_EVENT_CALL:
+    return "call";
+  case RUBY_EVENT_RETURN:
+    return "return";
+  case RUBY_EVENT_C_CALL:
+    return "c-call";
+  case RUBY_EVENT_C_RETURN:
+    return "c-return";
+  case RUBY_EVENT_RAISE:
+    return "raise";
+  /* this one is not in ruby source code. will it ever be generated? */
+  case RUBY_EVENT_SWITCH:
+    return "thread-interrupt";
+  default:
+    return "unknown";
   }
 }
 
@@ -97,11 +88,7 @@ create_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_fil
 
 
 static prof_method_t*
-#ifdef RUBY_VM
- get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t* thread_data)
-# else
- get_method(rb_event_flag_t event, NODE *node, VALUE klass, ID mid, thread_data_t* thread_data)
-#endif
+get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t* thread_data)
 {
     prof_method_key_t key;
     prof_method_t *method = NULL;
@@ -147,13 +134,8 @@ prof_pop_threads(prof_profile_t* profile)
 }
 
 /* ===========  Profiling ================= */
-#ifdef RUBY_VM
 static void
 prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, double measurement)
-#else
-static void
-prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, VALUE klass, double measurement)
-#endif
 {
     static VALUE last_fiber_id = Qnil;
 
@@ -189,20 +171,10 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, NODE *node, ID mid, V
     last_fiber_id = fiber_id;
 }
 
-#ifdef RUBY_VM
 static void
 prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
-#else
-static void
-prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE klass)
-#endif
 {
-#ifndef RUBY_VM
-    prof_profile_t* profile = pCurrentProfile;
-#else
     prof_profile_t* profile = prof_get_profile(data);
-#endif	
-    
     VALUE thread = Qnil;
     VALUE thread_id = Qnil;
     VALUE fiber = Qnil;
@@ -211,23 +183,17 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
     prof_frame_t *frame = NULL;
     double measurement;
 
-    #ifdef RUBY_VM
-      if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
+    if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
         // guess these are already set for C calls in 1.9, then?
         rb_frame_method_id_and_class(&mid, &klass);
-      }
-    #endif
+    }
 
     /* Get current measurement */
     measurement = profile->measurer->measure();
 
     if (trace_file != NULL)
     {
-#ifdef RUBY_VM
         prof_trace(profile, event, mid, klass, measurement);
-#else
-        prof_trace(profile, event, node, mid, klass, measurement);
-#endif
     }
 
     /* Special case - skip any methods from the mProf
@@ -284,11 +250,7 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
         prof_call_info_t *call_info = NULL;
         prof_method_t *method = NULL;
 
-        #ifdef RUBY_VM
         method = get_method(event, klass, mid, thread_data);
-        #else
-        method = get_method(event, node, klass, mid, thread_data);
-        #endif
 
         if (!frame)
         {
@@ -334,19 +296,10 @@ prof_event_hook(rb_event_flag_t event, NODE *node, VALUE self, ID mid, VALUE kla
 void
 prof_install_hook(VALUE self)
 {
-#ifdef RUBY_VM
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN
             | RUBY_EVENT_LINE, self); // RUBY_EVENT_SWITCH
-#else
-    rb_add_event_hook(prof_event_hook,
-          RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
-          RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN
-          | RUBY_EVENT_LINE);
-
-    pCurrentProfile = prof_get_profile(self);
-#endif	
 
 #if defined(TOGGLE_GC_STATS)
     rb_gc_enable_stats();
@@ -358,10 +311,6 @@ prof_remove_hook()
 {
 #if defined(TOGGLE_GC_STATS)
     rb_gc_disable_stats();
-#endif
-
-#ifndef RUBY_VM
-    pCurrentProfile = NULL;
 #endif
 
     /* Now unregister from event   */
@@ -508,18 +457,11 @@ prof_start(VALUE self)
     char* trace_file_name;
 
     prof_profile_t* profile = prof_get_profile(self);
-        
+
     if (profile->running == Qtrue)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was already called");
     }
-
-#ifndef RUBY_VM
-	if (pCurrentProfile != NULL)
-    {
-        rb_raise(rb_eRuntimeError, "Only one profile can run at a time on Ruby 1.8.*");
-    }
-#endif
 
     profile->running = Qtrue;
     profile->paused = Qfalse;

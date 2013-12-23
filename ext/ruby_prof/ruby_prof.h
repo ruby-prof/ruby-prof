@@ -8,22 +8,23 @@
 #include <stdio.h>
 
 #if RUBY_VERSION == 186
-# error 1.8.6 is not supported.  Please upgrade to 1.8.7 or 1.9.2 or higher.
+# error 1.8.6 is not supported. Please upgrade to 1.9.3 or higher.
+#endif
+
+#if RUBY_VERSION == 187
+# error 1.8.7 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
 #if RUBY_VERSION == 190
-# error 1.9.0 is not supported.  Please upgrade to 1.9.2 or higher.
+# error 1.9.0 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
 #if RUBY_VERSION == 191
-# error 1.9.1 is not supported.  Please upgrade to 1.9.2 or higher.
+# error 1.9.1 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
-#ifndef RUBY_VM
-#include <node.h>
-typedef rb_event_t rb_event_flag_t;
-#define rb_sourcefile() (node ? node->nd_file : 0)
-#define rb_sourceline() (node ? nd_line(node) : 0)
+#if RUBY_VERSION == 192
+# error 1.9.2 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
 #include "version.h"

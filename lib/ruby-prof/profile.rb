@@ -22,11 +22,11 @@ module RubyProf
       visitor.visit do |call_info, event|
         case event
         when :enter
-          visited_methods[call_info.target] += 1
-          call_info.recursive = (visited_methods[call_info.target] > 1)
+          if (visited_methods[call_info.target] += 1) > 1
+            call_info.recursive = true
+          end
         when :exit
-          visited_methods[call_info.target] -= 1
-          if visited_methods[call_info.target] == 0
+          if (visited_methods[call_info.target] -= 1) == 0
             visited_methods.delete(call_info.target)
           end
         end

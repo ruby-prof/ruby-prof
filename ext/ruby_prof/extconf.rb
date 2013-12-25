@@ -20,9 +20,6 @@ have_func("rb_class_superclass")
 have_func("rb_heap_total_mem")
 have_func("rb_gc_heap_info")
 
-# whether our ruby has fibers
-have_func("rb_fiber_current")
-
 def add_define(name, value = nil)
   if value
     $defs.push("-D#{name}=#{value}")

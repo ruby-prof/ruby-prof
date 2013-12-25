@@ -202,16 +202,11 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     if (self == mProf || klass == cProfile)
 		return;
 
-    /* Get the current thread information. */
+    /* Get the current thread and fiber information. */
     thread = rb_thread_current();
     thread_id = rb_obj_id(thread);
-#if defined(HAVE_RB_FIBER_CURRENT)
     fiber = rb_fiber_current();
     fiber_id = rb_obj_id(fiber);
-#else
-    fiber = thread;
-    fiber_id = thread_id;
-#endif
 
     if (st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
     {

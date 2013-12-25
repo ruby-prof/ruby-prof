@@ -17,28 +17,26 @@
 
 module RubyProf
   class CallInfoVisitor
-    attr_reader :block, :thread
 
     def initialize(thread)
-      @thread = thread
+      @trhread = thread
     end
 
     def visit(&block)
-      @block = block
-
-      self.thread.top_methods.each do |method_info|
+      @thread.top_methods.each do |method_info|
         method_info.call_infos.each do |call_info|
-          self.visit_call_info(call_info)
+          visit_call_info(call_info, &block)
         end
       end
     end
 
-    def visit_call_info(call_info)
-      self.block.call(call_info, :enter)
+    private
+    def visit_call_info(call_info, &block)
+      yield call_info, :enter
       call_info.children.each do |child|
-        visit_call_info(child)
+        visit_call_info(child, &block)
       end
-      self.block.call(call_info, :exit)
+      yield call_info, :exit
     end
   end
 end

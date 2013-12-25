@@ -19,7 +19,7 @@ module RubyProf
   class CallInfoVisitor
 
     def initialize(thread)
-      @trhread = thread
+      @thread = thread
     end
 
     def visit(&block)

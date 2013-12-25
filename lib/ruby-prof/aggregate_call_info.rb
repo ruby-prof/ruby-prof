@@ -56,16 +56,14 @@ module RubyProf
     private
 
     def aggregate(method_name)
-      self.call_infos.inject(0) do |sum, call_info|
-        sum += call_info.send(method_name)
-        sum
+      call_infos.inject(0) do |sum, call_info|
+        sum + call_info.send(method_name)
       end
     end
 
     def aggregate_without_recursion(method_name)
-      self.call_infos.inject(0) do |sum, call_info|
-        sum += call_info.send(method_name) unless call_info.recursive
-        sum
+      call_infos.inject(0) do |sum, call_info|
+        call_info.recursive ? sum : sum + call_info.send(method_name)
       end
     end
   end

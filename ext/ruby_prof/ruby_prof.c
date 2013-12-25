@@ -65,9 +65,6 @@ get_event_name(rb_event_flag_t event)
     return "c-return";
   case RUBY_EVENT_RAISE:
     return "raise";
-  /* this one is not in ruby source code. will it ever be generated? */
-  case RUBY_EVENT_SWITCH:
-    return "thread-interrupt";
   default:
     return "unknown";
   }
@@ -293,8 +290,8 @@ prof_install_hook(VALUE self)
 {
     rb_add_event_hook(prof_event_hook,
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
-          RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN
-            | RUBY_EVENT_LINE, self); // RUBY_EVENT_SWITCH
+          RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN |
+          RUBY_EVENT_LINE, self);
 }
 
 void

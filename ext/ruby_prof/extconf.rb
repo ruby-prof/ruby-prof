@@ -25,10 +25,6 @@ def add_define(name, value = nil)
   end
 end
 
-# if have_func("rb_gc_enable_stats")
-#   add_define("TOGGLE_GC_STATS", 1)
-# end
-
 if !Gem.win_platform? && RUBY_PLATFORM !~ /(darwin|openbsd)/
   $LDFLAGS += " -lrt" # for clock_gettime
 end

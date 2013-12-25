@@ -295,20 +295,11 @@ prof_install_hook(VALUE self)
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN
             | RUBY_EVENT_LINE, self); // RUBY_EVENT_SWITCH
-
-#if defined(TOGGLE_GC_STATS)
-    rb_gc_enable_stats();
-#endif
 }
 
 void
 prof_remove_hook()
 {
-#if defined(TOGGLE_GC_STATS)
-    rb_gc_disable_stats();
-#endif
-
-    /* Now unregister from event   */
     rb_remove_event_hook(prof_event_hook);
 }
 

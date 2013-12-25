@@ -149,7 +149,7 @@ module RubyProf
           options.replace_prog_name = true
         end
 
-        if defined?(VM)
+        if defined?(RubyVM)
           opts.on("--specialized-instruction", "Turn on specified instruction.") do
             options.specialized_instruction = true
           end
@@ -273,8 +273,8 @@ module RubyProf
       end
 
       # Set VM compile option
-      if defined?(VM)
-        VM::InstructionSequence.compile_option = {
+      if defined?(RubyVM)
+        RubyVM::InstructionSequence.compile_option = {
             :trace_instruction => true,
             :specialized_instruction => options.specialized_instruction
         }

@@ -29,7 +29,7 @@ EOF
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib"
   spec.bindir = "bin"
-  spec.executables = ["ruby-prof"]
+  spec.executables = ["ruby-prof", "ruby-prof-check-trace"]
   spec.extensions = ["ext/ruby_prof/extconf.rb"]
   spec.files = Dir['CHANGES',
                    'LICENSE',
@@ -37,6 +37,7 @@ EOF
                    'README.rdoc',
                    'ruby-prof.gemspec',
                    'bin/ruby-prof',
+                   'bin/ruby-prof-check-trace',
                    'doc/**/*',
                    'examples/*',
                    'ext/ruby_prof/extconf.rb',

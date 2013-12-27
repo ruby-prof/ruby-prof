@@ -55,7 +55,7 @@ EOF
   spec.test_files = Dir["test/test_*.rb"]
   spec.required_ruby_version = '>= 1.9.3'
   spec.date = Time.now.strftime('%Y-%m-%d')
-  spec.homepage = 'https://github.com/rdp/ruby-prof'
+  spec.homepage = 'https://github.com/ruby-prof/ruby-prof'
   spec.add_development_dependency('minitest', '~> 4.0')
   spec.add_development_dependency('rake-compiler')
   spec.add_development_dependency('rdoc')

@@ -13,7 +13,7 @@ if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]
   MiniTest::Reporters.use!
 end
 
-require "minitest/pride"
+require "minitest/pride" if RUBY_VERSION == "1.9.3"
 
 # To make testing/debugging easier, test within this source tree versus an installed gem
 dir = File.dirname(__FILE__)

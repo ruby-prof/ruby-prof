@@ -20,7 +20,7 @@ class MeasureGCRunsTest < Test::Unit::TestCase
       t = RubyProf.measure_gc_runs
       assert_kind_of Integer, t
 
-      GC.enable_stats
+      GC.enable_stats if GC.respond_to?(:enable_stats)
       GC.start
 
       u = RubyProf.measure_gc_runs

@@ -7,9 +7,14 @@ end
 
 have_header("sys/times.h")
 
-# Stefan Kaes / Alexander Dymo GC patch
+# standard ruby methods
+have_func("rb_gc_stat")
+have_func("rb_gc_count")
+
+# Alexander Dymo GC patch
 have_func("rb_os_allocated_objects")
 have_func("rb_gc_allocated_size")
+
 have_func("rb_gc_collections")
 have_func("rb_gc_time")
 

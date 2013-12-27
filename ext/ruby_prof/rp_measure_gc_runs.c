@@ -11,6 +11,10 @@ static VALUE cMeasureGcRuns;
   VALUE rb_gc_collections(void);
 #endif
 
+#if defined(HAVE_RB_GC_COUNT)
+  size_t rb_gc_count(void);
+#endif
+
 #if defined(HAVE_RB_GC_HEAP_INFO)
   VALUE rb_gc_heap_info(void);
 #endif
@@ -22,6 +26,10 @@ measure_gc_runs()
 #if defined(HAVE_RB_GC_COLLECTIONS)
 #define MEASURE_GC_RUNS_ENABLED Qtrue
   return NUM2INT(rb_gc_collections());
+
+#elif defined(HAVE_RB_GC_COUNT)
+#define MEASURE_GC_RUNS_ENABLED Qtrue
+  return rb_gc_count();
 
 #elif defined(HAVE_RB_GC_HEAP_INFO)
 #define MEASURE_GC_RUNS_ENABLED Qtrue

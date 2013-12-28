@@ -11,10 +11,6 @@ static VALUE cMeasureAllocations;
   unsigned LONG_LONG rb_os_allocated_objects();
 #endif
 
-#if defined(HAVE_RB_GC_MALLOC_ALLOCATIONS)
-  unsigned LONG_LONG rb_gc_malloc_allocations();
-#endif
-
 #if defined(HAVE_RB_GC_STAT)
 size_t rb_gc_stat(VALUE key);
 #endif
@@ -26,11 +22,7 @@ measure_allocations()
 #define MEASURE_ALLOCATIONS_ENABLED Qtrue
     return rb_os_allocated_objects();
 
-#elif defined(HAVE_RB_GC_MALLOC_ALLOCATIONS)
-#define MEASURE_ALLOCATIONS_ENABLED Qtrue
-    return rb_gc_malloc_allocations();
-
-#elif defined(HAVE_RB_GC_STAT)
+#elif defined(HAVE_RB_GC_STAT) && RUBY_VERSION == 210
 #define MEASURE_ALLOCATIONS_ENABLED Qtrue
     static VALUE total_alloc_symbol = 0;
     if (!total_alloc_symbol) {

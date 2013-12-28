@@ -15,8 +15,13 @@ have_func("rb_gc_count")
 have_func("rb_os_allocated_objects")
 have_func("rb_gc_allocated_size")
 
+# Stefan Kaes GC patches
 have_func("rb_gc_collections")
 have_func("rb_gc_time")
+# for ruby 2.1
+have_func("rb_gc_total_time")
+have_func("rb_gc_total_mallocs")
+have_func("rb_gc_total_malloced_bytes")
 
 # Lloyd Hilaiel's heap info patch
 have_func("rb_heap_total_mem")

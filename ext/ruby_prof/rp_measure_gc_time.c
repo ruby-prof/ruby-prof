@@ -11,11 +11,14 @@ static VALUE cMeasureGcTimes;
   VALUE rb_gc_time();
 #endif
 
-
 static double
 measure_gc_time()
 {
-#if defined(HAVE_RB_GC_TIME)
+#if defined(HAVE_RB_GC_TOTAL_TIME)
+#define MEASURE_GC_TIME_ENABLED Qtrue
+    return rb_gc_total_time();
+
+#elif defined(HAVE_RB_GC_TIME)
 #define MEASURE_GC_TIME_ENABLED Qtrue
     const double conversion = 1000000.0;
 #if HAVE_LONG_LONG

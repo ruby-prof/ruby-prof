@@ -184,16 +184,16 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     /* Get current measurement */
     measurement = profile->measurer->measure();
 
-    if (trace_file != NULL)
-    {
-        prof_trace(profile, event, mid, klass, measurement);
-    }
-
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
        the results but aren't important to them results. */
     if (self == mProf || klass == cProfile)
 		return;
+
+    if (trace_file != NULL)
+    {
+        prof_trace(profile, event, mid, klass, measurement);
+    }
 
     /* Get the current thread and fiber information. */
     thread = rb_thread_current();

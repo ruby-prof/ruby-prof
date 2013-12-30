@@ -138,9 +138,7 @@ module RubyProf
     <table>
       <tr>
         <th>Thread ID</th>
-        <% if RUBY_VERSION >= "1.9" %>
         <th>Fiber ID</th>
-        <% end %>
         <th>Total Time</th>
       </tr>
       <% for thread in @result.threads %>

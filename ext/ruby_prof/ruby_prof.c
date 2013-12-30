@@ -138,12 +138,8 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
 
     VALUE thread = rb_thread_current();
     VALUE thread_id = rb_obj_id(thread);
-#if defined(HAVE_RB_FIBER_CURRENT)
     VALUE fiber = rb_fiber_current();
     VALUE fiber_id = rb_obj_id(fiber);
-#else
-    VALUE fiber_id = thread_id;
-#endif
     const char* class_name = NULL;
     const char* method_name = rb_id2name(mid);
     const char* source_file = rb_sourcefile();

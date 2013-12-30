@@ -8,6 +8,7 @@ rescue LoadError
   require "ruby_prof"
 end
 
+require 'ruby-prof/version'
 require 'ruby-prof/aggregate_call_info'
 require 'ruby-prof/call_info'
 require 'ruby-prof/call_info_visitor'

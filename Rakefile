@@ -15,7 +15,7 @@ rescue LoadError
 end
 
 # To release a version of ruby-prof:
-#   * Update version.h
+#   * Update lib/ruby-prof/version.rb
 #   * Update CHANGES
 #   * git commit to commit files
 #   * rake clobber to remove extra files
@@ -85,7 +85,6 @@ RDoc::Task.new("rdoc") do |rdoc|
                           'examples/graph.html',
                           'lib/**/*.rb',
                           'ext/ruby_prof/ruby_prof.c',
-                          'ext/ruby_prof/version.h',
                           'ext/ruby_prof/measure_*.h',
                           'README.rdoc',
                           'LICENSE')

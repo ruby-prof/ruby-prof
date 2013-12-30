@@ -1,12 +1,7 @@
 # -*- encoding: utf-8 -*-
 
-# Read version from header file
-version_header = File.read(File.expand_path('../ext/ruby_prof/version.h', __FILE__))
-#match = version_header.match(/RUBY_PROF_VERSION\s*"(\.+)"/)
-match = version_header.match(/RUBY_PROF_VERSION\s*"([^"]+)"/)
-raise(RuntimeError, "Could not determine RUBY_PROF_VERSION") if not match
-
-RUBY_PROF_VERSION = "#{match[1]}"
+$:.push File.expand_path("../lib", __FILE__)
+require "ruby-prof/version"
 
 Gem::Specification.new do |spec|
   spec.name = "ruby-prof"
@@ -22,7 +17,7 @@ methods it called. RubyProf generate both text and html and can output
 it to standard out or to a file.
 EOF
 
-  spec.version = RUBY_PROF_VERSION
+  spec.version = RubyProf::VERSION
 
   spec.author = "Shugo Maeda, Charlie Savage, Roger Pack, Stefan Kaes"
   spec.email = "shugo@ruby-lang.org, cfis@savagexi.com, rogerdpack@gmail.com, skaes@railsexpress.de"

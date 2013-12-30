@@ -595,8 +595,7 @@ prof_threads(VALUE self)
 void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
-    rb_define_const(mProf, "VERSION", rb_str_new2(RUBY_PROF_VERSION));
-    
+
     rp_init_measure();
     rp_init_method_info();
     rp_init_call_info();

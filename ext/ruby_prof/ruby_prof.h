@@ -27,8 +27,6 @@
 # error 1.9.2 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
-#include "version.h"
-
 #include "rp_measure.h"
 #include "rp_method.h"
 #include "rp_call_info.h"

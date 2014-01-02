@@ -1,3 +1,11 @@
+0.14.0 (2013-12-14)
+======================
+* support ruby 2.1.0
+
+0.13.1 (2013-12-14)
+======================
+* speed up for displaying large call stacks (Benjamin Quoming)
+
 0.13 (2013-03-10)
 ======================
 * support fibers on 1.9.x+

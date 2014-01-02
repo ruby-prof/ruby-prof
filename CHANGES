@@ -1,3 +1,8 @@
+0.13 (2013-03-10)
+======================
+* support fibers on 1.9.x+
+* improved display for very wide call stacks (Sammy Larbi)
+
 0.12.2 (2013-02-13)
 ======================
 * Fixed segfault when using falcon or railsexpress patches for 1.9.3

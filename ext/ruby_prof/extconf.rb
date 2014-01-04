@@ -5,7 +5,7 @@ if RUBY_VERSION < "1.9.3"
   exit(1)
 end
 
-have_header("sys/times.h")
+have_header("sys/time.h")
 
 # standard ruby methods
 have_func("rb_gc_stat")

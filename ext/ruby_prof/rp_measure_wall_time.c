@@ -3,7 +3,9 @@
 
 /* :nodoc: */
 #include "ruby_prof.h"
+#if HAVE_SYS_TIME_H
 #include <sys/time.h>
+#endif
 
 static VALUE cMeasureWallTime;
 

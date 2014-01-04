@@ -1,4 +1,8 @@
-0.14.0 (2012-01-02)
+0.14.0 (2014-01-04)
+======================
+* fix compile problem under Windows
+
+0.14.0 (2014-01-02)
 ======================
 * support ruby 2.1.0
 * dropped support for 1.8.x, 1.9.1 and 1.9.2

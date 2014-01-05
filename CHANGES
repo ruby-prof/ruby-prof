@@ -1,6 +1,6 @@
-0.14.0 (2014-01-04)
+0.14.2 (2014-01-05)
 ======================
-* fix compile problem under Windows
+* hopefully fixed compile problem under Windows
 
 0.14.0 (2014-01-02)
 ======================

@@ -75,10 +75,10 @@ RDoc::Task.new("rdoc") do |rdoc|
   rdoc.rdoc_dir = 'doc'
   rdoc.title    = "ruby-prof"
   # Show source inline with line numbers
-  rdoc.options << "--inline-source" << "--line-numbers"
+  rdoc.options << "--line-numbers"
   # Make the readme file the start page for the generated html
   rdoc.options << '--main' << 'README.rdoc'
-  rdoc.rdoc_files.include('bin/**/*',
+  rdoc.rdoc_files.include('bin/*',
                           'doc/*.rdoc',
                           'examples/flat.txt',
                           'examples/graph.txt',
@@ -92,12 +92,16 @@ end
 
 task :default => :test
 
-for file in Dir['**/*.{o,so,bundle}']
+for file in Dir['lib/**/*.{o,so,bundle}']
   CLEAN.include file
 end
-
-for file in Dir['tmp/*.{txt,dat,png,html}']
+for file in Dir['doc/**/*.{txt,dat,png,html}']
   CLEAN.include file
+end
+CLEAN.reject!{|f| !File.exist?(f)}
+task :clean do
+  # remove tmp dir contents completely after cleaning
+  FileUtils.rm_rf('tmp/*')
 end
 
 desc 'Run the ruby-prof test suite'

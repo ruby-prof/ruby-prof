@@ -3,7 +3,7 @@
 
 /* :nodoc: */
 #include "ruby_prof.h"
-#if HAVE_SYS_TIME_H
+#if HAVE_GETTIMEOFDAY && !defined(_WIN32)
 #include <sys/time.h>
 #endif
 

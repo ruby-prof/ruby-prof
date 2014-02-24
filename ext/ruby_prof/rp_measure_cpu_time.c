@@ -54,7 +54,18 @@ static unsigned long long get_cpu_frequency()
 static double
 measure_cpu_time()
 {
-    return ((double)get_cpu_time()) / get_cpu_frequency();
+    struct rusage rusage;
+    getrusage(RUSAGE_SELF, &rusage);
+
+    double seconds = 0;
+
+    seconds += rusage.ru_utime.tv_sec;
+    seconds += rusage.ru_stime.tv_sec;
+
+    seconds += rusage.ru_utime.tv_usec / 1000000.0;
+    seconds += rusage.ru_stime.tv_usec / 1000000.0;
+
+    return seconds;
 }
 
 #elif defined(_WIN32)

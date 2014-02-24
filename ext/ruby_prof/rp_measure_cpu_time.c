@@ -88,7 +88,7 @@ static unsigned long long get_cpu_frequency()
         cpu_frequency = cpu_frequency_struct.QuadPart;
     }
 
-    cpu_frequency = cpu_frequency_struct;
+    return cpu_frequency;
 }
 
 static double

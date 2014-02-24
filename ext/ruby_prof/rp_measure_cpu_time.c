@@ -5,8 +5,6 @@
 
 static VALUE cMeasureCpuTime;
 
-static unsigned long long cpu_frequency = 0;
-
 /* The _WIN32 check is needed for msys (and maybe cygwin?) */
 #if defined(__GNUC__) && !defined(_WIN32)
 
@@ -36,15 +34,21 @@ static unsigned long long get_cpu_time()
 
 static unsigned long long get_cpu_frequency()
 {
-    unsigned long long x, y;
+    static unsigned long long cpu_frequency;
 
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 500000000;
-    x = get_cpu_time();
-    nanosleep(&ts, NULL);
-    y = get_cpu_time();
-    return (y - x) * 2;
+    if(!cpu_frequency) {
+        unsigned long long x, y;
+
+        struct timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = 500000000;
+        x = get_cpu_time();
+        nanosleep(&ts, NULL);
+        y = get_cpu_time();
+        cpu_frequency = (y - x) * 2;
+    }
+
+    return cpu_frequency;
 }
 
 #elif defined(_WIN32)
@@ -54,20 +58,26 @@ static unsigned long long get_cpu_time()
     LARGE_INTEGER time;
     QueryPerformanceCounter(&time);
     return time.QuadPart;
-};
+}
 
 static unsigned long long get_cpu_frequency()
 {
-    LARGE_INTEGER cpu_frequency;
-    QueryPerformanceFrequency(&cpu_frequency);
-    return cpu_frequency.QuadPart;
-};
+    static unsigned long long cpu_frequency;
+
+    if(!cpu_frequency) {
+        LARGE_INTEGER cpu_frequency_struct;
+        QueryPerformanceFrequency(&cpu_frequency_struct);
+        cpu_frequency = cpu_frequency_struct.QuadPart;
+    }
+
+    cpu_frequency = cpu_frequency_struct;
+}
 #endif
 
 static double
 measure_cpu_time()
 {
-    return ((double)get_cpu_time()) / cpu_frequency;
+    return ((double)get_cpu_time()) / get_cpu_frequency();
 }
 
 
@@ -96,7 +106,7 @@ RubyProf::measure_mode is set to CPU_TIME. */
 static VALUE
 prof_get_cpu_frequency(VALUE self)
 {
-    return ULL2NUM(cpu_frequency);
+    return ULL2NUM(get_cpu_frequency());
 }
 
 void rp_init_measure_cpu_time()
@@ -107,7 +117,4 @@ void rp_init_measure_cpu_time()
     cMeasureCpuTime = rb_define_class_under(mMeasure, "CpuTime", rb_cObject);
     rb_define_singleton_method(cMeasureCpuTime, "measure", prof_measure_cpu_time, 0);
     rb_define_singleton_method(cMeasureCpuTime, "frequency", prof_get_cpu_frequency, 0);
-
-    /* Get cpu_frequency */
-    cpu_frequency = get_cpu_frequency();
 }

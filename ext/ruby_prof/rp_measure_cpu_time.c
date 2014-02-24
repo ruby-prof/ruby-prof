@@ -8,6 +8,7 @@ static VALUE cMeasureCpuTime;
 /* The _WIN32 check is needed for msys (and maybe cygwin?) */
 #if defined(__GNUC__) && !defined(_WIN32)
 
+#include <sys/resource.h>
 #include <stdint.h>
 #include <time.h>
 

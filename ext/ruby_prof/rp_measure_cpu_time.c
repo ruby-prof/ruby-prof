@@ -51,6 +51,12 @@ static unsigned long long get_cpu_frequency()
     return cpu_frequency;
 }
 
+static double
+measure_cpu_time()
+{
+    return ((double)get_cpu_time()) / get_cpu_frequency();
+}
+
 #elif defined(_WIN32)
 
 static unsigned long long get_cpu_time()
@@ -72,13 +78,13 @@ static unsigned long long get_cpu_frequency()
 
     cpu_frequency = cpu_frequency_struct;
 }
-#endif
 
 static double
 measure_cpu_time()
 {
     return ((double)get_cpu_time()) / get_cpu_frequency();
 }
+#endif
 
 
 prof_measurer_t* prof_measurer_cpu_time()

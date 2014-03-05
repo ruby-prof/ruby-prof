@@ -14,6 +14,7 @@ module Rack
                                                   ::RubyProf::CallStackPrinter => 'call_stack.html'}
 
       @skip_paths = options[:skip_paths] || [%r{^/assets}, %r{\.css$}, %r{\.js$}, %r{\.png$}, %r{\.jpeg$}, %r{\.jpg$}, %r{\.gif$}]
+      @eliminate_methods = options[:eliminate_methods] || []
     end
 
     def call(env)
@@ -29,6 +30,8 @@ module Rack
 
         path = request.path.gsub('/', '-')
         path.slice!(0)
+
+        data.eliminate_methods!(@eliminate_methods) unless @eliminate_methods.blank?
 
         print(data, path)
         result

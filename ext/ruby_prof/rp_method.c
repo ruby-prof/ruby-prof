@@ -101,16 +101,6 @@ method_name(ID mid)
     return result;
 }
 
-static VALUE
-full_name(VALUE klass, ID mid)
-{
-  VALUE result = klass_name(klass);
-  rb_str_cat2(result, "#");
-  rb_str_append(result, method_name(mid));
-
-  return result;
-}
-
 void
 method_key(prof_method_key_t* key, VALUE klass, ID mid)
 {
@@ -367,18 +357,6 @@ prof_method_name(VALUE self)
 }
 
 /* call-seq:
-   full_name -> string
-
-Returns the full name of this method in the format Object#method.*/
-
-static VALUE
-prof_full_name(VALUE self)
-{
-    prof_method_t *method = get_prof_method(self);
-    return full_name(method->key->klass, method->key->mid);
-}
-
-/* call-seq:
    call_infos -> Array of call_info
 
 Returns an array of call info objects that contain profiling information
@@ -403,7 +381,6 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "klass", prof_method_klass, 0);
     rb_define_method(cMethodInfo, "klass_name", prof_klass_name, 0);
     rb_define_method(cMethodInfo, "method_name", prof_method_name, 0);
-    rb_define_method(cMethodInfo, "full_name", prof_full_name, 0);
     rb_define_method(cMethodInfo, "method_id", prof_method_id, 0);
     rb_define_method(cMethodInfo, "source_file", prof_method_source_file,0);
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);

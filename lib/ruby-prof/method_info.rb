@@ -116,6 +116,10 @@ module RubyProf
       end
     end
 
+    def full_name
+      self.klass_name + "#" + self.method_name
+    end
+
     def to_s
       "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
     end

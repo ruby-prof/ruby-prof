@@ -3,6 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 require 'timeout'
+require 'benchmark'
 
 # --  Tests ----
 class ThreadTest < Test::Unit::TestCase
@@ -151,16 +152,20 @@ class ThreadTest < Test::Unit::TestCase
     assert_equal(0, call_info.children.length)
   end
 
-  # useless test
+  # useless test: what does it test?
   def test_thread_back_and_forth
+    result = nil
+    seconds = Benchmark.realtime do
       result = RubyProf.profile do
-              a = Thread.new { 100_000.times { sleep 0 }}
-              b = Thread.new { 100_000.times { sleep 0 }}
-              a.join
-              b.join
+        a = Thread.new { 100_000.times { sleep 0 }}
+        b = Thread.new { 100_000.times { sleep 0 }}
+        a.join
+        b.join
       end
-      methods = result.threads.map {|thread| thread.methods}
-      assert(methods.flatten.sort[-1].total_time < 10) # 10s. Amazingly, this can fail in OS X at times. Amazing.
+    end
+    methods = result.threads.map {|thread| thread.methods}
+    timings = methods.flatten.sort
+    assert(timings[-1].total_time < seconds)
   end
 
   def test_thread

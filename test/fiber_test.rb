@@ -50,14 +50,14 @@ class FiberTest < Test::Unit::TestCase
     assert(root_fiber_profile = @result.threads.detect{|t| t.fiber_id == @root_fiber})
     assert(enum_fiber_profile = @result.threads.detect{|t| t.fiber_id != @root_fiber})
 
-    assert_in_delta(0.3, root_fiber_profile.total_time, 0.01)
-    assert_in_delta(0.2, enum_fiber_profile.total_time, 0.01)
+    assert_in_delta(0.3, root_fiber_profile.total_time, 0.05)
+    assert_in_delta(0.2, enum_fiber_profile.total_time, 0.05)
 
     assert(method_next = root_fiber_profile.methods.detect{|m| m.full_name == "Enumerator#next"})
     assert(method_each = enum_fiber_profile.methods.detect{|m| m.full_name == "Enumerator#each"})
 
-    assert_in_delta(0.2, method_next.total_time, 0.01)
-    assert_in_delta(0.2, method_each.total_time, 0.01)
+    assert_in_delta(0.2, method_next.total_time, 0.05)
+    assert_in_delta(0.2, method_each.total_time, 0.05)
 
     # RubyProf::CallInfoPrinter.new(@result).print
   end

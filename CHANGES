@@ -1,3 +1,7 @@
+0.15.0 (2014-05-02)
+======================
+* improved cpu time measurement (Charlie Somerville)
+
 0.14.2 (2014-01-05)
 ======================
 * hopefully fixed compile problem under Windows

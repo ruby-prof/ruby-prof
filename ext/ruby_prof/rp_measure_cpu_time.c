@@ -5,11 +5,10 @@
 
 static VALUE cMeasureCpuTime;
 
-static unsigned long long cpu_frequency = 0;
-
 /* The _WIN32 check is needed for msys (and maybe cygwin?) */
 #if defined(__GNUC__) && !defined(_WIN32)
 
+#include <sys/resource.h>
 #include <stdint.h>
 #include <time.h>
 
@@ -18,63 +17,93 @@ static unsigned long long get_cpu_time()
 #if defined(__i386__) || defined(__x86_64__)
     uint32_t a, d;
     __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
-   return ((uint64_t)d << 32) + a;
+    return ((uint64_t)d << 32) + a;
 #elif defined(__powerpc__) || defined(__ppc__)
     unsigned long long x, y;
 
     __asm__ __volatile__ ("\n\
-1:      mftbu   %1\n\
-  mftb    %L0\n\
-  mftbu   %0\n\
-  cmpw    %0,%1\n\
-  bne-    1b"
-  : "=r" (x), "=r" (y));
-   return x;
+    1:  mftbu   %1\n\
+        mftb    %L0\n\
+        mftbu   %0\n\
+        cmpw    %0,%1\n\
+        bne-    1b"
+        : "=r" (x), "=r" (y));
+
+    return x;
 #endif
 }
 
 static unsigned long long get_cpu_frequency()
 {
-    unsigned long long x, y;
+    static unsigned long long cpu_frequency;
 
-    struct timespec ts;
-    ts.tv_sec = 0;
-    ts.tv_nsec = 500000000;
-    x = get_cpu_time();
-    nanosleep(&ts, NULL);
-    y = get_cpu_time();
-    return (y - x) * 2;
+    if(!cpu_frequency) {
+        unsigned long long x, y;
+
+        struct timespec ts;
+        ts.tv_sec = 0;
+        ts.tv_nsec = 500000000;
+        x = get_cpu_time();
+        nanosleep(&ts, NULL);
+        y = get_cpu_time();
+        cpu_frequency = (y - x) * 2;
+    }
+
+    return cpu_frequency;
+}
+
+static double
+measure_cpu_time()
+{
+    struct rusage rusage;
+    getrusage(RUSAGE_SELF, &rusage);
+
+    double seconds = 0;
+
+    seconds += rusage.ru_utime.tv_sec;
+    seconds += rusage.ru_stime.tv_sec;
+
+    seconds += rusage.ru_utime.tv_usec / 1000000.0;
+    seconds += rusage.ru_stime.tv_usec / 1000000.0;
+
+    return seconds;
 }
 
 #elif defined(_WIN32)
 
 static unsigned long long get_cpu_time()
 {
-	LARGE_INTEGER time;
-	QueryPerformanceCounter(&time);
-	return time.QuadPart;
-};
+    LARGE_INTEGER time;
+    QueryPerformanceCounter(&time);
+    return time.QuadPart;
+}
 
 static unsigned long long get_cpu_frequency()
 {
-	LARGE_INTEGER cpu_frequency;
-	QueryPerformanceFrequency(&cpu_frequency);
-	return cpu_frequency.QuadPart;
-};
-#endif
+    static unsigned long long cpu_frequency;
+
+    if(!cpu_frequency) {
+        LARGE_INTEGER cpu_frequency_struct;
+        QueryPerformanceFrequency(&cpu_frequency_struct);
+        cpu_frequency = cpu_frequency_struct.QuadPart;
+    }
+
+    return cpu_frequency;
+}
 
 static double
 measure_cpu_time()
 {
-    return ((double)get_cpu_time()) / cpu_frequency;
+    return ((double)get_cpu_time()) / get_cpu_frequency();
 }
+#endif
 
 
 prof_measurer_t* prof_measurer_cpu_time()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_cpu_time;
-  return measure;
+    prof_measurer_t* measure = ALLOC(prof_measurer_t);
+    measure->measure = measure_cpu_time;
+    return measure;
 }
 
 /* call-seq:
@@ -95,18 +124,15 @@ RubyProf::measure_mode is set to CPU_TIME. */
 static VALUE
 prof_get_cpu_frequency(VALUE self)
 {
-	return ULL2NUM(cpu_frequency);
+    return ULL2NUM(get_cpu_frequency());
 }
 
 void rp_init_measure_cpu_time()
 {
     rb_define_const(mProf, "CPU_TIME", INT2NUM(MEASURE_CPU_TIME));
-	rb_define_const(mProf, "CPU_TIME_ENABLED", Qtrue);
+    rb_define_const(mProf, "CPU_TIME_ENABLED", Qtrue);
 
     cMeasureCpuTime = rb_define_class_under(mMeasure, "CpuTime", rb_cObject);
     rb_define_singleton_method(cMeasureCpuTime, "measure", prof_measure_cpu_time, 0);
     rb_define_singleton_method(cMeasureCpuTime, "frequency", prof_get_cpu_frequency, 0);
-
-    /* Get cpu_frequency */
-    cpu_frequency = get_cpu_frequency();
 }

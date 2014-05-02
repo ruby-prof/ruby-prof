@@ -77,6 +77,30 @@ module RubyProf
     end
   end
 
+  class C7
+    def self.hello
+      t = Time.now.to_f
+      while Time.now.to_f - t < 0.1; end
+    end
+
+    def hello
+      t = Time.now.to_f
+      while Time.now.to_f - t < 0.2; end
+    end
+  end
+
+  module M7
+    def hello
+      t = Time.now.to_f
+      while Time.now.to_f - t < 0.3; end
+    end
+  end
+
+  class C8
+    include M7
+    extend M7
+  end
+
   def self.ruby_major_version
     match = RUBY_VERSION.match(/(\d)\.(\d)/)
     return Integer(match[1])

@@ -104,11 +104,11 @@ method_name(ID mid)
 static VALUE
 full_name(VALUE klass, ID mid)
 {
-  VALUE result = klass_name(klass);
-  rb_str_cat2(result, "#");
-  rb_str_append(result, method_name(mid));
+    VALUE result = rb_str_dup(klass_name(klass));
+    rb_str_cat2(result, "#");
+    rb_str_append(result, method_name(mid));
 
-  return result;
+    return result;
 }
 
 void

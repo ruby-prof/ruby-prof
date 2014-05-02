@@ -69,8 +69,7 @@ class MeasureCpuTimeTest < Test::Unit::TestCase
 
     assert_in_delta(0.2, methods[1].total_time, 0.03)
     assert_in_delta(0, methods[1].wait_time, 0.03)
-    assert_in_delta(0, methods[1].self_time, 0.03)
-
+    assert_in_delta(0, methods[1].self_time, 0.04)
   end
 
   def test_module_methods

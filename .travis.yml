@@ -1,10 +1,7 @@
-before_install:
-  - gem install bundler -v '= 1.5.1'
 language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.0
   - 2.1.1
 script: "bundle exec rake clean compile test"
 

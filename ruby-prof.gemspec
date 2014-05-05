@@ -16,7 +16,7 @@ show how long the method ran, which methods called it and which
 methods it called. RubyProf generate both text and html and can output
 it to standard out or to a file.
 EOF
-
+  spec.license = 'MIT'
   spec.version = RubyProf::VERSION
 
   spec.author = "Shugo Maeda, Charlie Savage, Roger Pack, Stefan Kaes"

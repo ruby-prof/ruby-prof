@@ -325,24 +325,22 @@ This mode is only supported on Pentium or PowerPC platforms (linux only).
 
 Object allocation reports show how many objects each method in
 a program allocates.  This support was added by Sylvain Joyeux
-and requires a patched Ruby interpreter.  For more information and
-the patch, please see:
-http://rubyforge.org/tracker/index.php?func=detail&aid=11497&group_id=426&atid=1700
+and requires a patched Ruby interpreter. See below.
 
 Memory usage reports show how much memory each method in a program
 uses.  This support was added by Alexander Dymo and requires a
-patched Ruby interpreter.  For more information, see:
-http://rubyforge.org/tracker/index.php?func=detail&aid=17676&group_id=1814&atid=7062
+patched Ruby interpreter. See below.
 
 Garbage collection runs report how many times Ruby's garbage collector
 is invoked during a profiling session.  This support was added by Jeremy
-Kemper and requires a patched Ruby interpreter.  For more information, see:
-http://rubyforge.org/tracker/index.php?func=detail&aid=17676&group_id=1814&atid=7062
+Kemper and requires a patched Ruby interpreter. See below.
 
 Garbage collection time reports how much time is spent in Ruby's garbage collector
 during a profiling session.  This support was added by Jeremy Kemper
-and requires a patched Ruby interpreter.  For more information, see:
-http://rubyforge.org/tracker/index.php?func=detail&aid=17676&group_id=1814&atid=7062
+and requires a patched Ruby interpreter. See below.
+
+Ruby patches: all of the patches to Ruby are included in the
+railsexpress patchsets for rvm, see https://github.com/skaes/rvm-patchsets
 
 To set the measurement:
 

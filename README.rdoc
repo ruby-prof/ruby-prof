@@ -138,7 +138,7 @@ pass an array of threads to exclude to ruby-prof:
 Note that the excluded threads must be specified *before* profiling.
 
 
-== Benchmarking full load time including rubygems startup cost ==
+== Benchmarking full load time including rubygems startup cost
 
 If you want to get a more accurate measurement of what takes all of a gem's bin/xxx
 command to load, you may want to also measure rubygems' startup penalty.

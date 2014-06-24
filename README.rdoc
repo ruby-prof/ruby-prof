@@ -155,25 +155,6 @@ or
 
 $ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof ./some_file_that_does_a_require_rubygems_at_the_beginning.rb
 
-== Profiling Tests
-
-ruby-prof supports profiling tests cases
-written using Ruby's built-in unit test framework (ie, test derived from
-Test::Unit::TestCase).  To enable profiling simply add the following line
-of code to within your test class:
-
-        include RubyProf::Test
-
-Each test method is profiled separately.  ruby-prof will run each test method
-once as a warmup and then ten additional times to gather profile data.
-Note that the profile data will *not* include the class's setup or
-teardown methods.
-
-Separate reports are generated for each method and saved, by default,
-in the test process's working directory.  To change this, or other profiling
-options, modify your test class's PROFILE_OPTIONS hash table. To globally
-change test profiling options, modify RubyProf::Test::PROFILE_OPTIONS.
-
 
 == Profiling Rails
 

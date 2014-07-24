@@ -69,6 +69,9 @@ module RubyProf
           # Otherwise, move back up the tree:
           yield current, :exit
           
+          # Sometimes top_call_info.parent doesn't seem to be nil?
+          break if depth == 0
+          
           current = current.parent
           depth -= 1
         end

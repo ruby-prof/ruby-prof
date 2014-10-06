@@ -30,8 +30,7 @@ The easiest way to install ruby-prof is by using Ruby Gems.  To install:
 
   gem install ruby-prof
 
-If you're on windows then a prebuilt binary gem is available.  You may of course
-compile it yourself via use of devkit on MinGW.
+If you're on windows then please install the devkit first so that it can compile.
 
 == Usage
 

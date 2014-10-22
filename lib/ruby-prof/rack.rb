@@ -7,7 +7,10 @@ module Rack
       @app = app
       @options = options
       @options[:min_percent] ||= 1
+
       @tmpdir = options[:path] || Dir.tmpdir
+      FileUtils.mkdir_p(@tmpdir)
+
       @printer_klasses = @options[:printers]  || {::RubyProf::FlatPrinter => 'flat.txt',
                                                   ::RubyProf::GraphPrinter => 'graph.txt',
                                                   ::RubyProf::GraphHtmlPrinter => 'graph.html',

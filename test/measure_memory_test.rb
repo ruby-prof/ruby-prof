@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class MeasureMemoryTest < Test::Unit::TestCase
+class MeasureMemoryTest < TestCase
   include MemoryTestHelper
 
   def test_memory_mode
@@ -25,7 +25,7 @@ class MeasureMemoryTest < Test::Unit::TestCase
       RubyProf::measure_mode = RubyProf::MEMORY
       total = memory_test_helper
       assert(total > 0, 'Should measure more than zero kilobytes of memory usage')
-      assert_not_equal(0, total % 1, 'Should not truncate fractional kilobyte measurements')
+      refute_equal(0, total % 1, 'Should not truncate fractional kilobyte measurements')
     end
   end
 end

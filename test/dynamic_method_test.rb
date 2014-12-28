@@ -3,7 +3,7 @@
 
 require File.expand_path("../test_helper", __FILE__)
 
-class DynamicMethodTest < Test::Unit::TestCase
+class DynamicMethodTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME

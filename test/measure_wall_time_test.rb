@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class MeasureWallTimeTest < Test::Unit::TestCase
+class MeasureWallTimeTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME

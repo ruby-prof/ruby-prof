@@ -28,7 +28,7 @@ class AggClass
   end
 end
 
-class AggregateTest < Test::Unit::TestCase
+class AggregateTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME

@@ -25,7 +25,14 @@ $LOAD_PATH << lib
 $LOAD_PATH << ext
 
 require 'ruby-prof'
-require 'test/unit'
+require 'minitest/autorun'
+
+class TestCase < Minitest::Test
+  def assert_nothing_raised(*)
+    yield
+  end
+end
+
 require File.expand_path('../prime', __FILE__)
 
 # Some classes used in measurement tests

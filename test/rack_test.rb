@@ -8,7 +8,7 @@ class FakeRackApp
   end
 end
 
-class RackTest < Test::Unit::TestCase
+class RackTest < TestCase
   def test_create_print_path
     path = Dir.mktmpdir
     Dir.delete(path)

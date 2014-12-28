@@ -5,7 +5,7 @@ require File.expand_path('../test_helper', __FILE__)
 
 
 # --  Tests ----
-class ExcludeThreadsTest < Test::Unit::TestCase
+class ExcludeThreadsTest < TestCase
   def test_exclude_threads
 
     def thread1_proc

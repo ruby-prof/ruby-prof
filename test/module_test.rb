@@ -26,7 +26,7 @@ end
 
 include Bar
 
-class ModuleTest < Test::Unit::TestCase
+class ModuleTest < TestCase
   def test_nested_modules
     result = RubyProf.profile do
       hello

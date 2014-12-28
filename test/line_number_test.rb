@@ -17,7 +17,7 @@ class LineNumbers
 end
 
 # --  Tests ----
-class LineNumbersTest < Test::Unit::TestCase
+class LineNumbersTest < TestCase
   def test_function_line_no
     numbers = LineNumbers.new
 

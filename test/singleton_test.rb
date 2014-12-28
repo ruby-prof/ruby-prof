@@ -24,7 +24,7 @@ class A
   end
 end
 
-class SingletonTest < Test::Unit::TestCase
+class SingletonTest < TestCase
   def test_singleton
     result = RubyProf.profile do
       a = A.new

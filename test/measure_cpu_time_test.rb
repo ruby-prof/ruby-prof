@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class MeasureCpuTimeTest < Test::Unit::TestCase
+class MeasureCpuTimeTest < TestCase
   def setup
     RubyProf::measure_mode = RubyProf::CPU_TIME
   end

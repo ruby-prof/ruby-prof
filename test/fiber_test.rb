@@ -10,7 +10,7 @@ rescue LoadError
 end
 
 # --  Tests ----
-class FiberTest < Test::Unit::TestCase
+class FiberTest < TestCase
 
   def fiber_test
     @fiber_ids << Fiber.current.object_id

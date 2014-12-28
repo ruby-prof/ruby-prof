@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class MeasureProcessTimeTest < Test::Unit::TestCase
+class MeasureProcessTimeTest < TestCase
   def setup
     # Need to fix this for linux (windows works since PROCESS_TIME is WALL_TIME anyway)
     RubyProf::measure_mode = RubyProf::PROCESS_TIME

@@ -6,7 +6,7 @@ require 'stringio'
 require 'fileutils'
 
 # --  Tests ----
-class PrintersTest < Test::Unit::TestCase
+class PrintersTest < TestCase
   def setup
     # WALL_TIME so we can use sleep in our test and get same measurements on linux and windows
     RubyProf::measure_mode = RubyProf::WALL_TIME
@@ -65,7 +65,7 @@ class PrintersTest < Test::Unit::TestCase
 
   def test_flat_string
     output = helper_test_flat_string(RubyProf::FlatPrinter)
-    assert_no_match(/prime.rb/, output)
+    refute_match(/prime.rb/, output)
   end
 
   def helper_test_flat_string(klass)
@@ -84,13 +84,13 @@ class PrintersTest < Test::Unit::TestCase
   def test_flat_string_with_numbers
     output = helper_test_flat_string RubyProf::FlatPrinterWithLineNumbers
     assert_match(/prime.rb/, output)
-    assert_no_match(/ruby_runtime:0/, output)
+    refute_match(/ruby_runtime:0/, output)
     assert_match(/called from/, output)
 
     # should combine common parents
     # 1.9 inlines it's  Fixnum#- so we don't see as many
     assert_equal(2, output.scan(/Object#is_prime/).length)
-    assert_no_match(/\.\/test\/prime.rb/, output) # don't use relative paths
+    refute_match(/\.\/test\/prime.rb/, output) # don't use relative paths
   end
 
   def test_graph_html_string
@@ -120,7 +120,7 @@ class PrintersTest < Test::Unit::TestCase
     printer.print(output)
     assert_match(/fn=Object#find_primes/i, output)
     assert_match(/events: wall_time/i, output)
-    assert_no_match(/d\d\d\d\d\d/, output) # old bug looked [in error] like Object::run_primes(d5833116)
+    refute_match(/d\d\d\d\d\d/, output) # old bug looked [in error] like Object::run_primes(d5833116)
   end
 
   def do_nothing

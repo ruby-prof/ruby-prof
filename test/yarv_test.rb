@@ -4,7 +4,7 @@
 require File.expand_path('../test_helper', __FILE__)
 
 # tests for bugs reported by users
-class BugsTest < Test::Unit::TestCase
+class BugsTest < TestCase
   def setup
     RubyProf::measure_mode = RubyProf::WALL_TIME
     define_methods

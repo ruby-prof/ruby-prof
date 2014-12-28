@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class MeasureAllocationsTest < Test::Unit::TestCase
+class MeasureAllocationsTest < TestCase
   def test_allocations_mode
     RubyProf::measure_mode = RubyProf::ALLOCATIONS
     assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)

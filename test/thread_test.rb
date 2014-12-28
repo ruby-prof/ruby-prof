@@ -6,7 +6,7 @@ require 'timeout'
 require 'benchmark'
 
 # --  Tests ----
-class ThreadTest < Test::Unit::TestCase
+class ThreadTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME

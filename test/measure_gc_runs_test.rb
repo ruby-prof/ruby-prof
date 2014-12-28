@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class MeasureGCRunsTest < Test::Unit::TestCase
+class MeasureGCRunsTest < TestCase
   include MemoryTestHelper
 
   def test_gc_runs_mode

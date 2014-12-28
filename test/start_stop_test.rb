@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class StartStopTest < Test::Unit::TestCase
+class StartStopTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME
@@ -25,16 +25,16 @@ class StartStopTest < Test::Unit::TestCase
   
   def test_extra_stop_should_raise
     RubyProf.start
-    assert_raise(RuntimeError) do
+    assert_raises(RuntimeError) do
       RubyProf.start
     end
     
-    assert_raise(RuntimeError) do
+    assert_raises(RuntimeError) do
       RubyProf.profile {}
     end
     
     RubyProf.stop # ok
-    assert_raise(RuntimeError) do
+    assert_raises(RuntimeError) do
       RubyProf.stop
     end
   end

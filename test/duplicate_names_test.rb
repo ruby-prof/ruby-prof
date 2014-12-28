@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class DuplicateNames < Test::Unit::TestCase
+class DuplicateNames < TestCase
   def test_names
     result = RubyProf::profile do
       str = %{module Foo; class Bar; def foo; end end end}

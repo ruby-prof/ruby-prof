@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class ExceptionsTest < Test::Unit::TestCase
+class ExceptionsTest < TestCase
   def test_profile
     result = begin
       RubyProf.profile do
@@ -11,6 +11,6 @@ class ExceptionsTest < Test::Unit::TestCase
       end
     rescue
     end
-    assert_not_nil(result)
+    refute_nil(result)
   end
 end

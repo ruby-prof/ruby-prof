@@ -176,8 +176,8 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     prof_frame_t *frame = NULL;
     double measurement;
 
-    if (event != RUBY_EVENT_C_CALL && event != RUBY_EVENT_C_RETURN) {
-        // guess these are already set for C calls in 1.9, then?
+    /* if we don't have a valid method id, try to retrieve one */
+    if (mid == 0) {
         rb_frame_method_id_and_class(&mid, &klass);
     }
 

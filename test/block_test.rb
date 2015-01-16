@@ -3,15 +3,15 @@
 
 require File.expand_path("../test_helper", __FILE__)
 
-class DynamicMethodTest < TestCase
+class BlockMethodTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 
-  def test_dynamic_method
+  def test_block
     result = RubyProf.profile do
-      1.times {RubyProf::C1.new.hello}
+      1.times { RubyProf::C1.new.hello }
     end
 
     # Methods called
@@ -21,13 +21,13 @@ class DynamicMethodTest < TestCase
     #  RubyProf::C1#hello
     #  Class#new
     #  Integer#times
-    #  DynamicMethodTest#test_dynamic_method
+    #  BlockMethodTest#test_block
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(RubyProf.ruby_2? ? 6 : 7, methods.length)
 
     # Check times
-    assert_equal("DynamicMethodTest#test_dynamic_method", methods[0].full_name)
+    assert_equal("BlockMethodTest#test_block", methods[0].full_name)
     assert_in_delta(0.2, methods[0].total_time, 0.02)
     assert_in_delta(0.0, methods[0].wait_time, 0.02)
     assert_in_delta(0.0, methods[0].self_time, 0.02)

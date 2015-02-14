@@ -7,10 +7,6 @@ module RubyProf
     Measure::CpuTime.frequency
   end
 
-  def self.cpu_frequency=(value)
-    Measure::CpuTime.frequency = value
-  end
-
   def self.measure_allocations
     Measure::Allocations.measure
   end

@@ -281,23 +281,23 @@ and a basename for the files it produces.
 Depending on the mode and platform, ruby-prof can measure various
 aspects of a Ruby program.  Supported measurements include:
 
-* process time (RubyProf::PROCESS_TIME)
 * wall time (RubyProf::WALL_TIME)
+* process time (RubyProf::PROCESS_TIME)
 * cpu time (RubyProf::CPU_TIME)
 * object allocations (RubyProf::ALLOCATIONS)
 * memory usage (RubyProf::MEMORY)
-* garbage collections runs (RubyProf::GC_RUNS)
 * garbage collection time (RubyProf::GC_TIME)
-
-Process time measures the time used by a process between any two moments.
-It is unaffected by other processes concurrently running
-on the system. Note that Windows does not support measuring process
-times - therefore, measurements on Windows defaults to wall time.
+* garbage collections runs (RubyProf::GC_RUNS)
 
 Wall time measures the real-world time elapsed between any two moments.
 If there are other processes concurrently running on the system
 that use significant CPU or disk time during a profiling run
-then the reported results will be too large.
+then the reported results will be larger than expected.
+
+Process time measures the time used by a process between any two moments.
+It is unaffected by other processes concurrently running
+on the system. Note that Windows does not support measuring process
+times.
 
 CPU time uses the CPU clock counter to measure time.  The returned
 values are dependent on the correctly setting the CPU's frequency.
@@ -311,39 +311,39 @@ Memory usage reports show how much memory each method in a program
 uses.  This support was added by Alexander Dymo and requires a
 patched Ruby interpreter. See below.
 
-Garbage collection runs report how many times Ruby's garbage collector
-is invoked during a profiling session.  This support was added by Jeremy
-Kemper and requires a patched Ruby interpreter. See below.
+Garbage collection time reports how much time is spent in Ruby's
+garbage collector during a profiling session. This support was added
+by Jeremy Kemper and requires a patched Ruby interpreter. See below.
 
-Garbage collection time reports how much time is spent in Ruby's garbage collector
-during a profiling session.  This support was added by Jeremy Kemper
-and requires a patched Ruby interpreter. See below.
+Garbage collection runs report how many times Ruby's garbage collector
+is invoked during a profiling session. This support was added by
+Jeremy Kemper and requires a patched Ruby interpreter. See below.
 
 Ruby patches: all of the patches to Ruby are included in the
 railsexpress patchsets for rvm, see https://github.com/skaes/rvm-patchsets
 
 To set the measurement:
 
-* RubyProf.measure_mode = RubyProf::PROCESS_TIME
 * RubyProf.measure_mode = RubyProf::WALL_TIME
+* RubyProf.measure_mode = RubyProf::PROCESS_TIME
 * RubyProf.measure_mode = RubyProf::CPU_TIME
 * RubyProf.measure_mode = RubyProf::ALLOCATIONS
 * RubyProf.measure_mode = RubyProf::MEMORY
-* RubyProf.measure_mode = RubyProf::GC_RUNS
 * RubyProf.measure_mode = RubyProf::GC_TIME
+* RubyProf.measure_mode = RubyProf::GC_RUNS
 
-The default value is RubyProf::PROCESS_TIME.
+The default value is RubyProf::WALL_TIME.
 
 You may also specify the measure_mode by using the RUBY_PROF_MEASURE_MODE
 environment variable:
 
-* export RUBY_PROF_MEASURE_MODE=process
 * export RUBY_PROF_MEASURE_MODE=wall
+* export RUBY_PROF_MEASURE_MODE=process
 * export RUBY_PROF_MEASURE_MODE=cpu
 * export RUBY_PROF_MEASURE_MODE=allocations
 * export RUBY_PROF_MEASURE_MODE=memory
-* export RUBY_PROF_MEASURE_MODE=gc_runs
 * export RUBY_PROF_MEASURE_MODE=gc_time
+* export RUBY_PROF_MEASURE_MODE=gc_runs
 
 On Linux, process time is measured using the clock method provided
 by the C runtime library. Note that the clock method does not
@@ -352,31 +352,16 @@ does not measure time spent in methods such as Kernel.sleep method.
 If you need to measure these values, then use wall time.  Wall time
 is measured using the gettimeofday kernel method.
 
-On Windows, timings default to wall times.  If you set the clock
-mode to PROCESS_TIME, then timing are read using the clock method
-provided by the C runtime library.  Note though, these values are
-wall times on Windows and not process times like on Linux.
-Wall time is measured using the GetLocalTime API.
+If you set the clock mode to PROCESS_TIME, then timings are read using
+the clock method provided by the C runtime library.  Note though,
+these values are wall times on Windows and not process times like on
+Linux.  Wall time is measured using the GetLocalTime API.
 
 If you use wall time, the results will be affected by other
 processes running on your computer, network delays, disk access,
 etc.  As result, for the best results, try to make sure your
 computer is only performing your profiling run and is
 otherwise quiescent.
-
-On both platforms, cpu time is measured using the RDTSC assembly
-function provided by the Pentium and PowerPC platforms. CPU time
-is dependent on the cpu's frequency.  On Linux, ruby-prof attempts
-to read this value from "/proc/cpuinfo."  On Windows, you must
-manually specify the clock frequency.  This can be done using the
-RUBY_PROF_CPU_FREQUENCY environment variable:
-
-  export RUBY_PROF_CPU_FREQUENCY=<value>
-
-You can also directly set the cpu frequency by calling:
-
-  RubyProf.cpu_frequency = <value>
-
 
 == Multi-threaded Applications
 

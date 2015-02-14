@@ -13,15 +13,15 @@ typedef struct
     get_measurement measure;
 } prof_measurer_t;
 
-typedef enum 
+typedef enum
 {
-    MEASURE_ALLOCATIONS,
-    MEASURE_CPU_TIME,
-    MEASURE_GC_RUNS,
-    MEASURE_GC_TIME,
-    MEASURE_MEMORY,
-    MEASURE_PROCESS_TIME,
     MEASURE_WALL_TIME,
+    MEASURE_PROCESS_TIME,
+    MEASURE_CPU_TIME,
+    MEASURE_ALLOCATIONS,
+    MEASURE_MEMORY,
+    MEASURE_GC_TIME,
+    MEASURE_GC_RUNS,
 } prof_measure_mode_t;
 
 prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure);

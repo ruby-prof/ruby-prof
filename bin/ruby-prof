@@ -35,7 +35,6 @@ module RubyProf
 
     def setup_options
       @options = OpenStruct.new
-      options.measure_mode = RubyProf::PROCESS_TIME
       options.printer = RubyProf::FlatPrinter
       options.min_percent = 0
       options.file = nil
@@ -281,7 +280,7 @@ module RubyProf
       end
 
       # Set the measure mode
-      RubyProf.measure_mode = options.measure_mode
+      RubyProf.measure_mode = options.measure_mode if options.measure_mode
       RubyProf.start_script(script)
     end
   end

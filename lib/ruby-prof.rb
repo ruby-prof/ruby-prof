@@ -34,9 +34,9 @@ module RubyProf
   # the RUBY_PROF_MEASURE_MODE environment variable
   def self.figure_measure_mode
     case ENV["RUBY_PROF_MEASURE_MODE"]
-    when "wall" || "wall_time"
+    when "wall", "wall_time"
       RubyProf.measure_mode = RubyProf::WALL_TIME
-    when "cpu" || "cpu_time"
+    when "cpu", "cpu_time"
       if ENV.key?("RUBY_PROF_CPU_FREQUENCY")
         RubyProf.cpu_frequency = ENV["RUBY_PROF_CPU_FREQUENCY"].to_f
       else
@@ -58,9 +58,14 @@ module RubyProf
       RubyProf.measure_mode = RubyProf::ALLOCATIONS
     when "memory"
       RubyProf.measure_mode = RubyProf::MEMORY
-    else
-      # the default...
+    when "process", "process_time"
       RubyProf.measure_mode = RubyProf::PROCESS_TIME
+    when "gc_time"
+      RubyProf.measure_mode = RubyProf::GC_TIME
+    when "gc_runs"
+      RubyProf.measure_mode = RubyProf::GC_RUNS
+    else
+      # the default is defined in the measure_mode reader
     end
   end
 end

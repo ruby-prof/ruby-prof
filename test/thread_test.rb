@@ -63,7 +63,8 @@ class ThreadTest < TestCase
 
     rp_thread = result.threads.detect {|athread| athread.id == thread.object_id}
     methods = rp_thread.methods.sort.reverse
-    assert_equal(2, methods.length)
+    expected_methods = ["ThreadTest#test_thread_timings", "Kernel#sleep"]
+    assert_equal(expected_methods, methods.map(&:full_name))
 
     method = methods[0]
     assert_equal('ThreadTest#test_thread_timings', method.full_name)

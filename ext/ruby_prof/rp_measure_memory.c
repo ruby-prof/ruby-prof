@@ -36,6 +36,10 @@ measure_memory()
 #define MEASURE_MEMORY_ENABLED Qtrue
     return rb_gc_malloc_allocated_size() / 1024.0;
 
+#elif defined(HAVE_RB_GC_TOTAL_MALLOCED_BYTES)
+#define MEASURE_MEMORY_ENABLED Qtrue
+    return rb_gc_total_malloced_bytes() / 1024.0;
+
 #elif defined(HAVE_RB_HEAP_TOTAL_MEM)
 #define MEASURE_MEMORY_ENABLED Qtrue
     return rb_heap_total_mem() / 1024.0;

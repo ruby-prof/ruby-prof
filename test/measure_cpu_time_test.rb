@@ -121,7 +121,7 @@ class MeasureCpuTimeTest < TestCase
 
     assert_in_delta(0.3, methods[1].total_time, 0.02)
     assert_in_delta(0, methods[1].wait_time, 0.01)
-    assert_in_delta(0, methods[1].self_time, 0.05)
+    assert_in_delta(0, methods[1].self_time, 0.1)
   end
 
   def test_singleton

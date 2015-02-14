@@ -230,7 +230,7 @@ site.
 
 Call stack reports produce a HTML visualization of the time spent in
 each execution path of the profiled code. An example can be found at
-{examples/stack.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/call_stack.html].
+{examples/stack.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/stack.html].
 
 Another good example: [http://twitpic.com/28z94a]
 

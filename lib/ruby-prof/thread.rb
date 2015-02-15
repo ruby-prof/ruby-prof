@@ -8,6 +8,15 @@ module RubyProf
       end
     end
 
+    def top_call_infos
+      top_methods.map(&:call_infos).flatten
+    end
+
+    # This method detect recursive calls in the call tree of a given thread
+    def detect_recursion
+      CallInfoVisitor.detect_recursion(top_call_infos)
+    end
+
     def total_time
       self.top_methods.inject(0) do |sum, method_info|
         method_info.call_infos.each do |call_info|

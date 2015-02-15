@@ -2,6 +2,13 @@
 
 module RubyProf
   class CallInfo
+    # part of this class is defined in C code.
+    # it provides the following attributes pertaining to tree structure:
+    # depth:      tree level (0 == root)
+    # parent:     parent call info (can be nil)
+    # children:   array of call info children (can be empty)
+    # target:     method info (containing an array of call infos)
+
     attr_accessor :recursive
 
     def children_time
@@ -33,8 +40,29 @@ module RubyProf
       self.parent.nil?
     end
 
+    def descendent_of(other)
+      p = self.parent
+      while p && p != other && p.depth > other.depth
+        p = p.parent
+      end
+      p == other
+    end
+
+    def self.roots_of(call_infos)
+      roots = []
+      sorted = call_infos.sort_by(&:depth).reverse
+      while call_info = sorted.shift
+        roots << call_info unless sorted.any?{|p| call_info.descendent_of(p)}
+      end
+      roots
+    end
+
     def to_s
-      "#{self.target.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
+      "#{target.full_name} (c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
+    end
+
+    def inspect
+      super + "(#{target.full_name}, d: #{depth}, c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
     end
 
     # eliminate call info from the call tree.

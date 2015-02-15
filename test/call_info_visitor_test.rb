@@ -14,7 +14,7 @@ class CallInfoVisitorTest < TestCase
       RubyProf::C1.hello
     end
 
-    visitor = RubyProf::CallInfoVisitor.new(result.threads.first)
+    visitor = RubyProf::CallInfoVisitor.new(result.threads.first.top_call_infos)
 
     method_names = Array.new
 

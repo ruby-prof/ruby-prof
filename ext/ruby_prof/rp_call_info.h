@@ -26,7 +26,7 @@ typedef struct prof_call_info_t
 } prof_call_info_t;
 
 /* Array of call_info objects */
-typedef struct prof_call_infos_t 
+typedef struct prof_call_infos_t
 {
     prof_call_info_t **start;
     prof_call_info_t **end;

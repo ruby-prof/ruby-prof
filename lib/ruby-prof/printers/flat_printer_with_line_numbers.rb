@@ -25,7 +25,7 @@ module RubyProf
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0
         #total_time_called = method.called > 0? method.total_time/method.called : 0
 
-        @output << "%6.2f  %9.3f %9.3f %9.3f %9.3f %8d  %s%s \n" % [
+        @output << "%6.2f  %9.3f %9.3f %9.3f %9.3f %8d  %s%s" % [
             method.self_time / total_time * 100, # %self
             method.total_time,                   # total
             method.self_time,                    # self
@@ -35,22 +35,29 @@ module RubyProf
             method.recursive? ? "*" : " ",       # cycle
             method_name(method)                  # name
         ]
-         if method.source_file != 'ruby_runtime'
-           @output << "  %s:%s" % [File.expand_path(method.source_file), method.line]
+         if method.source_file == 'ruby_runtime'
+           @output << "\n"
+         else
+           @output << "\n      defined at:\n"
+           @output << "          %s:%s\n" % [File.expand_path(method.source_file), method.line]
          end
-         @output << "\n\tcalled from: "
 
-         # make sure they're unique
-         method.call_infos.map{|ci|
+         callers = []
+         method.call_infos.each do |ci|
            if ci.parent && ci.parent.target.source_file != 'ruby_runtime'
-              [method_name(ci.parent.target), File.expand_path(ci.parent.target.source_file), ci.parent.target.line]
-           else
-              nil
+             callers << [method_name(ci.parent.target), File.expand_path(ci.parent.target.source_file), ci.parent.target.line]
            end
-         }.compact.uniq.each{|args|
-             @output << " %s (%s:%s) " % args
-         }
-         @output << "\n\n"
+         end
+         # make sure callers are unique
+         callers.uniq!
+
+         unless callers.empty?
+           @output << "      called from:\n"
+           callers.each do |args|
+             @output << "          %s (%s:%s)\n" % args
+           end
+         end
+         @output << "\n"
       end
     end
   end

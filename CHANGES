@@ -1,4 +1,8 @@
-0.15.4 (2014-05-20)
+0.15.45 (2015-x-x)
+======================
+* changed output format of flat_printer_with_line_number
+
+0.15.4 (2015-02-14)
 ======================
 * using env variable to specify mesaurement mode work again
 * measuring memory/object allocations works for 2.1 adn 2.2 again

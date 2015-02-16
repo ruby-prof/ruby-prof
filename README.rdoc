@@ -203,7 +203,7 @@ ruby-prof can generate a number of different reports:
 * More!
 
 Flat profiles show the overall time spent in each method. They
-are a good of quickly identifying which methods take the most time.
+are a good way of quickly identifying which methods take the most time.
 An example of a flat profile and an explanation can be found in
 {examples/flat.txt}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/flat.txt].
 

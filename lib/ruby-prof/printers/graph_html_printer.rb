@@ -133,7 +133,7 @@ module RubyProf
   </style>
   </head>
   <body>
-    <h1>Profile Report</h1>
+    <h1>Profile Report: <%= RubyProf.measure_mode_string %></h1>
     <!-- Threads Table -->
     <table>
       <tr>
@@ -173,63 +173,67 @@ module RubyProf
         <tbody>
           <% min_time = @options[:min_time] || (@options[:nonzero] ? 0.005 : nil)
              methods.sort_by(&sort_method).reverse_each do |method|
-              total_percentage = (method.total_time/total_time) * 100
-              next if total_percentage < min_percent
-              next if min_time && method.total_time < min_time
-              self_percentage = (method.self_time/total_time) * 100 %>
+               total_percentage = (method.total_time/total_time) * 100
 
-              <!-- Parents -->
-              <% for caller in method.aggregate_parents.sort_by(&:total_time)
-                   next unless caller.parent
-                   next if min_time && caller.total_time < min_time  %>
-                <tr>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.total_time) %></td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.self_time) %></td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.wait_time) %></td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.children_time) %></td>
-                  <% called = "#{caller.called}/#{method.called}" %>
-                  <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
-                  <td class="method_name"><%= create_link(thread, total_time, caller.parent.target) %></td>
-                  <td><%= file_link(caller.parent.target.source_file, caller.line) %></td>
-                </tr>
-              <% end %>
+               next if total_percentage < min_percent
+               next if min_time && method.total_time < min_time
 
-              <tr class="method">
-                <td><%= sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", total_percentage) %></td>
-                <td><%= sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", self_percentage) %></td>
-                <td><%= sprintf("%#{TIME_WIDTH}.2f", method.total_time) %></td>
-                <td><%= sprintf("%#{TIME_WIDTH}.2f", method.self_time) %></td>
-                <td><%= sprintf("%#{TIME_WIDTH}.2f", method.wait_time) %></td>
-                <td><%= sprintf("%#{TIME_WIDTH}.2f", method.children_time) %></td>
-                <td><%= sprintf("%#{CALL_WIDTH}i", method.called) %></td>
-                <td class="method_name">
-                  <a name="<%= method_href(thread, method) %>">
-                    <%= method.recursive? ? "*" : " "%><%= h method.full_name %>
-                  </a>
-                </td>
-                <td><%= file_link(method.source_file, method.line) %></td>
-              </tr>
+               self_percentage = (method.self_time/total_time) * 100 %>
 
-              <!-- Children -->
-              <% for callee in method.aggregate_children.sort_by(&:total_time).reverse %>
-              <%   next if min_time && callee.total_time < min_time  %>
-                <tr>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.total_time) %></td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.self_time) %></td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.wait_time) %></td>
-                  <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.children_time) %></td>
-                  <% called = "#{callee.called}/#{callee.target.called}" %>
-                  <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
-                  <td class="method_name"><%= create_link(thread, total_time, callee.target) %></td>
-                  <td><%= file_link(method.source_file, callee.line) %></td>
-                </tr>
-              <% end %>
-              <!-- Create divider row -->
-              <tr class="break"><td colspan="9"></td></tr>
+               <!-- Parents -->
+               <% for caller in method.aggregate_parents.sort_by(&:total_time)
+                    next unless caller.parent
+                    next if min_time && caller.total_time < min_time  %>
+                 <tr>
+                   <td>&nbsp;</td>
+                   <td>&nbsp;</td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.total_time) %></td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.self_time) %></td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.wait_time) %></td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.children_time) %></td>
+                   <% called = "#{caller.called}/#{method.called}" %>
+                   <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
+                   <td class="method_name"><%= create_link(thread, total_time, caller.parent.target) %></td>
+                   <td><%= file_link(caller.parent.target.source_file, caller.line) %></td>
+                 </tr>
+               <% end %>
+
+               <tr class="method">
+                 <td><%= sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", total_percentage) %></td>
+                 <td><%= sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", self_percentage) %></td>
+                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.total_time) %></td>
+                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.self_time) %></td>
+                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.wait_time) %></td>
+                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.children_time) %></td>
+                 <td><%= sprintf("%#{CALL_WIDTH}i", method.called) %></td>
+                 <td class="method_name">
+                   <a name="<%= method_href(thread, method) %>">
+                     <%= method.recursive? ? "*" : " "%><%= h method.full_name %>
+                   </a>
+                 </td>
+                 <td><%= file_link(method.source_file, method.line) %></td>
+               </tr>
+
+               <!-- Children -->
+               <% method.recalc_recursion unless method.non_recursive? %>
+               <% for callee in method.aggregate_children.sort_by(&:total_time).reverse %>
+               <%   next if min_time && callee.total_time < min_time  %>
+                 <tr>
+                   <td>&nbsp;</td>
+                   <td>&nbsp;</td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.total_time) %></td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.self_time) %></td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.wait_time) %></td>
+                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.children_time) %></td>
+                   <% called = "#{callee.called}/#{callee.target.called}" %>
+                   <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
+                   <td class="method_name"><%= create_link(thread, total_time, callee.target) %></td>
+                   <td><%= file_link(method.source_file, callee.line) %></td>
+                 </tr>
+               <% end %>
+               <!-- Create divider row -->
+               <tr class="break"><td colspan="9"></td></tr>
+            <% thread.recalc_recursion unless method.non_recursive? %>
           <% end %>
         </tbody>
         <tfoot>

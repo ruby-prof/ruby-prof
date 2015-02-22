@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 module RubyProf
-  # Prints out the call graph based on CallInfo instances.  This
+  # Prints out the call graph based on CallInfo instances. This
   # is mainly for debugging purposes as it provides access into
   # into RubyProf's internals.
 
@@ -19,7 +19,7 @@ module RubyProf
     end
 
     def print_methods(thread)
-      visitor = CallInfoVisitor.new(thread)
+      visitor = CallInfoVisitor.new(thread.top_call_infos)
 
       visitor.visit do |call_info, event|
         if event == :enter

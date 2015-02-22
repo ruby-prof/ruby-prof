@@ -18,6 +18,18 @@ module RubyProf
       end
     end
 
+    def detect_recursion
+      call_infos.each(&:detect_recursion)
+    end
+
+    def recalc_recursion
+      call_infos.each(&:recalc_recursion)
+    end
+
+    def clear_cached_values_which_depend_on_recursiveness
+      @total_time = @self_time = @wait_time = @children_time = nil
+    end
+
     def called
       @called ||= begin
         call_infos.inject(0) do |sum, call_info|
@@ -38,7 +50,7 @@ module RubyProf
     def self_time
       @self_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.self_time  unless call_info.recursive
+          sum += call_info.self_time unless call_info.recursive
           sum
         end
       end
@@ -56,16 +68,14 @@ module RubyProf
     def children_time
       @children_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.children_time  unless call_info.recursive
+          sum += call_info.children_time unless call_info.recursive
           sum
         end
       end
     end
 
     def min_depth
-      @min_depth ||= call_infos.map do |call_info|
-        call_info.depth
-      end.min
+      @min_depth ||= call_infos.map(&:depth).min
     end
 
     def root?
@@ -77,25 +87,30 @@ module RubyProf
     end
 
     def recursive?
-      call_infos.detect do |call_info|
-        call_info.recursive
-      end
+      call_infos.detect(&:recursive)
+    end
+
+    def non_recursive?
+      non_recursive == 1
+    end
+
+    def non_recursive
+      @non_recursive ||= call_infos.all?(&:non_recursive?) ? 1 : 0
     end
 
     def children
-      @children ||= begin
-        call_infos.map do |call_info|
-          call_info.children
-        end.flatten
-      end
+      @children ||= call_infos.map(&:children).flatten
+    end
+
+    def parents
+      @parents ||= call_infos.map(&:parent)
     end
 
     def aggregate_parents
       # Group call info's based on their parents
-      groups = self.call_infos.inject(Hash.new) do |hash, call_info|
+      groups = self.call_infos.each_with_object({}) do |call_info, hash|
         key = call_info.parent ? call_info.parent.target : self
         (hash[key] ||= []) << call_info
-        hash
       end
 
       groups.map do |key, value|
@@ -105,10 +120,9 @@ module RubyProf
 
     def aggregate_children
       # Group call info's based on their targets
-      groups = self.children.inject(Hash.new) do |hash, call_info|
+      groups = self.children.each_with_object({}) do |call_info, hash|
         key = call_info.target
         (hash[key] ||= []) << call_info
-        hash
       end
 
       groups.map do |key, value|

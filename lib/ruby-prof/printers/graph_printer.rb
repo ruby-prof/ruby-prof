@@ -48,12 +48,11 @@ module RubyProf
       # Print each method in total time order
       methods.reverse_each do |method|
         total_percentage = (method.total_time/total_time) * 100
-        self_percentage = (method.self_time/total_time) * 100
-
         next if total_percentage < min_percent
 
-        @output << "-" * 80 << "\n"
+        self_percentage = (method.self_time/total_time) * 100
 
+        @output << "-" * 80 << "\n"
         print_parents(thread, method)
 
         # 1 is for % sign
@@ -71,7 +70,9 @@ module RubyProf
         end
         @output << "\n"
 
+        method.recalc_recursion unless method.non_recursive?
         print_children(method)
+        thread.recalc_recursion unless method.non_recursive?
       end
     end
 

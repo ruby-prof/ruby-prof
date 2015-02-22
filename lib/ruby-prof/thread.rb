@@ -2,10 +2,22 @@ module RubyProf
   class Thread
     def top_methods
       self.methods.select do |method_info|
-        method_info.call_infos.detect do |call_info|
-          call_info.parent.nil?
-        end
+        method_info.call_infos.detect(&:root?)
       end
+    end
+
+    def top_call_infos
+      top_methods.map(&:call_infos).flatten.select(&:root?)
+    end
+
+    # This method detect recursive calls in the call tree of a given thread
+    # It should be called only once for each thread
+    def detect_recursion
+      top_call_infos.each(&:detect_recursion)
+    end
+
+    def recalc_recursion
+      top_call_infos.each(&:recalc_recursion)
     end
 
     def total_time

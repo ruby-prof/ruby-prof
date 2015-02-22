@@ -8,28 +8,7 @@ module RubyProf
     # a hook to do any necessary post-processing on the call graph.
     def post_process
       self.threads.each do |thread|
-        detect_recursion(thread)
-      end
-    end
-
-    # This method detect recursive calls in the call graph.
-    def detect_recursion(thread)
-      visited_methods = Hash.new do |hash, key|
-        hash[key] = 0
-      end
-
-      visitor = CallInfoVisitor.new(thread)
-      visitor.visit do |call_info, event|
-        case event
-        when :enter
-          if (visited_methods[call_info.target] += 1) > 1
-            call_info.recursive = true
-          end
-        when :exit
-          if (visited_methods[call_info.target] -= 1) == 0
-            visited_methods.delete(call_info.target)
-          end
-        end
+        thread.detect_recursion
       end
     end
 

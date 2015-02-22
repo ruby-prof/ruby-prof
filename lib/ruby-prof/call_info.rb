@@ -2,7 +2,38 @@
 
 module RubyProf
   class CallInfo
-    attr_accessor :recursive
+    # part of this class is defined in C code.
+    # it provides the following attributes pertaining to tree structure:
+    # depth:      tree level (0 == root)
+    # parent:     parent call info (can be nil)
+    # children:   array of call info children (can be empty)
+    # target:     method info (containing an array of call infos)
+
+    attr_reader :recursive
+
+    def non_recursive?
+      @non_recursive
+    end
+
+    def detect_recursion(visited_methods = Hash.new(0))
+      @recursive = (visited_methods[target] += 1) > 1
+      @non_recursive = true
+      children.each do |child|
+        @non_recursive = false if child.detect_recursion(visited_methods)
+      end
+      visited_methods.delete(target) if (visited_methods[target] -= 1) == 0
+      return !@non_recursive
+    end
+
+    def recalc_recursion(visited_methods = Hash.new(0))
+      return if @non_recursive
+      target.clear_cached_values_which_depend_on_recursiveness
+      @recursive = (visited_methods[target] += 1) > 1
+      children.each do |child|
+        child.recalc_recursion(visited_methods)
+      end
+      visited_methods.delete(target) if (visited_methods[target] -= 1) == 0
+    end
 
     def children_time
       children.inject(0) do |sum, call_info|
@@ -33,8 +64,29 @@ module RubyProf
       self.parent.nil?
     end
 
+    def descendent_of(other)
+      p = self.parent
+      while p && p != other && p.depth > other.depth
+        p = p.parent
+      end
+      p == other
+    end
+
+    def self.roots_of(call_infos)
+      roots = []
+      sorted = call_infos.sort_by(&:depth).reverse
+      while call_info = sorted.shift
+        roots << call_info unless sorted.any?{|p| call_info.descendent_of(p)}
+      end
+      roots
+    end
+
     def to_s
-      "#{self.target.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
+      "#{target.full_name} (c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
+    end
+
+    def inspect
+      super + "(#{target.full_name}, d: #{depth}, c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
     end
 
     # eliminate call info from the call tree.

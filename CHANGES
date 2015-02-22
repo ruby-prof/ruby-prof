@@ -1,6 +1,9 @@
-0.15.5 (2015-02-22)
+0.15.6 (2015-02-22)
 ======================
 * improved upon computing children time in graph printers
+
+0.15.5 (2015-02-22)
+======================
 * changed output format of flat_printer_with_line_number
 * support using multi printer from command line (Dov Murik)
 

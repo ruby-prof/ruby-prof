@@ -53,7 +53,7 @@ module RubyProf
         opts.separator ""
         opts.separator "Options:"
 
-        opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack, :dot],
+        opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack, :dot, :multi],
                 'Select a printer:',
                 '  flat - Prints a flat profile as text (default).',
                 '  flat_with_line_numbers - same as flat, with line numbers.',
@@ -61,7 +61,8 @@ module RubyProf
                 '  graph_html - Prints a graph profile as html.',
                 '  call_tree - format for KCacheGrind',
                 '  call_stack - prints a HTML visualization of the call tree',
-                '  dot - Prints a graph profile as a dot file'
+                '  dot - Prints a graph profile as a dot file',
+                '  multi - Creates several reports in output directory'
         ) do |printer|
 
 
@@ -80,6 +81,8 @@ module RubyProf
             options.printer = RubyProf::CallStackPrinter
           when :dot
             options.printer = RubyProf::DotPrinter
+          when :multi
+            options.printer = RubyProf::MultiPrinter
           end
         end
 
@@ -246,6 +249,11 @@ module RubyProf
       end
 
       self.option_parser.parse! ARGV
+
+      if options.printer == RubyProf::MultiPrinter
+        options.file ||= "."
+        options.old_wd ||= Dir.pwd
+      end
     rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument => e
       puts self.option_parser
       puts e.message
@@ -314,8 +322,12 @@ at_exit {
   if cmd.options.file
     # write it relative to the dir they *started* in, as it's a bit surprising to write it in the dir they end up in.
     Dir.chdir(cmd.options.old_wd) do
-      File.open(cmd.options.file, 'w') do |file|
-        printer.print(file, printer_options)
+      if printer.is_a?(RubyProf::MultiPrinter)
+        printer.print(printer_options.merge(:path => cmd.options.file))
+      else
+        File.open(cmd.options.file, 'w') do |file|
+          printer.print(file, printer_options)
+        end
       end
     end
   else

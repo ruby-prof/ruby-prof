@@ -173,7 +173,6 @@ module RubyProf
         <tbody>
           <% min_time = @options[:min_time] || (@options[:nonzero] ? 0.005 : nil)
              methods.sort_by(&sort_method).reverse_each do |method|
-               thread.detect_recursion
                total_percentage = (method.total_time/total_time) * 100
 
                next if total_percentage < min_percent
@@ -216,7 +215,7 @@ module RubyProf
                </tr>
 
                <!-- Children -->
-               <% CallInfoVisitor.detect_recursion(method.call_infos) %>
+               <% method.recalc_recursion unless method.non_recursive? %>
                <% for callee in method.aggregate_children.sort_by(&:total_time).reverse %>
                <%   next if min_time && callee.total_time < min_time  %>
                  <tr>
@@ -234,6 +233,7 @@ module RubyProf
                <% end %>
                <!-- Create divider row -->
                <tr class="break"><td colspan="9"></td></tr>
+            <% thread.recalc_recursion unless method.non_recursive? %>
           <% end %>
         </tbody>
         <tfoot>

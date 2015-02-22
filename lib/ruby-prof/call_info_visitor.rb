@@ -27,21 +27,6 @@ module RubyProf
       end
     end
 
-    def self.detect_recursion(call_infos)
-      visited_methods = Hash.new(0)
-      visitor = new(call_infos)
-      visitor.visit do |call_info, event|
-        target = call_info.target
-        target.clear_cached_values_which_depend_on_recursiveness
-        case event
-        when :enter
-          call_info.recursive = (visited_methods[target] += 1) > 1
-        when :exit
-          visited_methods.delete(target) if (visited_methods[target] -= 1) == 0
-        end
-      end
-    end
-
     private
     def visit_call_info(call_info, &block)
       yield call_info, :enter

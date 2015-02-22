@@ -19,7 +19,11 @@ module RubyProf
     end
 
     def detect_recursion
-      CallInfoVisitor.detect_recursion(call_infos)
+      call_infos.each(&:detect_recursion)
+    end
+
+    def recalc_recursion
+      call_infos.each(&:recalc_recursion)
     end
 
     def clear_cached_values_which_depend_on_recursiveness
@@ -71,9 +75,7 @@ module RubyProf
     end
 
     def min_depth
-      @min_depth ||= call_infos.map do |call_info|
-        call_info.depth
-      end.min
+      @min_depth ||= call_infos.map(&:depth).min
     end
 
     def root?
@@ -85,17 +87,19 @@ module RubyProf
     end
 
     def recursive?
-      call_infos.detect do |call_info|
-        call_info.recursive
-      end
+      call_infos.detect(&:recursive)
+    end
+
+    def non_recursive?
+      non_recursive == 1
+    end
+
+    def non_recursive
+      @non_recursive ||= call_infos.all?(&:non_recursive?) ? 1 : 0
     end
 
     def children
-      @children ||= begin
-        call_infos.map do |call_info|
-          call_info.children
-        end.flatten
-      end
+      @children ||= call_infos.map(&:children).flatten
     end
 
     def parents

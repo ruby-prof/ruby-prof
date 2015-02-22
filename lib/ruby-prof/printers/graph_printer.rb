@@ -47,8 +47,6 @@ module RubyProf
 
       # Print each method in total time order
       methods.reverse_each do |method|
-        thread.detect_recursion
-
         total_percentage = (method.total_time/total_time) * 100
         next if total_percentage < min_percent
 
@@ -72,8 +70,9 @@ module RubyProf
         end
         @output << "\n"
 
-        CallInfoVisitor.detect_recursion(method.call_infos)
+        method.recalc_recursion unless method.non_recursive?
         print_children(method)
+        thread.recalc_recursion unless method.non_recursive?
       end
     end
 

@@ -1,3 +1,7 @@
+0.15.7 (2015-04-23)
+======================
+* html profiles are now single page (thx to Thomas Leishman)
+
 0.15.6 (2015-02-22)
 ======================
 * improved upon computing children time in graph printers

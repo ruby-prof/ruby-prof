@@ -56,7 +56,7 @@ class PrintersTest < TestCase
 
       printer = RubyProf::MultiPrinter.new(@result)
       printer.print(:path => "#{output_dir}", :profile => "multi", :application => "primes")
-      for file in ['empty.png', 'graph.dot', 'minus.png', 'multi.flat.txt', 'multi.graph.html', 'multi.grind.dat', 'multi.stack.html', 'plus.png', 'stack.html']
+      for file in ['graph.dot', 'multi.flat.txt', 'multi.graph.html', 'multi.grind.dat', 'multi.stack.html', 'stack.html']
         existant_file = output_dir + '/' + file
         assert File.size(existant_file) > 0
       end

@@ -24,23 +24,19 @@ module RubyProf
   class GraphHtmlPrinter < AbstractPrinter
     include ERB::Util
 
-    PERCENTAGE_WIDTH = 8
-    TIME_WIDTH = 10
-    CALL_WIDTH = 20
-
     def setup_options(options)
       super(options)
 
       filename = options[:filename]
       template = filename ? File.read(filename).untaint : (options[:template] || self.template)
-      @erb = ERB.new(template, nil, nil)
+      @erb = ERB.new(template)
       @erb.filename = filename
     end
 
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
-      @output << @erb.result(binding)
+      @output << @erb.result(binding).split("\n").map(&:rstrip).join("\n") << "\n"
     end
 
     # Creates a link to a method.  Note that we do not create
@@ -149,63 +145,62 @@ module RubyProf
       </tr>
       <% end %>
     </table>
-
     <!-- Methods Tables -->
-    <% for thread in @result.threads
+    <%
+       for thread in @result.threads
          methods = thread.methods
-         total_time = thread.total_time %>
+         total_time = thread.total_time
+    %>
       <h2><a name="<%= thread.fiber_id %>">Thread <%= thread.id %>, Fiber: <%= thread.fiber_id %></a></h2>
       <table>
         <thead>
           <tr>
-            <th><%= sprintf("%#{PERCENTAGE_WIDTH}s", "%Total") %></th>
-            <th><%= sprintf("%#{PERCENTAGE_WIDTH}s", "%Self") %></th>
-            <th><%= sprintf("%#{TIME_WIDTH}s", "Total") %></th>
-            <th><%= sprintf("%#{TIME_WIDTH}s", "Self") %></th>
-            <th><%= sprintf("%#{TIME_WIDTH}s", "Wait") %></th>
-            <th><%= sprintf("%#{TIME_WIDTH+2}s", "Child") %></th>
-            <th><%= sprintf("%#{CALL_WIDTH}s", "Calls") %></th>
+            <th>%Total</th>
+            <th>%Self</th>
+            <th>Total</th>
+            <th>Self</th>
+            <th>Wait</th>
+            <th>Child</th>
+            <th>Calls</th>
             <th class="method_name">Name</th>
             <th>Line</th>
           </tr>
         </thead>
-
         <tbody>
-          <% min_time = @options[:min_time] || (@options[:nonzero] ? 0.005 : nil)
+          <%
+             min_time = @options[:min_time] || (@options[:nonzero] ? 0.005 : nil)
              methods.sort_by(&sort_method).reverse_each do |method|
                total_percentage = (method.total_time/total_time) * 100
-
                next if total_percentage < min_percent
                next if min_time && method.total_time < min_time
-
-               self_percentage = (method.self_time/total_time) * 100 %>
-
+               self_percentage = (method.self_time/total_time) * 100
+          %>
                <!-- Parents -->
-               <% for caller in method.aggregate_parents.sort_by(&:total_time)
+               <%
+                  for caller in method.aggregate_parents.sort_by(&:total_time)
                     next unless caller.parent
-                    next if min_time && caller.total_time < min_time  %>
+                    next if min_time && caller.total_time < min_time
+               %>
                  <tr>
                    <td>&nbsp;</td>
                    <td>&nbsp;</td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.total_time) %></td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.self_time) %></td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.wait_time) %></td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", caller.children_time) %></td>
-                   <% called = "#{caller.called}/#{method.called}" %>
-                   <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
+                   <td><%= sprintf("%.2f", caller.total_time) %></td>
+                   <td><%= sprintf("%.2f", caller.self_time) %></td>
+                   <td><%= sprintf("%.2f", caller.wait_time) %></td>
+                   <td><%= sprintf("%.2f", caller.children_time) %></td>
+                   <td><%= "#{caller.called}/#{method.called}" %></td>
                    <td class="method_name"><%= create_link(thread, total_time, caller.parent.target) %></td>
                    <td><%= file_link(caller.parent.target.source_file, caller.line) %></td>
                  </tr>
                <% end %>
-
                <tr class="method">
-                 <td><%= sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", total_percentage) %></td>
-                 <td><%= sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", self_percentage) %></td>
-                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.total_time) %></td>
-                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.self_time) %></td>
-                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.wait_time) %></td>
-                 <td><%= sprintf("%#{TIME_WIDTH}.2f", method.children_time) %></td>
-                 <td><%= sprintf("%#{CALL_WIDTH}i", method.called) %></td>
+                 <td><%= sprintf("%.2f\%", total_percentage) %></td>
+                 <td><%= sprintf("%.2f\%", self_percentage) %></td>
+                 <td><%= sprintf("%.2f", method.total_time) %></td>
+                 <td><%= sprintf("%.2f", method.self_time) %></td>
+                 <td><%= sprintf("%.2f", method.wait_time) %></td>
+                 <td><%= sprintf("%.2f", method.children_time) %></td>
+                 <td><%= sprintf("%i", method.called) %></td>
                  <td class="method_name">
                    <a name="<%= method_href(thread, method) %>">
                      <%= method.recursive? ? "*" : " "%><%= h method.full_name %>
@@ -213,20 +208,20 @@ module RubyProf
                  </td>
                  <td><%= file_link(method.source_file, method.line) %></td>
                </tr>
-
                <!-- Children -->
-               <% method.recalc_recursion unless method.non_recursive? %>
-               <% for callee in method.aggregate_children.sort_by(&:total_time).reverse %>
-               <%   next if min_time && callee.total_time < min_time  %>
+               <%
+                  method.recalc_recursion unless method.non_recursive?
+                  for callee in method.aggregate_children.sort_by(&:total_time).reverse
+                    next if min_time && callee.total_time < min_time
+               %>
                  <tr>
                    <td>&nbsp;</td>
                    <td>&nbsp;</td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.total_time) %></td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.self_time) %></td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.wait_time) %></td>
-                   <td><%= sprintf("%#{TIME_WIDTH}.2f", callee.children_time) %></td>
-                   <% called = "#{callee.called}/#{callee.target.called}" %>
-                   <td><%= sprintf("%#{CALL_WIDTH}s", called) %></td>
+                   <td><%= sprintf("%.2f", callee.total_time) %></td>
+                   <td><%= sprintf("%.2f", callee.self_time) %></td>
+                   <td><%= sprintf("%.2f", callee.wait_time) %></td>
+                   <td><%= sprintf("%.2f", callee.children_time) %></td>
+                   <td><%= "#{callee.called}/#{callee.target.called}" %></td>
                    <td class="method_name"><%= create_link(thread, total_time, callee.target) %></td>
                    <td><%= file_link(method.source_file, callee.line) %></td>
                  </tr>

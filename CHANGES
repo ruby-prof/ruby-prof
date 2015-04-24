@@ -1,3 +1,8 @@
+0.15.8 (2015-04-24)
+======================
+* added missing assets to gem build
+* fixed randomly failing test
+
 0.15.7 (2015-04-23)
 ======================
 * html profiles are now single page (thx to Thomas Leishman)

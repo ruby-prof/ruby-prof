@@ -13,3 +13,6 @@ tmp
 .*.swp
 ipch
 /ext/ruby_prof/vc/*.user
+examples2
+.rvmrc
+Gemfile.lock

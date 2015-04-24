@@ -1,23 +1,23 @@
-Thread ID: 2148387240
-Total: 1.412370
+Measure Mode: wall_time
+Thread ID: 70228520599860
+Fiber ID: 70228524767740
+Total: 0.003185
+Sort by: self_time
 
- %self     total     self     wait    child    calls  name
- 71.15      1.37     1.00     0.00     0.37    20000  Integer#upto
- 14.16      0.20     0.20     0.00     0.00  1544726  Fixnum#%
- 11.93      0.17     0.17     0.00     0.00  1544726  Fixnum#==
-  0.98      1.39     0.01     0.00     1.38    20000  Object#is_prime
-  0.62      0.01     0.01     0.00     0.01        2  Array#each_index
-  0.58      1.40     0.01     0.00     1.39        2  Array#select
-  0.23      0.00     0.00     0.00     0.00    20000  Kernel#rand
-  0.19      0.00     0.00     0.00     0.00    20000  Array#[]=
-  0.17      0.00     0.00     0.00     0.00    20000  Fixnum#-
-  0.01      0.00     0.00     0.00     0.00        2  Array#initialize
-  0.00      0.01     0.00     0.00     0.01        2  Object#make_random_array
-  0.00      1.41     0.00     0.00     1.41        2  Object#run_primes
-  0.00      0.00     0.00     0.00     0.00        2  Class#new
-  0.00      1.41     0.00     0.00     1.41        1  PrintersTest#setup
-  0.00      0.71     0.00     0.00     0.71        1  PrintersTest#go
-  0.00      1.40     0.00     0.00     1.40        2  Object#find_primes
-  0.00      0.00     0.00     0.00     0.00        2  <Class::Array>#allocate
+ %self      total      self      wait     child     calls  name
+ 87.98      0.003     0.003     0.000     0.000      201   Integer#upto
+  3.59      0.003     0.000     0.000     0.003      200   Object#is_prime
+  2.84      0.000     0.000     0.000     0.000      200   Kernel#rand
+  2.16      0.000     0.000     0.000     0.000        1   Array#each_index
+  1.86      0.003     0.000     0.000     0.003        1   Array#select
+  1.03      0.000     0.000     0.000     0.000      200   Kernel#respond_to_missing?
+  0.15      0.003     0.000     0.000     0.003        1   Object#run_primes
+  0.07      0.000     0.000     0.000     0.000        1   Array#first
+  0.07      0.003     0.000     0.000     0.003        1   Object#find_primes
+  0.07      0.000     0.000     0.000     0.000        1   Array#initialize
+  0.07      0.003     0.000     0.000     0.003        1   PrintersTest#setup
+  0.06      0.000     0.000     0.000     0.000        1   Object#make_random_array
+  0.03      0.000     0.000     0.000     0.000        1   Object#find_largest
+  0.03      0.000     0.000     0.000     0.000        1   Class#new
 
-
+* indicates recursively called methods

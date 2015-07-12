@@ -1,7 +1,7 @@
-= ruby-prof
+# ruby-prof
 {<img src="https://travis-ci.org/ruby-prof/ruby-prof.png?branch=master" alt="Build Status" />}[https://travis-ci.org/ruby-prof/ruby-prof]
 
-== Overview
+## Overview
 
 ruby-prof is a fast code profiler for Ruby.  Its features include:
 
@@ -14,13 +14,13 @@ ruby-prof is a fast code profiler for Ruby.  Its features include:
   - Many more -- see reports section of this README.
 * Threads - supports profiling multiple threads simultaneously
 
-== Requirements
+## Requirements
 
 ruby-prof requires Ruby 1.9.3 or higher. Please note some ruby
 releases have known bugs which cause ruby-prof problems, like
 incorrect measurements. We suggest to use the latest minor patch level
 release if possible. In particular, on the 2.1 branch of ruby you
-should use 2.1.5.
+should use 2.1.6.
 
 If you are running Linux or Unix you'll need a C compiler so the extension
 can be compiled when it is installed.
@@ -28,89 +28,99 @@ can be compiled when it is installed.
 If you are running Windows, then you may need to install the
 Windows specific RubyGem which includes an already built extension (see Install section).
 
-== Install
+## Install
 
 The easiest way to install ruby-prof is by using Ruby Gems.  To install:
 
-  gem install ruby-prof
+```
+gem install ruby-prof
+```
 
 If you're on windows then please install the devkit first so that it can compile.
 
-== Usage
+## Usage
 
 There are two ways of running ruby-prof, via the command line or via its API.
 
-=== ruby-prof executable
+### ruby-prof executable
 
 The first is to use ruby-prof to run the Ruby program you want to
 profile. For more information refer to the documentation of the
 ruby-prof command.
 
 
-=== ruby-prof API
+### ruby-prof API
 
 The second way is to use the ruby-prof API to profile
 particular segments of code.
 
-  require 'ruby-prof'
+```ruby
+require 'ruby-prof'
 
-  # Profile the code
-  RubyProf.start
-  ...
-  [code to profile]
-  ...
-  result = RubyProf.stop
+# Profile the code
+RubyProf.start
+...
+[code to profile]
+...
+result = RubyProf.stop
 
-  # Print a flat profile to text
-  printer = RubyProf::FlatPrinter.new(result)
-  printer.print(STDOUT)
+# Print a flat profile to text
+printer = RubyProf::FlatPrinter.new(result)
+printer.print(STDOUT)
+```
 
 Alternatively, you can use a block to tell ruby-prof what
 to profile:
 
-  require 'ruby-prof'
+```ruby
+require 'ruby-prof'
 
-  # Profile the code
-  result = RubyProf.profile do
-    ...
-    [code to profile]
-    ...
-  end
+# Profile the code
+result = RubyProf.profile do
+  ...
+  [code to profile]
+  ...
+end
 
-  # Print a graph profile to text
-  printer = RubyProf::GraphPrinter.new(result)
-  printer.print(STDOUT, {})
+# Print a graph profile to text
+printer = RubyProf::GraphPrinter.new(result)
+printer.print(STDOUT, {})
+```
 
 ruby-prof also supports pausing and resuming profiling runs.
 
-  require 'ruby-prof'
+```ruby
+require 'ruby-prof'
 
-  # Profile the code
-  RubyProf.start
-  [code to profile]
-  RubyProf.pause
-  [other code]
-  RubyProf.resume
-  [code to profile]
-  result = RubyProf.stop
+# Profile the code
+RubyProf.start
+[code to profile]
+RubyProf.pause
+[other code]
+RubyProf.resume
+[code to profile]
+result = RubyProf.stop
+```
 
 Note that resume will automatically call start if a profiling run
 has not yet started.  In addition, resume can also take a block:
 
-  require 'ruby-prof'
+```ruby
+require 'ruby-prof'
 
-  # Profile the code
-  RubyProf.resume do
-    [code to profile]
-  end
+# Profile the code
+RubyProf.resume do
+  [code to profile]
+end
 
-  data = RubyProf.stop
+data = RubyProf.stop
+```
 
 With this usage, resume will automatically call pause at the
 end of the block.
 
 
-== Method and Thread Elimination
+## Method and Thread Elimination
 
 ruby-prof supports eliminating specific methods and threads from profiling
 results. This is useful for reducing connectivity in the call graph, making it easier to
@@ -123,8 +133,10 @@ contributes to the time spent in the method which contains the Integer#times cal
 Methods are eliminated from the collected data by calling `eliminate_methods!` on the
 profiling result, before submitting it to a printer.
 
-  result = RubyProf.stop
-  result.eliminate_methods!([/Integer#times/])
+```ruby
+result = RubyProf.stop
+result.eliminate_methods!([/Integer#times/])
+```
 
 The argument given to `eliminate_methods!` is either an array of regular expressions, or
 the name of a file containing a list of regular expressions (line separated text).
@@ -135,31 +147,38 @@ had been inlined at their call sites.
 In a similar manner, threads can be excluded so they are not profiled at all.  To do this,
 pass an array of threads to exclude to ruby-prof:
 
+```ruby
   RubyProf::exclude_threads = [ thread2 ]
   RubyProf.start
+```
 
 Note that the excluded threads must be specified *before* profiling.
 
 
-== Benchmarking full load time including rubygems startup cost
+## Benchmarking full load time including rubygems startup cost
 
 If you want to get a more accurate measurement of what takes all of a gem's bin/xxx
 command to load, you may want to also measure rubygems' startup penalty.
 You can do this by calling into bin/ruby-prof directly, ex:
 
-  $ gem which ruby-prof
-  g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/lib/ruby-prof.rb
+```
+$ gem which ruby-prof
+g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/lib/ruby-prof.rb
+```
 
 now run it thus (substitute lib/ruby-prof.rb with bin/ruby-prof):
 
-  $ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof g:\192\bin\some_installed_gem_command
+```
+$ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof g:\192\bin\some_installed_gem_command
+```
 
 or
 
-  $ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof ./some_file_that_does_a_require_rubygems_at_the_beginning.rb
+```
+$ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof ./some_file_that_does_a_require_rubygems_at_the_beginning.rb
+```
 
-
-== Profiling Rails
+## Profiling Rails
 
 To profile a Rails application it is vital to run it using production like
 settings (cache classes, cache view lookups, etc.).  Otherwise, Rail's
@@ -176,18 +195,19 @@ So to profile Rails:
     likely turn off caching.
 
 2.  Add the ruby-prof to your gemfile:
-
+```ruby
       group :profile do
         gem 'ruby-prof'
       end
+```
 
 3.  Add the ruby prof rack adapter to your middleware stack.  One way to
     do this is by adding the following code to config.ru:
-
+```ruby
       if Rails.env.profile?
         use Rack::RubyProf, :path => '/temp/profile'
       end
-
+```
     The path is where you want profiling results to be stored.  By default the
     rack adapter will generate a html call graph report and flat text report.
 
@@ -195,7 +215,7 @@ So to profile Rails:
     be generated for each request.  Note that each request will overwrite
     the profiling reports created by the previous request!
 
-== Reports
+## Reports
 
 ruby-prof can generate a number of different reports:
 
@@ -209,7 +229,7 @@ ruby-prof can generate a number of different reports:
 Flat profiles show the overall time spent in each method. They
 are a good way of quickly identifying which methods take the most time.
 An example of a flat profile and an explanation can be found in
-{examples/flat.txt}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/flat.txt].
+[examples/flat.txt](http://github.com/ruby-prof/ruby-prof/tree/master/examples/flat.txt).
 
 There are several varieties of these -- run $ ruby-prof --help
 
@@ -218,80 +238,83 @@ addition, they also show which methods call the current method and which
 methods its calls.  Thus they are good for understanding how methods
 gets called and provide insight into the flow of your program. An
 example text graph profile is located at
-{examples/graph.txt}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/graph.txt].
+[examples/graph.txt](http://github.com/ruby-prof/ruby-prof/tree/master/examples/graph.txt).
 
 HTML Graph profiles are the same as graph profiles, except output is
 generated in hyper-linked HTML. Since graph profiles can be quite large,
 the embedded links make it much easier to navigate the results. An
 example html graph profile is located at
-{examples/graph.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/graph.html].
+[examples/graph.html](http://github.com/ruby-prof/ruby-prof/tree/master/examples/graph.html).
 
 Call graphs output results in the calltree profile format which is used
 by KCachegrind. Call graph support was generously donated by Carl
 Shimer. More information about the format can be found at the
-{KCachegrind}[http://kcachegrind.sourceforge.net/cgi-bin/show.cgi/KcacheGrindCalltreeFormat]
+[KCachegrind](http://kcachegrind.sourceforge.net/cgi-bin/show.cgi/KcacheGrindCalltreeFormat)
 site.
 
 Call stack reports produce a HTML visualization of the time spent in
 each execution path of the profiled code. An example can be found at
-{examples/stack.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/stack.html].
+[examples/stack.html](http://github.com/ruby-prof/ruby-prof/tree/master/examples/stack.html).
 
 Another good example: [http://twitpic.com/28z94a]
 
 Finally, there's a so called MultiPrinter which can generate several
 reports in one profiling run. See
-{examples/multi.stack.html}[http://github.com/ruby-prof/ruby-prof/tree/master/examples/multi.stack.html].
+[examples/multi.stack.html](http://github.com/ruby-prof/ruby-prof/tree/master/examples/multi.stack.html).
 
 There is also a graphviz .dot visualiser.
 
-== Printers
+## Printers
 
 Reports are created by printers.  Supported printers include:
 
-* RubyProf::FlatPrinter - Creates a flat report in text format
-* RubyProf::FlatPrinterWithLineNumbers - same as above but more verbose
-* RubyProf::GraphPrinter - Creates a call graph report in text format
-* RubyProf::GraphHtmlPrinter - Creates a call graph report in HTML (separate files per thread)
-* RubyProf::DotPrinter - Creates a call graph report in GraphViz's DOT format which can be converted to an image
-* RubyProf::CallTreePrinter - Creates a call tree report compatible with KCachegrind.
-* RubyProf::CallStackPrinter - Creates a HTML visualization of the Ruby stack
-* RubyProf::MultiPrinter - Uses the other printers to create several reports in one profiling run
-* More!
+--------------------------------------------------------------
+`RubyProf::FlatPrinter`                | Creates a flat report in text format
+`RubyProf::FlatPrinterWithLineNumbers` | same as above but more verbose
+`RubyProf::GraphPrinter`               | Creates a call graph report in text format
+`RubyProf::GraphHtmlPrinter`           | Creates a call graph report in HTML (separate files per thread)
+`RubyProf::DotPrinter`                 | Creates a call graph report in GraphViz's DOT format which can be converted to an image
+`RubyProf::CallTreePrinter`            | Creates a call tree report compatible with KCachegrind.
+`RubyProf::CallStackPrinter`           | Creates a HTML visualization of the Ruby stack
+`RubyProf::MultiPrinter`               | Uses the other printers to create several reports in one profiling run
 
 To use a printer:
 
-  ...
-  result = RubyProf.stop
-  printer = RubyProf::GraphPrinter.new(result)
-  printer.print(STDOUT, :min_percent => 2)
+```ruby
+result = RubyProf.stop
+printer = RubyProf::GraphPrinter.new(result)
+printer.print(STDOUT, :min_percent => 2)
+```
 
 The first parameter is any writable IO object such as STDOUT or a file.
 The second parameter, specifies the minimum percentage a method must take
 to be printed.  Percentages should be specified as integers in the range 0 to 100.
 For more information please see the documentation for the different printers.
 
-The other option is :print_file => true (default false), which adds the filename to the
+The other option is `:print_file => true` (default false), which adds the filename to the
 output (GraphPrinter only).
 
 The MultiPrinter differs from the other printers in that it requires a directory path
 and a basename for the files it produces.
 
-   printer = RubyProf::MultiPrinter.new(result)
-   printer.print(:path => ".", :profile => "profile")
+```ruby
+printer = RubyProf::MultiPrinter.new(result)
+printer.print(:path => ".", :profile => "profile")
+```
 
-
-== Measurements
+## Measurements
 
 Depending on the mode and platform, ruby-prof can measure various
 aspects of a Ruby program.  Supported measurements include:
 
-* wall time (RubyProf::WALL_TIME)
-* process time (RubyProf::PROCESS_TIME)
-* cpu time (RubyProf::CPU_TIME)
-* object allocations (RubyProf::ALLOCATIONS)
-* memory usage (RubyProf::MEMORY)
-* garbage collection time (RubyProf::GC_TIME)
-* garbage collections runs (RubyProf::GC_RUNS)
+--------------------------------------------
+`RubyProf::WALL_TIME`   | wall time
+`RubyProf::PROCESS_TIME`| process time
+`RubyProf::CPU_TIME`    | cpu time
+`RubyProf::ALLOCATIONS` | object allocations
+`RubyProf::MEMORY`      | memory usage
+`RubyProf::GC_TIME`     | garbage collection time
+`RubyProf::GC_RUNS`     | garbage collections runs
 
 Wall time measures the real-world time elapsed between any two moments.
 If there are other processes concurrently running on the system
@@ -328,26 +351,30 @@ railsexpress patchsets for rvm, see https://github.com/skaes/rvm-patchsets
 
 To set the measurement:
 
-* RubyProf.measure_mode = RubyProf::WALL_TIME
-* RubyProf.measure_mode = RubyProf::PROCESS_TIME
-* RubyProf.measure_mode = RubyProf::CPU_TIME
-* RubyProf.measure_mode = RubyProf::ALLOCATIONS
-* RubyProf.measure_mode = RubyProf::MEMORY
-* RubyProf.measure_mode = RubyProf::GC_TIME
-* RubyProf.measure_mode = RubyProf::GC_RUNS
+```ruby
+RubyProf.measure_mode = RubyProf::WALL_TIME
+RubyProf.measure_mode = RubyProf::PROCESS_TIME
+RubyProf.measure_mode = RubyProf::CPU_TIME
+RubyProf.measure_mode = RubyProf::ALLOCATIONS
+RubyProf.measure_mode = RubyProf::MEMORY
+RubyProf.measure_mode = RubyProf::GC_TIME
+RubyProf.measure_mode = RubyProf::GC_RUNS
+```
 
-The default value is RubyProf::WALL_TIME.
+The default value is `RubyProf::WALL_TIME`.
 
-You may also specify the measure_mode by using the RUBY_PROF_MEASURE_MODE
+You may also specify the measure_mode by using the `RUBY_PROF_MEASURE_MODE`
 environment variable:
 
-* export RUBY_PROF_MEASURE_MODE=wall
-* export RUBY_PROF_MEASURE_MODE=process
-* export RUBY_PROF_MEASURE_MODE=cpu
-* export RUBY_PROF_MEASURE_MODE=allocations
-* export RUBY_PROF_MEASURE_MODE=memory
-* export RUBY_PROF_MEASURE_MODE=gc_time
-* export RUBY_PROF_MEASURE_MODE=gc_runs
+```
+export RUBY_PROF_MEASURE_MODE=wall
+export RUBY_PROF_MEASURE_MODE=process
+export RUBY_PROF_MEASURE_MODE=cpu
+export RUBY_PROF_MEASURE_MODE=allocations
+export RUBY_PROF_MEASURE_MODE=memory
+export RUBY_PROF_MEASURE_MODE=gc_time
+export RUBY_PROF_MEASURE_MODE=gc_runs
+```
 
 On Linux, process time is measured using the clock method provided
 by the C runtime library. Note that the clock method does not
@@ -356,7 +383,7 @@ does not measure time spent in methods such as Kernel.sleep method.
 If you need to measure these values, then use wall time.  Wall time
 is measured using the gettimeofday kernel method.
 
-If you set the clock mode to PROCESS_TIME, then timings are read using
+If you set the clock mode to `PROCESS_TIME`, then timings are read using
 the clock method provided by the C runtime library.  Note though,
 these values are wall times on Windows and not process times like on
 Linux.  Wall time is measured using the GetLocalTime API.
@@ -367,7 +394,7 @@ etc.  As result, for the best results, try to make sure your
 computer is only performing your profiling run and is
 otherwise quiescent.
 
-== Multi-threaded Applications
+## Multi-threaded Applications
 
 Unfortunately, Ruby does not provide an internal api
 for detecting thread context switches in 1.8.  As a result, the
@@ -380,7 +407,7 @@ and not the newly created background thread.  These errors
 can largely be avoided if the background thread performs any
 operation before going to sleep.
 
-== Performance
+## Performance
 
 Significant effort has been put into reducing ruby-prof's overhead
 as much as possible.  Our tests show that the overhead associated
@@ -389,12 +416,12 @@ profiled.  Most programs will run approximately twice as slow
 while highly recursive programs (like the fibonacci series test)
 will run three times slower.
 
-== License
+## License
 
 See LICENSE for license information.
 
-== Development
+## Development
 
 Code is located at https://github.com/ruby-prof/ruby-prof
 
-Google group/mailing list: http://groups.google.com/group/ruby-optimization or start a github issue.
+Google group/mailing list: http://groups.google.com/group/ruby-optimization or open a github issue.

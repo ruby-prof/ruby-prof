@@ -1,5 +1,5 @@
 # ruby-prof
-{<img src="https://travis-ci.org/ruby-prof/ruby-prof.png?branch=master" alt="Build Status" />}[https://travis-ci.org/ruby-prof/ruby-prof]
+[<img src="https://travis-ci.org/ruby-prof/ruby-prof.png?branch=master" alt="Build Status" />](https://travis-ci.org/ruby-prof/ruby-prof)
 
 ## Overview
 
@@ -189,31 +189,31 @@ profile.rb.
 
 So to profile Rails:
 
-1.  Create a new profile.rb environment.  Make sure to turn on cache_classes
-    and cache_template_loading.  Otherwise your profiling results will be
-    overwhelemed by the time Rails spends loading required files.  You should
-    likely turn off caching.
+1. Create a new profile.rb environment. Make sure to turn on cache_classes
+and cache_template_loading.  Otherwise your profiling results will be
+overwhelemed by the time Rails spends loading required files.  You should
+likely turn off caching.
 
-2.  Add the ruby-prof to your gemfile:
-```ruby
-      group :profile do
-        gem 'ruby-prof'
-      end
-```
+2. Add the ruby-prof to your gemfile:
+   ```ruby
+     group :profile do
+       gem 'ruby-prof'
+     end
+   ```
 
-3.  Add the ruby prof rack adapter to your middleware stack.  One way to
-    do this is by adding the following code to config.ru:
-```ruby
-      if Rails.env.profile?
-        use Rack::RubyProf, :path => '/temp/profile'
-      end
-```
-    The path is where you want profiling results to be stored.  By default the
-    rack adapter will generate a html call graph report and flat text report.
+3. Add the ruby prof rack adapter to your middleware stack.  One way to
+   do this is by adding the following code to `config.ru`:
+   ```ruby
+     if Rails.env.profile?
+       use Rack::RubyProf, :path => '/temp/profile'
+     end
+   ```
+   The path is where you want profiling results to be stored.  By default the
+   rack adapter will generate a html call graph report and flat text report.
 
-4.  Now make a request to your running server.  New profiling information will
-    be generated for each request.  Note that each request will overwrite
-    the profiling reports created by the previous request!
+4. Now make a request to your running server.  New profiling information will
+   be generated for each request.  Note that each request will overwrite
+   the profiling reports created by the previous request!
 
 ## Reports
 
@@ -231,7 +231,7 @@ are a good way of quickly identifying which methods take the most time.
 An example of a flat profile and an explanation can be found in
 [examples/flat.txt](http://github.com/ruby-prof/ruby-prof/tree/master/examples/flat.txt).
 
-There are several varieties of these -- run $ ruby-prof --help
+There are several varieties of these - run `ruby-prof --help`
 
 Graph profiles also show the overall time spent in each method. In
 addition, they also show which methods call the current method and which
@@ -256,7 +256,7 @@ Call stack reports produce a HTML visualization of the time spent in
 each execution path of the profiled code. An example can be found at
 [examples/stack.html](http://github.com/ruby-prof/ruby-prof/tree/master/examples/stack.html).
 
-Another good example: [http://twitpic.com/28z94a]
+Another good example: http://twitpic.com/28z94a
 
 Finally, there's a so called MultiPrinter which can generate several
 reports in one profiling run. See
@@ -268,13 +268,14 @@ There is also a graphviz .dot visualiser.
 
 Reports are created by printers.  Supported printers include:
 
---------------------------------------------------------------
+|  Constant | Effect |
+| --------- | ------ |
 `RubyProf::FlatPrinter`                | Creates a flat report in text format
 `RubyProf::FlatPrinterWithLineNumbers` | same as above but more verbose
 `RubyProf::GraphPrinter`               | Creates a call graph report in text format
 `RubyProf::GraphHtmlPrinter`           | Creates a call graph report in HTML (separate files per thread)
 `RubyProf::DotPrinter`                 | Creates a call graph report in GraphViz's DOT format which can be converted to an image
-`RubyProf::CallTreePrinter`            | Creates a call tree report compatible with KCachegrind.
+`RubyProf::CallTreePrinter`            | Creates a call tree report compatible with KCachegrind
 `RubyProf::CallStackPrinter`           | Creates a HTML visualization of the Ruby stack
 `RubyProf::MultiPrinter`               | Uses the other printers to create several reports in one profiling run
 
@@ -307,7 +308,8 @@ printer.print(:path => ".", :profile => "profile")
 Depending on the mode and platform, ruby-prof can measure various
 aspects of a Ruby program.  Supported measurements include:
 
---------------------------------------------
+|  Constant | Measurement | 
+| --------- | ----------- | 
 `RubyProf::WALL_TIME`   | wall time
 `RubyProf::PROCESS_TIME`| process time
 `RubyProf::CPU_TIME`    | cpu time

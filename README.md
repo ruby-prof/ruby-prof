@@ -154,30 +154,6 @@ pass an array of threads to exclude to ruby-prof:
 
 Note that the excluded threads must be specified *before* profiling.
 
-
-## Benchmarking full load time including rubygems startup cost
-
-If you want to get a more accurate measurement of what takes all of a gem's bin/xxx
-command to load, you may want to also measure rubygems' startup penalty.
-You can do this by calling into bin/ruby-prof directly, ex:
-
-```
-$ gem which ruby-prof
-g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/lib/ruby-prof.rb
-```
-
-now run it thus (substitute lib/ruby-prof.rb with bin/ruby-prof):
-
-```
-$ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof g:\192\bin\some_installed_gem_command
-```
-
-or
-
-```
-$ ruby g:/192/lib/ruby/gems/1.9.1/gems/ruby-prof-0.10.2/bin/ruby-prof ./some_file_that_does_a_require_rubygems_at_the_beginning.rb
-```
-
 ## Profiling Rails
 
 To profile a Rails application it is vital to run it using production like

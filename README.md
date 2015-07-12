@@ -126,7 +126,7 @@ ruby-prof supports eliminating specific methods and threads from profiling
 results. This is useful for reducing connectivity in the call graph, making it easier to
 identify the source of performance problems when using a graph printer.
 
-For example, consider Integer#times: it's hardly ever useful to know how much time is
+For example, consider `Integer#times`: it's hardly ever useful to know how much time is
 spent in the method itself. We're much more interested in how much the passed in block
 contributes to the time spent in the method which contains the Integer#times call.
 
@@ -189,31 +189,32 @@ profile.rb.
 
 So to profile Rails:
 
-1. Create a new profile.rb environment. Make sure to turn on cache_classes
-and cache_template_loading.  Otherwise your profiling results will be
-overwhelemed by the time Rails spends loading required files.  You should
-likely turn off caching.
+1. Create a new profile.rb environment. Make sure to turn on
+`cache_classes` and `cache_template_loading`. Otherwise your profiling
+results will be overwhelemed by the time Rails spends loading required
+files. You should likely turn off caching.
 
 2. Add the ruby-prof to your gemfile:
    ```ruby
-     group :profile do
-       gem 'ruby-prof'
-     end
+   group :profile do
+     gem 'ruby-prof'
+   end
    ```
 
 3. Add the ruby prof rack adapter to your middleware stack.  One way to
    do this is by adding the following code to `config.ru`:
    ```ruby
-     if Rails.env.profile?
-       use Rack::RubyProf, :path => '/temp/profile'
-     end
+   if Rails.env.profile?
+     use Rack::RubyProf, :path => '/temp/profile'
+   end
    ```
    The path is where you want profiling results to be stored.  By default the
    rack adapter will generate a html call graph report and flat text report.
 
-4. Now make a request to your running server.  New profiling information will
-   be generated for each request.  Note that each request will overwrite
-   the profiling reports created by the previous request!
+4. Now make a request to your running server.  New profiling
+   information will be generated for each request.  Note that each
+   request will overwrite the profiling reports created by the
+   previous request!
 
 ## Reports
 
@@ -287,7 +288,7 @@ printer = RubyProf::GraphPrinter.new(result)
 printer.print(STDOUT, :min_percent => 2)
 ```
 
-The first parameter is any writable IO object such as STDOUT or a file.
+The first parameter is any writable IO object such as `STDOUT` or a file.
 The second parameter, specifies the minimum percentage a method must take
 to be printed.  Percentages should be specified as integers in the range 0 to 100.
 For more information please see the documentation for the different printers.
@@ -295,8 +296,8 @@ For more information please see the documentation for the different printers.
 The other option is `:print_file => true` (default false), which adds the filename to the
 output (GraphPrinter only).
 
-The MultiPrinter differs from the other printers in that it requires a directory path
-and a basename for the files it produces.
+`MultiPrinter` differs from the other printers in that it requires a
+directory path and a basename for the files it produces.
 
 ```ruby
 printer = RubyProf::MultiPrinter.new(result)
@@ -308,8 +309,8 @@ printer.print(:path => ".", :profile => "profile")
 Depending on the mode and platform, ruby-prof can measure various
 aspects of a Ruby program.  Supported measurements include:
 
-|  Constant | Measurement | 
-| --------- | ----------- | 
+|  Constant | Measurement |
+| --------- | ----------- |
 `RubyProf::WALL_TIME`   | wall time
 `RubyProf::PROCESS_TIME`| process time
 `RubyProf::CPU_TIME`    | cpu time
@@ -365,8 +366,8 @@ RubyProf.measure_mode = RubyProf::GC_RUNS
 
 The default value is `RubyProf::WALL_TIME`.
 
-You may also specify the measure_mode by using the `RUBY_PROF_MEASURE_MODE`
-environment variable:
+You may also specify the measure mode by using the
+`RUBY_PROF_MEASURE_MODE` environment variable:
 
 ```
 export RUBY_PROF_MEASURE_MODE=wall
@@ -398,7 +399,7 @@ otherwise quiescent.
 
 ## Multi-threaded Applications
 
-Unfortunately, Ruby does not provide an internal api
+Unfortunately, Ruby does not provide an internal API
 for detecting thread context switches in 1.8.  As a result, the
 timings ruby-prof reports for each thread may be slightly
 inaccurate.  In particular, this will happen for newly

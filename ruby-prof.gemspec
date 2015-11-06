@@ -33,7 +33,6 @@ EOF
                    'ruby-prof.gemspec',
                    'bin/ruby-prof',
                    'bin/ruby-prof-check-trace',
-                   'doc/**/*',
                    'examples/*',
                    'ext/ruby_prof/extconf.rb',
                    'ext/ruby_prof/*.c',
@@ -54,5 +53,4 @@ EOF
   spec.homepage = 'https://github.com/ruby-prof/ruby-prof'
   spec.add_development_dependency('minitest', '~> 5.8.3')
   spec.add_development_dependency('rake-compiler')
-  spec.add_development_dependency('rdoc')
 end

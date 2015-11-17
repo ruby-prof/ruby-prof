@@ -3,6 +3,16 @@
 
 #include "ruby_prof.h"
 
+#define RP_FL_RESOLVED          (1 << 0)
+#define RP_FL_MODULE_INCLUDEE   (1 << 1)
+#define RP_FL_MODULE_SINGLETON  (1 << 2)
+#define RP_FL_OBJECT_SINGLETON  (1 << 3)
+
+#define RP_RESOLVED(fl)         ((fl) & RP_FL_RESOLVED)
+#define RP_MODULE_INCLUDEE(fl)  ((fl) & RP_FL_MODULE_INCLUDEE)
+#define RP_MODULE_SINGLETON(fl) ((fl) & RP_FL_MODULE_SINGLETON)
+#define RP_OBJECT_SINGLETON(fl) ((fl) & RP_FL_OBJECT_SINGLETON)
+
 VALUE cMethodInfo;
 
 /* ================  Helper Functions  =================*/
@@ -61,7 +71,7 @@ klass_name(VALUE klass)
 
     if (klass == 0 || klass == Qnil)
     {
-        result = rb_str_new2("Global");
+        result = rb_str_new2("[global]");
     }
     else if (BUILTIN_TYPE(klass) == T_MODULE)
     {
@@ -78,7 +88,7 @@ klass_name(VALUE klass)
     else
     {
         /* Should never happen. */
-        result = rb_str_new2("Unknown");
+        result = rb_str_new2("[unknown]");
     }
 
     return result;
@@ -87,18 +97,15 @@ klass_name(VALUE klass)
 static VALUE
 method_name(ID mid)
 {
-    VALUE result;
-
-    if (mid == 0)
-        result = rb_str_new2("[No method]");
 #ifdef ID_ALLOCATOR
-    else if (mid == ID_ALLOCATOR)
-        result = rb_str_new2("allocate");
+    if (mid == ID_ALLOCATOR)
+        return rb_str_new2("allocate");
 #endif
-    else
-        result = rb_String(ID2SYM(mid));
 
-    return result;
+    if (RTEST(mid))
+        return rb_str_dup(rb_id2str(mid));
+    else
+        return rb_str_new2("[no method]");
 }
 
 static VALUE
@@ -106,6 +113,33 @@ full_name(VALUE klass, ID mid)
 {
     VALUE result = rb_str_dup(klass_name(klass));
     rb_str_cat2(result, "#");
+    rb_str_append(result, method_name(mid));
+    return result;
+}
+
+static VALUE
+resolved_klass_name(VALUE resolved_klass)
+{
+    return RTEST(resolved_klass) ?
+          rb_str_dup(rb_class_name(resolved_klass)) :
+          rb_str_new2("[global]");
+}
+
+static VALUE
+calltree_name(VALUE resolved_klass, int flags, ID mid)
+{
+    VALUE klass_str = resolved_klass_name(resolved_klass);
+    VALUE klass_path = rb_str_split(klass_str, "::");
+    VALUE result = rb_ary_join(klass_path, rb_str_new2("/"));
+
+    rb_str_cat2(result, "::");
+
+    if (RP_OBJECT_SINGLETON(flags))
+        rb_str_cat2(result, "*");
+
+    if (RP_MODULE_SINGLETON(flags))
+        rb_str_cat2(result, "^");
+
     rb_str_append(result, method_name(mid));
 
     return result;
@@ -152,6 +186,9 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
     }
     result->line = line;
 
+    result->resolved_klass = 0;
+    result->flags = 0;
+
     return result;
 }
 
@@ -191,10 +228,89 @@ prof_method_free(prof_method_t* method)
 void
 prof_method_mark(prof_method_t *method)
 {
+    if (method->resolved_klass)
+        rb_gc_mark(method->resolved_klass);
+
 	if (method->object)
 		rb_gc_mark(method->object);
 
 	prof_call_infos_mark(method->call_infos);
+}
+
+static VALUE
+resolve_klass(prof_method_t* method)
+{
+    VALUE klass, attached;
+    int flags;
+
+    /* We want to group methods according to their source-level
+        definitions, not their implementation class. Follow module
+        inclusions and singleton classes back to a meaningful root
+        while keeping track of these relationships. */
+
+    /* Is this method's klass aleady resolved? */
+    if (RP_RESOLVED(method->flags))
+        return method->resolved_klass;
+
+    klass = method->key->klass;
+    flags = 0;
+
+    while (1)
+    {
+        /* This is a global/unknown class */
+        if (klass == 0 || klass == Qnil)
+          break;
+
+        /* Is this a singleton class? (most common case) */
+        if (BUILTIN_TYPE(klass) == T_CLASS && FL_TEST(klass, FL_SINGLETON))
+        {
+          /* We have come across a singleton object. First
+            figure out what it is attached to.*/
+          attached = rb_iv_get(klass, "__attached__");
+
+          /* Is this a singleton class acting as a metaclass?
+              Or for singleton methods on a module? */
+          if (BUILTIN_TYPE(attached) == T_CLASS ||
+              BUILTIN_TYPE(attached) == T_MODULE)
+          {
+            flags |= RP_FL_MODULE_SINGLETON;
+            klass = attached;
+          }
+          /* Is this for singleton methods on an object? */
+          else if (BUILTIN_TYPE(attached) == T_OBJECT)
+          {
+            flags |= RP_FL_OBJECT_SINGLETON;
+            klass = rb_class_superclass(klass);
+          }
+          /* This is a singleton of an instance of a builtin type. */
+          else
+          {
+            flags |= RP_FL_OBJECT_SINGLETON;
+            klass = rb_class_superclass(klass);
+          }
+        }
+        /* Is this an include for a module?  If so get the actual
+            module class since we want to combine all profiling
+            results for that module. */
+        else if (BUILTIN_TYPE(klass) == T_ICLASS)
+        {
+          flags |= RP_FL_MODULE_INCLUDEE;
+          klass = RBASIC(klass)->klass;
+        }
+        /* No transformations apply; so bail. */
+        else
+        {
+          break;
+        }
+    }
+
+    /* This class is fully resolved. */
+    flags |= RP_FL_RESOLVED;
+
+    method->resolved_klass = klass;
+    method->flags = flags;
+
+    return klass;
 }
 
 VALUE
@@ -394,6 +510,30 @@ prof_method_call_infos(VALUE self)
 	return method->call_infos->object;
 }
 
+/* call-seq:
+   resolved_klass -> klass
+
+Returns the Ruby klass that owns this method. */
+static VALUE
+prof_resolved_klass(VALUE self)
+{
+    prof_method_t *method = get_prof_method(self);
+    return resolve_klass(method);
+}
+
+/* call-seq:
+   calltree_name -> string
+
+Returns the full name of this method in the calltree format.*/
+
+static VALUE
+prof_calltree_name(VALUE self)
+{
+    prof_method_t *method = get_prof_method(self);
+    VALUE resolved_klass = resolve_klass(method);
+    return calltree_name(resolved_klass, method->flags, method->key->mid);
+}
+
 void rp_init_method_info()
 {
     /* MethodInfo */
@@ -408,4 +548,7 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "source_file", prof_method_source_file,0);
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);
     rb_define_method(cMethodInfo, "call_infos", prof_method_call_infos, 0);
+
+    rb_define_method(cMethodInfo, "resolved_klass", prof_resolved_klass, 0);
+    rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
 }

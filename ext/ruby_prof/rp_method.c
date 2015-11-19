@@ -29,7 +29,7 @@ figure_singleton_name(VALUE klass)
     if (BUILTIN_TYPE(attached) == T_CLASS)
     {
         result = rb_str_new2("<Class::");
-        rb_str_append(result, rb_inspect(attached));
+        rb_str_append(result, rb_class_name(attached));
         rb_str_cat2(result, ">");
     }
 
@@ -37,7 +37,7 @@ figure_singleton_name(VALUE klass)
     else if (BUILTIN_TYPE(attached) == T_MODULE)
     {
         result = rb_str_new2("<Module::");
-        rb_str_append(result, rb_inspect(attached));
+        rb_str_append(result, rb_class_name(attached));
         rb_str_cat2(result, ">");
     }
 
@@ -49,7 +49,7 @@ figure_singleton_name(VALUE klass)
            unknown method errors. */
         VALUE super = rb_class_superclass(klass);
         result = rb_str_new2("<Object::");
-        rb_str_append(result, rb_inspect(super));
+        rb_str_append(result, rb_class_name(super));
         rb_str_cat2(result, ">");
     }
 
@@ -58,7 +58,7 @@ figure_singleton_name(VALUE klass)
        objects test case). */
     else
     {
-        result = rb_inspect(klass);
+        result = rb_any_to_s(klass);
     }
 
     return result;
@@ -75,7 +75,7 @@ klass_name(VALUE klass)
     }
     else if (BUILTIN_TYPE(klass) == T_MODULE)
     {
-        result = rb_inspect(klass);
+        result = rb_class_name(klass);
     }
     else if (BUILTIN_TYPE(klass) == T_CLASS && FL_TEST(klass, FL_SINGLETON))
     {
@@ -83,7 +83,7 @@ klass_name(VALUE klass)
     }
     else if (BUILTIN_TYPE(klass) == T_CLASS)
     {
-        result = rb_inspect(klass);
+        result = rb_class_name(klass);
     }
     else
     {

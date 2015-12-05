@@ -38,9 +38,16 @@ module Rack
       end
     end
 
+    private
+
     def print(data, path)
       @printer_klasses.each do |printer_klass, base_name|
         printer = printer_klass.new(data)
+
+        if base_name.respond_to?(:call)
+          base_name = base_name.call
+        end
+
         file_name = ::File.join(@tmpdir, "#{path}-#{base_name}")
         ::File.open(file_name, 'wb') do |file|
           printer.print(file, @options)

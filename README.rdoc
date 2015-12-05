@@ -235,14 +235,29 @@ There is also a graphviz .dot visualiser.
 
 Reports are created by printers.  Supported printers include:
 
-[RubyProf::FlatPrinter]                Creates a flat report in text format
-[RubyProf::FlatPrinterWithLineNumbers] Same as above but more verbose
-[RubyProf::GraphPrinter]               Creates a call graph report in text format
-[RubyProf::GraphHtmlPrinter]           Creates a call graph report in HTML (separate files per thread)
-[RubyProf::DotPrinter]                 Creates a call graph report in GraphViz's DOT format which can be converted to an image
-[RubyProf::CallTreePrinter]            Creates a call tree report compatible with KCachegrind
-[RubyProf::CallStackPrinter]           Creates a HTML visualization of the Ruby stack
-[RubyProf::MultiPrinter]               Uses the other printers to create several reports in one profiling run
+RubyProf::FlatPrinter::
+  Creates a flat report in text format
+
+RubyProf::FlatPrinterWithLineNumbers::
+  Same as above but more verbose
+
+RubyProf::GraphPrinter::
+  Creates a call graph report in text format
+
+RubyProf::GraphHtmlPrinter::
+  Creates a call graph report in HTML (separate files per thread)
+
+RubyProf::DotPrinter::
+  Creates a call graph report in GraphViz's DOT format which can be converted to an image
+
+RubyProf::CallTreePrinter::
+  Creates a call tree report compatible with KCachegrind
+
+RubyProf::CallStackPrinter::
+  Creates a HTML visualization of the Ruby stack
+
+RubyProf::MultiPrinter::
+  Uses the other printers to create several reports in one profiling run
 
 To use a printer:
 

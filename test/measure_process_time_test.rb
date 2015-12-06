@@ -32,12 +32,15 @@ class MeasureProcessTimeTest < TestCase
     methods = result.threads.first.methods.sort.reverse
 
     # WTF?
-    if RUBY_VERSION =~ /^1\.9\.3/
+    case RUBY_VERSION
+    when /^1\.9\.3/
       assert_equal 16, methods.length
-    elsif RUBY_VERSION =~ /^2\.0/
+    when /^2\.0/
       assert_equal 15, methods.length
-    else # if RUBY_VERSION =~ /^2\.1/
+    when /^2\.(1|2)/
       assert_equal 14, methods.length
+    else
+      assert_equal 13, methods.length
     end
     # puts methods.map(&:full_name).inspect
 

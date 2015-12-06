@@ -31,18 +31,15 @@ class MeasureProcessTimeTest < TestCase
 
     methods = result.threads.first.methods.sort.reverse
 
-    # WTF?
-    case RUBY_VERSION
-    when /^1\.9\.3/
-      assert_equal 16, methods.length
-    when /^2\.0/
-      assert_equal 15, methods.length
-    when /^2\.(1|2)/
-      assert_equal 14, methods.length
-    else
-      assert_equal 13, methods.length
-    end
+    expected_number_of_methods =
+      case RUBY_VERSION
+      when /^1\.9\.3/  then 16
+      when /^2\.0/     then 15
+      when /^2\.(1|2)/ then 14
+      else                  13
+      end
     # puts methods.map(&:full_name).inspect
+    assert_equal expected_number_of_methods, methods.length
 
     # Check times
     assert_equal("MeasureProcessTimeTest#test_primes", methods[0].full_name)

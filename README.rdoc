@@ -4,7 +4,7 @@
 
 == Overview
 
-ruby-prof is a fast code profiler for Ruby.  Its features include:
+ruby-prof is a fast code profiler for MRI Ruby.  Its features include:
 
 * Speed - it is a C extension and therefore many times faster than the standard Ruby profiler.
 * Modes - Ruby prof can measure a number of different parameters, including call times, memory usage and object allocations.

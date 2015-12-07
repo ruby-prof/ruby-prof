@@ -5,6 +5,16 @@ if RUBY_VERSION < "1.9.3"
   exit(1)
 end
 
+if RUBY_ENGINE == "java"
+  STDERR.puts("\nThis gem is an MRI-specific gem and does not have any support for jruby\n")
+  exit(1)
+end
+
+if RUBY_ENGINE == "rbx"
+  STDERR.puts("\nThis gem is an MRI-specific gem and does not have any support for Rubinius/rbx\n")
+  exit(1)
+end
+
 # standard ruby methods
 have_func("rb_gc_stat")
 have_func("rb_gc_count")

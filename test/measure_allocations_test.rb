@@ -16,10 +16,11 @@ class MeasureAllocationsTest < TestCase
   if RubyProf::ALLOCATIONS_ENABLED
     def test_allocations
       t = RubyProf.measure_allocations
-      assert_kind_of Integer, t
-
+      refute_empty("a" + "b")
       u = RubyProf.measure_allocations
-      assert u > t, [t, u].inspect
+      assert_kind_of Integer, t
+      assert_kind_of Integer, u
+      assert_operator t, :<, u
     end
   end
 end

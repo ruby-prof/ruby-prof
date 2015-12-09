@@ -1,12 +1,12 @@
 require "mkmf"
 
-if RUBY_VERSION < "1.9.3"
-  STDERR.puts("Ruby version #{RUBY_VERSION} is no longer supported. Please upgrade to 1.9.3 or higher")
+if RUBY_ENGINE != "ruby"
+  STDERR.puts("\n\n***** This gem is MRI-specific. It does not support #{RUBY_ENGINE}. *****\n\n")
   exit(1)
 end
 
-if RUBY_ENGINE != "ruby"
-  STDERR.puts("\nThis gem is an MRI-specific gem and does not have any support for #{RUBY_ENGINE}\n")
+if RUBY_VERSION < "1.9.3"
+  STDERR.puts("\n\n***** Ruby version #{RUBY_VERSION} is no longer supported. Please upgrade to 1.9.3 or higher. *****\n\n")
   exit(1)
 end
 

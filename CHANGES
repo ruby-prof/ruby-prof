@@ -1,3 +1,8 @@
+0.16.0 (2015-12-08)
+======================
+* rack profiler now supports lambdas for generating profile paths (thx to Jean Rougé)
+* fixed a bug when printing graph profiles
+
 0.15.8 (2015-04-24)
 ======================
 * added missing assets to gem build

@@ -16,10 +16,6 @@ module RubyProf
       top_call_infos.each(&:detect_recursion)
     end
 
-    def recalc_recursion
-      top_call_infos.each(&:recalc_recursion)
-    end
-
     def total_time
       self.top_methods.inject(0) do |sum, method_info|
         method_info.call_infos.each do |call_info|

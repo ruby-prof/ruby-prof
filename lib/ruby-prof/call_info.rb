@@ -11,28 +11,13 @@ module RubyProf
 
     attr_reader :recursive
 
-    def non_recursive?
-      @non_recursive
-    end
-
     def detect_recursion(visited_methods = Hash.new(0))
       @recursive = (visited_methods[target] += 1) > 1
-      @non_recursive = true
       children.each do |child|
-        @non_recursive = false if child.detect_recursion(visited_methods)
+        child.detect_recursion(visited_methods)
       end
       visited_methods.delete(target) if (visited_methods[target] -= 1) == 0
-      return !@non_recursive
-    end
-
-    def recalc_recursion(visited_methods = Hash.new(0))
-      return if @non_recursive
-      target.clear_cached_values_which_depend_on_recursiveness
-      @recursive = (visited_methods[target] += 1) > 1
-      children.each do |child|
-        child.recalc_recursion(visited_methods)
-      end
-      visited_methods.delete(target) if (visited_methods[target] -= 1) == 0
+      return @recursive
     end
 
     def children_time

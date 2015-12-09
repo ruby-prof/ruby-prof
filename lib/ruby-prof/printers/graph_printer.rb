@@ -36,7 +36,7 @@ module RubyProf
       @output << sprintf("%#{TIME_WIDTH}s", "wait")
       @output << sprintf("%#{TIME_WIDTH}s", "child")
       @output << sprintf("%#{CALL_WIDTH}s", "calls")
-      @output << "    Name"
+      @output << "     name"
       @output << "\n"
     end
 
@@ -63,16 +63,14 @@ module RubyProf
         @output << sprintf("%#{TIME_WIDTH}.3f", method.wait_time)
         @output << sprintf("%#{TIME_WIDTH}.3f", method.children_time)
         @output << sprintf("%#{CALL_WIDTH}i", method.called)
-        @output << sprintf("     %s",  method.recursive? ? "*" : " ")
+        @output << sprintf("    %s",  method.recursive? ? "*" : " ")
         @output << sprintf("%s", method_name(method))
         if print_file
           @output << sprintf("  %s:%s", method.source_file, method.line)
         end
         @output << "\n"
 
-        method.recalc_recursion unless method.non_recursive?
         print_children(method)
-        thread.recalc_recursion unless method.non_recursive?
       end
     end
 
@@ -87,7 +85,7 @@ module RubyProf
 
         call_called = "#{caller.called}/#{method.called}"
         @output << sprintf("%#{CALL_WIDTH}s", call_called)
-        @output << sprintf("      %s", caller.parent.target.full_name)
+        @output << sprintf("     %s", caller.parent.target.full_name)
         @output << "\n"
       end
     end
@@ -105,7 +103,7 @@ module RubyProf
 
         call_called = "#{child.called}/#{child.target.called}"
         @output << sprintf("%#{CALL_WIDTH}s", call_called)
-        @output << sprintf("      %s", child.target.full_name)
+        @output << sprintf("     %s", child.target.full_name)
         @output << "\n"
       end
     end

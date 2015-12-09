@@ -2,13 +2,14 @@
 
 module RubyProf
   class AggregateCallInfo
-    attr_reader :call_infos
+    attr_reader :call_infos, :method_info
 
-    def initialize(call_infos)
+    def initialize(call_infos, method_info)
       if call_infos.length == 0
         raise(ArgumentError, "Must specify at least one call info.")
       end
       @call_infos = call_infos
+      @method_info = method_info
     end
 
     def target
@@ -30,23 +31,23 @@ module RubyProf
     end
 
     def total_time
-      aggregate_without_recursion(:total_time)
+      aggregate_roots(:total_time)
     end
 
     def self_time
-      aggregate_without_recursion(:self_time)
+      aggregate_roots(:self_time)
     end
 
     def wait_time
-      aggregate_without_recursion(:wait_time)
+      aggregate_roots(:wait_time)
     end
 
     def children_time
-      aggregate_without_recursion(:children_time)
+      aggregate_roots(:children_time)
     end
 
     def called
-      aggregate(:called)
+      aggregate_all(:called)
     end
 
     def to_s
@@ -55,15 +56,20 @@ module RubyProf
 
     private
 
-    def aggregate(method_name)
+    # return all call_infos which are not (grand) children of any other node in the list of given call_infos
+    def roots
+      @roots ||= method_info.recursive? ? CallInfo.roots_of(call_infos) : call_infos
+    end
+
+    def aggregate_all(method_name)
       call_infos.inject(0) do |sum, call_info|
         sum + call_info.send(method_name)
       end
     end
 
-    def aggregate_without_recursion(method_name)
-      call_infos.inject(0) do |sum, call_info|
-        call_info.recursive ? sum : sum + call_info.send(method_name)
+    def aggregate_roots(method_name)
+      roots.inject(0) do |sum, call_info|
+        sum + call_info.send(method_name)
       end
     end
   end

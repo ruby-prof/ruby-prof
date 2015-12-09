@@ -5,6 +5,11 @@ if RUBY_VERSION < "1.9.3"
   exit(1)
 end
 
+if RUBY_ENGINE != "ruby"
+  STDERR.puts("\nThis gem is an MRI-specific gem and does not have any support for #{RUBY_ENGINE}\n")
+  exit(1)
+end
+
 # standard ruby methods
 have_func("rb_gc_stat")
 have_func("rb_gc_count")

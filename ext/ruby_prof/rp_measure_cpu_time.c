@@ -6,7 +6,34 @@
 static VALUE cMeasureCpuTime;
 
 /* The _WIN32 check is needed for msys (and maybe cygwin?) */
-#if defined(__GNUC__) && !defined(_WIN32)
+#if defined(_WIN32)
+
+static unsigned long long get_cpu_time()
+{
+    LARGE_INTEGER time;
+    QueryPerformanceCounter(&time);
+    return time.QuadPart;
+}
+
+static unsigned long long get_cpu_frequency()
+{
+    static unsigned long long cpu_frequency;
+
+    if(!cpu_frequency) {
+        LARGE_INTEGER cpu_frequency_struct;
+        QueryPerformanceFrequency(&cpu_frequency_struct);
+        cpu_frequency = cpu_frequency_struct.QuadPart;
+    }
+
+    return cpu_frequency;
+}
+
+static double measure_cpu_time()
+{
+    return ((double)get_cpu_time()) / get_cpu_frequency();
+}
+
+#else
 
 #include <sys/resource.h>
 #include <stdint.h>
@@ -52,8 +79,7 @@ static unsigned long long get_cpu_frequency()
     return cpu_frequency;
 }
 
-static double
-measure_cpu_time()
+static double measure_cpu_time()
 {
     struct rusage rusage;
     getrusage(RUSAGE_SELF, &rusage);
@@ -67,34 +93,6 @@ measure_cpu_time()
     seconds += rusage.ru_stime.tv_usec / 1000000.0;
 
     return seconds;
-}
-
-#elif defined(_WIN32)
-
-static unsigned long long get_cpu_time()
-{
-    LARGE_INTEGER time;
-    QueryPerformanceCounter(&time);
-    return time.QuadPart;
-}
-
-static unsigned long long get_cpu_frequency()
-{
-    static unsigned long long cpu_frequency;
-
-    if(!cpu_frequency) {
-        LARGE_INTEGER cpu_frequency_struct;
-        QueryPerformanceFrequency(&cpu_frequency_struct);
-        cpu_frequency = cpu_frequency_struct.QuadPart;
-    }
-
-    return cpu_frequency;
-}
-
-static double
-measure_cpu_time()
-{
-    return ((double)get_cpu_time()) / get_cpu_frequency();
 }
 #endif
 

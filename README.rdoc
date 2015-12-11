@@ -158,7 +158,7 @@ So to profile Rails:
 1. Create a new profile.rb environment. Make sure to turn on
    <tt>cache_classes</tt> and
    <tt>cache_template_loading</tt>. Otherwise your profiling results
-   will be overwhelemed by the time Rails spends loading required
+   will be overwhelmed by the time Rails spends loading required
    files. You should likely turn off caching.
 
 2. Add the ruby-prof to your gemfile:

@@ -28,8 +28,21 @@ require 'ruby-prof'
 require 'minitest/autorun'
 
 class TestCase < Minitest::Test
+  # I know this sucks, but ...
   def assert_nothing_raised(*)
     yield
+  end
+
+  def before_setup
+    # make sure to exclude all threads except the one running the test
+    # minitest allocates a thread pool and they would otherwise show
+    # up in the profile data, breaking tests randomly
+    RubyProf.exclude_threads = Thread.list.select{|t| t != Thread.current}
+  end
+
+  def after_teardown
+    # reset exclude threads after testing
+    RubyProf.exclude_threads = nil
   end
 end
 

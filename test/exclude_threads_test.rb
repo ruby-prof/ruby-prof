@@ -26,7 +26,8 @@ class ExcludeThreadsTest < TestCase
       thread2_proc
     end
 
-    RubyProf::exclude_threads = [ thread2 ]
+    # exclude_threads already includes the minitest thread pool
+    RubyProf.exclude_threads += [ thread2 ]
 
     RubyProf.start
 
@@ -34,8 +35,6 @@ class ExcludeThreadsTest < TestCase
     thread2.join
 
     result = RubyProf.stop
-
-    RubyProf::exclude_threads = nil
 
     assert_equal(2, result.threads.length)
 

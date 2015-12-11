@@ -63,6 +63,7 @@ class MultiPrinterTest < TestCase
   end
 
   private
+
   def print(result)
     test = caller.first =~ /in `(.*)'/ ? $1 : "test"
     path = RubyProf.tmpdir
@@ -73,10 +74,10 @@ class MultiPrinterTest < TestCase
     if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"
       system("open '#{printer.stack_profile}'")
     end
-    if GC.respond_to?(:dump_file_and_line_info)
-      GC.start
-      GC.dump_file_and_line_info("heap.dump")
-    end
+    # if GC.respond_to?(:dump_file_and_line_info)
+    #   GC.start
+    #   GC.dump_file_and_line_info("heap.dump")
+    # end
     [File.read(printer.stack_profile), File.read(printer.graph_profile)]
   end
 end

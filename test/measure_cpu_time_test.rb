@@ -35,13 +35,13 @@ class MeasureCpuTimeTest < TestCase
     assert_equal('<Class::RubyProf::C7>#hello', methods[1].full_name)
 
     # Check times
-    assert_in_delta(0.1, methods[0].total_time, 0.03)
-    assert_in_delta(0, methods[0].wait_time, 0.03)
-    assert_in_delta(0, methods[0].self_time, 0.03)
+    assert_in_delta(0.1, methods[0].total_time, 0.05)
+    assert_in_delta(0, methods[0].wait_time, 0.05)
+    assert_in_delta(0, methods[0].self_time, 0.05)
 
-    assert_in_delta(0.1, methods[1].total_time, 0.03)
-    assert_in_delta(0, methods[1].wait_time, 0.03)
-    assert_in_delta(0, methods[1].self_time, 0.03)
+    assert_in_delta(0.1, methods[1].total_time, 0.05)
+    assert_in_delta(0, methods[1].wait_time, 0.05)
+    assert_in_delta(0, methods[1].self_time, 0.05)
   end
 
   def test_instance_methods
@@ -69,7 +69,7 @@ class MeasureCpuTimeTest < TestCase
 
     assert_in_delta(0.2, methods[1].total_time, 0.03)
     assert_in_delta(0, methods[1].wait_time, 0.03)
-    assert_in_delta(0, methods[1].self_time, 0.1)
+    assert_in_delta(0, methods[1].self_time, 0.2)
   end
 
   def test_module_methods
@@ -119,7 +119,7 @@ class MeasureCpuTimeTest < TestCase
     assert_in_delta(0, methods[0].wait_time, 0.1)
     assert_in_delta(0, methods[0].self_time, 0.1)
 
-    assert_in_delta(0.3, methods[1].total_time, 0.02)
+    assert_in_delta(0.3, methods[1].total_time, 0.1)
     assert_in_delta(0, methods[1].wait_time, 0.01)
     assert_in_delta(0, methods[1].self_time, 0.1)
   end

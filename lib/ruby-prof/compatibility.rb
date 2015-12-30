@@ -40,8 +40,8 @@ module RubyProf
   #
   # Returns what ruby-prof is measuring.  Valid values include:
   #
-  # *RubyProf::PROCESS_TIME - Measure process time.  This is default.  It is implemented using the clock functions in the C Runtime library.
-  # *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows
+  # *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows.  This is default.
+  # *RubyProf::PROCESS_TIME - Measure process time.  It is implemented using the clock functions in the C Runtime library.
   # *RubyProf::CPU_TIME - Measure time using the CPU clock counter.  This mode is only supported on Pentium or PowerPC platforms.
   # *RubyProf::ALLOCATIONS - Measure object allocations.  This requires a patched Ruby interpreter.
   # *RubyProf::MEMORY - Measure memory size.  This requires a patched Ruby interpreter.
@@ -57,8 +57,8 @@ module RubyProf
   #
   # Specifies what ruby-prof should measure.  Valid values include:
   #
-  # *RubyProf::PROCESS_TIME - Measure process time.  This is default.  It is implemented using the clock functions in the C Runtime library.
-  # *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows
+  # *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows.  This is default.
+  # *RubyProf::PROCESS_TIME - Measure process time.  It is implemented using the clock functions in the C Runtime library.
   # *RubyProf::CPU_TIME - Measure time using the CPU clock counter.  This mode is only supported on Pentium or PowerPC platforms.
   # *RubyProf::ALLOCATIONS - Measure object allocations.  This requires a patched Ruby interpreter.
   # *RubyProf::MEMORY - Measure memory size.  This requires a patched Ruby interpreter.

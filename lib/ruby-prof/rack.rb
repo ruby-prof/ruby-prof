@@ -48,9 +48,13 @@ module Rack
           base_name = base_name.call
         end
 
-        file_name = ::File.join(@tmpdir, "#{path}-#{base_name}")
-        ::File.open(file_name, 'wb') do |file|
-          printer.print(file, @options)
+        if printer_klass == ::RubyProf::MultiPrinter
+          printer.print(@options.merge(:profile => "#{path}-#{base_name}"))
+        else
+          file_name = ::File.join(@tmpdir, "#{path}-#{base_name}")
+          ::File.open(file_name, 'wb') do |file|
+            printer.print(file, @options)
+          end
         end
       end
     end

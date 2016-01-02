@@ -171,6 +171,7 @@ class ThreadTest < TestCase
     assert(timings[-1].total_time < seconds)
   end
 
+  # useless test: what does it test?
   def test_thread
     RubyProf.profile do
       begin

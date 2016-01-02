@@ -98,21 +98,33 @@ module RubyProf
   end
 
   class C7
-    def self.hello
+    def self.busy_wait
       t = Time.now.to_f
       while Time.now.to_f - t < 0.1; end
     end
 
-    def hello
+    def self.sleep_wait
+      sleep 0.1
+    end
+
+    def busy_wait
       t = Time.now.to_f
       while Time.now.to_f - t < 0.2; end
+    end
+
+    def sleep_wait
+      sleep 0.2
     end
   end
 
   module M7
-    def hello
+    def busy_wait
       t = Time.now.to_f
       while Time.now.to_f - t < 0.3; end
+    end
+
+    def sleep_wait
+      sleep 0.3
     end
   end
 

@@ -115,7 +115,7 @@ module RubyProf
     end
 
     def to_s
-      "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, ct: #{self.children_time})"
+      "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, wt: #{wait_time}, ct: #{self.children_time})"
     end
 
     # remove method from the call graph. should not be called directly.

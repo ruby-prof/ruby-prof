@@ -394,6 +394,25 @@ prof_method_call_infos(VALUE self)
 	return method->call_infos->object;
 }
 
+/* call-seq:
+   root? -> boolean
+
+Returns true if all the child call_infos have no parent.*/
+static VALUE
+prof_method_root(VALUE self)
+{
+    prof_method_t *method = get_prof_method(self);
+    prof_call_info_t **call_info;
+
+    for(call_info=method->call_infos->start; call_info < method->call_infos->ptr; call_info++)
+    {
+      if ( (*call_info)->parent ) {
+        return Qfalse;
+      }
+    }
+    return Qtrue;
+}
+
 void rp_init_method_info()
 {
     /* MethodInfo */
@@ -408,4 +427,5 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "source_file", prof_method_source_file,0);
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);
     rb_define_method(cMethodInfo, "call_infos", prof_method_call_infos, 0);
+    rb_define_method(cMethodInfo, "root?", prof_method_root, 0);
 }

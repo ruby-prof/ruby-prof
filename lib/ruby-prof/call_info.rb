@@ -45,10 +45,6 @@ module RubyProf
       end
     end
 
-    def root?
-      self.parent.nil?
-    end
-
     def descendent_of(other)
       p = self.parent
       while p && p != other && p.depth > other.depth

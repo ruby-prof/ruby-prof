@@ -11,13 +11,13 @@ module RubyProf
 
     attr_reader :recursive
 
-    def detect_recursion(visited_methods = Hash.new(0))
-      @recursive = (visited_methods[target] += 1) > 1
+    def detect_recursion(visited_methods = Hash.new(0).compare_by_identity)
+      target_method = self.target
+      @recursive = (visited_methods[target_method] += 1) > 1
       children.each do |child|
         child.detect_recursion(visited_methods)
       end
-      visited_methods.delete(target) if (visited_methods[target] -= 1) == 0
-      return @recursive
+      visited_methods.delete(target_method) if (visited_methods[target_method] -= 1) == 0
     end
 
     def children_time

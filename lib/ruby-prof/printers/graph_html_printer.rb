@@ -63,8 +63,10 @@ module RubyProf
       if srcfile =~ /\/ruby_runtime$/
         ""
       else
-        if RUBY_PLATFORM =~ /darwin/
+        if RUBY_PLATFORM =~ /darwin/ && !ENV['RUBY_PROF_EDITOR_URI']
           "<a href=\"txmt://open?url=file://#{h srcfile}&line=#{linenum}\" title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
+        elsif ENV['RUBY_PROF_EDITOR_URI']
+          "<a href=\"#{ENV['RUBY_PROF_EDITOR_URI']}://open?url=file://#{h srcfile}&line=#{linenum}\" title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
         else
           "<a href=\"file://#{h srcfile}##{linenum}\" title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
         end
@@ -241,4 +243,3 @@ module RubyProf
     end
   end
 end
-

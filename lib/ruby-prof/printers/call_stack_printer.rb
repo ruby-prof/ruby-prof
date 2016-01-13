@@ -116,8 +116,10 @@ module RubyProf
       if file =~ /\/ruby_runtime$/
         h(name(call_info))
       else
-        if RUBY_PLATFORM =~ /darwin/
+        if RUBY_PLATFORM =~ /darwin/ && !ENV['RUBY_PROF_EDITOR_URI']
           "<a href=\"txmt://open?url=file://#{file}&line=#{method.line}\">#{h(name(call_info))}</a>"
+        elsif ENV['RUBY_PROF_EDITOR_URI']
+          "<a href=\"#{ENV['RUBY_PROF_EDITOR_URI']}://open?url=file://#{file}&line=#{method.line}\">#{h(name(call_info))}</a>"
         else
           "<a href=\"file://#{file}##{method.line}\">#{h(name(call_info))}</a>"
         end
@@ -257,4 +259,3 @@ end_help
     end
   end
 end
-

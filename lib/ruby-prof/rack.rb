@@ -25,16 +25,26 @@ module Rack
       if @skip_paths.any? {|skip_path| skip_path =~ request.path}
         @app.call(env)
       else
-        result = nil
-        data = ::RubyProf::Profile.profile do
-          result = @app.call(env)
+        begin
+          measure_mode = ::RubyProf.measure_mode
+          excluded_threads =
+            if @options[:ignore_existing_threads]
+              Thread.list.select{|t| t != Thread.current}
+            else
+              ::RubyProf.exclude_threads
+            end
+
+          result = nil
+          data = ::RubyProf::Profile.profile(measure_mode, excluded_threads) do
+            result = @app.call(env)
+          end
+
+          path = request.path.gsub('/', '-')
+          path.slice!(0)
+
+          print(data, path)
+          result
         end
-
-        path = request.path.gsub('/', '-')
-        path.slice!(0)
-
-        print(data, path)
-        result
       end
     end
 

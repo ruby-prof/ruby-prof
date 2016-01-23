@@ -50,6 +50,8 @@ module Rack
 
         if printer_klass == ::RubyProf::MultiPrinter
           printer.print(@options.merge(:profile => "#{path}-#{base_name}"))
+        elsif printer_klass == ::RubyProf::CallTreePrinter
+          printer.print(@options.merge(:profile => "#{path}-#{base_name}"))
         else
           file_name = ::File.join(@tmpdir, "#{path}-#{base_name}")
           ::File.open(file_name, 'wb') do |file|

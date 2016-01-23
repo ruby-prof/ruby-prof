@@ -18,15 +18,17 @@ module RubyProf
     def print(options)
       @profile = options.delete(:profile) || "profile"
       @directory = options.delete(:path) || File.expand_path(".")
+
       File.open(stack_profile, "w") do |f|
         @stack_printer.print(f, options.merge(:graph => "#{@profile}.graph.html"))
       end
+
       File.open(graph_profile, "w") do |f|
         @graph_printer.print(f, options)
       end
-      File.open(tree_profile, "w") do |f|
-        @tree_printer.print(f, options)
-      end
+
+      @tree_printer.print(options.merge(:path => @directory, :profile => @profile))
+
       File.open(flat_profile, "w") do |f|
         @flat_printer.print(f, options)
       end
@@ -44,7 +46,7 @@ module RubyProf
 
     # the name of the callgrind profile file
     def tree_profile
-      "#{@directory}/#{@profile}.grind.dat"
+      "#{@directory}/#{@profile}.callgrind.out.#{$$}"
     end
 
     # the name of the flat profile file

@@ -23,7 +23,7 @@ class PrintersTest < TestCase
       printer.print(output)
 
       printer = RubyProf::CallTreePrinter.new(@result)
-      printer.print(output)
+      printer.print()
 
       printer = RubyProf::FlatPrinter.new(@result)
       printer.print(output)
@@ -56,7 +56,7 @@ class PrintersTest < TestCase
 
       printer = RubyProf::MultiPrinter.new(@result)
       printer.print(:path => "#{output_dir}", :profile => "multi", :application => "primes")
-      for file in ['graph.dot', 'multi.flat.txt', 'multi.graph.html', 'multi.grind.dat', 'multi.stack.html', 'stack.html']
+      for file in ['graph.dot', 'multi.flat.txt', 'multi.graph.html', "multi.callgrind.out.#{$$}", 'multi.stack.html', 'stack.html']
         existant_file = output_dir + '/' + file
         assert File.size(existant_file) > 0
       end
@@ -115,9 +115,11 @@ class PrintersTest < TestCase
   end
 
   def test_call_tree_string
-    output = ''
     printer = RubyProf::CallTreePrinter.new(@result)
-    printer.print(output)
+    printer.print(:profile => "lolcat", :path => RubyProf.tmpdir)
+    main_output_file_name = File.join(RubyProf.tmpdir, "lolcat.callgrind.out.#{$$}")
+    assert(File.exist?(main_output_file_name))
+    output = File.read(main_output_file_name)
     assert_match(/fn=Object#find_primes/i, output)
     assert_match(/events: wall_time/i, output)
     refute_match(/d\d\d\d\d\d/, output) # old bug looked [in error] like Object::run_primes(d5833116)

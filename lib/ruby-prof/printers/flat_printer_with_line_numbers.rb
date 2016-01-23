@@ -13,6 +13,7 @@ module RubyProf
   #
   class FlatPrinterWithLineNumbers < FlatPrinter
     def print_methods(thread)
+      @editor = editor_uri
       total_time = thread.total_time
 
       methods = thread.methods.sort_by(&sort_method).reverse
@@ -39,7 +40,7 @@ module RubyProf
            @output << "\n"
          else
            @output << "\n      defined at:\n"
-           @output << "          %s:%s\n" % [File.expand_path(method.source_file), method.line]
+           @output << defined_at_format % [File.expand_path(method.source_file), method.line]
          end
 
          callers = []
@@ -54,10 +55,28 @@ module RubyProf
          unless callers.empty?
            @output << "      called from:\n"
            callers.each do |args|
-             @output << "          %s (%s:%s)\n" % args
+             @output << called_from_format % args
            end
          end
          @output << "\n"
+      end
+    end
+
+    private
+
+    def defined_at_format
+      if @editor
+        "          #{@editor}://open?url=file://%s&line=%s\n"
+      else
+        "          %s:%s\n"
+      end
+    end
+
+    def called_from_format
+      if @editor
+        "          %s (#{@editor}://open?url=file://%s&line=%s)\n"
+      else
+        "          %s (%s:%s)\n"
       end
     end
   end

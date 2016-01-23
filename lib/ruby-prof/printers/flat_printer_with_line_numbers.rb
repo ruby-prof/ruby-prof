@@ -39,7 +39,7 @@ module RubyProf
          if method.source_file == 'ruby_runtime'
            @output << "\n"
          else
-           @output << "\n      defined at:\n"
+           @output << "\n    defined at:\n"
            @output << defined_at_format % [File.expand_path(method.source_file), method.line]
          end
 
@@ -53,7 +53,7 @@ module RubyProf
          callers.uniq!
 
          unless callers.empty?
-           @output << "      called from:\n"
+           @output << "    called from:\n"
            callers.each do |args|
              @output << called_from_format % args
            end
@@ -66,17 +66,17 @@ module RubyProf
 
     def defined_at_format
       if @editor
-        "          #{@editor}://open?url=file://%s&line=%s\n"
+        "      #{@editor}://open?url=file://%s&line=%s\n"
       else
-        "          %s:%s\n"
+        "      %s:%s\n"
       end
     end
 
     def called_from_format
       if @editor
-        "          %s (#{@editor}://open?url=file://%s&line=%s)\n"
+        "      %s (#{@editor}://open?url=file://%s&line=%s)\n"
       else
-        "          %s (%s:%s)\n"
+        "      %s (%s:%s)\n"
       end
     end
   end

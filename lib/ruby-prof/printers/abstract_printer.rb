@@ -27,7 +27,8 @@ module RubyProf
     #                  :wait_time, :children_time
     #                  Default value is :total_time
     #    :editor_uri - Specifies editor uri scheme used for opening files
-    #                  e.g. atm or mvim. For OS X default is txmt.
+    #                  e.g. :atm or :mvim. For OS X default is :txmt.
+    #                  Use RUBY_PROF_EDITOR_URI environment variable to overide.
     def setup_options(options = {})
       @options = options
     end

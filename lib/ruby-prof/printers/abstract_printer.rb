@@ -48,7 +48,7 @@ module RubyProf
     def editor_uri
       default_uri = if RUBY_PLATFORM =~ /darwin/ \
                     && !ENV['RUBY_PROF_EDITOR_URI']
-                      'txmt://'
+                      'txmt'
                     else
                       false
                     end

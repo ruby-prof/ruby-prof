@@ -26,16 +26,8 @@ module Rack
         @app.call(env)
       else
         begin
-          measure_mode = ::RubyProf.measure_mode
-          excluded_threads =
-            if @options[:ignore_existing_threads]
-              Thread.list.select{|t| t != Thread.current}
-            else
-              ::RubyProf.exclude_threads
-            end
-
           result = nil
-          data = ::RubyProf::Profile.profile(measure_mode, excluded_threads) do
+          data = ::RubyProf::Profile.profile(profiling_options) do
             result = @app.call(env)
           end
 
@@ -49,6 +41,21 @@ module Rack
     end
 
     private
+
+    def profiling_options
+      options = {}
+      options[:measure_mode] = ::RubyProf.measure_mode
+      options[:exclude_threads] =
+        if @options[:ignore_existing_threads]
+          Thread.list.select{|t| t != Thread.current}
+        else
+          ::RubyProf.exclude_threads
+        end
+      if @options[:request_thread_only]
+        options[:include_threads] = [Thread.current]
+      end
+      options
+    end
 
     def print(data, path)
       @printer_klasses.each do |printer_klass, base_name|

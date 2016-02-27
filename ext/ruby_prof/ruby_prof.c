@@ -188,7 +188,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
        module or cProfile class since they clutter
        the results but aren't important to them results. */
     if (self == mProf || klass == cProfile)
-		return;
+        return;
 
     if (trace_file != NULL)
     {
@@ -201,9 +201,19 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     fiber = rb_fiber_current();
     fiber_id = rb_obj_id(fiber);
 
-    if (st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
+    /* Don't measure anything if the include_threads option has been specified
+       and the current thread is not in the list
+     */
+    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, (st_data_t) thread_id, 0))
     {
-      return;
+        return;
+    }
+
+    /* Don't measure anything if the current thread is in the excluded thread table
+     */
+    if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
+    {
+        return;
     }
 
     /* Was there a context switch? */
@@ -301,7 +311,7 @@ collect_threads(st_data_t key, st_data_t value, st_data_t result)
 {
     thread_data_t* thread_data = (thread_data_t*) value;
     VALUE threads_array = (VALUE) result;
-	rb_ary_push(threads_array, prof_thread_wrap(thread_data));
+    rb_ary_push(threads_array, prof_thread_wrap(thread_data));
     return ST_CONTINUE;
 }
 
@@ -317,7 +327,7 @@ mark_threads(st_data_t key, st_data_t value, st_data_t result)
 static void
 prof_mark(prof_profile_t *profile)
 {
-	st_foreach(profile->threads_tbl, mark_threads, 0);
+    st_foreach(profile->threads_tbl, mark_threads, 0);
 }
 
 /* Freeing the profile creates a cascade of freeing.
@@ -326,16 +336,23 @@ prof_mark(prof_profile_t *profile)
 static void
 prof_free(prof_profile_t *profile)
 {
-	profile->last_thread_data = NULL;
+    profile->last_thread_data = NULL;
 
-	threads_table_free(profile->threads_tbl);
+    threads_table_free(profile->threads_tbl);
     profile->threads_tbl = NULL;
 
-    st_free_table(profile->exclude_threads_tbl);
-    profile->exclude_threads_tbl = NULL;
+    if (profile->exclude_threads_tbl) {
+        st_free_table(profile->exclude_threads_tbl);
+        profile->exclude_threads_tbl = NULL;
+    }
 
-	xfree(profile->measurer);
-	profile->measurer = NULL;
+    if (profile->include_threads_tbl) {
+        st_free_table(profile->include_threads_tbl);
+        profile->include_threads_tbl = NULL;
+    }
+
+    xfree(profile->measurer);
+    profile->measurer = NULL;
 
     xfree(profile);
 }
@@ -347,7 +364,8 @@ prof_allocate(VALUE klass)
     prof_profile_t* profile;
     result = Data_Make_Struct(klass, prof_profile_t, prof_mark, prof_free, profile);
     profile->threads_tbl = threads_table_create();
-	profile->exclude_threads_tbl = threads_table_create();
+    profile->exclude_threads_tbl = NULL;
+    profile->include_threads_tbl = NULL;
     profile->running = Qfalse;
     return result;
 }
@@ -356,49 +374,82 @@ prof_allocate(VALUE klass)
    RubyProf::Profile.new(mode, exclude_threads) -> instance
 
    Returns a new profiler.
-   
+
    == Parameters
    mode::  Measure mode (optional). Specifies the profile measure mode.  If not specified, defaults
            to RubyProf::WALL_TIME.
-   exclude_threads:: Threads to exclude from the profiling results (optional). */
+   exclude_threads:: Threads to exclude from the profiling results (optional).
+*/
+
+/* call-seq:
+   RubyProf::Profile.new(options) -> instance
+
+   Returns a new profiler.
+
+   == Parameters
+   options:: An options hash (optional). Possible options are:
+
+   measure_mode::     Measure mode (optional). Specifies the profile measure mode.
+                      If not specified, defaults to RubyProf::WALL_TIME.
+   exclude_threads:: Threads to exclude from the profiling results.
+   include_threads:: Focus profiling on only the given threads. This will ignore
+                     all other threads
+*/
 static VALUE
 prof_initialize(int argc,  VALUE *argv, VALUE self)
 {
     prof_profile_t* profile = prof_get_profile(self);
-    VALUE mode;
-    prof_measure_mode_t measurer = MEASURE_WALL_TIME;
-    VALUE exclude_threads;
+    VALUE mode_or_options;
+    VALUE mode = Qnil;
+    VALUE exclude_threads = Qnil;
+    VALUE include_threads = Qnil;
     int i;
-    
-    switch (rb_scan_args(argc, argv, "02", &mode, &exclude_threads))
-    {
-      case 0:
-      {
-        measurer = MEASURE_WALL_TIME;
-        exclude_threads = rb_ary_new();
+
+    switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads)) {
+    case 0:
         break;
-      }
-      case 1:
-      {
-        measurer = (prof_measure_mode_t)NUM2INT(mode);
-        exclude_threads = rb_ary_new();
+    case 1:
+        if (FIXNUM_P(mode_or_options)) {
+            mode = mode_or_options;
+        }
+        else {
+            Check_Type(mode_or_options, T_HASH);
+            mode = rb_hash_aref(mode_or_options, rb_intern("measure_mode"));
+            if (mode != Qnil) {
+                Check_Type(mode, T_FIXNUM);
+            }
+            exclude_threads = rb_hash_aref(mode_or_options, rb_intern("exclude_threads"));
+            include_threads = rb_hash_aref(mode_or_options, rb_intern("include_threads"));
+        }
         break;
-      }
-      case 2:
-      {
+    case 2:
         Check_Type(exclude_threads, T_ARRAY);
-        measurer = (prof_measure_mode_t)NUM2INT(mode);
         break;
-      }
     }
 
-    profile->measurer = prof_get_measurer(measurer);
+    if (mode == Qnil) {
+        mode = INT2NUM(MEASURE_WALL_TIME);
+    }
+    profile->measurer = prof_get_measurer(NUM2INT(mode));
 
-    for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
-    {
-        VALUE thread = rb_ary_entry(exclude_threads, i);
-        VALUE thread_id = rb_obj_id(thread);
-        st_insert(profile->exclude_threads_tbl, thread_id, Qtrue);
+    if (exclude_threads != Qnil) {
+        assert(profile->exclude_threads_tbl == NULL);
+        profile->exclude_threads_tbl = threads_table_create();
+        for (i = 0; i < RARRAY_LEN(exclude_threads); i++) {
+            VALUE thread = rb_ary_entry(exclude_threads, i);
+            VALUE thread_id = rb_obj_id(thread);
+            st_insert(profile->exclude_threads_tbl, thread_id, Qtrue);
+        }
+    }
+
+    if (include_threads != Qnil) {
+        assert(profile->include_threads_tbl == NULL);
+        profile->include_threads_tbl = threads_table_create();
+        for (i = 0; i < RARRAY_LEN(include_threads); i++) {
+            VALUE thread = rb_ary_entry(include_threads, i);
+            VALUE thread_id = rb_obj_id(thread);
+            st_insert(profile->include_threads_tbl, thread_id, Qtrue);
+        }
     }
 
     return self;
@@ -586,7 +637,7 @@ while the the program was being run. */
 static VALUE
 prof_threads(VALUE self)
 {
-	VALUE result = rb_ary_new();
+    VALUE result = rb_ary_new();
     prof_profile_t* profile = prof_get_profile(self);
     st_foreach(profile->threads_tbl, collect_threads, result);
     return result;

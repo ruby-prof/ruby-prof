@@ -1,3 +1,8 @@
+0.16.0 (2016-xx-xx))
+======================
+* fixed setting threshold bug when displaying stack profiles (thx to Michal Konarski)
+* code related to printing profiles is now autoloaded for efficiency (thx to Dave Gynn)
+
 0.15.9 (2015-12-08)
 ======================
 * rack profiler now supports lambdas for generating profile paths (thx to Jean Rougé)

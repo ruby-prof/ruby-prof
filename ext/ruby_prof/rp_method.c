@@ -19,25 +19,29 @@ VALUE cMethodInfo;
 static VALUE
 figure_singleton_name(VALUE klass)
 {
-    VALUE result = Qnil;
+    volatile VALUE attached, super;
+    volatile VALUE attached_str, super_str;
+    volatile VALUE result = Qnil;
 
     /* We have come across a singleton object. First
        figure out what it is attached to.*/
-    VALUE attached = rb_iv_get(klass, "__attached__");
+    attached = rb_iv_get(klass, "__attached__");
 
     /* Is this a singleton class acting as a metaclass? */
     if (BUILTIN_TYPE(attached) == T_CLASS)
     {
+        attached_str = rb_class_name(attached);
         result = rb_str_new2("<Class::");
-        rb_str_append(result, rb_class_name(attached));
+        rb_str_append(result, attached_str);
         rb_str_cat2(result, ">");
     }
 
     /* Is this for singleton methods on a module? */
     else if (BUILTIN_TYPE(attached) == T_MODULE)
     {
+        attached_str = rb_class_name(attached);
         result = rb_str_new2("<Module::");
-        rb_str_append(result, rb_class_name(attached));
+        rb_str_append(result, attached_str);
         rb_str_cat2(result, ">");
     }
 
@@ -47,9 +51,10 @@ figure_singleton_name(VALUE klass)
         /* Make sure to get the super class so that we don't
            mistakenly grab a T_ICLASS which would lead to
            unknown method errors. */
-        VALUE super = rb_class_superclass(klass);
+        super = rb_class_superclass(klass);
+        super_str = rb_class_name(super);
         result = rb_str_new2("<Object::");
-        rb_str_append(result, rb_class_name(super));
+        rb_str_append(result, super_str);
         rb_str_cat2(result, ">");
     }
 
@@ -67,7 +72,7 @@ figure_singleton_name(VALUE klass)
 static VALUE
 klass_name(VALUE klass)
 {
-    VALUE result = Qnil;
+    volatile VALUE result = Qnil;
 
     if (klass == 0 || klass == Qnil)
     {
@@ -97,50 +102,79 @@ klass_name(VALUE klass)
 static VALUE
 method_name(ID mid)
 {
+    volatile VALUE name = Qnil;
+
 #ifdef ID_ALLOCATOR
-    if (mid == ID_ALLOCATOR)
+    if (mid == ID_ALLOCATOR) {
         return rb_str_new2("allocate");
+    }
 #endif
 
-    if (RTEST(mid))
-        return rb_str_dup(rb_id2str(mid));
-    else
+    if (RTEST(mid)) {
+        name = rb_id2str(mid);
+        return rb_str_dup(name);
+    } else {
         return rb_str_new2("[no method]");
+    }
 }
 
 static VALUE
 full_name(VALUE klass, ID mid)
 {
-    VALUE result = rb_str_dup(klass_name(klass));
+    volatile VALUE klass_str, method_str;
+    volatile VALUE result = Qnil;
+
+    klass_str = klass_name(klass);
+    method_str = method_name(mid);
+
+    result = rb_str_dup(klass_str);
     rb_str_cat2(result, "#");
-    rb_str_append(result, method_name(mid));
+    rb_str_append(result, method_str);
+
     return result;
 }
 
 static VALUE
 resolved_klass_name(VALUE resolved_klass)
 {
-    return RTEST(resolved_klass) ?
-          rb_str_dup(rb_class_name(resolved_klass)) :
-          rb_str_new2("[global]");
+    volatile VALUE klass_str;
+    volatile VALUE result = Qnil;
+
+    if (RTEST(resolved_klass)) {
+      klass_str = rb_class_name(resolved_klass);
+      result = rb_str_dup(klass_str);
+    } else {
+      result = rb_str_new2("[global]");
+    }
+
+    return result;
 }
 
 static VALUE
 calltree_name(VALUE resolved_klass, int flags, ID mid)
 {
-    VALUE klass_str = resolved_klass_name(resolved_klass);
-    VALUE klass_path = rb_str_split(klass_str, "::");
-    VALUE result = rb_ary_join(klass_path, rb_str_new2("/"));
+    volatile VALUE klass_str, klass_path, joiner;
+    volatile VALUE method_str;
+    volatile VALUE result = Qnil;
+
+    klass_str = resolved_klass_name(resolved_klass);
+    method_str = method_name(mid);
+
+    klass_path = rb_str_split(klass_str, "::");
+    joiner = rb_str_new2("/");
+    result = rb_ary_join(klass_path, joiner);
 
     rb_str_cat2(result, "::");
 
-    if (RP_OBJECT_SINGLETON(flags))
+    if (RP_OBJECT_SINGLETON(flags)) {
         rb_str_cat2(result, "*");
+    }
 
-    if (RP_MODULE_SINGLETON(flags))
+    if (RP_MODULE_SINGLETON(flags)) {
         rb_str_cat2(result, "^");
+    }
 
-    rb_str_append(result, method_name(mid));
+    rb_str_append(result, method_str);
 
     return result;
 }
@@ -151,8 +185,9 @@ method_key(prof_method_key_t* key, VALUE klass, ID mid)
     /* Is this an include for a module?  If so get the actual
         module class since we want to combine all profiling
         results for that module. */
-    if (klass != 0)
+    if (klass != 0) {
         klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
+    }
 
     key->klass = klass;
     key->mid = mid;
@@ -179,14 +214,12 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
 
       MEMCPY(buffer, source_file, char, len);
       result->source_file = buffer;
-    }
-    else
-    {
+    } else {
       result->source_file = source_file;
     }
-    result->line = line;
 
-    result->resolved_klass = 0;
+    result->line = line;
+    result->resolved_klass = Qnil;
     result->flags = 0;
 
     return result;
@@ -208,7 +241,7 @@ prof_method_ruby_gc_free(prof_method_t* method)
 		RDATA(method->object)->data = NULL;
 		RDATA(method->object)->dfree = NULL;
 		RDATA(method->object)->dmark = NULL;
-    }
+	}
 	method->object = Qnil;
 }
 
@@ -220,7 +253,9 @@ prof_method_free(prof_method_t* method)
 	xfree(method->call_infos);
 
 	xfree(method->key);
+
 	method->key = NULL;
+	method->resolved_klass = Qnil;
 
 	xfree(method);
 }
@@ -228,14 +263,17 @@ prof_method_free(prof_method_t* method)
 void
 prof_method_mark(prof_method_t *method)
 {
-    if (method->key->klass)
-        rb_gc_mark(method->key->klass);
+	if (method->key->klass) {
+		rb_gc_mark(method->key->klass);
+	}
 
-    if (method->resolved_klass)
-        rb_gc_mark(method->resolved_klass);
+	if (method->resolved_klass) {
+		rb_gc_mark(method->resolved_klass);
+	}
 
-	if (method->object)
+	if (method->object) {
 		rb_gc_mark(method->object);
+	}
 
 	prof_call_infos_mark(method->call_infos);
 }
@@ -243,7 +281,8 @@ prof_method_mark(prof_method_t *method)
 static VALUE
 resolve_klass(prof_method_t* method)
 {
-    VALUE klass, attached;
+    volatile VALUE klass, next_klass;
+    volatile VALUE attached;
     int flags;
 
     /* We want to group methods according to their source-level
@@ -252,8 +291,9 @@ resolve_klass(prof_method_t* method)
         while keeping track of these relationships. */
 
     /* Is this method's klass aleady resolved? */
-    if (RP_RESOLVED(method->flags))
+    if (RP_RESOLVED(method->flags)) {
         return method->resolved_klass;
+    }
 
     klass = method->key->klass;
     flags = 0;
@@ -283,13 +323,15 @@ resolve_klass(prof_method_t* method)
           else if (BUILTIN_TYPE(attached) == T_OBJECT)
           {
             flags |= RP_FL_OBJECT_SINGLETON;
-            klass = rb_class_superclass(klass);
+            next_klass = rb_class_superclass(klass);
+            klass = next_klass;
           }
           /* This is a singleton of an instance of a builtin type. */
           else
           {
             flags |= RP_FL_OBJECT_SINGLETON;
-            klass = rb_class_superclass(klass);
+            next_klass = rb_class_superclass(klass);
+            klass = next_klass;
           }
         }
         /* Is this an include for a module?  If so get the actual
@@ -298,7 +340,8 @@ resolve_klass(prof_method_t* method)
         else if (BUILTIN_TYPE(klass) == T_ICLASS)
         {
           flags |= RP_FL_MODULE_INCLUDEE;
-          klass = RBASIC(klass)->klass;
+          next_klass = RBASIC(klass)->klass;
+          klass = next_klass;
         }
         /* No transformations apply; so bail. */
         else
@@ -319,8 +362,7 @@ resolve_klass(prof_method_t* method)
 VALUE
 prof_method_wrap(prof_method_t *result)
 {
-  if (result->object == Qnil)
-  {
+  if (result->object == Qnil) {
     result->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_ruby_gc_free, result);
   }
   return result->object;
@@ -333,8 +375,9 @@ get_prof_method(VALUE self)
        ending up in endless recursion. */
 	prof_method_t* result = DATA_PTR(self);
 
-	if (!result)
+	if (!result) {
 	    rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
+	}
 
    return result;
 }
@@ -388,12 +431,9 @@ prof_method_t *
 method_table_lookup(st_table *table, const prof_method_key_t* key)
 {
     st_data_t val;
-    if (st_lookup(table, (st_data_t)key, &val))
-    {
+    if (st_lookup(table, (st_data_t)key, &val)) {
       return (prof_method_t *) val;
-    }
-    else
-    {
+    } else {
       return NULL;
     }
 }
@@ -415,7 +455,8 @@ the RubyProf::Profile object.
 static VALUE
 prof_method_line(VALUE self)
 {
-    return rb_int_new(get_prof_method(self)->line);
+    int line = get_prof_method(self)->line;
+    return rb_int_new(line);
 }
 
 /* call-seq:
@@ -426,12 +467,9 @@ return the source file of the method
 static VALUE prof_method_source_file(VALUE self)
 {
     const char* sf = get_prof_method(self)->source_file;
-    if(!sf)
-    {
+    if(!sf) {
       return rb_str_new2("ruby_runtime");
-    }
-    else
-    {
+    } else {
       return rb_str_new2(sf);
     }
 }
@@ -506,8 +544,7 @@ static VALUE
 prof_method_call_infos(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-	if (method->call_infos->object == Qnil)
-	{
+	if (method->call_infos->object == Qnil) {
 		method->call_infos->object = prof_call_infos_wrap(method->call_infos);
 	}
 	return method->call_infos->object;
@@ -533,7 +570,7 @@ static VALUE
 prof_calltree_name(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-    VALUE resolved_klass = resolve_klass(method);
+    volatile VALUE resolved_klass = resolve_klass(method);
     return calltree_name(resolved_klass, method->flags, method->key->mid);
 }
 

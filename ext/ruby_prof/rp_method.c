@@ -228,6 +228,9 @@ prof_method_free(prof_method_t* method)
 void
 prof_method_mark(prof_method_t *method)
 {
+    if (method->key->klass)
+        rb_gc_mark(method->key->klass);
+
     if (method->resolved_klass)
         rb_gc_mark(method->resolved_klass);
 

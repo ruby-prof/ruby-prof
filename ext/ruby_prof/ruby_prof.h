@@ -46,6 +46,8 @@ typedef struct
     VALUE threads;
     st_table* threads_tbl;
     st_table* exclude_threads_tbl;
+    long whitelist_thread_id;
+    long whitelist_fiber_id;
     thread_data_t* last_thread_data;
     double measurement_at_pause_resume;
 } prof_profile_t;

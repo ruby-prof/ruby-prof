@@ -206,6 +206,14 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
       return;
     }
 
+    if (profile->whitelist_thread_id != 0 && NUM2LONG(thread_id) != profile->whitelist_thread_id) {
+      return;
+    }
+
+    if (profile->whitelist_fiber_id != 0 && NUM2LONG(fiber_id) != profile->whitelist_fiber_id) {
+      return;
+    }
+
     /* Was there a context switch? */
     if (!profile->last_thread_data || profile->last_thread_data->fiber_id != fiber_id)
       thread_data = switch_thread(profile, thread_id, fiber_id);
@@ -348,6 +356,8 @@ prof_allocate(VALUE klass)
     result = Data_Make_Struct(klass, prof_profile_t, prof_mark, prof_free, profile);
     profile->threads_tbl = threads_table_create();
 	profile->exclude_threads_tbl = threads_table_create();
+    profile->whitelist_thread_id = 0;
+    profile->whitelist_fiber_id = 0;
     profile->running = Qfalse;
     return result;
 }
@@ -368,9 +378,11 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE mode;
     prof_measure_mode_t measurer = MEASURE_WALL_TIME;
     VALUE exclude_threads;
+    VALUE whitelist_thread;
+    VALUE whitelist_fiber;
     int i;
     
-    switch (rb_scan_args(argc, argv, "02", &mode, &exclude_threads))
+    switch (rb_scan_args(argc, argv, "04", &mode, &exclude_threads, &whitelist_thread, &whitelist_fiber))
     {
       case 0:
       {
@@ -388,6 +400,21 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
       {
         Check_Type(exclude_threads, T_ARRAY);
         measurer = (prof_measure_mode_t)NUM2INT(mode);
+        break;
+      }
+      case 3:
+      {
+        Check_Type(exclude_threads, T_ARRAY);
+        measurer = (prof_measure_mode_t)NUM2INT(mode);
+        profile->whitelist_thread_id = NUM2LONG(rb_obj_id(whitelist_thread));
+        break;
+      }
+      case 4:
+      {
+        Check_Type(exclude_threads, T_ARRAY);
+        measurer = (prof_measure_mode_t)NUM2INT(mode);
+        profile->whitelist_thread_id = NUM2LONG(rb_obj_id(whitelist_thread));
+        profile->whitelist_fiber_id = NUM2LONG(rb_obj_id(whitelist_fiber));
         break;
       }
     }

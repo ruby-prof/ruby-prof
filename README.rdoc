@@ -109,7 +109,7 @@ In addition, resume can also take a block:
 With this usage, resume will automatically call pause at the
 end of the block.
 
-== Profiling Selected Threads
+=== Profiling Selected Threads (Core API)
 
 The convenience API does not support running multiple profiles in
 separate threads concurrently, but the RubyProf::Profile API does. In

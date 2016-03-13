@@ -106,7 +106,7 @@ module RubyProf
 
   def self.start
     ensure_not_running!
-    @profile = Profile.new(measure_mode: measure_mode, exlude_threads: exclude_threads)
+    @profile = Profile.new(measure_mode: measure_mode, exclude_threads: exclude_threads)
     enable_gc_stats_if_needed
     @profile.start
   end

@@ -414,12 +414,9 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         }
         else {
             Check_Type(mode_or_options, T_HASH);
-            mode = rb_hash_aref(mode_or_options, rb_intern("measure_mode"));
-            if (mode != Qnil) {
-                Check_Type(mode, T_FIXNUM);
-            }
-            exclude_threads = rb_hash_aref(mode_or_options, rb_intern("exclude_threads"));
-            include_threads = rb_hash_aref(mode_or_options, rb_intern("include_threads"));
+            mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
+            exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
+            include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
         }
         break;
     case 2:
@@ -429,10 +426,13 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
 
     if (mode == Qnil) {
         mode = INT2NUM(MEASURE_WALL_TIME);
+    } else {
+        Check_Type(mode, T_FIXNUM);
     }
     profile->measurer = prof_get_measurer(NUM2INT(mode));
 
     if (exclude_threads != Qnil) {
+        Check_Type(exclude_threads, T_ARRAY);
         assert(profile->exclude_threads_tbl == NULL);
         profile->exclude_threads_tbl = threads_table_create();
         for (i = 0; i < RARRAY_LEN(exclude_threads); i++) {
@@ -443,6 +443,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     }
 
     if (include_threads != Qnil) {
+        Check_Type(include_threads, T_ARRAY);
         assert(profile->include_threads_tbl == NULL);
         profile->include_threads_tbl = threads_table_create();
         for (i = 0; i < RARRAY_LEN(include_threads); i++) {

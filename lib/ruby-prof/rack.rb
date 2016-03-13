@@ -54,6 +54,9 @@ module Rack
       if @options[:request_thread_only]
         options[:include_threads] = [Thread.current]
       end
+      if @options[:merge_fibers]
+        options[:merge_fibers] = true
+      end
       options
     end
 

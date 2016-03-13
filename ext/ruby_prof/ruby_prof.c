@@ -410,7 +410,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         else {
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
-            merge_fibers = rb_hash_aref(mode_or_options, rb_intern("merge_fibers"));
+            merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
             include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
         }

@@ -12,41 +12,41 @@ thread_data_create()
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = prof_stack_create();
     result->method_table = method_table_create();
-	result->object = Qnil;
-	result->methods = Qnil;
+    result->object = Qnil;
+    result->methods = Qnil;
     return result;
 }
 
-/* The underlying c structures are freed when the parent profile is freed.  
+/* The underlying c structures are freed when the parent profile is freed.
    However, on shutdown the Ruby GC frees objects in any will-nilly order.
    That means the ruby thread object wrapping the c thread struct may
    be freed before the parent profile.  Thus we add in a free function
-   for the garbage collector so that if it does get called will nil 
+   for the garbage collector so that if it does get called will nil
    out our Ruby object reference.*/
 static void
 thread_data_ruby_gc_free(thread_data_t* thread_data)
 {
-	/* Has this thread object been accessed by Ruby?  If
-	  yes clean it up so to avoid a segmentation fault. */
-	if (thread_data->object != Qnil)
-	{
-		RDATA(thread_data->object)->data = NULL;
-		RDATA(thread_data->object)->dfree = NULL;
-		RDATA(thread_data->object)->dmark = NULL;
+    /* Has this thread object been accessed by Ruby?  If
+       yes clean it up so to avoid a segmentation fault. */
+    if (thread_data->object != Qnil)
+    {
+        RDATA(thread_data->object)->data = NULL;
+        RDATA(thread_data->object)->dfree = NULL;
+        RDATA(thread_data->object)->dmark = NULL;
     }
-	thread_data->object = Qnil;
+    thread_data->object = Qnil;
 }
 
 static void
 thread_data_free(thread_data_t* thread_data)
 {
-	thread_data_ruby_gc_free(thread_data);
+    thread_data_ruby_gc_free(thread_data);
     method_table_free(thread_data->method_table);
     prof_stack_free(thread_data->stack);
 
     thread_data->thread_id = Qnil;
 
-	xfree(thread_data);
+    xfree(thread_data);
 }
 
 static int
@@ -60,29 +60,28 @@ mark_methods(st_data_t key, st_data_t value, st_data_t result)
 void
 prof_thread_mark(thread_data_t *thread)
 {
-	if (thread->object != Qnil)
-		rb_gc_mark(thread->object);
-	
-	if (thread->methods != Qnil)
-		rb_gc_mark(thread->methods);
+    if (thread->object != Qnil)
+        rb_gc_mark(thread->object);
 
-	if (thread->thread_id != Qnil)
-		rb_gc_mark(thread->thread_id);
+    if (thread->methods != Qnil)
+        rb_gc_mark(thread->methods);
 
-	if (thread->fiber_id != Qnil)
-		rb_gc_mark(thread->fiber_id);
+    if (thread->thread_id != Qnil)
+        rb_gc_mark(thread->thread_id);
 
-	st_foreach(thread->method_table, mark_methods, 0);
+    if (thread->fiber_id != Qnil)
+        rb_gc_mark(thread->fiber_id);
+
+    st_foreach(thread->method_table, mark_methods, 0);
 }
 
 VALUE
 prof_thread_wrap(thread_data_t *thread)
 {
-  if (thread->object == Qnil)
-  {
-    thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, thread_data_ruby_gc_free, thread);
-  }
-  return thread->object;
+    if (thread->object == Qnil) {
+        thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, thread_data_ruby_gc_free, thread);
+    }
+    return thread->object;
 }
 
 static thread_data_t*
@@ -90,11 +89,11 @@ prof_get_thread(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-	thread_data_t* result = DATA_PTR(self);
-	if (!result)
-	    rb_raise(rb_eRuntimeError, "This RubyProf::Thread instance has already been freed, likely because its profile has been freed.");
+    thread_data_t* result = DATA_PTR(self);
+    if (!result)
+        rb_raise(rb_eRuntimeError, "This RubyProf::Thread instance has already been freed, likely because its profile has been freed.");
 
-   return result;
+    return result;
 }
 
 /* ======   Thread Table  ====== */
@@ -134,8 +133,12 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
     thread_data_t* result;
     st_data_t val;
 
-    /* Its too slow to key on the real thread id so just typecast thread instead. */
-    if (st_lookup(profile->threads_tbl, (st_data_t) fiber_id, &val))
+    /* If we should merge fibers, we use the thread_id as key, otherwise the fiber id.
+       None of this is perfect, as garbage collected fiber/thread might be reused again later.
+       A real solution would require integration with the garbage collector.
+     */
+    VALUE key = profile->merge_fibers ? thread_id : fiber_id;
+    if (st_lookup(profile->threads_tbl, (st_data_t) key, &val))
     {
       result = (thread_data_t *) val;
     }
@@ -143,10 +146,12 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
     {
         result = thread_data_create();
         result->thread_id = thread_id;
-        result->fiber_id = fiber_id;
-
+        /* We set fiber id to 0 in the merge fiber case. Real fibers never have id 0,
+           so we can identify them later during printing.
+        */
+        result->fiber_id = profile->merge_fibers ? 0 : fiber_id;
         /* Insert the table */
-        threads_table_insert(profile, fiber_id, result);
+        threads_table_insert(profile, key, result);
     }
     return result;
 }
@@ -183,24 +188,24 @@ switch_thread(void* prof, VALUE thread_id, VALUE fiber_id)
     return thread_data;
 }
 
-int pause_thread(st_data_t key, st_data_t value, st_data_t data) 
+int pause_thread(st_data_t key, st_data_t value, st_data_t data)
 {
     thread_data_t* thread_data = (thread_data_t *) value;
-	prof_profile_t* profile = (prof_profile_t*)data;
+    prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-	prof_frame_pause(frame, profile->measurement_at_pause_resume);
+    prof_frame_pause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
 }
 
-int unpause_thread(st_data_t key, st_data_t value, st_data_t data) 
+int unpause_thread(st_data_t key, st_data_t value, st_data_t data)
 {
     thread_data_t* thread_data = (thread_data_t *) value;
-	prof_profile_t* profile = (prof_profile_t*)data;
+    prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-	prof_frame_unpause(frame, profile->measurement_at_pause_resume);
+    prof_frame_unpause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
 }
@@ -226,7 +231,7 @@ static VALUE
 prof_thread_id(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
-	return thread->thread_id;
+    return thread->thread_id;
 }
 
 /* call-seq:
@@ -237,7 +242,7 @@ static VALUE
 prof_fiber_id(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
-	return thread->fiber_id;
+    return thread->fiber_id;
 }
 
 /* call-seq:
@@ -249,12 +254,12 @@ static VALUE
 prof_thread_methods(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
-	if (thread->methods == Qnil)
-	{
-		thread->methods = rb_ary_new();
-	    st_foreach(thread->method_table, collect_methods, thread->methods);
-	}
-	return thread->methods;
+    if (thread->methods == Qnil)
+    {
+        thread->methods = rb_ary_new();
+        st_foreach(thread->method_table, collect_methods, thread->methods);
+    }
+    return thread->methods;
 }
 
 void rp_init_thread()

@@ -1,3 +1,24 @@
+0.16.0 (2016-03-xx)
+=====================
+* Profile.new now accepts and prefers an options hash:
+  - measure_mode: one of the RubyProf measure mode constants
+  - exlude_threads: an array of threads to ignore when collecting profile data
+  - include_threads: an array of threads to include when collecting profile data
+  - merge_fibers: whether or not to merge the profile data for all fibers under their creating thread
+* overhauled printer for cachegrind profiles:
+  - profile data for each thread dumped to a separate file, as kcachegrind does not
+    fully implement the cachegrind specification
+  - this required a change in interface: it's now necessary to specify a directory
+    where to dump the cachegrind files
+  - naming convention for cachegrind files changed so that kcachegrind shows them
+    all in the open dialog
+* improved Rack middleware:
+  - it's now possible to use the MultiPrinter
+  - new option ignore_existing_threads: will ignore all prexisiting threads
+    when profiling a request, except the thread perfoming the request.
+  - new option request_thread_only: will ignore all preexisting threads, but also
+    all threads spwaned during the execution of the rack request.
+
 0.15.9 (2015-12-08)
 ======================
 * rack profiler now supports lambdas for generating profile paths (thx to Jean Rougé)

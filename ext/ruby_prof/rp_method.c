@@ -286,7 +286,7 @@ One instance of the RubyProf::MethodInfo class is created per method
 called per thread.  Thus, if a method is called in two different
 thread then there will be two RubyProf::MethodInfo objects
 created.  RubyProf::MethodInfo objects can be accessed via
-the RubyProf::Result object.
+the RubyProf::Profile object.
 */
 
 /* call-seq:

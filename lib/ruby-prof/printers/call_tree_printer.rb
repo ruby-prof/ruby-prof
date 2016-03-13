@@ -5,8 +5,12 @@ require 'thread'
 require 'fileutils'
 
 module RubyProf
-  # Generate profiling information in callgrind format
-  # for use by kcachegrind and similar tools.
+  # Generate profiling information in callgrind format for use by
+  # kcachegrind and similar tools.
+  #
+  # Note: when profiling for a callgrind printer, one should use the
+  # merge_fibers: true option when creating the profile. Otherwise
+  # each fiber would appear as a separate profile.
 
   class CallTreePrinter < AbstractPrinter
 
@@ -47,8 +51,8 @@ module RubyProf
 
     def print_threads
       remove_subsidiary_files_from_previous_profile_runs
-      # TODO: merge fibers of a given thread
-      # kcachegrind doesn't know about fibers
+      # TODO: merge fibers of a given thread here, instead of relying
+      # on the profiler to merge fibers.
       @result.threads.each do |thread|
         print_thread(thread)
       end

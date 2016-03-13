@@ -21,7 +21,7 @@ ruby-prof requires Ruby 1.9.3 or higher. Please note some ruby
 releases have known bugs which cause ruby-prof problems, like
 incorrect measurements. We suggest to use the latest minor patch level
 release if possible. In particular, on the 2.1 branch of ruby you
-should use 2.1.7.
+should use at least 2.1.7.
 
 If you are running Linux or Unix you'll need a C compiler so the
 extension can be compiled when it is installed.
@@ -41,20 +41,20 @@ can compile.
 
 == Usage
 
-There are two ways of running ruby-prof, via the command line or via
-its API.
+There are three major options for running ruby-prof: via the command
+line, via its convenience API or via its core API.
 
-=== ruby-prof executable
+=== ruby-prof Executable
 
 The first is to use ruby-prof to run the Ruby program you want to
-profile. For more information refer to the documentation of the
+profile.  For more information refer to the documentation of the
 ruby-prof command.
 
 
-=== ruby-prof API
+=== ruby-prof Convenience API
 
-The second way is to use the ruby-prof API to profile particular
-segments of code.
+The second way is to use the ruby-prof convenience API to profile
+particular segments of code.
 
     require 'ruby-prof'
 
@@ -93,7 +93,7 @@ ruby-prof also supports pausing and resuming profiling runs.
 
     RubyProf.resume
     # ... code to profile ...
-    result = RubyProf.stop
+    result = Rubyprof.stop
 
 Note that resume will automatically call start if a profiling run
 has not yet started.  In addition, resume can also take a block:
@@ -104,13 +104,56 @@ has not yet started.  In addition, resume can also take a block:
       # ... code to profile...
     end
 
-    data = RubyProf.stop
+    result = RubyProf.stop
 
 With this usage, resume will automatically call pause at the
 end of the block.
 
+== Profiling Selected Threads
 
-== Method and Thread Elimination
+The convenience API does not support running multiple profiles in
+separate threads concurrently, but the RubyProf::Profile API does. In
+fact, the convenience layer uses the Profile API internally. It all
+revolves around Profile objects:
+
+RubyProf::Profile.new::
+   Create a profile object given an options hash (see below)
+
+   The following options are available when creating Profile instances:
+
+   measure_mode::
+       One of the defined measure modes
+
+   exlude_threads::
+       Array of threads which should not be profiled.
+
+   include_threads::
+       Array of threads which should be profiled. All other threads will
+       be ignored.
+
+   merge_fibers::
+       Whether profiling data for a given thread's fibers should all be
+       subsumed under a single entry. Basically only useful to produce
+       callgrind profiles.
+
+RubyProf::Profile#start::
+   Start profiling
+
+RubyProf::Profile#pause::
+   Pause profiling
+
+RubyProf::Profile#resume::
+   Resume profiling
+
+RubyProf::Profile#stop::
+   Stop profiling and return self
+
+RubyProf::Profile#profile::
+   Perform a profile run and return result. Accepts the same arguments
+   as RubyProf::Profile.new.
+
+
+== Method Elimination
 
 ruby-prof supports eliminating specific methods and threads from
 profiling results. This is useful for reducing connectivity in the
@@ -136,13 +179,6 @@ regular expressions (line separated text).
 After eliminating methods the resulting profile will appear exactly as if those methods
 had been inlined at their call sites.
 
-In a similar manner, threads can be excluded so they are not profiled at all.  To do this,
-pass an array of threads to exclude to ruby-prof:
-
-    RubyProf::exclude_threads = [ thread2 ]
-    RubyProf.start
-
-Note that the excluded threads must be specified *before* profiling.
 
 == Profiling Rails
 
@@ -371,16 +407,15 @@ otherwise quiescent.
 
 == Multi-threaded Applications
 
-Unfortunately, Ruby does not provide an internal API
-for detecting thread context switches in 1.8.  As a result, the
-timings ruby-prof reports for each thread may be slightly
-inaccurate.  In particular, this will happen for newly
-spawned threads that go to sleep immediately (their first call).
-For instance, if you use Ruby's timeout library to wait for 2 seconds,
-the 2 seconds will be assigned to the foreground thread
-and not the newly created background thread.  These errors
-can largely be avoided if the background thread performs any
-operation before going to sleep.
+Unfortunately, Ruby does not provide an internal API for detecting
+thread context switches.  As a result, the timings ruby-prof reports
+for each thread may be slightly inaccurate.  In particular, this will
+happen for newly spawned threads that go to sleep immediately (their
+first call).  For instance, if you use Ruby's timeout library to wait
+for 2 seconds, the 2 seconds will be assigned to the foreground thread
+and not the newly created background thread.  These errors can largely
+be avoided if the background thread performs any operation before
+going to sleep.
 
 == Performance
 

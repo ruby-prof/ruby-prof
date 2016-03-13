@@ -49,6 +49,7 @@ typedef struct
     st_table* include_threads_tbl;
     thread_data_t* last_thread_data;
     double measurement_at_pause_resume;
+    int merge_fibers;
 } prof_profile_t;
 
 

@@ -216,8 +216,12 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         return;
     }
 
-    /* Was there a context switch? */
-    if (!profile->last_thread_data || profile->last_thread_data->fiber_id != fiber_id)
+    /* We need to switch the profiling context if we either had none before,
+       we don't merge fibers and the fiber ids differ, or the thread ids differ.
+     */
+    if (!profile->last_thread_data ||
+        (!profile->merge_fibers && profile->last_thread_data->fiber_id != fiber_id) ||
+        profile->last_thread_data->thread_id != thread_id)
       thread_data = switch_thread(profile, thread_id, fiber_id);
     else
       thread_data = profile->last_thread_data;
@@ -367,33 +371,23 @@ prof_allocate(VALUE klass)
     profile->exclude_threads_tbl = NULL;
     profile->include_threads_tbl = NULL;
     profile->running = Qfalse;
+    profile->merge_fibers = 0;
     return result;
 }
 
 /* call-seq:
-   RubyProf::Profile.new(mode, exclude_threads) -> instance
+   new()
+   new(options)
 
-   Returns a new profiler.
+   Returns a new profiler. Possible options for the options hash are:
 
-   == Parameters
-   mode::  Measure mode (optional). Specifies the profile measure mode.  If not specified, defaults
-           to RubyProf::WALL_TIME.
-   exclude_threads:: Threads to exclude from the profiling results (optional).
-*/
-
-/* call-seq:
-   RubyProf::Profile.new(options) -> instance
-
-   Returns a new profiler.
-
-   == Parameters
-   options:: An options hash (optional). Possible options are:
-
-   measure_mode::     Measure mode (optional). Specifies the profile measure mode.
-                      If not specified, defaults to RubyProf::WALL_TIME.
+   measure_mode::    Measure mode. Specifies the profile measure mode.
+                     If not specified, defaults to RubyProf::WALL_TIME.
    exclude_threads:: Threads to exclude from the profiling results.
    include_threads:: Focus profiling on only the given threads. This will ignore
-                     all other threads
+                     all other threads.
+   merge_fibers::    Whether to merge all fibers under a given thread. This should be
+                     used when profiling for a callgrind printer.
 */
 static VALUE
 prof_initialize(int argc,  VALUE *argv, VALUE self)
@@ -403,6 +397,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE mode = Qnil;
     VALUE exclude_threads = Qnil;
     VALUE include_threads = Qnil;
+    VALUE merge_fibers = Qnil;
     int i;
 
     switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads)) {
@@ -415,6 +410,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         else {
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
+            merge_fibers = rb_hash_aref(mode_or_options, rb_intern("merge_fibers"));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
             include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
         }
@@ -430,6 +426,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         Check_Type(mode, T_FIXNUM);
     }
     profile->measurer = prof_get_measurer(NUM2INT(mode));
+    profile->merge_fibers = merge_fibers != Qnil && merge_fibers != Qfalse;
 
     if (exclude_threads != Qnil) {
         Check_Type(exclude_threads, T_ARRAY);
@@ -479,7 +476,7 @@ prof_running(VALUE self)
 }
 
 /* call-seq:
-   start -> RubyProf
+   start -> self
 
    Starts recording profile data.*/
 static VALUE
@@ -522,7 +519,7 @@ prof_start(VALUE self)
 }
 
 /* call-seq:
-   pause -> RubyProf
+   pause -> self
 
    Pauses collecting profile data. */
 static VALUE
@@ -545,7 +542,8 @@ prof_pause(VALUE self)
 }
 
 /* call-seq:
-   resume {block} -> RubyProf
+   resume -> self
+   resume(&block) -> self
 
    Resumes recording profile data.*/
 static VALUE
@@ -611,9 +609,12 @@ prof_stop(VALUE self)
 }
 
 /* call-seq:
-   profile {block} -> RubyProf::Result
+   profile(&block) -> self
+   profile(options, &block) -> self
 
-Profiles the specified block and returns a RubyProf::Result object. */
+Profiles the specified block and returns a RubyProf::Profile
+object. Arguments are passed to Profile initialize method.
+*/
 static VALUE
 prof_profile(int argc,  VALUE *argv, VALUE klass)
 {
@@ -631,7 +632,7 @@ prof_profile(int argc,  VALUE *argv, VALUE klass)
 }
 
 /* call-seq:
-   threads -> Array of RubyProf::Thread
+   threads -> array of RubyProf::Thread
 
 Returns an array of RubyProf::Thread instances that were executed
 while the the program was being run. */

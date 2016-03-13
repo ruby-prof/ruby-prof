@@ -140,12 +140,13 @@ module RubyProf
   end
 
   # Profile a block
-  def self.profile(&block)
+  def self.profile(options = {}, &block)
     ensure_not_running!
     gc_stat_was_enabled = enable_gc_stats_if_needed
-    res = Profile.profile(measure_mode: measure_mode, exclude_threads: exclude_threads, &block)
+    options = { measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
+    result = Profile.profile(options, &block)
     disable_gc_stats_if_needed(gc_stat_was_enabled)
-    res
+    result
   end
 
 

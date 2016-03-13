@@ -149,7 +149,7 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
         /* We set fiber id to 0 in the merge fiber case. Real fibers never have id 0,
            so we can identify them later during printing.
         */
-        result->fiber_id = profile->merge_fibers ? 0 : fiber_id;
+        result->fiber_id = profile->merge_fibers ? INT2FIX(0) : fiber_id;
         /* Insert the table */
         threads_table_insert(profile, key, result);
     }

@@ -107,19 +107,21 @@ get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t* thread_dat
 static int
 pop_frames(st_data_t key, st_data_t value, st_data_t data)
 {
-    VALUE fiber_id = (VALUE)key;
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
-	double measurement = profile->measurer->measure();
+    VALUE thread_id = thread_data->thread_id;
+    VALUE fiber_id = thread_data->fiber_id;
+    double measurement = profile->measurer->measure();
 
-    if (!profile->last_thread_data || profile->last_thread_data->fiber_id != fiber_id)
-      thread_data = switch_thread(profile, Qnil, fiber_id);
+    if (!profile->last_thread_data
+        || (!profile->merge_fibers && profile->last_thread_data->fiber_id != fiber_id)
+        || profile->last_thread_data->thread_id != thread_id
+        )
+        thread_data = switch_thread(profile, thread_id, fiber_id);
     else
-      thread_data = profile->last_thread_data;
+        thread_data = profile->last_thread_data;
 
-    while (prof_stack_pop(thread_data->stack, measurement))
-    {
-    }
+    while (prof_stack_pop(thread_data->stack, measurement));
 
     return ST_CONTINUE;
 }
@@ -219,12 +221,13 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     /* We need to switch the profiling context if we either had none before,
        we don't merge fibers and the fiber ids differ, or the thread ids differ.
      */
-    if (!profile->last_thread_data ||
-        (!profile->merge_fibers && profile->last_thread_data->fiber_id != fiber_id) ||
-        profile->last_thread_data->thread_id != thread_id)
-      thread_data = switch_thread(profile, thread_id, fiber_id);
+    if (!profile->last_thread_data
+        || (!profile->merge_fibers && profile->last_thread_data->fiber_id != fiber_id)
+        || profile->last_thread_data->thread_id != thread_id
+        )
+        thread_data = switch_thread(profile, thread_id, fiber_id);
     else
-      thread_data = profile->last_thread_data;
+        thread_data = profile->last_thread_data;
 
     /* Get the current frame for the current thread. */
     frame = prof_stack_peek(thread_data->stack);

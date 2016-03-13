@@ -1,6 +1,5 @@
 # encoding: utf-8
 
-require 'set'
 module RubyProf
   class Profile
     # This method gets called once profiling has been completed

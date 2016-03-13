@@ -18,6 +18,8 @@
     when profiling a request, except the thread perfoming the request.
   - new option request_thread_only: will ignore all preexisting threads, but also
     all threads spwaned during the execution of the rack request.
+* fixed setting threshold bug when displaying stack profiles (thx to Michal Konarski)
+* code related to printing profiles is now autoloaded for efficiency (thx to Dave Gynn)
 
 0.15.9 (2015-12-08)
 ======================

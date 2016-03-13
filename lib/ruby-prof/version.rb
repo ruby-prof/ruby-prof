@@ -1,3 +1,3 @@
 module RubyProf
-  VERSION = "0.15.9"
+  VERSION = "0.16.0"
 end

@@ -124,7 +124,7 @@ RubyProf::Profile.new::
    measure_mode::
        One of the defined measure modes
 
-   exlude_threads::
+   exclude_threads::
        Array of threads which should not be profiled.
 
    include_threads::

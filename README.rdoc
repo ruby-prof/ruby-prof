@@ -430,6 +430,14 @@ will run three times slower.
 
 See LICENSE for license information.
 
+== API Documentation
+
+The ruby-prof API documentation for the latest released gem version
+can be found here: http://www.rubydoc.info/gems/ruby-prof/
+
+The ruby-prof API documentation for the master branch is available
+here: http://www.rubydoc.info/github/ruby-prof/ruby-prof/
+
 == Development
 
 Code is located at https://github.com/ruby-prof/ruby-prof

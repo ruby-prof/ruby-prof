@@ -24,7 +24,6 @@ typedef struct
     double child_time;
     double pause_time; // Time pause() was initiated
     double dead_time; // Time to ignore (i.e. total amount of time between pause/resume blocks)
-    int depth;
     unsigned int line;
 } prof_frame_t;
 
@@ -44,7 +43,7 @@ typedef struct
 
 prof_stack_t * prof_stack_create();
 void prof_stack_free(prof_stack_t *stack);
-prof_frame_t * prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement);
+prof_frame_t * prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int begin_paused);
 prof_frame_t * prof_stack_pop(prof_stack_t *stack, double measurement);
 prof_frame_t * prof_stack_peek(prof_stack_t *stack);
 

@@ -43,10 +43,13 @@ prof_stack_free(prof_stack_t *stack)
 }
 
 prof_frame_t *
-prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement)
+prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int begin_paused)
 {
-  prof_frame_t *result = NULL;
+  prof_frame_t *result;
+  prof_frame_t* parent_frame;
   prof_method_t *method;
+
+  parent_frame = prof_stack_peek(stack);
 
   /* Is there space on the stack?  If not, double
      its size. */
@@ -61,17 +64,17 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   }
 
   // Setup returned stack pointer to be valid
-  result = stack->ptr;
-
-  result->child_time = 0;
-  result->switch_time = 0;
-  result->wait_time = 0;
-  result->dead_time = 0;
-  result->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32
-  result->start_time = measurement;
+  result = stack->ptr++;
 
   result->call_info = call_info;
-  result->call_info->depth = result->depth;
+  result->call_info->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
+
+  result->start_time = measurement;
+  result->pause_time = -1; // init as not paused.
+  result->switch_time = 0;
+  result->wait_time = 0;
+  result->child_time = 0;
+  result->dead_time = 0;
 
   method = call_info->target;
 
@@ -84,8 +87,15 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   /* Enter the method. */
   method->visits++;
 
-  // Increment the stack ptr for next time
-  stack->ptr++;
+  // Unpause the parent frame, if it exists.
+  // If currently paused then:
+  //   1) The child frame will begin paused.
+  //   2) The parent will inherit the child's dead time.
+  prof_frame_unpause(parent_frame, measurement);
+
+  if (begin_paused) {
+    prof_frame_pause(result, measurement);
+  }
 
   // Return the result
   return result;
@@ -94,8 +104,8 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
 prof_frame_t *
 prof_stack_pop(prof_stack_t *stack, double measurement)
 {
-  prof_frame_t *frame = NULL;
-  prof_frame_t* parent_frame = NULL;
+  prof_frame_t *frame;
+  prof_frame_t* parent_frame;
   prof_call_info_t *call_info;
   prof_method_t *method;
 

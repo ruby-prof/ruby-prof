@@ -16,20 +16,34 @@ typedef struct
     st_index_t key;                         /* Cache calculated key */
 } prof_method_key_t;
 
+/* Source relation bit offsets. */
+enum {
+    kModuleIncludee = 0,                    /* Included module */
+    kModuleSingleton,                       /* Singleton class of a module */
+    kObjectSingleton                        /* Singleton class of an object */
+};
 
 /* Forward declaration, see rp_call_info.h */
 struct prof_call_infos_t;
 
 /* Profiling information for each method. */
-typedef struct 
+/* Eliminated methods have no call_infos, source_file, or source_module. */
+typedef struct
 {
-    prof_method_key_t *key;                 /* Method key */
-    const char *source_file;                /* The method's source file */
-    int line;                               /* The method's line number. */
-    VALUE resolved_klass;                   /* The method's resolved class */
-    int flags;                              /* The method's resolved class relationship */
-    struct prof_call_infos_t *call_infos;   /* Call info objects for this method */
+    /* Hot */
+
+    prof_method_key_t *key;                 /* Table key */
+    struct prof_call_infos_t *call_infos;   /* Call infos */
+
+    /* Cold */
+
     VALUE object;                           /* Cached ruby object */
+    VALUE source_klass;                     /* Source class */
+    const char *source_file;                /* Source file */
+    int line;                               /* Line number */
+
+    unsigned int resolved : 1;              /* Source resolved? */
+    unsigned int relation : 3;              /* Source relation bits */
 } prof_method_t;
 
 void rp_init_method_info(void);

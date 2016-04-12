@@ -3,15 +3,11 @@
 
 #include "ruby_prof.h"
 
-#define RP_FL_RESOLVED          (1 << 0)
-#define RP_FL_MODULE_INCLUDEE   (1 << 1)
-#define RP_FL_MODULE_SINGLETON  (1 << 2)
-#define RP_FL_OBJECT_SINGLETON  (1 << 3)
-
-#define RP_RESOLVED(fl)         ((fl) & RP_FL_RESOLVED)
-#define RP_MODULE_INCLUDEE(fl)  ((fl) & RP_FL_MODULE_INCLUDEE)
-#define RP_MODULE_SINGLETON(fl) ((fl) & RP_FL_MODULE_SINGLETON)
-#define RP_OBJECT_SINGLETON(fl) ((fl) & RP_FL_OBJECT_SINGLETON)
+#define RP_REL_GET(r, off) ((r) & (1 << (off)))
+#define RP_REL_SET(r, off)                                            \
+do {                                                                  \
+    r |= (1 << (off));                                                \
+} while (0)
 
 VALUE cMethodInfo;
 
@@ -135,13 +131,13 @@ full_name(VALUE klass, ID mid)
 }
 
 static VALUE
-resolved_klass_name(VALUE resolved_klass)
+source_klass_name(VALUE source_klass)
 {
     volatile VALUE klass_str;
     volatile VALUE result = Qnil;
 
-    if (RTEST(resolved_klass)) {
-      klass_str = rb_class_name(resolved_klass);
+    if (RTEST(source_klass)) {
+      klass_str = rb_class_name(source_klass);
       result = rb_str_dup(klass_str);
     } else {
       result = rb_str_new2("[global]");
@@ -151,13 +147,13 @@ resolved_klass_name(VALUE resolved_klass)
 }
 
 static VALUE
-calltree_name(VALUE resolved_klass, int flags, ID mid)
+calltree_name(VALUE source_klass, int relation, ID mid)
 {
     volatile VALUE klass_str, klass_path, joiner;
     volatile VALUE method_str;
     volatile VALUE result = Qnil;
 
-    klass_str = resolved_klass_name(resolved_klass);
+    klass_str = source_klass_name(source_klass);
     method_str = method_name(mid);
 
     klass_path = rb_str_split(klass_str, "::");
@@ -166,11 +162,11 @@ calltree_name(VALUE resolved_klass, int flags, ID mid)
 
     rb_str_cat2(result, "::");
 
-    if (RP_OBJECT_SINGLETON(flags)) {
+    if (RP_REL_GET(relation, kObjectSingleton)) {
         rb_str_cat2(result, "*");
     }
 
-    if (RP_MODULE_SINGLETON(flags)) {
+    if (RP_REL_GET(relation, kModuleSingleton)) {
         rb_str_cat2(result, "^");
     }
 
@@ -185,8 +181,8 @@ method_key(prof_method_key_t* key, VALUE klass, ID mid)
     /* Is this an include for a module?  If so get the actual
         module class since we want to combine all profiling
         results for that module. */
-    if (klass != 0) {
-        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
+    if (klass != 0 && BUILTIN_TYPE(klass) == T_ICLASS) {
+        klass = RBASIC(klass)->klass;
     }
 
     key->klass = klass;
@@ -195,6 +191,7 @@ method_key(prof_method_key_t* key, VALUE klass, ID mid)
 }
 
 /* ================  prof_method_t   =================*/
+
 prof_method_t*
 prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
 {
@@ -218,9 +215,11 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
       result->source_file = source_file;
     }
 
+    result->source_klass = Qnil;
     result->line = line;
-    result->resolved_klass = Qnil;
-    result->flags = 0;
+
+    result->resolved = 0;
+    result->relation = 0;
 
     return result;
 }
@@ -255,7 +254,7 @@ prof_method_free(prof_method_t* method)
 	xfree(method->key);
 
 	method->key = NULL;
-	method->resolved_klass = Qnil;
+	method->source_klass = Qnil;
 
 	xfree(method);
 }
@@ -267,8 +266,8 @@ prof_method_mark(prof_method_t *method)
 		rb_gc_mark(method->key->klass);
 	}
 
-	if (method->resolved_klass) {
-		rb_gc_mark(method->resolved_klass);
+	if (method->source_klass) {
+		rb_gc_mark(method->source_klass);
 	}
 
 	if (method->object) {
@@ -279,24 +278,23 @@ prof_method_mark(prof_method_t *method)
 }
 
 static VALUE
-resolve_klass(prof_method_t* method)
+resolve_source_klass(prof_method_t* method)
 {
     volatile VALUE klass, next_klass;
     volatile VALUE attached;
-    int flags;
+    unsigned int relation;
 
     /* We want to group methods according to their source-level
         definitions, not their implementation class. Follow module
         inclusions and singleton classes back to a meaningful root
         while keeping track of these relationships. */
 
-    /* Is this method's klass aleady resolved? */
-    if (RP_RESOLVED(method->flags)) {
-        return method->resolved_klass;
+    if (method->resolved) {
+        return method->source_klass;
     }
 
     klass = method->key->klass;
-    flags = 0;
+    relation = 0;
 
     while (1)
     {
@@ -316,20 +314,20 @@ resolve_klass(prof_method_t* method)
           if (BUILTIN_TYPE(attached) == T_CLASS ||
               BUILTIN_TYPE(attached) == T_MODULE)
           {
-            flags |= RP_FL_MODULE_SINGLETON;
+            RP_REL_SET(relation, kModuleSingleton);
             klass = attached;
           }
           /* Is this for singleton methods on an object? */
           else if (BUILTIN_TYPE(attached) == T_OBJECT)
           {
-            flags |= RP_FL_OBJECT_SINGLETON;
+            RP_REL_SET(relation, kObjectSingleton);
             next_klass = rb_class_superclass(klass);
             klass = next_klass;
           }
           /* This is a singleton of an instance of a builtin type. */
           else
           {
-            flags |= RP_FL_OBJECT_SINGLETON;
+            RP_REL_SET(relation, kObjectSingleton);
             next_klass = rb_class_superclass(klass);
             klass = next_klass;
           }
@@ -339,7 +337,7 @@ resolve_klass(prof_method_t* method)
             results for that module. */
         else if (BUILTIN_TYPE(klass) == T_ICLASS)
         {
-          flags |= RP_FL_MODULE_INCLUDEE;
+          RP_REL_SET(relation, kModuleIncludee);
           next_klass = RBASIC(klass)->klass;
           klass = next_klass;
         }
@@ -350,11 +348,9 @@ resolve_klass(prof_method_t* method)
         }
     }
 
-    /* This class is fully resolved. */
-    flags |= RP_FL_RESOLVED;
-
-    method->resolved_klass = klass;
-    method->flags = flags;
+    method->resolved = 1;
+    method->relation = relation;
+    method->source_klass = klass;
 
     return klass;
 }
@@ -551,14 +547,14 @@ prof_method_call_infos(VALUE self)
 }
 
 /* call-seq:
-   resolved_klass -> klass
+   source_klass -> klass
 
-Returns the Ruby klass that owns this method. */
+Returns the Ruby klass of the natural source-level definition. */
 static VALUE
-prof_resolved_klass(VALUE self)
+prof_source_klass(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-    return resolve_klass(method);
+    return resolve_source_klass(method);
 }
 
 /* call-seq:
@@ -570,8 +566,8 @@ static VALUE
 prof_calltree_name(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-    volatile VALUE resolved_klass = resolve_klass(method);
-    return calltree_name(resolved_klass, method->flags, method->key->mid);
+    volatile VALUE source_klass = resolve_source_klass(method);
+    return calltree_name(source_klass, method->relation, method->key->mid);
 }
 
 void rp_init_method_info()
@@ -589,6 +585,6 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);
     rb_define_method(cMethodInfo, "call_infos", prof_method_call_infos, 0);
 
-    rb_define_method(cMethodInfo, "resolved_klass", prof_resolved_klass, 0);
+    rb_define_method(cMethodInfo, "source_klass", prof_source_klass, 0);
     rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
 }

@@ -196,13 +196,15 @@ prof_method_t*
 prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
 {
     prof_method_t *result = ALLOC(prof_method_t);
-    result->object = Qnil;
-    result->call_infos = prof_call_infos_create();
 
     result->key = ALLOC(prof_method_key_t);
     method_key(result->key, klass, mid);
 
-    //result->call_info_table = call_info_table_create();
+    result->excluded = 0;
+
+    result->call_infos = prof_call_infos_create();
+
+    result->object = Qnil;
 
     if (source_file != NULL)
     {
@@ -224,11 +226,34 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
     return result;
 }
 
-/* The underlying c structures are freed when the parent profile is freed.  
+prof_method_t*
+prof_method_create_excluded(VALUE klass, ID mid)
+{
+    prof_method_t *result = ALLOC(prof_method_t);
+
+    result->key = ALLOC(prof_method_key_t);
+    method_key(result->key, klass, mid);
+
+    /* Invisible with this flag set. */
+    result->excluded = 1;
+
+    result->call_infos = 0;
+
+    result->object = Qnil;
+    result->source_klass = Qnil;
+    result->line = 0;
+
+    result->resolved = 0;
+    result->relation = 0;
+
+    return result;
+}
+
+/* The underlying c structures are freed when the parent profile is freed.
    However, on shutdown the Ruby GC frees objects in any will-nilly order.
    That means the ruby thread object wrapping the c thread struct may
    be freed before the parent profile.  Thus we add in a free function
-   for the garbage collector so that if it does get called will nil 
+   for the garbage collector so that if it does get called will nil
    out our Ruby object reference.*/
 static void
 prof_method_ruby_gc_free(prof_method_t* method)
@@ -248,8 +273,11 @@ static void
 prof_method_free(prof_method_t* method)
 {
 	prof_method_ruby_gc_free(method);
-	prof_call_infos_free(method->call_infos);
-	xfree(method->call_infos);
+
+  if (method->call_infos) {
+	  prof_call_infos_free(method->call_infos);
+	  xfree(method->call_infos);
+  }
 
 	xfree(method->key);
 
@@ -274,7 +302,9 @@ prof_method_mark(prof_method_t *method)
 		rb_gc_mark(method->object);
 	}
 
-	prof_call_infos_mark(method->call_infos);
+  if (method->call_infos) {
+	  prof_call_infos_mark(method->call_infos);
+  }
 }
 
 static VALUE
@@ -405,7 +435,7 @@ method_table_create()
 static int
 method_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
-    prof_method_free((prof_method_t*)value);
+    prof_method_free((prof_method_t *)value);
     return ST_CONTINUE;
 }
 
@@ -415,7 +445,6 @@ method_table_free(st_table *table)
     st_foreach(table, method_table_free_iterator, 0);
     st_free_table(table);
 }
-
 
 size_t
 method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val)

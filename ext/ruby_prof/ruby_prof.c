@@ -28,6 +28,7 @@
 
 VALUE mProf;
 VALUE cProfile;
+VALUE cExcludeCommonMethods;
 
 static prof_profile_t*
 prof_get_profile(VALUE self)
@@ -70,6 +71,19 @@ get_event_name(rb_event_flag_t event)
   }
 }
 
+static int
+excludes_method(prof_method_key_t *key, prof_profile_t *profile)
+{
+  return (profile->exclude_methods_tbl &&
+    method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
+}
+
+static void
+prof_exclude_common_methods(VALUE profile)
+{
+  rb_funcall(cExcludeCommonMethods, rb_intern("apply!"), 1, profile);
+}
+
 static prof_method_t*
 create_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_file, int line)
 {
@@ -83,24 +97,36 @@ create_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_fil
     return prof_method_create(klass, mid, source_file, line);
 }
 
-
 static prof_method_t*
-get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t* thread_data)
+get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t *thread_data, prof_profile_t *profile)
 {
     prof_method_key_t key;
     prof_method_t *method = NULL;
 
+    /* Probe the local table. */
     method_key(&key, klass, mid);
     method = method_table_lookup(thread_data->method_table, &key);
 
     if (!method)
     {
- 	  const char* source_file = rb_sourcefile();
-      int line = rb_sourceline();
+      /* Didn't find it; are we excluding it specifically? */
+      if (excludes_method(&key, profile)) {
+        /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
+        /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
+           tables share the same exclusion method struct? The first attempt failed due to my
+           ignorance of the whims of the GC. */
+        method = prof_method_create_excluded(klass, mid);
+      } else {
+        /* This method has no entry for this thread/fiber and isn't specifically excluded. */
+        const char* source_file = rb_sourcefile();
+        int line = rb_sourceline();
+  	    method = create_method(event, klass, mid, source_file, line);
+      }
 
-	  method = create_method(event, klass, mid, source_file, line);
+      /* Insert the newly created method, or the exlcusion sentinel. */
       method_table_insert(thread_data->method_table, method->key, method);
     }
+
     return method;
 }
 
@@ -238,10 +264,11 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
       /* Keep track of the current line number in this method.  When
          a new method is called, we know what line number it was
          called from. */
-
       if (frame)
       {
-        frame->line = rb_sourceline();
+        if (prof_frame_is_real(frame)) {
+          frame->line = rb_sourceline();
+        }
         break;
       }
 
@@ -252,10 +279,16 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
-        prof_call_info_t *call_info = NULL;
-        prof_method_t *method = NULL;
+        prof_frame_t *next_frame;
+        prof_call_info_t *call_info;
+        prof_method_t *method;
 
-        method = get_method(event, klass, mid, thread_data);
+        method = get_method(event, klass, mid, thread_data, profile);
+
+        if (method->excluded) {
+          prof_stack_pass(thread_data->stack);
+          break;
+        }
 
         if (!frame)
         {
@@ -274,19 +307,11 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
             call_info_table_insert(frame->call_info->call_infos, method->key, call_info);
             prof_add_call_info(method->call_infos, call_info);
           }
-
-          // Unpause the parent frame. If currently paused then:
-          // 1) The child frame will begin paused.
-          // 2) The parent will inherit the child's dead time.
-          prof_frame_unpause(frame, measurement);
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        frame = prof_stack_push(thread_data->stack, measurement);
-        frame->call_info = call_info;
-		frame->call_info->depth = frame->depth;
-        frame->pause_time = profile->paused == Qtrue ? measurement : -1;
-        frame->line = rb_sourceline();
+        next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
+        next_frame->line = rb_sourceline();
         break;
     }
     case RUBY_EVENT_RETURN:
@@ -331,10 +356,19 @@ mark_threads(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
+static int
+mark_methods(st_data_t key, st_data_t value, st_data_t result)
+{
+    prof_method_t *method = (prof_method_t *) value;
+    prof_method_mark(method);
+    return ST_CONTINUE;
+}
+
 static void
 prof_mark(prof_profile_t *profile)
 {
     st_foreach(profile->threads_tbl, mark_threads, 0);
+    st_foreach(profile->exclude_methods_tbl, mark_methods, 0);
 }
 
 /* Freeing the profile creates a cascade of freeing.
@@ -358,6 +392,10 @@ prof_free(prof_profile_t *profile)
         profile->include_threads_tbl = NULL;
     }
 
+    /* This table owns the excluded sentinels for now. */
+    method_table_free(profile->exclude_methods_tbl);
+    profile->exclude_methods_tbl = NULL;
+
     xfree(profile->measurer);
     profile->measurer = NULL;
 
@@ -375,6 +413,8 @@ prof_allocate(VALUE klass)
     profile->include_threads_tbl = NULL;
     profile->running = Qfalse;
     profile->merge_fibers = 0;
+    profile->exclude_methods_tbl = method_table_create();
+    profile->running = Qfalse;
     return result;
 }
 
@@ -401,6 +441,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE exclude_threads = Qnil;
     VALUE include_threads = Qnil;
     VALUE merge_fibers = Qnil;
+    VALUE exclude_common = Qnil;
     int i;
 
     switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads)) {
@@ -414,6 +455,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
             merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
+            exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
             include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
         }
@@ -451,6 +493,10 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
             VALUE thread_id = rb_obj_id(thread);
             st_insert(profile->include_threads_tbl, thread_id, Qtrue);
         }
+    }
+
+    if (RTEST(exclude_common)) {
+        prof_exclude_common_methods(self);
     }
 
     return self;
@@ -612,6 +658,20 @@ prof_stop(VALUE self)
 }
 
 /* call-seq:
+   threads -> Array of RubyProf::Thread
+
+Returns an array of RubyProf::Thread instances that were executed
+while the the program was being run. */
+static VALUE
+prof_threads(VALUE self)
+{
+    VALUE result = rb_ary_new();
+    prof_profile_t* profile = prof_get_profile(self);
+    st_foreach(profile->threads_tbl, collect_threads, result);
+    return result;
+}
+
+/* call-seq:
    profile(&block) -> self
    profile(options, &block) -> self
 
@@ -619,7 +679,7 @@ Profiles the specified block and returns a RubyProf::Profile
 object. Arguments are passed to Profile initialize method.
 */
 static VALUE
-prof_profile(int argc,  VALUE *argv, VALUE klass)
+prof_profile_class(int argc,  VALUE *argv, VALUE klass)
 {
     int result;
     VALUE profile = rb_class_new_instance(argc, argv, cProfile);
@@ -635,17 +695,47 @@ prof_profile(int argc,  VALUE *argv, VALUE klass)
 }
 
 /* call-seq:
-   threads -> array of RubyProf::Thread
+   profile {block} -> RubyProf::Result
 
-Returns an array of RubyProf::Thread instances that were executed
-while the the program was being run. */
+Profiles the specified block and returns a RubyProf::Result object. */
 static VALUE
-prof_threads(VALUE self)
+prof_profile_object(VALUE self)
 {
-    VALUE result = rb_ary_new();
+    int result;
+    if (!rb_block_given_p())
+    {
+        rb_raise(rb_eArgError, "A block must be provided to the profile method.");
+    }
+
+    prof_start(self);
+    rb_protect(rb_yield, self, &result);
+    return prof_stop(self);
+
+}
+
+static VALUE
+prof_exclude_method(VALUE self, VALUE klass, VALUE sym)
+{
     prof_profile_t* profile = prof_get_profile(self);
-    st_foreach(profile->threads_tbl, collect_threads, result);
-    return result;
+    ID mid = SYM2ID(sym);
+
+    prof_method_key_t key;
+    prof_method_t *method;
+
+    if (profile->running == Qtrue)
+    {
+        rb_raise(rb_eRuntimeError, "RubyProf.start was already called");
+    }
+
+    method_key(&key, klass, mid);
+    method = method_table_lookup(profile->exclude_methods_tbl, &key);
+
+    if (!method) {
+      method = prof_method_create_excluded(klass, mid);
+      method_table_insert(profile->exclude_methods_tbl, method->key, method);
+    }
+
+    return self;
 }
 
 void Init_ruby_prof()
@@ -658,8 +748,8 @@ void Init_ruby_prof()
     rp_init_thread();
 
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
-    rb_define_singleton_method(cProfile, "profile", prof_profile, -1);
     rb_define_alloc_func (cProfile, prof_allocate);
+
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);
@@ -668,4 +758,11 @@ void Init_ruby_prof()
     rb_define_method(cProfile, "running?", prof_running, 0);
     rb_define_method(cProfile, "paused?", prof_paused, 0);
     rb_define_method(cProfile, "threads", prof_threads, 0);
+
+    rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
+    rb_define_method(cProfile, "profile", prof_profile_object, 0);
+
+    rb_define_method(cProfile, "exclude_method!", prof_exclude_method, 2);
+
+    cExcludeCommonMethods = rb_define_class_under(cProfile, "ExcludeCommonMethods", rb_cObject);
 }

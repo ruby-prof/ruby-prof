@@ -44,6 +44,7 @@ EOF
                    'lib/unprof.rb',
                    'lib/ruby-prof/*.rb',
                    'lib/ruby-prof/assets/*.{html,png}',
+                   'lib/ruby-prof/profile/*.rb',
                    'lib/ruby-prof/printers/*.rb',
                    'test/*.rb']
 

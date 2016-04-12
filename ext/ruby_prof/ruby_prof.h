@@ -42,11 +42,14 @@ typedef struct
 {
     VALUE running;
     VALUE paused;
+
     prof_measurer_t* measurer;
     VALUE threads;
+
     st_table* threads_tbl;
     st_table* exclude_threads_tbl;
     st_table* include_threads_tbl;
+    st_table* exclude_methods_tbl;
     thread_data_t* last_thread_data;
     double measurement_at_pause_resume;
     int merge_fibers;

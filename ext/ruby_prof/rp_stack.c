@@ -43,9 +43,12 @@ prof_stack_free(prof_stack_t *stack)
 }
 
 prof_frame_t *
-prof_stack_push(prof_stack_t *stack, double measurement)
+prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int paused)
 {
   prof_frame_t* result = NULL;
+  prof_frame_t* parent_frame;
+
+  parent_frame = prof_stack_peek(stack);
 
   /* Is there space on the stack?  If not, double
      its size. */
@@ -59,17 +62,29 @@ prof_stack_push(prof_stack_t *stack, double measurement)
     stack->end = stack->start + new_capacity;
   }
 
-  // Setup returned stack pointer to be valid
-  result = stack->ptr;
-  result->child_time = 0;
+  // Reserve the next available frame pointer.
+  result = stack->ptr++;
+
+  result->call_info = call_info;
+  result->call_info->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
+  result->passes = 0;
+
+  result->start_time = measurement;
+  result->pause_time = -1; // init as not paused.
   result->switch_time = 0;
   result->wait_time = 0;
+  result->child_time = 0;
   result->dead_time = 0;
-  result->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32
-  result->start_time = measurement;
 
-  // Increment the stack ptr for next time
-  stack->ptr++;
+  // Unpause the parent frame, if it exists.
+  // If currently paused then:
+  //   1) The child frame will begin paused.
+  //   2) The parent will inherit the child's dead time.
+  prof_frame_unpause(parent_frame, measurement);
+
+  if (paused) {
+    prof_frame_pause(result, measurement);
+  }
 
   // Return the result
   return result;
@@ -78,21 +93,32 @@ prof_stack_push(prof_stack_t *stack, double measurement)
 prof_frame_t *
 prof_stack_pop(prof_stack_t *stack, double measurement)
 {
-  prof_frame_t *frame = NULL;
-  prof_frame_t* parent_frame = NULL;
+  prof_frame_t *frame;
+  prof_frame_t *parent_frame;
   prof_call_info_t *call_info;
 
   double total_time;
   double self_time;
 
+  frame = prof_stack_peek(stack);
+
   /* Frame can be null.  This can happen if RubProf.start is called from
      a method that exits.  And it can happen if an exception is raised
      in code that is being profiled and the stack unwinds (RubyProf is
      not notified of that by the ruby runtime. */
-  if (stack->ptr == stack->start)
+  if (!frame) {
     return NULL;
-  
-  frame = --stack->ptr;
+  }
+
+  /* Match passes until we reach the frame itself. */
+  if (prof_frame_is_pass(frame)) {
+    frame->passes--;
+    /* Additional frames can be consumed. See pop_frames(). */
+    return frame;
+  }
+
+  /* Consume this frame. */
+  stack->ptr--;
 
   /* Calculate the total time this method took */
   prof_frame_unpause(frame, measurement);
@@ -119,10 +145,11 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
 }
 
 prof_frame_t *
-prof_stack_peek(prof_stack_t *stack)
+prof_stack_pass(prof_stack_t *stack)
 {
-    if (stack->ptr == stack->start)
-      return NULL;
-    else
-      return stack->ptr - 1;
+  prof_frame_t *frame = prof_stack_peek(stack);
+  if (frame) {
+    frame->passes++;
+  }
+  return frame;
 }

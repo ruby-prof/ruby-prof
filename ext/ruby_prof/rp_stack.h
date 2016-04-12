@@ -18,34 +18,46 @@ typedef struct
     /* Caching prof_method_t values significantly
        increases performance. */
     prof_call_info_t *call_info;
+
+    unsigned int line;
+    unsigned int passes; /* Count of "pass" frames, _after_ this one. */
+
     double start_time;
     double switch_time;  /* Time at switch to different thread */
     double wait_time;
     double child_time;
     double pause_time; // Time pause() was initiated
     double dead_time; // Time to ignore (i.e. total amount of time between pause/resume blocks)
-    int depth;
-    unsigned int line;
 } prof_frame_t;
+
+#define prof_frame_is_real(f) ((f)->passes == 0)
+#define prof_frame_is_pass(f) ((f)->passes > 0)
 
 #define prof_frame_is_paused(f) (f->pause_time >= 0)
 #define prof_frame_is_unpaused(f) (f->pause_time < 0)
+
 void prof_frame_pause(prof_frame_t*, double current_measurement);
 void prof_frame_unpause(prof_frame_t*, double current_measurement);
 
-
 /* Current stack of active methods.*/
-typedef struct 
+typedef struct
 {
     prof_frame_t *start;
     prof_frame_t *end;
     prof_frame_t *ptr;
 } prof_stack_t;
 
-prof_stack_t * prof_stack_create();
+prof_stack_t *prof_stack_create();
 void prof_stack_free(prof_stack_t *stack);
-prof_frame_t * prof_stack_push(prof_stack_t *stack, double measurement);
-prof_frame_t * prof_stack_pop(prof_stack_t *stack, double measurement);
-prof_frame_t * prof_stack_peek(prof_stack_t *stack);
+
+prof_frame_t *prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int paused);
+prof_frame_t *prof_stack_pop(prof_stack_t *stack, double measurement);
+prof_frame_t *prof_stack_pass(prof_stack_t *stack);
+
+static inline prof_frame_t *
+prof_stack_peek(prof_stack_t *stack) {
+    return stack->ptr != stack->start ? stack->ptr - 1 : NULL;
+}
+
 
 #endif //__RP_STACK__

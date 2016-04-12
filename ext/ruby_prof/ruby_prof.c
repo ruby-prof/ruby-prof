@@ -252,8 +252,9 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
-        prof_call_info_t *call_info = NULL;
-        prof_method_t *method = NULL;
+        prof_frame_t *next_frame;
+        prof_call_info_t *call_info;
+        prof_method_t *method;
 
         method = get_method(event, klass, mid, thread_data);
 
@@ -274,17 +275,11 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
             call_info_table_insert(frame->call_info->call_infos, method->key, call_info);
             prof_add_call_info(method->call_infos, call_info);
           }
-
-          // Unpause the parent frame. If currently paused then:
-          // 1) The child frame will begin paused.
-          // 2) The parent will inherit the child's dead time.
-          prof_frame_unpause(frame, measurement);
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        frame = prof_stack_push(thread_data->stack, call_info, measurement);
-        frame->pause_time = profile->paused == Qtrue ? measurement : -1;
-        frame->line = rb_sourceline();
+        next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
+        next_frame->line = rb_sourceline();
         break;
     }
     case RUBY_EVENT_RETURN:

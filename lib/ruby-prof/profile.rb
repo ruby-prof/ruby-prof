@@ -2,15 +2,6 @@
 
 module RubyProf
   class Profile
-    # This method gets called once profiling has been completed
-    # but before results are returned to the user.  Thus it provides
-    # a hook to do any necessary post-processing on the call graph.
-    def post_process
-      self.threads.each do |thread|
-        thread.detect_recursion
-      end
-    end
-
     # eliminate some calls from the graph by merging the information into callers.
     # matchers can be a list of strings or regular expressions or the name of a file containing regexps.
     def eliminate_methods!(matchers)

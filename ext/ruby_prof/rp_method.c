@@ -218,8 +218,10 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
     result->source_klass = Qnil;
     result->line = line;
 
+    result->recursive = 0;
     result->resolved = 0;
     result->relation = 0;
+    result->visits = 0;
 
     return result;
 }
@@ -547,6 +549,17 @@ prof_method_call_infos(VALUE self)
 }
 
 /* call-seq:
+   recursive? -> boolean
+
+   Returns the true if this method is recursive */
+static VALUE
+prof_method_recursive(VALUE self)
+{
+  prof_method_t *method = get_prof_method(self);
+  return method->recursive ? Qtrue : Qfalse;
+}
+
+/* call-seq:
    source_klass -> klass
 
 Returns the Ruby klass of the natural source-level definition. */
@@ -581,10 +594,12 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "method_name", prof_method_name, 0);
     rb_define_method(cMethodInfo, "full_name", prof_full_name, 0);
     rb_define_method(cMethodInfo, "method_id", prof_method_id, 0);
-    rb_define_method(cMethodInfo, "source_file", prof_method_source_file,0);
-    rb_define_method(cMethodInfo, "line", prof_method_line, 0);
-    rb_define_method(cMethodInfo, "call_infos", prof_method_call_infos, 0);
 
+    rb_define_method(cMethodInfo, "call_infos", prof_method_call_infos, 0);
     rb_define_method(cMethodInfo, "source_klass", prof_source_klass, 0);
+    rb_define_method(cMethodInfo, "source_file", prof_method_source_file, 0);
+    rb_define_method(cMethodInfo, "line", prof_method_line, 0);
+
+    rb_define_method(cMethodInfo, "recursive?", prof_method_recursive, 0);
     rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
 }

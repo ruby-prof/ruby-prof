@@ -15,14 +15,19 @@ typedef struct prof_call_info_t
     prof_method_t *target; /* Use target instead of method to avoid conflict with Ruby method */
     struct prof_call_info_t *parent;
     st_table *call_infos;
-    int called;
-	int depth;
+
     double total_time;
     double self_time;
     double wait_time;
-    int line;
+
     VALUE object;
     VALUE children;
+
+    int called;
+
+    unsigned int recursive : 1;
+    unsigned int depth : 15;
+    unsigned int line : 16;
 } prof_call_info_t;
 
 /* Array of call_info objects */

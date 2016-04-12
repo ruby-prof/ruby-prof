@@ -33,7 +33,11 @@ typedef struct
     /* Hot */
 
     prof_method_key_t *key;                 /* Table key */
+
     struct prof_call_infos_t *call_infos;   /* Call infos */
+    int visits;                             /* Current visits on the stack */
+
+    unsigned int recursive : 1;             /* Recursive (direct/mutual)? */
 
     /* Cold */
 

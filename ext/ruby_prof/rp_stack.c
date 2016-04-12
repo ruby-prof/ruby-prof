@@ -43,13 +43,14 @@ prof_stack_free(prof_stack_t *stack)
 }
 
 prof_frame_t *
-prof_stack_push(prof_stack_t *stack, double measurement)
+prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement)
 {
-  prof_frame_t* result = NULL;
+  prof_frame_t *result = NULL;
+  prof_method_t *method;
 
   /* Is there space on the stack?  If not, double
      its size. */
-  if (stack->ptr == stack->end  )   
+  if (stack->ptr == stack->end)
   {
     size_t len = stack->ptr - stack->start;
     size_t new_capacity = (stack->end - stack->start) * 2;
@@ -61,12 +62,27 @@ prof_stack_push(prof_stack_t *stack, double measurement)
 
   // Setup returned stack pointer to be valid
   result = stack->ptr;
+
   result->child_time = 0;
   result->switch_time = 0;
   result->wait_time = 0;
   result->dead_time = 0;
   result->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32
   result->start_time = measurement;
+
+  result->call_info = call_info;
+  result->call_info->depth = result->depth;
+
+  method = call_info->target;
+
+  /* If the method was visited previously, it's recursive. */
+  if (method->visits > 0)
+  {
+    method->recursive = 1;
+    call_info->recursive = 1;
+  }
+  /* Enter the method. */
+  method->visits++;
 
   // Increment the stack ptr for next time
   stack->ptr++;
@@ -81,6 +97,7 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   prof_frame_t *frame = NULL;
   prof_frame_t* parent_frame = NULL;
   prof_call_info_t *call_info;
+  prof_method_t *method;
 
   double total_time;
   double self_time;
@@ -91,7 +108,7 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
      not notified of that by the ruby runtime. */
   if (stack->ptr == stack->start)
     return NULL;
-  
+
   frame = --stack->ptr;
 
   /* Calculate the total time this method took */
@@ -101,10 +118,15 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
 
   /* Update information about the current method */
   call_info = frame->call_info;
+  method = call_info->target;
+
   call_info->called++;
   call_info->total_time += total_time;
   call_info->self_time += self_time;
   call_info->wait_time += frame->wait_time;
+
+  /* Leave the method. */
+  method->visits--;
 
   parent_frame = prof_stack_peek(stack);
   if (parent_frame)

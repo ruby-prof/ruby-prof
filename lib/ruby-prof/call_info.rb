@@ -9,17 +9,6 @@ module RubyProf
     # children:   array of call info children (can be empty)
     # target:     method info (containing an array of call infos)
 
-    attr_reader :recursive
-
-    def detect_recursion(visited_methods = Hash.new(0))
-      @recursive = (visited_methods[target] += 1) > 1
-      children.each do |child|
-        child.detect_recursion(visited_methods)
-      end
-      visited_methods.delete(target) if (visited_methods[target] -= 1) == 0
-      return @recursive
-    end
-
     def children_time
       children.inject(0) do |sum, call_info|
         sum += call_info.total_time

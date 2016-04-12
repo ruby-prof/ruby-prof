@@ -13,7 +13,7 @@
 /* Temporary object that maintains profiling information
    for active methods.  They are created and destroyed
    as the program moves up and down its stack. */
-typedef struct 
+typedef struct
 {
     /* Caching prof_method_t values significantly
        increases performance. */
@@ -44,7 +44,7 @@ typedef struct
 
 prof_stack_t * prof_stack_create();
 void prof_stack_free(prof_stack_t *stack);
-prof_frame_t * prof_stack_push(prof_stack_t *stack, double measurement);
+prof_frame_t * prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement);
 prof_frame_t * prof_stack_pop(prof_stack_t *stack, double measurement);
 prof_frame_t * prof_stack_peek(prof_stack_t *stack);
 

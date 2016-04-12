@@ -44,7 +44,7 @@ class AggregateTest < TestCase
     methods = result.threads.first.methods.sort.reverse
     methods.each do |m|
       m.call_infos.each do |ci|
-        assert(!ci.recursive)
+        assert(!ci.recursive?)
       end
     end
   end

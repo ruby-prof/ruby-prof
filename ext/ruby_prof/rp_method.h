@@ -27,7 +27,7 @@ enum {
 struct prof_call_infos_t;
 
 /* Profiling information for each method. */
-/* Eliminated methods have no call_infos, source_file, or source_module. */
+/* Excluded methods have no call_infos, source_klass, or source_file. */
 typedef struct
 {
     /* Hot */
@@ -37,7 +37,8 @@ typedef struct
     struct prof_call_infos_t *call_infos;   /* Call infos */
     int visits;                             /* Current visits on the stack */
 
-    unsigned int recursive : 1;             /* Recursive (direct/mutual)? */
+    unsigned int excluded : 1;              /* Exclude from profile? */
+    unsigned int recursive : 1;             /* Recursive (direct or mutual)? */
 
     /* Cold */
 
@@ -60,6 +61,8 @@ size_t method_table_insert(st_table *table, const prof_method_key_t *key, prof_m
 void method_table_free(st_table *table);
 
 prof_method_t* prof_method_create(VALUE klass, ID mid, const char* source_file, int line);
+prof_method_t* prof_method_create_excluded(VALUE klass, ID mid);
+
 VALUE prof_method_wrap(prof_method_t *result);
 void prof_method_mark(prof_method_t *method);
 

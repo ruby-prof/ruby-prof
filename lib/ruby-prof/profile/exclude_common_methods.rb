@@ -140,6 +140,9 @@ module RubyProf
 
         if defined?(Unicorn)
           exclude_methods Unicorn::HttpServer, :process_client
+        end
+
+        if defined?(Unicorn::OobGC)
           exclude_methods Unicorn::OobGC, :process_client
         end
 

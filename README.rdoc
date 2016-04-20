@@ -361,8 +361,17 @@ RubyProf::GC_RUNS::
  is invoked during a profiling session. This support was added by
  Jeremy Kemper and requires a patched Ruby interpreter. See below.
 
+== Patching ruby
+
 All of the patches to Ruby are included in the railsexpress patchsets
-for rvm, see https://github.com/skaes/rvm-patchsets
+for rvm, see https://github.com/skaes/rvm-patchsets. You can also use
+these patches manually with other ruby managers (ruby-install, 
+ruby-build, etc.).
+
+Note if you rebuild your ruby with patches you must uninstall and
+reinstall the ruby-prof gem to take advantage of the new capabilities.
+
+== Measure modes
 
 To set the measurement:
 

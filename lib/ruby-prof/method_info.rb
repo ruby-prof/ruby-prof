@@ -36,12 +36,7 @@ module RubyProf
     end
 
     def self_time
-      @self_time ||= begin
-        call_infos.inject(0) do |sum, call_info|
-          sum += call_info.self_time if !call_info.recursive?
-          sum
-        end
-      end
+      @self_time ||= self_time_unmemoized
     end
 
     def wait_time

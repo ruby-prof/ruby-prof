@@ -348,7 +348,6 @@ resolve_source_klass(prof_method_t* method)
         definitions, not their implementation class. Follow module
         inclusions and singleton classes back to a meaningful root
         while keeping track of these relationships. */
-
     if (method->resolved) {
         return method->source_klass;
     }
@@ -438,6 +437,40 @@ get_prof_method(VALUE self)
    return result;
 }
 
+static const char ruby_runtime_str[] = "ruby_runtime";
+
+const char* prof_method_t_source_file(prof_method_t *method)
+{
+    const char* sf = method->source_file;
+    if(sf) {
+        return sf;
+    } else {
+        return ruby_runtime_str;
+    }
+}
+
+VALUE prof_method_t_calltree_name(prof_method_t *method)
+{
+    volatile VALUE source_klass = resolve_source_klass(method);
+    return calltree_name(source_klass, method->relation, method->key->mid);
+}
+
+double prof_method_t_self_time(prof_method_t *method)
+{
+    double self_time = 0.0;
+    prof_call_info_t **i;
+
+    if(method->call_infos) {
+        for(i = method->call_infos->start; i < method->call_infos->ptr; i++) {
+            if(!(*i)->recursive) {
+                self_time += (*i)->self_time;
+            }
+        }
+    }
+
+    return self_time;
+}
+
 /* ================  Method Table   =================*/
 int
 method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2)
@@ -521,12 +554,8 @@ return the source file of the method
 */
 static VALUE prof_method_source_file(VALUE self)
 {
-    const char* sf = get_prof_method(self)->source_file;
-    if(!sf) {
-      return rb_str_new2("ruby_runtime");
-    } else {
-      return rb_str_new2(sf);
-    }
+    const char* sf = prof_method_t_source_file(get_prof_method(self));
+    return rb_str_new2(sf);
 }
 
 
@@ -627,6 +656,7 @@ prof_source_klass(VALUE self)
     return resolve_source_klass(method);
 }
 
+
 /* call-seq:
    calltree_name -> string
 
@@ -647,8 +677,18 @@ static VALUE
 prof_calltree_name(VALUE self)
 {
     prof_method_t *method = get_prof_method(self);
-    volatile VALUE source_klass = resolve_source_klass(method);
-    return calltree_name(source_klass, method->relation, method->key->mid);
+    return prof_method_t_calltree_name(method);
+}
+
+/* call-seq:
+   self_time -> double
+
+Returns the sum of the self time of this method's call infos.*/
+static VALUE
+prof_method_self_time_unmemoized(VALUE self)
+{
+    prof_method_t *method = get_prof_method(self);
+    return rb_float_new(prof_method_t_self_time(method));
 }
 
 void rp_init_method_info()
@@ -671,4 +711,7 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "recursive?", prof_method_recursive, 0);
     rb_define_method(cMethodInfo, "source_name", prof_source_name, 0);
     rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
+
+    rb_define_method(cMethodInfo,
+            "self_time_unmemoized", prof_method_self_time_unmemoized, 0);
 }

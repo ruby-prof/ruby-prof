@@ -17,6 +17,8 @@ require 'ruby-prof/rack'
 require 'ruby-prof/thread'
 require 'ruby-prof/walker'
 
+require 'ruby-prof/printers/fast_call_tree_printer'
+
 module RubyProf
   autoload :AggregateCallInfo, 'ruby-prof/aggregate_call_info'
   autoload :CallInfoVisitor, 'ruby-prof/call_info_visitor'

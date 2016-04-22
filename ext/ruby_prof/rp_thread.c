@@ -84,7 +84,7 @@ prof_thread_wrap(thread_data_t *thread)
     return thread->object;
 }
 
-static thread_data_t*
+thread_data_t*
 prof_get_thread(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook

@@ -66,6 +66,10 @@ prof_method_t* prof_method_create_excluded(VALUE klass, ID mid);
 VALUE prof_method_wrap(prof_method_t *result);
 void prof_method_mark(prof_method_t *method);
 
+const char* prof_method_t_source_file(prof_method_t *method);
+VALUE prof_method_t_calltree_name(prof_method_t *method);
+double prof_method_t_self_time(prof_method_t *method);
+
 /* Setup infrastructure to use method keys as hash comparisons */
 int method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2);
 st_index_t method_table_hash(prof_method_key_t *key);

@@ -32,6 +32,7 @@
 #include "rp_call_info.h"
 #include "rp_stack.h"
 #include "rp_thread.h"
+#include "rp_fast_call_tree_printer.h"
 
 extern VALUE mProf;
 extern VALUE cProfile;

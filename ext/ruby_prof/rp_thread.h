@@ -31,4 +31,6 @@ void prof_thread_mark(thread_data_t *thread);
 int pause_thread(st_data_t key, st_data_t value, st_data_t data);
 int unpause_thread(st_data_t key, st_data_t value, st_data_t data);
 
+thread_data_t* prof_get_thread(VALUE self);
+
 #endif //__RP_THREAD__

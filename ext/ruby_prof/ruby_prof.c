@@ -753,6 +753,7 @@ void Init_ruby_prof()
     rp_init_method_info();
     rp_init_call_info();
     rp_init_thread();
+    rp_init_call_tree_printer();
 
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_alloc_func (cProfile, prof_allocate);

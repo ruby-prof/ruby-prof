@@ -28,6 +28,7 @@
 
 VALUE mProf;
 VALUE cProfile;
+VALUE cExcludeCommonMethods;
 
 static prof_profile_t*
 prof_get_profile(VALUE self)
@@ -70,6 +71,19 @@ get_event_name(rb_event_flag_t event)
   }
 }
 
+static int
+excludes_method(prof_method_key_t *key, prof_profile_t *profile)
+{
+  return (profile->exclude_methods_tbl &&
+    method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
+}
+
+static void
+prof_exclude_common_methods(VALUE profile)
+{
+  rb_funcall(cExcludeCommonMethods, rb_intern("apply!"), 1, profile);
+}
+
 static prof_method_t*
 create_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_file, int line)
 {
@@ -81,12 +95,6 @@ create_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_fil
     }
 
     return prof_method_create(klass, mid, source_file, line);
-}
-
-static int
-excludes_method(prof_method_key_t *key, prof_profile_t *profile)
-{
-  return (method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
 }
 
 static prof_method_t*
@@ -105,8 +113,8 @@ get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t *thread_dat
       if (excludes_method(&key, profile)) {
         /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
         /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
-           tables share the same exclustion method struct? The first attempt failed do to the
-           my ignorance of the whims of the GC. */
+           tables share the same exclusion method struct? The first attempt failed due to my
+           ignorance of the whims of the GC. */
         method = prof_method_create_excluded(klass, mid);
       } else {
         /* This method has no entry for this thread/fiber and isn't specifically excluded. */
@@ -442,6 +450,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE exclude_threads = Qnil;
     VALUE include_threads = Qnil;
     VALUE merge_fibers = Qnil;
+    VALUE exclude_common = Qnil;
     int i;
 
     switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads)) {
@@ -455,6 +464,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
             merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
+            exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
             include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
         }
@@ -492,6 +502,10 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
             VALUE thread_id = rb_obj_id(thread);
             st_insert(profile->include_threads_tbl, thread_id, Qtrue);
         }
+    }
+
+    if (RTEST(exclude_common)) {
+        prof_exclude_common_methods(self);
     }
 
     return self;
@@ -755,4 +769,6 @@ void Init_ruby_prof()
     rb_define_method(cProfile, "profile", prof_profile_object, 0);
 
     rb_define_method(cProfile, "exclude_method!", prof_exclude_method, 2);
+
+    cExcludeCommonMethods = rb_define_class_under(cProfile, "ExcludeCommonMethods", rb_cObject);
 }

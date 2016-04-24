@@ -101,7 +101,7 @@ class ExcludeMethodsTest < TestCase
     assert_equal('Kernel#class', methods[6].full_name)
   end
 
-  def test_exclude_common_methods
+  def test_exclude_common_methods1
     obj = ExcludeMethodsClass.new
     prf = RubyProf::Profile.new
 
@@ -111,7 +111,19 @@ class ExcludeMethodsTest < TestCase
     methods = result.threads.first.methods.sort.reverse
 
     assert_equal(9, methods.count)
-    assert_equal('ExcludeMethodsTest#test_exclude_common_methods', methods[0].full_name)
+    assert_equal('ExcludeMethodsTest#test_exclude_common_methods1', methods[0].full_name)
+    assert_equal('ExcludeMethodsClass#a', methods[1].full_name)
+    assert_equal('ExcludeMethodsClass#b', methods[2].full_name)
+  end
+
+  def test_exclude_common_methods2
+    obj = ExcludeMethodsClass.new
+
+    result = RubyProf.profile(exclude_common: true) { 5.times {obj.a} }
+    methods = result.threads.first.methods.sort.reverse
+
+    assert_equal(9, methods.count)
+    assert_equal('ExcludeMethodsTest#test_exclude_common_methods2', methods[0].full_name)
     assert_equal('ExcludeMethodsClass#a', methods[1].full_name)
     assert_equal('ExcludeMethodsClass#b', methods[2].full_name)
   end

@@ -109,8 +109,8 @@ get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t *thread_dat
 
     if (!method)
     {
-      /* Didn't find it; are we excluding it specifically? */
-      if (excludes_method(&key, profile)) {
+      /* Didn't find it. Is it the top level, or are we excluding it specifically? */
+      if (!RTEST(klass) || !RTEST(mid) || excludes_method(&key, profile)) {
         /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
         /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
            tables share the same exclusion method struct? The first attempt failed due to my
@@ -215,8 +215,9 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
        the results but aren't important to them results. */
-    if (self == mProf || klass == cProfile)
-        return;
+    if (self == mProf || klass == cProfile) {
+      return;
+    }
 
     if (trace_file != NULL)
     {
@@ -407,14 +408,23 @@ prof_allocate(VALUE klass)
 {
     VALUE result;
     prof_profile_t* profile;
+    VALUE main_thread;
+    VALUE main_thread_id;
+
     result = Data_Make_Struct(klass, prof_profile_t, prof_mark, prof_free, profile);
+
+    profile->running = Qfalse;
+    profile->paused = Qfalse;
+
+    main_thread = rb_funcall(rb_cThread, rb_intern("main"), 0);
+    main_thread_id = rb_obj_id(main_thread);
+    profile->main_thread_id = main_thread_id;
+
     profile->threads_tbl = threads_table_create();
     profile->exclude_threads_tbl = NULL;
     profile->include_threads_tbl = NULL;
-    profile->running = Qfalse;
     profile->merge_fibers = 0;
     profile->exclude_methods_tbl = method_table_create();
-    profile->running = Qfalse;
     return result;
 }
 

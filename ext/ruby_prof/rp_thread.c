@@ -145,11 +145,18 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
     else
     {
         result = thread_data_create();
+
+        result->thread_index = 0;
         result->thread_id = thread_id;
         /* We set fiber id to 0 in the merge fiber case. Real fibers never have id 0,
            so we can identify them later during printing.
         */
         result->fiber_id = profile->merge_fibers ? INT2FIX(0) : fiber_id;
+
+        if (thread_id != profile->main_thread_id) {
+          result->thread_index = profile->next_thread_index++;
+        }
+
         /* Insert the table */
         threads_table_insert(profile, key, result);
     }
@@ -225,6 +232,27 @@ collect_methods(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
+/* call-seq:
+   index -> number
+
+Returns the index of this thread. */
+static VALUE
+prof_thread_index(VALUE self)
+{
+    thread_data_t* thread = prof_get_thread(self);
+    return ULL2NUM(thread->thread_index);
+}
+
+/* call-seq:
+   main? -> bool
+
+Returns the true if this is the main thread. */
+static VALUE
+prof_thread_main(VALUE self)
+{
+  thread_data_t* thread = prof_get_thread(self);
+  return thread->thread_index == 0 ? Qtrue : Qfalse;
+}
 
 /* call-seq:
    id -> number
@@ -269,6 +297,9 @@ void rp_init_thread()
 {
     cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
     rb_undef_method(CLASS_OF(cRpThread), "new");
+
+    rb_define_method(cRpThread, "index", prof_thread_index, 0);
+    rb_define_method(cRpThread, "main?", prof_thread_main, 0);
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
     rb_define_method(cRpThread, "fiber_id", prof_fiber_id, 0);

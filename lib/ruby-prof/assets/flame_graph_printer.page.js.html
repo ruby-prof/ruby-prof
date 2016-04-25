@@ -1,0 +1,56 @@
+<script type="text/javascript">
+
+// Flamegraph
+
+var cellHeight = 14;
+var height = cellHeight * data.depth + 40;
+
+var flameGraph = d3.flameGraph()
+  .width(1250)
+  .height(height)
+  .cellHeight(cellHeight)
+  .transitionDuration(750)
+  .transitionEase('cubic-in-out')
+  .sort(true)
+  .title("");
+
+// Tooltip
+
+var tip = d3.tip()
+  .direction("s")
+  .offset([8, 0])
+  .attr('class', 'd3-flame-graph-tip')
+  .html(function(d) {
+    return d.name + " (" +
+      d3.round(d.called, 0) + "; " +
+      d3.round(100 * d.dx, 3) + "%)";
+  });
+
+flameGraph.tooltip(tip);
+
+// Searching and Zooming
+
+document.getElementById("form").addEventListener("submit", function(event) {
+  event.preventDefault();
+  search();
+});
+
+function search() {
+  var term = document.getElementById("term").value;
+  flameGraph.search(term);
+}
+
+function clear() {
+  document.getElementById('term').value = '';
+  flameGraph.clear();
+}
+
+function resetZoom() {
+  flameGraph.resetZoom();
+}
+
+d3.select("#chart")
+  .datum(data.root)
+  .call(flameGraph);
+
+</script>

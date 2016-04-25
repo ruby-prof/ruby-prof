@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+<%= css_libraries_html %>
+
+    <title>Flame Graph</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header clearfix">
+        <nav>
+          <div class="pull-right">
+            <form class="form-inline" id="form">
+              <a class="btn" href="javascript: resetZoom();">Reset zoom</a>
+              <a class="btn" href="javascript: clear();">Clear</a>
+              <div class="form-group">
+                <input type="text" class="form-control" id="term">
+              </div>
+              <a class="btn btn-primary" href="javascript: search();">Search</a>
+            </form>
+          </div>
+        </nav>
+        <h3 class="text-muted">Flame Graph</h3>
+      </div>
+      <div id="chart">
+      </div>
+    </div>
+
+<%= js_libraries_html %>
+
+<%= js_data_html %>
+<%= js_code_html %>
+
+  </body>
+</html>

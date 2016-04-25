@@ -147,6 +147,32 @@ source_klass_name(VALUE source_klass)
 }
 
 static VALUE
+source_name(VALUE source_klass, int relation, ID mid)
+{
+    volatile VALUE klass_str;
+    volatile VALUE method_str;
+    volatile VALUE result = Qnil;
+
+    klass_str = source_klass_name(source_klass);
+    method_str = method_name(mid);
+    result = rb_str_dup(klass_str);
+
+    if (RP_REL_GET(relation, kObjectSingleton)) {
+        rb_str_cat2(result, "*");
+    }
+
+    if (RP_REL_GET(relation, kModuleSingleton)) {
+        rb_str_cat2(result, ".");
+    } else {
+      rb_str_cat2(result, "#");
+    }
+
+    rb_str_append(result, method_str);
+
+    return result;
+}
+
+static VALUE
 calltree_name(VALUE source_klass, int relation, ID mid)
 {
     volatile VALUE klass_str, klass_path, joiner;
@@ -604,8 +630,19 @@ prof_source_klass(VALUE self)
 /* call-seq:
    calltree_name -> string
 
-Returns the full name of this method in the calltree format.*/
+Returns the full name of this method in an approximate source-level format. */
+static VALUE
+prof_source_name(VALUE self)
+{
+    prof_method_t *method = get_prof_method(self);
+    volatile VALUE source_klass = resolve_source_klass(method);
+    return source_name(source_klass, method->relation, method->key->mid);
+}
 
+/* call-seq:
+   calltree_name -> string
+
+Returns the full name of this method in the calltree format. */
 static VALUE
 prof_calltree_name(VALUE self)
 {
@@ -632,5 +669,6 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);
 
     rb_define_method(cMethodInfo, "recursive?", prof_method_recursive, 0);
+    rb_define_method(cMethodInfo, "source_name", prof_source_name, 0);
     rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
 }

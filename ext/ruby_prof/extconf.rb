@@ -38,7 +38,12 @@ def add_define(name, value = nil)
   end
 end
 
-if !Gem.win_platform? && RUBY_PLATFORM !~ /(darwin|openbsd)/
+require 'rbconfig'
+def windows?
+  RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
+end
+
+if !windows? && RUBY_PLATFORM !~ /(darwin|openbsd)/
   $LDFLAGS += " -lrt" # for clock_gettime
 end
 add_define("RUBY_VERSION", RUBY_VERSION.gsub('.', ''))

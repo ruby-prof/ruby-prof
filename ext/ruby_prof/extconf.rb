@@ -38,7 +38,6 @@ def add_define(name, value = nil)
   end
 end
 
-require 'rbconfig'
 def windows?
   RbConfig::CONFIG['host_os'] =~ /mswin|mingw/
 end

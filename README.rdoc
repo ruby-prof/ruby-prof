@@ -93,7 +93,7 @@ ruby-prof also supports pausing and resuming profiling runs.
 
     RubyProf.resume
     # ... code to profile ...
-    result = Rubyprof.stop
+    result = RubyProf.stop
 
 Note that resume will only work if start has been called previously.
 In addition, resume can also take a block:

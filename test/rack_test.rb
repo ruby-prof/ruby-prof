@@ -11,9 +11,15 @@ end
 module Rack
   class Request
     def initialize(env)
+      if env == :fake_env
+        @env = {}
+      else
+        @env = env
+      end
     end
+
     def path
-      '/path/to/resource.json'
+      @env[:path] || '/path/to/resource.json'
     end
   end
 end
@@ -50,6 +56,25 @@ class RackTest < TestCase
 
     %w(flat.txt graph.txt graph.html call_stack.html).each do |base_name|
       file_path = ::File.join(path, "path-to-resource.json-#{base_name}")
+      assert(!File.exist?(file_path))
+    end
+  end
+
+  def test_only_paths
+    path = Dir.mktmpdir
+
+    adapter = Rack::RubyProf.new(FakeRackApp.new, :path => path, :only_paths => [%r{\.json$}])
+
+    adapter.call({path: '/path/to/resource.json'})
+
+    %w(flat.txt graph.txt graph.html call_stack.html).each do |base_name|
+      file_path = ::File.join(path, "path-to-resource.json-#{base_name}")
+      assert(File.exist?(file_path))
+    end
+
+    adapter.call({path: '/path/to/resource.html'})
+    %w(flat.txt graph.txt graph.html call_stack.html).each do |base_name|
+      file_path = ::File.join(path, "path-to-resource.html-#{base_name}")
       assert(!File.exist?(file_path))
     end
   end

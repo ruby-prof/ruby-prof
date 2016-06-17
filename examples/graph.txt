@@ -98,7 +98,7 @@ The interpretation of method names is:
 
 For example, we see that 97.74% of the time was spent in Object#is_prime and its
 children.  Of that time, almost everything was contributed by Integer#upto.
-Overall, Object#is_prime was called 1001 times and 1000 of those calls were made
+Overall, Integer#upto was called 1001 times and 1000 of those calls were made
 by Object#is_prime.
 
 

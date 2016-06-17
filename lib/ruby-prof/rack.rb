@@ -17,14 +17,13 @@ module Rack
                                                   ::RubyProf::CallStackPrinter => 'call_stack.html'}
 
       @skip_paths = options[:skip_paths] || [%r{^/assets}, %r{\.(css|js|png|jpeg|jpg|gif)$}]
+      @only_paths = options[:only_paths]
     end
 
     def call(env)
       request = Rack::Request.new(env)
 
-      if @skip_paths.any? {|skip_path| skip_path =~ request.path}
-        @app.call(env)
-      else
+      if should_profile?(request.path)
         begin
           result = nil
           data = ::RubyProf::Profile.profile(profiling_options) do
@@ -37,10 +36,22 @@ module Rack
           print(data, path)
           result
         end
+      else
+        @app.call(env)
       end
     end
 
     private
+
+    def should_profile?(path)
+      return false if paths_match?(path, @skip_paths)
+
+      @only_paths ? paths_match?(path, @only_paths) : true
+    end
+
+    def paths_match?(path, paths)
+      paths.any? { |skip_path| skip_path =~ path }
+    end
 
     def profiling_options
       options = {}

@@ -16,3 +16,4 @@ ipch
 examples2
 .rvmrc
 Gemfile.lock
+/profile.callgrind.out.*

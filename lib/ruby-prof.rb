@@ -2,7 +2,7 @@
 
 # Load the C-based binding.
 begin
-  RUBY_VERSION =~ /(\d+.\d+)/
+  RUBY_VERSION =~ /(\d+\.\d+\.\d+)/
   require "#{$1}/ruby_prof"
 rescue LoadError
   require "ruby_prof"

@@ -55,7 +55,7 @@ if RUBY_VERSION > "1.9"
   Thread.new{1}.join
   set_trace_func nil
   if threads.size < 2
-    # if we end up here, ruby does not automatically active tracing in spawned threads
+    # if we end up here, ruby does not automatically activate tracing in spawned threads
     STDERR.puts("Ruby #{RUBY_VERSION} does not activate tracing in spawned threads. Consider upgrading.")
     exit(1)
   end

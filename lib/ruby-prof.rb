@@ -3,9 +3,9 @@
 # Load the C-based binding.
 begin
   RUBY_VERSION =~ /(\d+\.\d+\.\d+)/
-  require "#{$1}/ruby_prof"
+  require "#{$1}/ruby_prof.so"
 rescue LoadError
-  require "ruby_prof"
+  require "ruby_prof.so"
 end
 
 require 'ruby-prof/version'

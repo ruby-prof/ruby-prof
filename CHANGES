@@ -1,3 +1,7 @@
+0.16.1 (2016-08-24)
+=====================
+* fixed compile problem with ruby 2.1.10
+
 0.16.0 (2016-08-24)
 =====================
 * ruby-prof can now be installed if ruby has been compiled with --disable-gems or

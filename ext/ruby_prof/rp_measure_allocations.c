@@ -14,7 +14,7 @@ static VALUE cMeasureAllocations;
 #if defined(HAVE_RB_GC_STAT)
 size_t rb_gc_stat(VALUE key);
 
-#if RUBY_VERSION >= 220
+#if RUBY_VERSION >= 2200
 #define TOTAL_ALLOCATED_OBJECTS_STRING "total_allocated_objects"
 #else
 #define TOTAL_ALLOCATED_OBJECTS_STRING "total_allocated_object"

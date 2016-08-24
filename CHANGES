@@ -1,5 +1,7 @@
-0.16.0 (2016-03-xx)
+0.16.0 (2016-08-24)
 =====================
+* ruby-prof can now be installed if ruby has been compiled with --disable-gems or
+  RUBYOPT includes --disable-gems (thx to Arthur Nogueira Neves)
 * Profile.new now accepts and prefers an options hash:
   - measure_mode: one of the RubyProf measure mode constants
   - exclude_threads: an array of threads to ignore when collecting profile data

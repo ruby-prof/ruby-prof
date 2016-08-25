@@ -14,7 +14,7 @@ static VALUE cMeasureAllocations;
 #if defined(HAVE_RB_GC_STAT)
 size_t rb_gc_stat(VALUE key);
 
-#if RUBY_VERSION >= 2200
+#if RUBY_PROF_RUBY_VERSION >= 20200
 #define TOTAL_ALLOCATED_OBJECTS_STRING "total_allocated_objects"
 #else
 #define TOTAL_ALLOCATED_OBJECTS_STRING "total_allocated_object"
@@ -29,7 +29,7 @@ measure_allocations()
 #define MEASURE_ALLOCATIONS_ENABLED Qtrue
     return rb_os_allocated_objects();
 
-#elif defined(HAVE_RB_GC_STAT) && RUBY_VERSION >= 210
+#elif defined(HAVE_RB_GC_STAT) && RUBY_PROF_RUBY_VERSION >= 20100
 #define MEASURE_ALLOCATIONS_ENABLED Qtrue
     static VALUE total_alloc_symbol = 0;
     if (!total_alloc_symbol) {

@@ -7,23 +7,23 @@
 #include <ruby.h>
 #include <stdio.h>
 
-#if RUBY_VERSION == 186
+#if RUBY_PROF_RUBY_VERSION == 10806
 # error 1.8.6 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
-#if RUBY_VERSION == 187
+#if RUBY_PROF_RUBY_VERSION == 10807
 # error 1.8.7 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
-#if RUBY_VERSION == 190
+#if RUBY_PROF_RUBY_VERSION == 10900
 # error 1.9.0 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
-#if RUBY_VERSION == 191
+#if RUBY_PROF_RUBY_VERSION == 10901
 # error 1.9.1 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 
-#if RUBY_VERSION == 192
+#if RUBY_PROF_RUBY_VERSION == 10902
 # error 1.9.2 is not supported. Please upgrade to 1.9.3 or higher.
 #endif
 

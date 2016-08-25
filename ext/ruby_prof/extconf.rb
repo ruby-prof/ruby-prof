@@ -45,7 +45,7 @@ end
 if !windows? && RUBY_PLATFORM !~ /(darwin|openbsd)/
   $LDFLAGS += " -lrt" # for clock_gettime
 end
-add_define("RUBY_VERSION", RUBY_VERSION.split('.')[0..2].inject(0){|v,d| v*100+d.to_i})
+add_define("RUBY_PROF_RUBY_VERSION", RUBY_VERSION.split('.')[0..2].inject(0){|v,d| v*100+d.to_i})
 
 # for ruby 1.9, determine whether threads inherit trace flags (latest 1.9.2 and later should work correctly)
 if RUBY_VERSION > "1.9"

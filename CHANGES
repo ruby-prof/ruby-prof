@@ -1,3 +1,7 @@
+0.16.2 (2016-08-25)
+=====================
+* fixed incorrect setting of RUBY_VERSION macro
+
 0.16.1 (2016-08-24)
 =====================
 * fixed compile problem with ruby 2.1.10

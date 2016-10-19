@@ -322,7 +322,7 @@ at_exit {
   if cmd.options.file
     # write it relative to the dir they *started* in, as it's a bit surprising to write it in the dir they end up in.
     Dir.chdir(cmd.options.old_wd) do
-      if printer.is_a?(RubyProf::MultiPrinter)
+      if printer.is_a?(RubyProf::MultiPrinter) || printer.is_a?(RubyProf::CallTreePrinter)
         printer.print(printer_options.merge(:path => cmd.options.file))
       else
         File.open(cmd.options.file, 'w') do |file|

@@ -50,11 +50,9 @@ measure_memory()
 #endif
 }
 
-prof_measurer_t* prof_measurer_memory()
+get_measurement prof_measurer_memory()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_memory;
-  return measure;
+  return measure_memory;
 }
 
 /* call-seq:

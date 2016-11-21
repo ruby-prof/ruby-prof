@@ -52,11 +52,9 @@ prof_measure_process_time(VALUE self)
     return rb_float_new(measure_process_time());
 }
 
-prof_measurer_t* prof_measurer_process_time()
+get_measurement prof_measurer_process_time()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_process_time;
-  return measure;
+  return measure_process_time;
 }
 
 

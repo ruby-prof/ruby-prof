@@ -42,11 +42,9 @@ measure_gc_runs()
 #endif
 }
 
-prof_measurer_t* prof_measurer_gc_runs()
+get_measurement prof_measurer_gc_runs()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_gc_runs;
-  return measure;
+  return measure_gc_runs;
 }
 
 /* call-seq:

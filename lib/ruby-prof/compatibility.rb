@@ -49,7 +49,7 @@ module RubyProf
   # *RubyProf::GC_TIME - Measure time spent doing garbage collection.  This requires a patched Ruby interpreter.*/
 
   def self.measure_mode
-    @measure_mode ||= RubyProf::WALL_TIME
+    measure_modes.first
   end
 
   # call-seq:
@@ -65,7 +65,15 @@ module RubyProf
   # *RubyProf::GC_RUNS - Measure number of garbage collections.  This requires a patched Ruby interpreter.
   # *RubyProf::GC_TIME - Measure time spent doing garbage collection.  This requires a patched Ruby interpreter.*/
   def self.measure_mode=(value)
-    @measure_mode = value
+    self.measure_modes = [value]
+  end
+
+  def self.measure_modes
+    @measure_modes ||= [RubyProf::WALL_TIME]
+  end
+
+  def self.measure_modes=(value)
+    @measure_modes = value
   end
 
   def self.measure_mode_string
@@ -106,7 +114,7 @@ module RubyProf
 
   def self.start
     ensure_not_running!
-    @profile = Profile.new(measure_mode: measure_mode, exclude_threads: exclude_threads)
+    @profile = Profile.new(measure_modes: measure_modes, exclude_threads: exclude_threads)
     enable_gc_stats_if_needed
     @profile.start
   end
@@ -143,7 +151,7 @@ module RubyProf
   def self.profile(options = {}, &block)
     ensure_not_running!
     gc_stat_was_enabled = enable_gc_stats_if_needed
-    options = { measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
+    options = { measure_modes: [measure_mode], exclude_threads: exclude_threads }.merge!(options)
     result = Profile.profile(options, &block)
     disable_gc_stats_if_needed(gc_stat_was_enabled)
     result

@@ -33,11 +33,9 @@ measure_gc_time()
 #endif
 }
 
-prof_measurer_t* prof_measurer_gc_time()
+get_measurement prof_measurer_gc_time()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_gc_time;
-  return measure;
+  return measure_gc_time;
 }
 
 /* call-seq:

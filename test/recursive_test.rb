@@ -47,9 +47,6 @@ class RecursiveTest < TestCase
       simple(2)
     end
 
-    # Remove Fixnum+, Fixnum== for less than Ruby 1.9
-    result.eliminate_methods!(%w(Fixnum#== Fixnum#-))
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 

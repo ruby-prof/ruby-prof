@@ -12,26 +12,38 @@ VALUE cCallInfo;
 st_table * call_info_table_create();
 
 
+static prof_call_info_t *
+prof_call_info_allocate(size_t len)
+{
+    prof_call_info_t *result =
+        (prof_call_info_t*) ruby_xmalloc(
+            sizeof(prof_call_info_t) + len * sizeof(prof_measure_value_t));
+    result->measures_len = len;
+    return result;
+}
+
 /* =======  prof_call_info_t   ========*/
 prof_call_info_t *
-prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
+prof_call_info_create(prof_method_t* method, prof_call_info_t* parent, size_t measurements_len)
 {
-    prof_call_info_t *result = ALLOC(prof_call_info_t);
+    prof_call_info_t *result = prof_call_info_allocate(measurements_len);
     result->object = Qnil;
     result->target = method;
     result->parent = parent;
     result->call_infos = call_info_table_create();
     result->children = Qnil;
 
-    result->total_time = 0;
-    result->self_time = 0;
-    result->wait_time = 0;
-
     result->called = 0;
 
     result->recursive = 0;
     result->depth = 0;
     result->line = 0;
+
+    for(size_t i = 0; i < measurements_len; i++) {
+        result->measure_values[i].total = 0.0;
+        result->measure_values[i].self = 0.0;
+        result->measure_values[i].wait = 0.0;
+    }
 
     return result;
 }
@@ -201,84 +213,6 @@ prof_call_info_line(VALUE self)
 }
 
 /* call-seq:
-   total_time -> float
-
-Returns the total amount of time spent in this method and its children. */
-static VALUE
-prof_call_info_total_time(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-    return rb_float_new(result->total_time);
-}
-
-/* call-seq:
-   add_total_time(call_info) -> nil
-
-adds total time time from call_info to self. */
-static VALUE
-prof_call_info_add_total_time(VALUE self, VALUE other)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-    prof_call_info_t *other_info = prof_get_call_info(other);
-
-    result->total_time += other_info->total_time;
-    return Qnil;
-}
-
-/* call-seq:
-   self_time -> float
-
-Returns the total amount of time spent in this method. */
-static VALUE
-prof_call_info_self_time(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-
-    return rb_float_new(result->self_time);
-}
-
-/* call-seq:
-   add_self_time(call_info) -> nil
-
-adds self time from call_info to self. */
-static VALUE
-prof_call_info_add_self_time(VALUE self, VALUE other)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-    prof_call_info_t *other_info = prof_get_call_info(other);
-
-    result->self_time += other_info->self_time;
-    return Qnil;
-}
-
-/* call-seq:
-   wait_time -> float
-
-Returns the total amount of time this method waited for other threads. */
-static VALUE
-prof_call_info_wait_time(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-
-    return rb_float_new(result->wait_time);
-}
-
-/* call-seq:
-   add_wait_time(call_info) -> nil
-
-adds wait time from call_info to self. */
-
-static VALUE
-prof_call_info_add_wait_time(VALUE self, VALUE other)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-    prof_call_info_t *other_info = prof_get_call_info(other);
-
-    result->wait_time += other_info->wait_time;
-    return Qnil;
-}
-
-/* call-seq:
    parent -> call_info
 
 Returns the call_infos parent call_info object (the method that called this method).*/
@@ -401,6 +335,26 @@ prof_call_infos_wrap(prof_call_infos_t *call_infos)
   return call_infos->object;
 }
 
+VALUE
+prof_call_info_measure_values(VALUE self)
+{
+    prof_call_info_t *call_info = prof_get_call_info(self);
+
+    VALUE ary = rb_ary_new2(call_info->measures_len);
+    for(size_t i = 0; i < call_info->measures_len; i++) {
+        VALUE sub_ary = rb_ary_new2(3);
+
+        rb_ary_store(sub_ary, 0, DBL2NUM(call_info->measure_values[i].total));
+        rb_ary_store(sub_ary, 1, DBL2NUM(call_info->measure_values[i].self));
+        rb_ary_store(sub_ary, 2, DBL2NUM(call_info->measure_values[i].wait));
+
+        rb_ary_store(ary, i, sub_ary);
+    }
+
+    return ary;
+}
+
+
 void rp_init_call_info()
 {
     /* CallInfo */
@@ -412,14 +366,9 @@ void rp_init_call_info()
     rb_define_method(cCallInfo, "target", prof_call_info_target, 0);
     rb_define_method(cCallInfo, "called", prof_call_info_called, 0);
     rb_define_method(cCallInfo, "called=", prof_call_info_set_called, 1);
-    rb_define_method(cCallInfo, "total_time", prof_call_info_total_time, 0);
-    rb_define_method(cCallInfo, "add_total_time", prof_call_info_add_total_time, 1);
-    rb_define_method(cCallInfo, "self_time", prof_call_info_self_time, 0);
-    rb_define_method(cCallInfo, "add_self_time", prof_call_info_add_self_time, 1);
-    rb_define_method(cCallInfo, "wait_time", prof_call_info_wait_time, 0);
-    rb_define_method(cCallInfo, "add_wait_time", prof_call_info_add_wait_time, 1);
 
     rb_define_method(cCallInfo, "recursive?", prof_call_info_recursive, 0);
     rb_define_method(cCallInfo, "depth", prof_call_info_depth, 0);
     rb_define_method(cCallInfo, "line", prof_call_info_line, 0);
+    rb_define_method(cCallInfo, "measure_values", prof_call_info_measure_values, 0);
 }

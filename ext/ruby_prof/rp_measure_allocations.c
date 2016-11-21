@@ -44,11 +44,9 @@ measure_allocations()
 }
 
 
-prof_measurer_t* prof_measurer_allocations()
+get_measurement prof_measurer_allocations()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_allocations;
-  return measure;
+  return measure_allocations;
 }
 
 /* call-seq:

@@ -97,11 +97,9 @@ static double measure_cpu_time()
 #endif
 
 
-prof_measurer_t* prof_measurer_cpu_time()
+get_measurement prof_measurer_cpu_time()
 {
-    prof_measurer_t* measure = ALLOC(prof_measurer_t);
-    measure->measure = measure_cpu_time;
-    return measure;
+    return measure_cpu_time;
 }
 
 /* call-seq:

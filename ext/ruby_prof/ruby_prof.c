@@ -137,7 +137,8 @@ pop_frames(st_data_t key, st_data_t value, st_data_t data)
     prof_profile_t* profile = (prof_profile_t*) data;
     VALUE thread_id = thread_data->thread_id;
     VALUE fiber_id = thread_data->fiber_id;
-    double measurement = profile->measurer->measure();
+
+    prof_measurer_take_measurements(profile->measurer, profile->measurements);
 
     if (!profile->last_thread_data
         || (!profile->merge_fibers && profile->last_thread_data->fiber_id != fiber_id)
@@ -147,7 +148,7 @@ pop_frames(st_data_t key, st_data_t value, st_data_t data)
     else
         thread_data = profile->last_thread_data;
 
-    while (prof_stack_pop(thread_data->stack, measurement));
+    while (prof_stack_pop(thread_data->stack, profile->measurements));
 
     return ST_CONTINUE;
 }
@@ -202,7 +203,6 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     VALUE fiber_id = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
-    double measurement;
 
     /* if we don't have a valid method id, try to retrieve one */
     if (mid == 0) {
@@ -210,7 +210,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     }
 
     /* Get current measurement */
-    measurement = profile->measurer->measure();
+    prof_measurer_take_measurements(profile->measurer, profile->measurements);
 
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
@@ -221,7 +221,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
     if (trace_file != NULL)
     {
-        prof_trace(profile, event, mid, klass, measurement);
+        prof_trace(profile, event, mid, klass, profile->measurements->values[0]);
     }
 
     /* Get the current thread and fiber information. */
@@ -293,7 +293,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
         if (!frame)
         {
-          call_info = prof_call_info_create(method, NULL);
+          call_info = prof_call_info_create(method, NULL, profile->measurer->len);
           prof_add_call_info(method->call_infos, call_info);
         }
         else
@@ -304,21 +304,21 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
           {
             /* This call info does not yet exist.  So create it, then add
                it to previous callinfo's children and to the current method .*/
-            call_info = prof_call_info_create(method, frame->call_info);
+            call_info = prof_call_info_create(method, frame->call_info, profile->measurer->len);
             call_info_table_insert(frame->call_info->call_infos, method->key, call_info);
             prof_add_call_info(method->call_infos, call_info);
           }
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
+        next_frame = prof_stack_push(thread_data->stack, call_info, profile->measurements, RTEST(profile->paused));
         next_frame->line = rb_sourceline();
         break;
     }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
-        prof_stack_pop(thread_data->stack, measurement);
+        prof_stack_pop(thread_data->stack, profile->measurements);
         break;
     }
   }
@@ -397,8 +397,14 @@ prof_free(prof_profile_t *profile)
     method_table_free(profile->exclude_methods_tbl);
     profile->exclude_methods_tbl = NULL;
 
-    xfree(profile->measurer);
-    profile->measurer = NULL;
+    if (profile->measurer) {
+        xfree(profile->measurer->measure_modes);
+        xfree(profile->measurer);
+        profile->measurer = NULL;
+    }
+
+    xfree(profile->measurements);
+    xfree(profile->measurements_at_pause_resume);
 
     xfree(profile);
 }
@@ -429,12 +435,11 @@ prof_allocate(VALUE klass)
 }
 
 /* call-seq:
-   new()
    new(options)
 
    Returns a new profiler. Possible options for the options hash are:
 
-   measure_mode::    Measure mode. Specifies the profile measure mode.
+   measure_modes::    Measure mode. Specifies the profile measure mode.
                      If not specified, defaults to RubyProf::WALL_TIME.
    exclude_threads:: Threads to exclude from the profiling results.
    include_threads:: Focus profiling on only the given threads. This will ignore
@@ -443,44 +448,50 @@ prof_allocate(VALUE klass)
                      used when profiling for a callgrind printer.
 */
 static VALUE
-prof_initialize(int argc,  VALUE *argv, VALUE self)
+prof_initialize(VALUE self, VALUE options)
 {
     prof_profile_t* profile = prof_get_profile(self);
-    VALUE mode_or_options;
-    VALUE mode = Qnil;
+    VALUE modes = Qnil;
     VALUE exclude_threads = Qnil;
     VALUE include_threads = Qnil;
     VALUE merge_fibers = Qnil;
     VALUE exclude_common = Qnil;
     int i;
+    prof_measure_mode_t* measure_modes = NULL;
+    size_t measure_modes_len = 0;
 
-    switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads)) {
-    case 0:
-        break;
-    case 1:
-        if (FIXNUM_P(mode_or_options)) {
-            mode = mode_or_options;
+    Check_Type(options, T_HASH);
+    modes = rb_hash_aref(options, ID2SYM(rb_intern("measure_modes")));
+    merge_fibers = rb_hash_aref(options, ID2SYM(rb_intern("merge_fibers")));
+    exclude_common = rb_hash_aref(options, ID2SYM(rb_intern("exclude_common")));
+    exclude_threads = rb_hash_aref(options, ID2SYM(rb_intern("exclude_threads")));
+    include_threads = rb_hash_aref(options, ID2SYM(rb_intern("include_threads")));
+
+    if (modes != Qnil) {
+        Check_Type(modes, T_ARRAY);
+        measure_modes_len = RARRAY_LEN(modes);
+
+        if (measure_modes_len > 0) {
+            measure_modes = ALLOC_N(prof_measure_mode_t, measure_modes_len);
+
+            for (size_t j = 0; j < measure_modes_len; j++) {
+                measure_modes[j] = NUM2INT(rb_ary_entry(modes, j));
+            }
         }
-        else {
-            Check_Type(mode_or_options, T_HASH);
-            mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
-            merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
-            exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
-            exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
-            include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
-        }
-        break;
-    case 2:
-        Check_Type(exclude_threads, T_ARRAY);
-        break;
     }
 
-    if (mode == Qnil) {
-        mode = INT2NUM(MEASURE_WALL_TIME);
-    } else {
-        Check_Type(mode, T_FIXNUM);
+    if (measure_modes == NULL) {
+        measure_modes_len = 1;
+        measure_modes = ALLOC_N(prof_measure_mode_t, measure_modes_len);
+        measure_modes[0] = MEASURE_WALL_TIME;
     }
-    profile->measurer = prof_get_measurer(NUM2INT(mode));
+
+    profile->measurer = prof_get_measurer(measure_modes, measure_modes_len);
+    profile->measurements = ruby_xmalloc(sizeof(prof_measurements_t) + profile->measurer->len * sizeof(double));
+    profile->measurements->len = profile->measurer->len;
+    profile->measurements_at_pause_resume = ruby_xmalloc(sizeof(prof_measurements_t) + profile->measurer->len * sizeof(double));
+    profile->measurements_at_pause_resume->len = profile->measurer->len;
+
     profile->merge_fibers = merge_fibers != Qnil && merge_fibers != Qfalse;
 
     if (exclude_threads != Qnil) {
@@ -593,7 +604,7 @@ prof_pause(VALUE self)
     if (profile->paused == Qfalse)
     {
         profile->paused = Qtrue;
-        profile->measurement_at_pause_resume = profile->measurer->measure();
+        prof_measurer_take_measurements(profile->measurer, profile->measurements_at_pause_resume);
         st_foreach(profile->threads_tbl, pause_thread, (st_data_t) profile);
     }
 
@@ -617,7 +628,7 @@ prof_resume(VALUE self)
     if (profile->paused == Qtrue)
     {
         profile->paused = Qfalse;
-        profile->measurement_at_pause_resume = profile->measurer->measure();
+        prof_measurer_take_measurements(profile->measurer, profile->measurements_at_pause_resume);
         st_foreach(profile->threads_tbl, unpause_thread, (st_data_t) profile);
     }
 
@@ -745,6 +756,18 @@ prof_exclude_method(VALUE self, VALUE klass, VALUE sym)
     return self;
 }
 
+static VALUE
+prof_measure_modes(VALUE self)
+{
+    prof_profile_t* profile = prof_get_profile(self);
+    VALUE ary = rb_ary_new2(profile->measurer->len);
+    for(size_t i = 0; i < profile->measurer->len; i++) {
+        rb_ary_store(ary, i, INT2NUM(profile->measurer->measure_modes[i]));
+    }
+
+    return ary;
+}
+
 void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
@@ -753,12 +776,12 @@ void Init_ruby_prof()
     rp_init_method_info();
     rp_init_call_info();
     rp_init_thread();
-    rp_init_call_tree_printer();
+    rp_init_fast_call_tree_printer();
 
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_alloc_func (cProfile, prof_allocate);
 
-    rb_define_method(cProfile, "initialize", prof_initialize, -1);
+    rb_define_method(cProfile, "initialize", prof_initialize, 1);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);
     rb_define_method(cProfile, "resume", prof_resume, 0);
@@ -766,6 +789,7 @@ void Init_ruby_prof()
     rb_define_method(cProfile, "running?", prof_running, 0);
     rb_define_method(cProfile, "paused?", prof_paused, 0);
     rb_define_method(cProfile, "threads", prof_threads, 0);
+    rb_define_method(cProfile, "measure_modes", prof_measure_modes, 0);
 
     rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
     rb_define_method(cProfile, "profile", prof_profile_object, 0);

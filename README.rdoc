@@ -152,34 +152,6 @@ RubyProf::Profile#profile::
    Perform a profile run and return result. Accepts the same arguments
    as RubyProf::Profile.new.
 
-
-== Method Elimination
-
-ruby-prof supports eliminating specific methods and threads from
-profiling results. This is useful for reducing connectivity in the
-call graph, making it easier to identify the source of performance
-problems when using a graph printer.
-
-For example, consider <tt>Integer#times</tt>: it's hardly ever useful
-to know how much time is spent in the method itself. We're much more
-interested in how much the passed in block contributes to the time
-spent in the method which contains the <tt>Integer#times</tt> call.
-
-Methods are eliminated from the collected data by calling
-<tt>eliminate_methods!</tt> on the profiling result, before submitting
-it to a printer.
-
-    result = RubyProf.stop
-    result.eliminate_methods!([/Integer#times/])
-
-The argument given to <tt>eliminate_methods!</tt> is either an array
-of regular expressions, or the name of a file containing a list of
-regular expressions (line separated text).
-
-After eliminating methods the resulting profile will appear exactly as if those methods
-had been inlined at their call sites.
-
-
 == Profiling Rails
 
 To profile a Rails application it is vital to run it using production like

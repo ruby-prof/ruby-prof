@@ -26,32 +26,33 @@ module RubyProf
       end
     end
 
-    def total_time
+    def total_time(i = 0)
       @total_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.total_time if !call_info.recursive?
+          sum += call_info.total_time(i) if !call_info.recursive?
           sum
         end
       end
     end
 
-    def self_time
-      @self_time ||= self_time_unmemoized
+    def self_time(i = 0)
+      @self_time ||= []
+      @self_time[i] ||= self_time_unmemoized(i)
     end
 
-    def wait_time
+    def wait_time(i = 0)
       @wait_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.wait_time if !call_info.recursive?
+          sum += call_info.wait_time(i) if !call_info.recursive?
           sum
         end
       end
     end
 
-    def children_time
+    def children_time(i = 0)
       @children_time ||= begin
         call_infos.inject(0) do |sum, call_info|
-          sum += call_info.children_time if !call_info.recursive?
+          sum += call_info.children_time(i) if !call_info.recursive?
           sum
         end
       end
@@ -104,13 +105,5 @@ module RubyProf
     def to_s
       "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, wt: #{wait_time}, ct: #{self.children_time})"
     end
-
-    # remove method from the call graph. should not be called directly.
-    def eliminate!
-      # $stderr.puts "eliminating #{self}"
-      call_infos.each{ |call_info| call_info.eliminate! }
-      call_infos.clear
-    end
-
   end
 end

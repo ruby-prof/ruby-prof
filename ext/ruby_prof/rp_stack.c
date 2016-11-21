@@ -5,32 +5,51 @@
 
 #define INITIAL_STACK_SIZE 8
 
-void
-prof_frame_pause(prof_frame_t *frame, double current_measurement)
-{
-    if (frame && prof_frame_is_unpaused(frame))
-        frame->pause_time = current_measurement;
-}
 
 void
-prof_frame_unpause(prof_frame_t *frame, double current_measurement)
+prof_frame_pause(prof_frame_t *frame, prof_measurements_t *current_measurements)
 {
-    if (frame && prof_frame_is_paused(frame)) {
-        frame->dead_time += (current_measurement - frame->pause_time);
-        frame->pause_time = -1;
+    if (frame && prof_frame_is_unpaused(frame)) {
+        for(size_t i = 0; i < current_measurements->len; i++) {
+            frame->measurements[i].pause = current_measurements->values[i];
+        }
     }
 }
 
+void
+prof_frame_unpause(prof_frame_t *frame, prof_measurements_t *current_measurements)
+{
+    if (frame && prof_frame_is_paused(frame)) {
+        for(size_t i = 0; i < current_measurements->len; i++) {
+            frame->measurements[i].dead += (current_measurements->values[i] - frame->measurements[i].pause);
+            frame->measurements[i].pause = -1;
+        }
+    }
+}
+
+prof_frame_t*
+prof_stack_frame_get(size_t measurements_len, size_t i, prof_frame_t *stack_start)
+{
+    size_t offset = i * FRAME_SIZE(measurements_len);
+
+    return (prof_frame_t*)((uintptr_t)stack_start + offset);
+}
 
 /* Creates a stack of prof_frame_t to keep track
    of timings for active methods. */
 prof_stack_t *
-prof_stack_create()
+prof_stack_create(size_t measurements_len)
 {
     prof_stack_t *stack = ALLOC(prof_stack_t);
-    stack->start = ALLOC_N(prof_frame_t, INITIAL_STACK_SIZE);
+    stack->measurements_len = measurements_len;
+    stack->start = (prof_frame_t*) ruby_xmalloc2(INITIAL_STACK_SIZE, FRAME_SIZE(measurements_len));
+    for (size_t i = 0; i < INITIAL_STACK_SIZE; i++) {
+        prof_frame_t *frame = prof_stack_frame_get(measurements_len, i, stack->start);
+        frame->measurements_len = measurements_len;
+    }
     stack->ptr = stack->start;
-    stack->end = stack->start + INITIAL_STACK_SIZE;
+    stack->end = (prof_frame_t*)((uintptr_t)(stack->start) +
+        (INITIAL_STACK_SIZE * FRAME_SIZE(measurements_len)));
 
     return stack;
 }
@@ -42,12 +61,35 @@ prof_stack_free(prof_stack_t *stack)
     xfree(stack);
 }
 
+static void
+prof_stack_realloc(prof_stack_t *stack, size_t measurements_len)
+{
+
+    size_t len = ((uintptr_t)(stack->ptr) - (uintptr_t)(stack->start)) / FRAME_SIZE(measurements_len);
+    size_t new_capacity =
+      (((uintptr_t)(stack->end) - (uintptr_t)(stack->start)) * 2) / FRAME_SIZE(measurements_len);
+
+    stack->start =
+        (prof_frame_t*) ruby_xrealloc2(
+            (char*)(stack->start), new_capacity, FRAME_SIZE(measurements_len));
+
+    for (int i = 0; i < new_capacity; i++) {
+        prof_frame_t *frame = prof_stack_frame_get(measurements_len, i, stack->start);
+        frame->measurements_len = measurements_len;
+    }
+
+    /* Memory just got moved, reset pointers */
+    stack->ptr = (prof_frame_t*) ((uintptr_t)(stack->start) + len * FRAME_SIZE(measurements_len));
+    stack->end = (prof_frame_t*) ((uintptr_t)(stack->start) + new_capacity * FRAME_SIZE(measurements_len));
+}
+
 prof_frame_t *
-prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int paused)
+prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, prof_measurements_t *measurements, int paused)
 {
   prof_frame_t *result;
   prof_frame_t* parent_frame;
   prof_method_t *method;
+  size_t measurements_len = stack->measurements_len;
 
   parent_frame = prof_stack_peek(stack);
 
@@ -55,27 +97,27 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
      its size. */
   if (stack->ptr == stack->end)
   {
-    size_t len = stack->ptr - stack->start;
-    size_t new_capacity = (stack->end - stack->start) * 2;
-    REALLOC_N(stack->start, prof_frame_t, new_capacity);
-    /* Memory just got moved, reset pointers */
-    stack->ptr = stack->start + len;
-    stack->end = stack->start + new_capacity;
+      prof_stack_realloc(stack, measurements_len);
   }
 
   // Reserve the next available frame pointer.
-  result = stack->ptr++;
+  result = stack->ptr;
+  stack->ptr = NEXT_FRAME(stack);
 
   result->call_info = call_info;
-  result->call_info->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
+  // shortening of 64 bit into 32;
+  result->call_info->depth = (int)
+      (((uintptr_t)(stack->ptr) - (uintptr_t)(stack->start)) / FRAME_SIZE(measurements_len));
   result->passes = 0;
 
-  result->start_time = measurement;
-  result->pause_time = -1; // init as not paused.
-  result->switch_time = 0;
-  result->wait_time = 0;
-  result->child_time = 0;
-  result->dead_time = 0;
+  for (size_t i = 0; i < measurements_len; i++) {
+      result->measurements[i].start = measurements->values[i];
+      result->measurements[i].pause = -1; // init as not paused
+      result->measurements[i].switch_t = 0;
+      result->measurements[i].wait = 0;
+      result->measurements[i].child = 0;
+      result->measurements[i].dead = 0;
+  }
 
   method = call_info->target;
 
@@ -92,10 +134,10 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   // If currently paused then:
   //   1) The child frame will begin paused.
   //   2) The parent will inherit the child's dead time.
-  prof_frame_unpause(parent_frame, measurement);
+  prof_frame_unpause(parent_frame, measurements);
 
   if (paused) {
-    prof_frame_pause(result, measurement);
+    prof_frame_pause(result, measurements);
   }
 
   // Return the result
@@ -103,7 +145,7 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
 }
 
 prof_frame_t *
-prof_stack_pop(prof_stack_t *stack, double measurement)
+prof_stack_pop(prof_stack_t *stack, prof_measurements_t *measurements)
 {
   prof_frame_t *frame;
   prof_frame_t *parent_frame;
@@ -131,21 +173,24 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   }
 
   /* Consume this frame. */
-  stack->ptr--;
+  stack->ptr = PREVIOUS_FRAME(stack);
 
-  /* Calculate the total time this method took */
-  prof_frame_unpause(frame, measurement);
-  total_time = measurement - frame->start_time - frame->dead_time;
-  self_time = total_time - frame->child_time - frame->wait_time;
+  prof_frame_unpause(frame, measurements);
 
   /* Update information about the current method */
   call_info = frame->call_info;
   method = call_info->target;
 
   call_info->called++;
-  call_info->total_time += total_time;
-  call_info->self_time += self_time;
-  call_info->wait_time += frame->wait_time;
+
+  for (size_t i = 0; i < measurements->len; i++) {
+      total_time = measurements->values[i] - frame->measurements[i].start - frame->measurements[i].dead;
+      self_time = total_time - frame->measurements[i].child - frame->measurements[i].wait;
+
+      call_info->measure_values[i].total += total_time;
+      call_info->measure_values[i].self += self_time;
+      call_info->measure_values[i].wait += frame->measurements[i].wait;
+  }
 
   /* Leave the method. */
   method->visits--;
@@ -153,8 +198,11 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   parent_frame = prof_stack_peek(stack);
   if (parent_frame)
   {
-      parent_frame->child_time += total_time;
-      parent_frame->dead_time += frame->dead_time;
+      for (size_t i = 0; i < measurements->len; i++) {
+          parent_frame->measurements[i].child +=
+              measurements->values[i] - frame->measurements[i].start - frame->measurements[i].dead;
+          parent_frame->measurements[i].dead += frame->measurements[i].dead;
+      }
 
       call_info->line = parent_frame->line;
   }

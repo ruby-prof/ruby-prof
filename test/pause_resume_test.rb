@@ -58,7 +58,7 @@ class PauseResumeTest < TestCase
 
   # pause/resume in the same frame
   def test_pause_resume_1
-    profile = RubyProf::Profile.new
+    profile = RubyProf::Profile.new({})
 
     profile.start
     method_1a
@@ -78,7 +78,7 @@ class PauseResumeTest < TestCase
 
   # pause in parent frame, resume in child
   def test_pause_resume_2
-    profile = RubyProf::Profile.new
+    profile = RubyProf::Profile.new({})
 
     profile.start
     method_2a
@@ -95,7 +95,7 @@ class PauseResumeTest < TestCase
 
   # pause in child frame, resume in parent
   def test_pause_resume_3
-    profile = RubyProf::Profile.new
+    profile = RubyProf::Profile.new({})
 
     profile.start
     method_3a(profile)
@@ -111,7 +111,7 @@ class PauseResumeTest < TestCase
   def method_3b; sleep 0.4 end
 
   def test_pause_seq
-    profile = RubyProf::Profile.new
+    profile = RubyProf::Profile.new({})
     profile.start ; assert !profile.paused?
     profile.pause ; assert profile.paused?
     profile.resume; assert !profile.paused?
@@ -123,7 +123,7 @@ class PauseResumeTest < TestCase
   end
 
   def test_pause_block
-    profile = RubyProf::Profile.new
+    profile = RubyProf::Profile.new({})
     profile.start
     profile.pause
     assert profile.paused?
@@ -142,7 +142,7 @@ class PauseResumeTest < TestCase
   end
 
   def test_pause_block_with_error
-    profile = RubyProf::Profile.new
+    profile = RubyProf::Profile.new({})
     profile.start
     profile.pause
     assert profile.paused?
@@ -158,7 +158,7 @@ class PauseResumeTest < TestCase
   end
 
   def test_resume_when_not_paused
-    profile = RubyProf::Profile.new
+    profile = RubyProf::Profile.new({})
     profile.start ; assert !profile.paused?
     profile.resume; assert !profile.paused?
     profile.stop  ; assert !profile.paused?

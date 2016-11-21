@@ -41,7 +41,7 @@ class ExcludeMethodsTest < TestCase
 
   def test_methods_can_be_profiled
     obj = ExcludeMethodsClass.new
-    prf = RubyProf::Profile.new
+    prf = RubyProf::Profile.new({})
 
     result = prf.profile { 5.times {obj.a} }
     methods = result.threads.first.methods.sort.reverse
@@ -61,7 +61,7 @@ class ExcludeMethodsTest < TestCase
 
   def test_methods_can_be_hidden1
     obj = ExcludeMethodsClass.new
-    prf = RubyProf::Profile.new
+    prf = RubyProf::Profile.new({})
 
     prf.exclude_methods!(Integer, :times)
 
@@ -82,7 +82,7 @@ class ExcludeMethodsTest < TestCase
 
   def test_methods_can_be_hidden2
     obj = ExcludeMethodsClass.new
-    prf = RubyProf::Profile.new
+    prf = RubyProf::Profile.new({})
 
     prf.exclude_methods!(Integer, :times)
     prf.exclude_methods!(ExcludeMethodsClass.singleton_class, :f)
@@ -103,7 +103,7 @@ class ExcludeMethodsTest < TestCase
 
   def test_exclude_common_methods1
     obj = ExcludeMethodsClass.new
-    prf = RubyProf::Profile.new
+    prf = RubyProf::Profile.new({})
 
     prf.exclude_common_methods!
 

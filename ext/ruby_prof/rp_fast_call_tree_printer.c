@@ -13,8 +13,19 @@ static ID id_addstr;
 typedef struct call_tree_printer_vars
 {
     VALUE output;
-    double value_scale;
+    size_t len;
+    double value_scales[];
 } call_tree_printer_vars;
+
+static call_tree_printer_vars *
+call_tree_printer_vars_allocate(size_t len)
+{
+    call_tree_printer_vars *result =
+      (call_tree_printer_vars*) ruby_xmalloc(
+          sizeof(call_tree_printer_vars) + len * sizeof(double));
+    result->len = len;
+    return result;
+}
 
 /* Converts the recorded value to a fixed point number based on value scale */
 static long int
@@ -33,18 +44,16 @@ static void
 print_header(
     call_tree_printer_vars *vars,
     prof_method_t *method,
-    char *name,
-    double self_time)
+    char *name)
 {
     /* Format is file and method name followed by line and self time */
     addstr(
         vars->output,
         rb_sprintf(
-            "fl=%s\nfn=%s\n%d %ld\n",
+            "fl=%s\nfn=%s\n%d",
             prof_method_t_source_file(method),
             name,
-            method->line,
-            convert(self_time, vars->value_scale)));
+            method->line));
 }
 
 /* Returns the index of the callee in the call_infos list. */
@@ -75,13 +84,21 @@ print_child(call_tree_printer_vars *vars, prof_call_info_t *callee)
     addstr(
         vars->output,
         rb_sprintf(
-            "cfl=%s\ncfn=%s\ncalls=%d %d\n%d %ld\n",
+            "cfl=%s\ncfn=%s\ncalls=%d %d\n%d",
             prof_method_t_source_file(target),
             RSTRING_PTR(name),
             callee->called,
             callee->line,
-            callee->line,
-            convert(callee->total_time, vars->value_scale)));
+            callee->line));
+
+    for(size_t i = 0; i < callee->measures_len; i++) {
+        addstr(
+            vars->output,
+            rb_sprintf(
+                " %ld",
+                convert(callee->measure_values[i].total, vars->value_scales[i])));
+    }
+    addstr(vars->output, rb_str_new2("\n"));
 
     RB_GC_GUARD(name);
 }
@@ -98,10 +115,14 @@ static void
 print_simple_method(call_tree_printer_vars *vars, prof_method_t *method)
 {
     VALUE calltree_name = prof_method_t_calltree_name(method);
+    size_t measures_len = (*method->call_infos->start)->measures_len;
 
-    print_header(vars, method,
-            RSTRING_PTR(calltree_name),
-            prof_method_t_self_time(method));
+    print_header(vars, method, RSTRING_PTR(calltree_name));
+    for(size_t j = 0; j < measures_len; j++) {
+        addstr(vars->output,
+              rb_sprintf(" %ld", convert(prof_method_t_self_time(method, j), vars->value_scales[j])));
+    }
+    addstr(vars->output, rb_str_new2("\n"));
 
     prof_call_info_t **i;
     for(i = method->call_infos->start; i < method->call_infos->ptr; i++) {
@@ -121,7 +142,13 @@ print_recursive_method(call_tree_printer_vars *vars, prof_method_t *method)
         int index = i - method->call_infos->start;
         VALUE name = rb_sprintf("%s [%d]", RSTRING_PTR(calltree_name), index);
 
-        print_header(vars, method, RSTRING_PTR(name), (*i)->self_time);
+        print_header(vars, method, RSTRING_PTR(name));
+        for(size_t j = 0; j < (*i)->measures_len; j++) {
+            addstr(vars->output,
+                   rb_sprintf(" %ld", convert((*i)->measure_values[j].self, vars->value_scales[j])));
+        }
+        addstr(vars->output, rb_str_new2("\n"));
+
         st_foreach((*i)->call_infos, print_child_iter, (uintptr_t) vars);
 
         RB_GC_GUARD(name);
@@ -191,13 +218,20 @@ prof_fast_call_tree_printer_print_thread(VALUE self, VALUE thread) {
     thread_data_t *thread_data = prof_get_thread(thread);
 
     VALUE output = rb_iv_get(self, "@output");
-    VALUE value_scale_val = rb_iv_get(self, "@value_scale");
+    VALUE value_scales_val = rb_iv_get(self, "@value_scales");
 
-    double value_scale = NUM2DBL(value_scale_val);
+    Check_Type(value_scales_val, T_ARRAY);
+    size_t value_scales_len = RARRAY_LEN(value_scales_val);
 
-    call_tree_printer_vars vars = {output, value_scale};
+    call_tree_printer_vars *vars = call_tree_printer_vars_allocate(value_scales_len);
+    vars->output = output;
+    for(size_t i = 0; i < value_scales_len; i++) {
+        vars->value_scales[i] = NUM2DBL(rb_ary_entry(value_scales_val, i));
+    }
 
-    print_methods_in_reverse(&vars, thread_data->method_table);
+    print_methods_in_reverse(vars, thread_data->method_table);
+
+    xfree(vars);
 
     return Qnil;
 }

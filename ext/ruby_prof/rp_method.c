@@ -455,7 +455,7 @@ VALUE prof_method_t_calltree_name(prof_method_t *method)
     return calltree_name(source_klass, method->relation, method->key->mid);
 }
 
-double prof_method_t_self_time(prof_method_t *method)
+double prof_method_t_self_time(prof_method_t *method, int idx)
 {
     double self_time = 0.0;
     prof_call_info_t **i;
@@ -463,7 +463,7 @@ double prof_method_t_self_time(prof_method_t *method)
     if(method->call_infos) {
         for(i = method->call_infos->start; i < method->call_infos->ptr; i++) {
             if(!(*i)->recursive) {
-                self_time += (*i)->self_time;
+                self_time += (*i)->measure_values[idx].self;
             }
         }
     }
@@ -685,10 +685,10 @@ prof_calltree_name(VALUE self)
 
 Returns the sum of the self time of this method's call infos.*/
 static VALUE
-prof_method_self_time_unmemoized(VALUE self)
+prof_method_self_time_unmemoized(VALUE self, VALUE idx)
 {
     prof_method_t *method = get_prof_method(self);
-    return rb_float_new(prof_method_t_self_time(method));
+    return rb_float_new(prof_method_t_self_time(method, NUM2INT(idx)));
 }
 
 void rp_init_method_info()
@@ -713,5 +713,5 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
 
     rb_define_method(cMethodInfo,
-            "self_time_unmemoized", prof_method_self_time_unmemoized, 0);
+            "self_time_unmemoized", prof_method_self_time_unmemoized, 1);
 }

@@ -27,31 +27,35 @@ module RubyProf
     end
 
     def determine_event_specification_and_value_scale
-      @event_specification = "events: "
-      case RubyProf.measure_mode
-        when RubyProf::PROCESS_TIME
-          @value_scale = RubyProf::CLOCKS_PER_SEC
-          @event_specification << 'process_time'
-        when RubyProf::WALL_TIME
-          @value_scale = 1_000_000
-          @event_specification << 'wall_time'
-        when RubyProf.const_defined?(:CPU_TIME) && RubyProf::CPU_TIME
-          @value_scale = RubyProf.cpu_frequency
-          @event_specification << 'cpu_time'
-        when RubyProf.const_defined?(:ALLOCATIONS) && RubyProf::ALLOCATIONS
-          @value_scale = 1
-          @event_specification << 'allocations'
-        when RubyProf.const_defined?(:MEMORY) && RubyProf::MEMORY
-          @value_scale = 1
-          @event_specification << 'memory'
-        when RubyProf.const_defined?(:GC_RUNS) && RubyProf::GC_RUNS
-          @value_scale = 1
-          @event_specification << 'gc_runs'
-        when RubyProf.const_defined?(:GC_TIME) && RubyProf::GC_TIME
-          @value_scale = 1000000
-          @event_specification << 'gc_time'
-        else
-          raise "Unknown measure mode: #{RubyProf.measure_mode}"
+      @value_scales = []
+      @event_specifications = ['events:']
+
+      @result.measure_modes.each do |measure_mode|
+        case measure_mode
+          when RubyProf::PROCESS_TIME
+            @value_scales << RubyProf::CLOCKS_PER_SEC
+            @event_specifications << 'process_time'
+          when RubyProf::WALL_TIME
+            @value_scales << 1_000_000
+            @event_specifications << 'wall_time'
+          when RubyProf.const_defined?(:CPU_TIME) && RubyProf::CPU_TIME
+            @value_scales << RubyProf.cpu_frequency
+            @event_specifications << 'cpu_time'
+          when RubyProf.const_defined?(:ALLOCATIONS) && RubyProf::ALLOCATIONS
+            @value_scales << 1
+            @event_specifications << 'allocations'
+          when RubyProf.const_defined?(:MEMORY) && RubyProf::MEMORY
+            @value_scales << 1
+            @event_specifications << 'memory'
+          when RubyProf.const_defined?(:GC_RUNS) && RubyProf::GC_RUNS
+            @value_scales << 1
+            @event_specifications << 'gc_runs'
+          when RubyProf.const_defined?(:GC_TIME) && RubyProf::GC_TIME
+            @value_scales << 1000000
+            @event_specifications << 'gc_time'
+          else
+            raise "Unknown measure mode: #{measure_mode}"
+        end
       end
     end
 
@@ -74,8 +78,8 @@ module RubyProf
       end
     end
 
-    def print_headers(output, thread)
-      @output << "#{@event_specification}\n\n"
+    def print_headers
+      @output << "#{@event_specifications.join(" ")}\n\n"
       # this doesn't work. kcachegrind does not fully support the spec.
       # output << "thread: #{thread.id}\n\n"
     end

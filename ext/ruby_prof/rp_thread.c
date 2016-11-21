@@ -7,10 +7,10 @@ VALUE cRpThread;
 
 /* ======   thread_data_t  ====== */
 thread_data_t*
-thread_data_create()
+thread_data_create(size_t measurements_len)
 {
     thread_data_t* result = ALLOC(thread_data_t);
-    result->stack = prof_stack_create();
+    result->stack = prof_stack_create(measurements_len);
     result->method_table = method_table_create();
     result->object = Qnil;
     result->methods = Qnil;
@@ -144,7 +144,7 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
     }
     else
     {
-        result = thread_data_create();
+        result = thread_data_create(profile->measurer->len);
 
         result->thread_index = 0;
         result->thread_id = thread_id;
@@ -167,7 +167,7 @@ thread_data_t *
 switch_thread(void* prof, VALUE thread_id, VALUE fiber_id)
 {
     prof_profile_t* profile = (prof_profile_t*)prof;
-    double measurement = profile->measurer->measure();
+    prof_measurer_take_measurements(profile->measurer, profile->measurements);
 
     /* Get new thread information. */
     thread_data_t *thread_data = threads_table_lookup(profile, thread_id, fiber_id);
@@ -178,17 +178,22 @@ switch_thread(void* prof, VALUE thread_id, VALUE fiber_id)
     /* Update the time this thread waited for another thread */
     if (frame)
     {
-        frame->wait_time += measurement - frame->switch_time;
-        frame->switch_time = measurement;
+        for (size_t i; i < frame->measurements_len; i++) {
+            frame->measurements[i].wait += profile->measurements->values[i] - frame->measurements[i].switch_t;
+            frame->measurements[i].switch_t = profile->measurements->values[i];
+        }
     }
 
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
     if (profile->last_thread_data)
     {
-       prof_frame_t *last_frame = prof_stack_peek(profile->last_thread_data->stack);
-       if (last_frame)
-         last_frame->switch_time = measurement;
+        prof_frame_t *last_frame = prof_stack_peek(profile->last_thread_data->stack);
+        if (last_frame) {
+            for(size_t i; i < last_frame->measurements_len; i++) {
+                last_frame->measurements[i].switch_t = profile->measurements->values[i];
+            }
+        }
     }
 
     profile->last_thread_data = thread_data;
@@ -201,7 +206,7 @@ int pause_thread(st_data_t key, st_data_t value, st_data_t data)
     prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_pause(frame, profile->measurement_at_pause_resume);
+    prof_frame_pause(frame, profile->measurements_at_pause_resume);
 
     return ST_CONTINUE;
 }
@@ -212,7 +217,7 @@ int unpause_thread(st_data_t key, st_data_t value, st_data_t data)
     prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = prof_stack_peek(thread_data->stack);
-    prof_frame_unpause(frame, profile->measurement_at_pause_resume);
+    prof_frame_unpause(frame, profile->measurements_at_pause_resume);
 
     return ST_CONTINUE;
 }

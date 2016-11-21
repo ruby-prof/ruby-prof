@@ -16,7 +16,7 @@ module RubyProf
 
     def determine_event_specification_and_value_scale
       @event_specification = "events: "
-      case RubyProf.measure_mode
+      case @result.measure_modes.first
         when RubyProf::PROCESS_TIME
           @value_scale = RubyProf::CLOCKS_PER_SEC
           @event_specification << 'process_time'

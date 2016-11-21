@@ -9,9 +9,25 @@ module RubyProf
     # children:   array of call info children (can be empty)
     # target:     method info (containing an array of call infos)
 
-    def children_time
+    def measure_values_memoized
+      @measure_values ||= measure_values
+    end
+
+    def total_time(i = 0)
+      measure_values_memoized[i][0]
+    end
+
+    def self_time(i = 0)
+      measure_values_memoized[i][1]
+    end
+
+    def wait_time(i = 0)
+      measure_values_memoized[i][2]
+    end
+
+    def children_time(i = 0)
       children.inject(0) do |sum, call_info|
-        sum += call_info.total_time
+        sum += call_info.total_time(i)
       end
     end
 
@@ -61,26 +77,6 @@ module RubyProf
 
     def inspect
       super + "(#{target.full_name}, d: #{depth}, c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
-    end
-
-    # eliminate call info from the call tree.
-    # adds self and wait time to parent and attaches called methods to parent.
-    # merges call trees for methods called from both praent end self.
-    def eliminate!
-      # puts "eliminating #{self}"
-      return unless parent
-      parent.add_self_time(self)
-      parent.add_wait_time(self)
-      children.each do |kid|
-        if call = parent.find_call(kid)
-          call.merge_call_tree(kid)
-        else
-          parent.children << kid
-          # $stderr.puts "setting parent of #{kid}\nto #{parent}"
-          kid.parent = parent
-        end
-      end
-      parent.children.delete(self)
     end
 
     # find a specific call in list of children. returns nil if not found.

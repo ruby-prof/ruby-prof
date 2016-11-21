@@ -6,12 +6,13 @@
 
 extern VALUE mMeasure;
 
-typedef double (*get_measurement)();
-
 typedef struct
 {
-    get_measurement measure;
-} prof_measurer_t;
+    size_t len;
+    double values[];
+} prof_measurements_t;
+
+typedef double (*get_measurement)();
 
 typedef enum
 {
@@ -24,14 +25,24 @@ typedef enum
     MEASURE_GC_RUNS,
 } prof_measure_mode_t;
 
-prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure);
-prof_measurer_t* prof_measurer_allocations();
-prof_measurer_t* prof_measurer_cpu_time();
-prof_measurer_t* prof_measurer_gc_runs();
-prof_measurer_t* prof_measurer_gc_time();
-prof_measurer_t* prof_measurer_memory();
-prof_measurer_t* prof_measurer_process_time();
-prof_measurer_t* prof_measurer_wall_time();
+typedef struct
+{
+    size_t len;
+    prof_measure_mode_t* measure_modes;
+    get_measurement measures[];
+} prof_measurer_t;
+
+
+prof_measurer_t* prof_get_measurer(prof_measure_mode_t* measures, size_t len);
+get_measurement prof_measurer_allocations();
+get_measurement prof_measurer_cpu_time();
+get_measurement prof_measurer_gc_runs();
+get_measurement prof_measurer_gc_time();
+get_measurement prof_measurer_memory();
+get_measurement prof_measurer_process_time();
+get_measurement prof_measurer_wall_time();
+
+void prof_measurer_take_measurements(prof_measurer_t* measurer, prof_measurements_t* dest);
 
 void rp_init_measure();
 void rp_init_measure_allocations();

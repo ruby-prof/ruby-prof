@@ -17,11 +17,9 @@ measure_wall_time()
     return tv.tv_sec + (tv.tv_usec/1000000.0);
 }
 
-prof_measurer_t* prof_measurer_wall_time()
+get_measurement prof_measurer_wall_time()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_wall_time;
-  return measure;
+  return measure_wall_time;
 }
 
 /* Document-method: prof_measure_wall_time

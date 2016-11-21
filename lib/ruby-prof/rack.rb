@@ -55,7 +55,7 @@ module Rack
 
     def profiling_options
       options = {}
-      options[:measure_mode] = ::RubyProf.measure_mode
+      options[:measure_modes] = [::RubyProf.measure_mode]
       options[:exclude_threads] =
         if @options[:ignore_existing_threads]
           Thread.list.select{|t| t != Thread.current}

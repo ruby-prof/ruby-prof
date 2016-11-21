@@ -30,20 +30,20 @@ module RubyProf
       end
     end
 
-    def total_time
-      aggregate_roots(:total_time)
+    def total_time(i = 0)
+      aggregate_roots(:total_time, i)
     end
 
-    def self_time
-      aggregate_roots(:self_time)
+    def self_time(i = 0)
+      aggregate_roots(:self_time, i)
     end
 
-    def wait_time
-      aggregate_roots(:wait_time)
+    def wait_time(i = 0)
+      aggregate_roots(:wait_time, i)
     end
 
-    def children_time
-      aggregate_roots(:children_time)
+    def children_time(i = 0)
+      aggregate_roots(:children_time, i)
     end
 
     def called
@@ -67,9 +67,9 @@ module RubyProf
       end
     end
 
-    def aggregate_roots(method_name)
+    def aggregate_roots(method_name, *args)
       roots.inject(0) do |sum, call_info|
-        sum + call_info.send(method_name)
+        sum + call_info.send(method_name, *args)
       end
     end
   end

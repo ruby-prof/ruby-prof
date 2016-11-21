@@ -46,7 +46,7 @@ typedef struct
     st_table* include_threads_tbl;
     st_table* exclude_methods_tbl;
     thread_data_t* last_thread_data;
-    double measurement_at_pause_resume;
+    prof_measurements_t* measurements_at_pause_resume;
     int merge_fibers;
 
     VALUE main_thread_id;
@@ -56,6 +56,7 @@ typedef struct
     VALUE paused;
 
     prof_measurer_t* measurer;
+    prof_measurements_t* measurements;
     VALUE threads;
 } prof_profile_t;
 

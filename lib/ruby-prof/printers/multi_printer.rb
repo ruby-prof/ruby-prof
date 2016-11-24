@@ -5,11 +5,11 @@ module RubyProf
   # one profiling run. Currently prints a flat profile, a callgrind
   # profile, a call stack profile and a graph profile.
   class MultiPrinter
-    def initialize(result)
-      @stack_printer = CallStackPrinter.new(result)
-      @graph_printer = GraphHtmlPrinter.new(result)
-      @tree_printer = CallTreePrinter.new(result)
-      @flat_printer = FlatPrinter.new(result)
+    def initialize(result, printers = [:stack, :graph, :tree, :flat])
+      @stack_printer = CallStackPrinter.new(result) if printers.include?(:stack)
+      @graph_printer = GraphHtmlPrinter.new(result) if printers.include?(:graph)
+      @tree_printer = CallTreePrinter.new(result) if printers.include?(:tree)
+      @flat_printer = FlatPrinter.new(result) if printers.include?(:flat)
     end
 
     # create profile files under options[:path] or the current
@@ -19,19 +19,13 @@ module RubyProf
       @profile = options.delete(:profile) || "profile"
       @directory = options.delete(:path) || File.expand_path(".")
 
-      File.open(stack_profile, "w") do |f|
-        @stack_printer.print(f, options.merge(:graph => "#{@profile}.graph.html"))
-      end
+      print_to_stack(options) if @stack_printer
 
-      File.open(graph_profile, "w") do |f|
-        @graph_printer.print(f, options)
-      end
+      print_to_graph(options) if @graph_printer
 
-      @tree_printer.print(options.merge(:path => @directory, :profile => @profile))
+      print_to_tree(options) if @tree_printer
 
-      File.open(flat_profile, "w") do |f|
-        @flat_printer.print(f, options)
-      end
+      print_to_flat(options) if @flat_printer
     end
 
     # the name of the call stack profile file
@@ -54,5 +48,26 @@ module RubyProf
       "#{@directory}/#{@profile}.flat.txt"
     end
 
+    def print_to_stack(options)
+      File.open(stack_profile, "w") do |f|
+        @stack_printer.print(f, options.merge(:graph => "#{@profile}.graph.html"))
+      end
+    end
+
+    def print_to_graph(options)
+      File.open(graph_profile, "w") do |f|
+        @graph_printer.print(f, options)
+      end
+    end
+
+    def print_to_tree(options)
+      @tree_printer.print(options.merge(:path => @directory, :profile => @profile))
+    end
+
+    def print_to_flat(options)
+      File.open(flat_profile, "w") do |f|
+        @flat_printer.print(f, options)
+      end
+    end
   end
 end

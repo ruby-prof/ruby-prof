@@ -32,6 +32,28 @@ class MultiPrinterTest < TestCase
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 
+  def test_refuses_io_objects
+    # we don't need a real profile for this test
+    p = RubyProf::MultiPrinter.new nil
+    begin
+      p.print(STDOUT)
+      flunk "should have raised an ArgumentError"
+    rescue ArgumentError => e
+      assert_match(/IO/, e.to_s)
+    end
+  end
+
+  def test_refuses_non_hashes
+    # we don't need a real profile for this test
+    p = RubyProf::MultiPrinter.new nil
+    begin
+      p.print([])
+      flunk "should have raised an ArgumentError"
+    rescue ArgumentError => e
+      assert_match(/hash/, e.to_s)
+    end
+  end
+
   def test_all_profiles_can_be_created
     start_time = Time.now
     RubyProf.start

@@ -16,6 +16,8 @@ module RubyProf
     # directory. options[:profile] is used as the base name for the
     # pofile file, defaults to "profile".
     def print(options)
+      validate_print_params(options)
+
       @profile = options.delete(:profile) || "profile"
       @directory = options.delete(:path) || File.expand_path(".")
 
@@ -54,5 +56,12 @@ module RubyProf
       "#{@directory}/#{@profile}.flat.txt"
     end
 
+    def validate_print_params(options)
+      if options.is_a?(IO)
+        raise ArgumentError, "#{self.class.name}#print cannot print to IO objects"
+      elsif !options.is_a?(Hash)
+        raise ArgumentError, "#{self.class.name}#print requires an options hash"
+      end
+    end
   end
 end

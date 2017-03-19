@@ -63,6 +63,26 @@ class PrintersTest < TestCase
     end
   end
 
+  def test_refuses_io_objects
+    p = RubyProf::MultiPrinter.new(@result)
+    begin
+      p.print(STDOUT)
+      flunk "should have raised an ArgumentError"
+    rescue ArgumentError => e
+      assert_match(/IO/, e.to_s)
+    end
+  end
+
+  def test_refuses_non_hashes
+    p = RubyProf::MultiPrinter.new (@result)
+    begin
+      p.print([])
+      flunk "should have raised an ArgumentError"
+    rescue ArgumentError => e
+      assert_match(/hash/, e.to_s)
+    end
+  end
+
   def test_flat_string
     output = helper_test_flat_string(RubyProf::FlatPrinter)
     refute_match(/prime.rb/, output)

@@ -295,7 +295,7 @@ RubyProf::CallStackPrinter::
 RubyProf::MultiPrinter::
   Uses the other printers to create several reports in one profiling run
 
-To use a printer:
+Most printers are used in the following way:
 
     result = RubyProf.stop
     printer = RubyProf::GraphPrinter.new(result)
@@ -311,11 +311,14 @@ documentation for the different printers.
 The other option is <tt>:print_file => true</tt> (default false),
 which adds the filename to the output (GraphPrinter only).
 
-<tt>MultiPrinter</tt> differs from the other printers in that it
-requires a directory path and a basename for the files it produces.
+<tt>MultiPrinter</tt> and <tt>CallTreePrinter</tt>differ from the
+other printers in that they require a directory path and a profile
+basename for the files they produce:
 
     printer = RubyProf::MultiPrinter.new(result)
     printer.print(:path => ".", :profile => "profile")
+
+The values given in the example above are the defaults.
 
 == Measurements
 

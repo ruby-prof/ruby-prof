@@ -291,6 +291,20 @@ prof_call_info_set_parent(VALUE self, VALUE new_parent)
     return prof_call_info_parent(self);
 }
 
+/* call-seq:
+   root? -> boolean
+
+Returns true if the call_info has no parent.*/
+static VALUE
+prof_call_info_root(VALUE self)
+{
+    prof_call_info_t *result = prof_get_call_info(self);
+    if (result->parent)
+      return Qfalse;
+    else
+      return Qtrue;
+}
+
 static int
 prof_call_info_collect_children(st_data_t key, st_data_t value, st_data_t result)
 {
@@ -392,6 +406,7 @@ void rp_init_call_info()
     rb_undef_method(CLASS_OF(cCallInfo), "new");
     rb_define_method(cCallInfo, "parent", prof_call_info_parent, 0);
     rb_define_method(cCallInfo, "parent=", prof_call_info_set_parent, 1);
+    rb_define_method(cCallInfo, "root?", prof_call_info_root, 0);
     rb_define_method(cCallInfo, "children", prof_call_info_children, 0);
     rb_define_method(cCallInfo, "target", prof_call_info_target, 0);
     rb_define_method(cCallInfo, "called", prof_call_info_called, 0);

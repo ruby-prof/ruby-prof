@@ -70,14 +70,6 @@ module RubyProf
       @min_depth ||= call_infos.map(&:depth).min
     end
 
-    def root?
-      @root ||= begin
-        call_infos.find do |call_info|
-          not call_info.root?
-        end.nil?
-      end
-    end
-
     def recursive?
       (@recursive ||= call_infos.detect(&:recursive) ? :true : :false) == :true
     end

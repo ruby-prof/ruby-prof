@@ -1,13 +1,11 @@
 module RubyProf
   class Thread
     def top_methods
-      self.methods.select do |method_info|
-        method_info.call_infos.detect(&:root?)
-      end
+      self.methods.select(&:root?)
     end
 
     def top_call_infos
-      top_methods.map(&:call_infos).flatten.select(&:root?)
+      top_methods.flat_map(&:call_infos).keep_if(&:root?)
     end
 
     # This method detect recursive calls in the call tree of a given thread
@@ -17,13 +15,8 @@ module RubyProf
     end
 
     def total_time
-      self.top_methods.inject(0) do |sum, method_info|
-        method_info.call_infos.each do |call_info|
-          if call_info.parent.nil?
-            sum += call_info.total_time
-          end
-        end
-        sum
+      @total_time = self.top_call_infos.inject(0) do |sum, call_info|
+        sum += call_info.total_time
       end
     end
 

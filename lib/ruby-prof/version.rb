@@ -1,3 +1,4 @@
 module RubyProf
-  VERSION = "0.16.2"
+  # Based off ruby-prof 0.16.2
+  VERSION = "0.0.1"
 end

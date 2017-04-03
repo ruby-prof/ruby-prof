@@ -1,3 +1,19 @@
+AIRBNB CHANGES
+==============
+
+0.0.1 (based off 0.16.2)
+=====
+
+* improved method naming in callgrind output
+* eliminate methods during profiling
+* detect recursion during profiling
+* WIP flamegraph printer
+* optimized C impl of CallTreePrinter
+* collect multiple measures during a profile run
+
+UPSTREAM CHANGES
+================
+
 0.16.2 (2016-08-25)
 =====================
 * fixed incorrect setting of RUBY_VERSION macro

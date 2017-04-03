@@ -4,7 +4,7 @@ $:.push File.expand_path("../lib", __FILE__)
 require "ruby-prof/version"
 
 Gem::Specification.new do |spec|
-  spec.name = "ruby-prof"
+  spec.name = "airbnb-ruby-prof"
 
   spec.homepage = "https://github.com/ruby-prof/ruby-prof/"
   spec.summary = "Fast Ruby profiler"

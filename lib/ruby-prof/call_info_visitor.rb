@@ -28,12 +28,51 @@ module RubyProf
     end
 
     private
-    def visit_call_info(call_info, &block)
-      yield call_info, :enter
-      call_info.children.each do |child|
-        visit_call_info(child, &block)
+    
+    def visit_call_info(top_call_info, &block)
+      # Keeps track of the child index, so we can get the next child quickly.
+      stack = [0]
+      
+      # The current depth of the tree, stack[depth] the current child index.
+      depth = 0
+      
+      # The current location in the tree.
+      current = top_call_info
+      
+      yield current, :enter
+      
+      # While we have a valid tree:
+      while current
+        # Fetch the child index for this node:
+        index = stack[depth]
+        
+        # If there is a valid child for this index:
+        if index < current.children.size
+          # Move to this child:
+          current = current.children[index]
+          
+          # Visit the current node:
+          yield current, :enter
+          
+          # Update the next child index:
+          stack[depth] += 1
+          
+          # Increase in depth:
+          depth += 1
+          
+          # Since we haven't visited any children yet, set the child index to 0:
+          stack[depth] = 0
+        else
+          # Otherwise, move back up the tree:
+          yield current, :exit
+          
+          # Sometimes top_call_info.parent doesn't seem to be nil?
+          break if depth == 0
+          
+          current = current.parent
+          depth -= 1
+        end
       end
-      yield call_info, :exit
     end
   end
 

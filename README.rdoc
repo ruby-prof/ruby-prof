@@ -17,7 +17,8 @@ ruby-prof is a fast code profiler for MRI Ruby.  Its features include:
 
 == Requirements
 
-ruby-prof requires Ruby 1.9.3 or higher. Please note some ruby
+ruby-prof requires MRI Ruby 1.9.3 or higher.  It does not support and will
+not install on Rubinius/rbx or Jruby.  Please note some ruby
 releases have known bugs which cause ruby-prof problems, like
 incorrect measurements. We suggest to use the latest minor patch level
 release if possible. In particular, on the 2.1 branch of ruby you

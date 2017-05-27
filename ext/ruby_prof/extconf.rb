@@ -10,6 +10,9 @@ if RUBY_VERSION < "1.9.3"
   exit(1)
 end
 
+# For the love of bitfields...
+$CFLAGS += ' -std=c99'
+
 # standard ruby methods
 have_func("rb_gc_stat")
 have_func("rb_gc_count")

@@ -140,7 +140,7 @@ class PrintersTest < TestCase
     main_output_file_name = File.join(RubyProf.tmpdir, "lolcat.callgrind.out.#{$$}")
     assert(File.exist?(main_output_file_name))
     output = File.read(main_output_file_name)
-    assert_match(/fn=Object#find_primes/i, output)
+    assert_match(/fn=Object::find_primes/i, output)
     assert_match(/events: wall_time/i, output)
     refute_match(/d\d\d\d\d\d/, output) # old bug looked [in error] like Object::run_primes(d5833116)
   end

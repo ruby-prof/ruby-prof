@@ -17,3 +17,5 @@ examples2
 .rvmrc
 Gemfile.lock
 /profile.callgrind.out.*
+*.gem
+.ruby-version

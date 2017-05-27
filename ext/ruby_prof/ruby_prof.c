@@ -282,9 +282,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        frame = prof_stack_push(thread_data->stack, measurement);
-        frame->call_info = call_info;
-		frame->call_info->depth = frame->depth;
+        frame = prof_stack_push(thread_data->stack, call_info, measurement);
         frame->pause_time = profile->paused == Qtrue ? measurement : -1;
         frame->line = rb_sourceline();
         break;
@@ -292,8 +290,8 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
-	  prof_stack_pop(thread_data->stack, measurement);
-      break;
+        prof_stack_pop(thread_data->stack, measurement);
+        break;
     }
   }
 }
@@ -604,9 +602,6 @@ prof_stop(VALUE self)
        and the threads table */
     profile->running = profile->paused = Qfalse;
     profile->last_thread_data = NULL;
-
-    /* Post process result */
-    rb_funcall(self, rb_intern("post_process") , 0);
 
     return self;
 }

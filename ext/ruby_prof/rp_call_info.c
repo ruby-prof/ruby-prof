@@ -23,11 +23,16 @@ prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
     result->call_infos = call_info_table_create();
     result->children = Qnil;
 
-    result->called = 0;
     result->total_time = 0;
     result->self_time = 0;
     result->wait_time = 0;
+
+    result->called = 0;
+
+    result->recursive = 0;
+    result->depth = 0;
     result->line = 0;
+
     return result;
 }
 static void
@@ -160,6 +165,17 @@ prof_call_info_set_called(VALUE self, VALUE called)
     prof_call_info_t *result = prof_get_call_info(self);
     result->called = NUM2INT(called);
     return called;
+}
+
+/* call-seq:
+   recursive? -> boolean
+
+   Returns the true if this call info is a recursive invocation */
+static VALUE
+prof_call_info_recursive(VALUE self)
+{
+  prof_call_info_t *result = prof_get_call_info(self);
+  return result->recursive ? Qtrue : Qfalse;
 }
 
 /* call-seq:
@@ -402,6 +418,8 @@ void rp_init_call_info()
     rb_define_method(cCallInfo, "add_self_time", prof_call_info_add_self_time, 1);
     rb_define_method(cCallInfo, "wait_time", prof_call_info_wait_time, 0);
     rb_define_method(cCallInfo, "add_wait_time", prof_call_info_add_wait_time, 1);
+
+    rb_define_method(cCallInfo, "recursive?", prof_call_info_recursive, 0);
     rb_define_method(cCallInfo, "depth", prof_call_info_depth, 0);
     rb_define_method(cCallInfo, "line", prof_call_info_line, 0);
 }

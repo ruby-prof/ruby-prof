@@ -20,6 +20,9 @@ module RubyProf
   #   :template    - specify an ERB template to use, instead of the
   #                  built-in self.template
   #
+  #    :editor_uri - Specifies editor uri scheme used for opening files
+  #                  e.g. :atm or :mvim. For OS X default is :txmt.
+  #                  Use RUBY_PROF_EDITOR_URI environment variable to overide.
 
   class GraphHtmlPrinter < AbstractPrinter
     include ERB::Util
@@ -36,6 +39,7 @@ module RubyProf
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
+      @editor = editor_uri
       @output << @erb.result(binding).split("\n").map(&:rstrip).join("\n") << "\n"
     end
 
@@ -63,8 +67,10 @@ module RubyProf
       if srcfile =~ /\/ruby_runtime$/
         ""
       else
-        if RUBY_PLATFORM =~ /darwin/
-          "<a href=\"txmt://open?url=file://#{h srcfile}&line=#{linenum}\" title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
+        if @editor
+          "<a href=\"#{@editor}://" \
+          "open?url=file://#{h srcfile}&line=#{linenum}\"" \
+          "title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
         else
           "<a href=\"file://#{h srcfile}##{linenum}\" title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
         end
@@ -241,4 +247,3 @@ module RubyProf
     end
   end
 end
-

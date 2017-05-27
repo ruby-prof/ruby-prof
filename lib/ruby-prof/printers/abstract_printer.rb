@@ -26,6 +26,9 @@ module RubyProf
     #                  Available values are :total_time, :self_time,
     #                  :wait_time, :children_time
     #                  Default value is :total_time
+    #    :editor_uri - Specifies editor uri scheme used for opening files
+    #                  e.g. :atm or :mvim. For OS X default is :txmt.
+    #                  Use RUBY_PROF_EDITOR_URI environment variable to overide.
     def setup_options(options = {})
       @options = options
     end
@@ -40,6 +43,16 @@ module RubyProf
 
     def sort_method
       @options[:sort_method] || :total_time
+    end
+
+    def editor_uri
+      default_uri = if RUBY_PLATFORM =~ /darwin/ \
+                    && !ENV['RUBY_PROF_EDITOR_URI']
+                      'txmt'
+                    else
+                      false
+                    end
+      ENV['RUBY_PROF_EDITOR_URI'] || @options[:editor_uri] || default_uri
     end
 
     def method_name(method)

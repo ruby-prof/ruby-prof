@@ -438,6 +438,10 @@ profiled.  Most programs will run approximately twice as slow
 while highly recursive programs (like the fibonacci series test)
 will run three times slower.
 
+== Editing links
+
+Use <tt>RUBY_PROF_EDITOR_URI</tt> environment variable to open sources in your favorite text editor. For example <tt>RUBY_PROF_EDITOR_URI=atm</tt> will produce links for Atom text editor.
+
 == License
 
 See LICENSE for license information.

@@ -94,5 +94,10 @@ module RubyProf
 
     def print_footer(thread)
     end
+
+    # whether this printer need a :path option pointing to a directory
+    def self.needs_dir?
+      false
+    end
   end
 end

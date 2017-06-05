@@ -12,6 +12,10 @@ module RubyProf
       @flat_printer = FlatPrinter.new(result) if printers.include?(:flat)
     end
 
+    def self.needs_dir?
+      true
+    end
+
     # create profile files under options[:path] or the current
     # directory. options[:profile] is used as the base name for the
     # pofile file, defaults to "profile".

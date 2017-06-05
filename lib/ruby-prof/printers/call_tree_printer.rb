@@ -88,6 +88,10 @@ module RubyProf
       @options[:path] || "."
     end
 
+    def self.needs_dir?
+      true
+    end
+
     def base_name
       @options[:profile] || "profile"
     end

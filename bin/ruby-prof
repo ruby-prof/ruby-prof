@@ -250,9 +250,14 @@ module RubyProf
 
       self.option_parser.parse! ARGV
 
-      if options.printer == RubyProf::MultiPrinter
+      if options.printer.needs_dir?
         options.file ||= "."
         options.old_wd ||= Dir.pwd
+        if !File.directory?(options.file)
+        puts "'#{options.file}' is not a directory"
+        puts "#{options.printer} needs an existing directory path to put profiles under."
+        exit(-1)
+        end
       end
     rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument => e
       puts self.option_parser
@@ -322,7 +327,7 @@ at_exit {
   if cmd.options.file
     # write it relative to the dir they *started* in, as it's a bit surprising to write it in the dir they end up in.
     Dir.chdir(cmd.options.old_wd) do
-      if printer.is_a?(RubyProf::MultiPrinter) || printer.is_a?(RubyProf::CallTreePrinter)
+      if printer.class.needs_dir?
         printer.print(printer_options.merge(:path => cmd.options.file))
       else
         File.open(cmd.options.file, 'w') do |file|

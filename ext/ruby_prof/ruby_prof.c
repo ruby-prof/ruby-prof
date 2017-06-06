@@ -324,10 +324,19 @@ prof_install_hook(VALUE self)
           RUBY_EVENT_LINE, self);
 }
 
+#ifdef HAVE_RB_REMOVE_EVENT_HOOK_WITH_DATA
+extern int
+rb_remove_event_hook_with_data(rb_event_hook_func_t func, VALUE data);
+#endif
+
 void
-prof_remove_hook()
+prof_remove_hook(VALUE self)
 {
+#ifdef HAVE_RB_REMOVE_EVENT_HOOK_WITH_DATA
+    rb_remove_event_hook_with_data(prof_event_hook, self);
+#else
     rb_remove_event_hook(prof_event_hook);
+#endif
 }
 
 static int
@@ -613,11 +622,11 @@ prof_stop(VALUE self)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was not yet called");
     }
-  
-    prof_remove_hook();
+
+    prof_remove_hook(self);
 
     /* close trace file if open */
-    if (trace_file != NULL) 
+    if (trace_file != NULL)
     {
       if (trace_file !=stderr && trace_file != stdout)
       {
@@ -629,7 +638,7 @@ prof_stop(VALUE self)
       }
       trace_file = NULL;
     }
-    
+
     prof_pop_threads(profile);
 
     /* Unset the last_thread_data (very important!)

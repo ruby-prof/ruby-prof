@@ -16,6 +16,7 @@ $CFLAGS += ' -std=c99'
 # standard ruby methods
 have_func("rb_gc_stat")
 have_func("rb_gc_count")
+have_func("rb_remove_event_hook_with_data")
 
 # Alexander Dymo GC patch
 have_func("rb_os_allocated_objects")

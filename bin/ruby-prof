@@ -254,9 +254,9 @@ module RubyProf
         options.file ||= "."
         options.old_wd ||= Dir.pwd
         if !File.directory?(options.file)
-        puts "'#{options.file}' is not a directory"
-        puts "#{options.printer} needs an existing directory path to put profiles under."
-        exit(-1)
+          puts "'#{options.file}' is not a directory"
+          puts "#{options.printer} needs an existing directory path to put profiles under."
+          exit(-1)
         end
       end
     rescue OptionParser::InvalidOption, OptionParser::InvalidArgument, OptionParser::MissingArgument => e

@@ -153,7 +153,7 @@ RubyProf::Profile#profile::
    as RubyProf::Profile.new.
 
 
-== Method Elimination
+== Method Elimination (Deprecated)
 
 ruby-prof supports eliminating specific methods and threads from
 profiling results. This is useful for reducing connectivity in the
@@ -178,6 +178,28 @@ regular expressions (line separated text).
 
 After eliminating methods the resulting profile will appear exactly as if those methods
 had been inlined at their call sites.
+
+
+== Method Exclusion
+
+ruby-prof supports exluding methods from profiling. The effect on
+collected metrics are identical to eliminating methods from the
+profiling result in a prost process step. The interface is slightly
+different though:
+
+    profile = RubyProf.new(...)
+    profile.exclude_methods!(Integer, :times, ...)
+    profile.exclude_singleton_methods!(, :times, ...)
+    profile.start
+
+A convenience method is provided to exclude a large number of methods
+which usually clutter up profiles:
+
+    profile.exclude_common_methods!
+
+However, this is a somewhat opinionated method collection. It's
+usually better to view it as an inspiration instead of using it
+directly (see https://github.com/ruby-prof/ruby-prof/blob/e087b7d7ca11eecf1717d95a5c5fea1e36ea3136/lib/ruby-prof/profile/exclude_common_methods.rb).
 
 
 == Profiling Rails
@@ -440,7 +462,10 @@ will run three times slower.
 
 == Editing links
 
-Use <tt>RUBY_PROF_EDITOR_URI</tt> environment variable to open sources in your favorite text editor. For example <tt>RUBY_PROF_EDITOR_URI=atm</tt> will produce links for Atom text editor.
+Use <tt>RUBY_PROF_EDITOR_URI</tt> environment variable to open source
+code files in your favorite text editor. For example,
+<tt>RUBY_PROF_EDITOR_URI=atm</tt> will produce links for Atom text
+editor.
 
 == License
 

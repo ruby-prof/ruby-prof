@@ -1,3 +1,17 @@
+0.17.0 (2017-06-xx)
+=====================
+* Changed method/class names produced by the callgrind printer to be more kcachegrind
+  friendly (thx to Nelson Gauthier and Ben Hughes, see https://github.com/ruby-prof/ruby-prof/pull/200).
+* Recursive instances of a method call are now dtected during profiling (thx to Nelson Gauthier and
+  Ben Hughes, see https://github.com/ruby-prof/ruby-prof/pull/201).
+* Methods can now be ignored during a profiling run instead of eliminating them
+  after a profile run, which has been deprecated (thx to Nelson Gauthier and Ben Hughes,
+  see https://github.com/ruby-prof/ruby-prof/pull/202).
+* Use RUBY_PROF_EDITOR_URI=emacs to open source code links in the one true editor.
+  (thx Alexander Egorov, see https://github.com/ruby-prof/ruby-prof/pull/183 and
+  https://github.com/typester/emacs-handler).
+* Fixed that calling profile.stop would stop profiling all active profiling runs.
+
 0.16.2 (2016-08-25)
 =====================
 * fixed incorrect setting of RUBY_VERSION macro

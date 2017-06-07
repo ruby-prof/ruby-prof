@@ -8,6 +8,13 @@ rescue LoadError
   require "ruby_prof.so"
 end
 
+module RubyProf
+  def self.deprecation_warning(feature, recommendation = nil)
+    $stderr.puts "DEPRECATION WARNING: #{feature}"
+    $stderr.puts recommendation unless recommendation.nil?
+  end
+end
+
 require 'ruby-prof/version'
 require 'ruby-prof/call_info'
 require 'ruby-prof/compatibility'

@@ -25,6 +25,12 @@ $LOAD_PATH << lib
 $LOAD_PATH << ext
 
 require 'ruby-prof'
+
+# stub deprecation warnings
+module RubyProf
+  def self.deprecation_warning(*args); end
+end
+
 require 'minitest/autorun'
 
 class TestCase < Minitest::Test

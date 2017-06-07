@@ -4,7 +4,7 @@ module RubyProf
       # eliminate some calls from the graph by merging the information into callers.
       # matchers can be a list of strings or regular expressions or the name of a file containing regexps.
       def eliminate_methods!(matchers)
-        RubyProf::deprecation_warning(
+        RubyProf.deprecation_warning(
           "Method 'eliminate_methods!' is dprecated",
           "Please call 'exclude_methods!' before starting the profile run instead."
         )

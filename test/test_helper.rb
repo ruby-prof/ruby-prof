@@ -28,7 +28,12 @@ require 'ruby-prof'
 
 # stub deprecation warnings
 module RubyProf
-  def self.deprecation_warning(*args); end
+  module SuppressDeprecationWarnings
+    def deprecation_warning(*args)
+      super if ENV['SHOW_RUBY_PROF_DEPRECATION_WARNINGS'] == '1'
+    end
+  end
+  extend SuppressDeprecationWarnings
 end
 
 require 'minitest/autorun'

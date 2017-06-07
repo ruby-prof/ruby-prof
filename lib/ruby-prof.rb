@@ -9,10 +9,13 @@ rescue LoadError
 end
 
 module RubyProf
-  def self.deprecation_warning(feature, recommendation = nil)
-    $stderr.puts "DEPRECATION WARNING: #{feature}"
-    $stderr.puts recommendation unless recommendation.nil?
+  module DeprecationWarnings
+    def deprecation_warning(feature, recommendation = nil)
+      $stderr.puts "DEPRECATION WARNING: #{feature}"
+      $stderr.puts recommendation unless recommendation.nil?
+    end
   end
+  extend DeprecationWarnings
 end
 
 require 'ruby-prof/version'

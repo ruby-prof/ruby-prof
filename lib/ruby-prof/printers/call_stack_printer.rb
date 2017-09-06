@@ -56,7 +56,7 @@ module RubyProf
       @result.threads.each do |thread|
         @current_thread_id = thread.fiber_id
         @overall_time = thread.total_time
-        thread_info = "Thread: #{thread.id}"
+				thread_info = String.new("Thread: #{thread.id}")
         thread_info << ", Fiber: #{thread.fiber_id}" unless thread.id == thread.fiber_id
         thread_info << " (#{"%4.2f%%" % ((@overall_time/@overall_threads_time)*100)} ~ #{@overall_time})"
         @output.print "<div class=\"thread\">#{thread_info}</div>"

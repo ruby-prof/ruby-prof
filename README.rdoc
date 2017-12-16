@@ -189,7 +189,6 @@ different though:
 
     profile = RubyProf.new(...)
     profile.exclude_methods!(Integer, :times, ...)
-    profile.exclude_singleton_methods!(, :times, ...)
     profile.start
 
 A convenience method is provided to exclude a large number of methods

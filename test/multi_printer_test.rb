@@ -61,8 +61,7 @@ class MultiPrinterTest < TestCase
     result = RubyProf.stop
     end_time = Time.now
     expected_time = end_time - start_time
-    stack = graph = nil
-    assert_nothing_raised { stack, graph = print(result) }
+    graph = print(result)[1]
     re = Regexp.new('
 \s*<table>
 \s*<tr>

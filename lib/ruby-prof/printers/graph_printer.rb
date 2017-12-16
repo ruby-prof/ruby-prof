@@ -56,8 +56,8 @@ module RubyProf
         print_parents(thread, method)
 
         # 1 is for % sign
-        @output << sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", total_percentage)
-        @output << sprintf("%#{PERCENTAGE_WIDTH-1}.2f\%", self_percentage)
+        @output << sprintf("%#{PERCENTAGE_WIDTH-1}.2f%%", total_percentage)
+        @output << sprintf("%#{PERCENTAGE_WIDTH-1}.2f%%", self_percentage)
         @output << sprintf("%#{TIME_WIDTH}.3f", method.total_time)
         @output << sprintf("%#{TIME_WIDTH}.3f", method.self_time)
         @output << sprintf("%#{TIME_WIDTH}.3f", method.wait_time)

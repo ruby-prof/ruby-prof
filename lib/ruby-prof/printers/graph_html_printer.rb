@@ -200,8 +200,8 @@ module RubyProf
                  </tr>
                <% end %>
                <tr class="method">
-                 <td><%= sprintf("%.2f\%", total_percentage) %></td>
-                 <td><%= sprintf("%.2f\%", self_percentage) %></td>
+                 <td><%= sprintf("%.2f%%", total_percentage) %></td>
+                 <td><%= sprintf("%.2f%%", self_percentage) %></td>
                  <td><%= sprintf("%.2f", method.total_time) %></td>
                  <td><%= sprintf("%.2f", method.self_time) %></td>
                  <td><%= sprintf("%.2f", method.wait_time) %></td>

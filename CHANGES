@@ -1,4 +1,4 @@
-0.17.0 (2017-06-xx)
+0.17.0 (2017-12-17)
 =====================
 * Changed method/class names produced by the callgrind printer to be more kcachegrind
   friendly (thx to Nelson Gauthier and Ben Hughes, see https://github.com/ruby-prof/ruby-prof/pull/200).
@@ -11,6 +11,7 @@
   (thx Alexander Egorov, see https://github.com/ruby-prof/ruby-prof/pull/183 and
   https://github.com/typester/emacs-handler).
 * Fixed that calling profile.stop would stop profiling all active profiling runs.
+* Fixed that remembering parent call frame pointer before stack reallocation could cause a segfault.
 
 0.16.2 (2016-08-25)
 =====================

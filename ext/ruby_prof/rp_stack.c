@@ -49,8 +49,6 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   prof_frame_t* parent_frame;
   prof_method_t *method;
 
-  parent_frame = prof_stack_peek(stack);
-
   /* Is there space on the stack?  If not, double
      its size. */
   if (stack->ptr == stack->end)
@@ -62,6 +60,8 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
     stack->ptr = stack->start + len;
     stack->end = stack->start + new_capacity;
   }
+
+  parent_frame = prof_stack_peek(stack);
 
   // Reserve the next available frame pointer.
   result = stack->ptr++;
@@ -115,10 +115,10 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
 
   frame = prof_stack_peek(stack);
 
-  /* Frame can be null.  This can happen if RubProf.start is called from
-     a method that exits.  And it can happen if an exception is raised
-     in code that is being profiled and the stack unwinds (RubyProf is
-     not notified of that by the ruby runtime. */
+  /* Frame can be null, which means the stack is empty.  This can happen if
+     RubProf.start is called from a method that exits.  And it can happen if an
+     exception is raised in code that is being profiled and the stack unwinds
+     (RubyProf is not notified of that by the ruby runtime. */
   if (!frame) {
     return NULL;
   }

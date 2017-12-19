@@ -150,25 +150,31 @@ module RubyProf
         #  New Relic
         ##
 
-        if defined?(NewRelic)
-          exclude_methods NewRelic::Agent::Instrumentation::MiddlewareTracing, [
-            :call
-          ]
+        if defined?(NewRelic::Agent)
+          if defined?(NewRelic::Agent::Instrumentation::MiddlewareTracing)
+            exclude_methods NewRelic::Agent::Instrumentation::MiddlewareTracing, [
+              :call
+            ]
+          end
 
-          exclude_methods NewRelic::Agent::MethodTracerHelpers, [
-            :trace_execution_scoped,
-            :log_errors,
-          ]
+          if defined?(NewRelic::Agent::MethodTracerHelpers)
+            exclude_methods NewRelic::Agent::MethodTracerHelpers, [
+              :trace_execution_scoped,
+              :log_errors,
+            ]
 
-          exclude_singleton_methods NewRelic::Agent::MethodTracerHelpers, [
-            :trace_execution_scoped,
-            :log_errors,
-          ]
+            exclude_singleton_methods NewRelic::Agent::MethodTracerHelpers, [
+              :trace_execution_scoped,
+              :log_errors,
+            ]
+          end
 
-          exclude_methods NewRelic::Agent::MethodTracer, [
-            :trace_execution_scoped,
-            :trace_execution_unscoped,
-          ]
+          if defined?(NewRelic::Agent::MethodTracer)
+            exclude_methods NewRelic::Agent::MethodTracer, [
+              :trace_execution_scoped,
+              :trace_execution_unscoped,
+            ]
+          end
         end
 
           ##

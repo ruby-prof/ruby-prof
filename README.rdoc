@@ -187,7 +187,7 @@ collected metrics are identical to eliminating methods from the
 profiling result in a prost process step. The interface is slightly
 different though:
 
-    profile = RubyProf.new(...)
+    profile = RubyProf::Profile.new(...)
     profile.exclude_methods!(Integer, :times, ...)
     profile.start
 

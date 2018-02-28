@@ -11,6 +11,14 @@ class ExceptionsTest < TestCase
       end
     rescue
     end
-    refute_nil(result)
+    assert_kind_of(RubyProf::Profile, result)
+  end
+
+  def test_profile_allows_exceptions
+    assert_raises(RuntimeError) do
+      RubyProf.profile(:allow_exceptions => true) do
+        raise(RuntimeError, 'Test error')
+      end
+    end
   end
 end

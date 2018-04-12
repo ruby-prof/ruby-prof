@@ -1,6 +1,6 @@
 = ruby-prof
 
-{<img src="https://travis-ci.org/ruby-prof/ruby-prof.png?branch=master" alt="Build Status" />}[https://travis-ci.org/ruby-prof/ruby-prof]
+{<img src="https://travis-ci.org/ruby-prof/ruby-prof.svg?branch=master" alt="Build Status" />}[https://travis-ci.org/ruby-prof/ruby-prof]
 
 == Overview
 
@@ -182,7 +182,7 @@ had been inlined at their call sites.
 
 == Method Exclusion
 
-ruby-prof supports exluding methods from profiling. The effect on
+ruby-prof supports excluding methods from profiling. The effect on
 collected metrics are identical to eliminating methods from the
 profiling result in a prost process step. The interface is slightly
 different though:

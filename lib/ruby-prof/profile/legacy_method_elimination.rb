@@ -5,7 +5,7 @@ module RubyProf
       # matchers can be a list of strings or regular expressions or the name of a file containing regexps.
       def eliminate_methods!(matchers)
         RubyProf.deprecation_warning(
-          "Method 'eliminate_methods!' is dprecated",
+          "Method 'eliminate_methods!' is deprecated",
           "Please call 'exclude_methods!' before starting the profile run instead."
         )
         matchers = read_regexps_from_file(matchers) if matchers.is_a?(String)

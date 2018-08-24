@@ -187,7 +187,7 @@ collected metrics are identical to eliminating methods from the
 profiling result in a prost process step. The interface is slightly
 different though:
 
-    profile = RubyProf.new(...)
+    profile = RubyProf::Profile.new(...)
     profile.exclude_methods!(Integer, :times, ...)
     profile.start
 
@@ -389,7 +389,7 @@ RubyProf::GC_RUNS::
 
 All of the patches to Ruby are included in the railsexpress patchsets
 for rvm, see https://github.com/skaes/rvm-patchsets. You can also use
-these patches manually with other ruby managers (ruby-install, 
+these patches manually with other ruby managers (ruby-install,
 ruby-build, etc.).
 
 Note if you rebuild your ruby with patches you must uninstall and

@@ -48,7 +48,9 @@ line, via its convenience API or via its core API.
 
 The first is to use ruby-prof to run the Ruby program you want to
 profile.  For more information refer to the documentation of the
-ruby-prof command: `$ ruby-prof -h.`
+ruby-prof command:
+
+    $ ruby-prof -h
 
 
 === ruby-prof Convenience API

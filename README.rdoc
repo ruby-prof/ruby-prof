@@ -230,7 +230,7 @@ So to profile Rails:
    do this is by adding the following code to <tt>config.ru</tt>:
 
     if Rails.env.profile?
-      use Rack::RubyProf, :path => '/temp/profile'
+      use Rack::RubyProf, :path => './tmp/profile'
     end
 
    The path is where you want profiling results to be stored.  By default the

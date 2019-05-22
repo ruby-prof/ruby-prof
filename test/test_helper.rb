@@ -1,19 +1,7 @@
 # encoding: UTF-8
 
-# Make RubyMine happy
 require "rubygems"
 gem "minitest"
-
-if ENV["RM_INFO"] || ENV["TEAMCITY_VERSION"]
-  if RUBY_PLATFORM =~ /(win32|mingw)/
-    gem "win32console"
-  end
-  gem "minitest-reporters"
-  require 'minitest/reporters'
-  MiniTest::Reporters.use!
-end
-
-require "minitest/pride" if RUBY_VERSION == "1.9.3"
 
 # To make testing/debugging easier, test within this source tree versus an installed gem
 dir = File.dirname(__FILE__)

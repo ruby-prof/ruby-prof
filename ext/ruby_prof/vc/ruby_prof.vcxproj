@@ -103,6 +103,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby263vc\include\ruby-2.6.0\x64-mswin64_140;C:\msys64\usr\local\ruby263vc\include\ruby-2.6.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby263vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

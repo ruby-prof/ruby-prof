@@ -184,7 +184,7 @@ had been inlined at their call sites.
 
 == Method Exclusion
 
-ruby-prof supports exluding methods from profiling. The effect on
+ruby-prof supports excluding methods from profiling. The effect on
 collected metrics are identical to eliminating methods from the
 profiling result in a prost process step. The interface is slightly
 different though:
@@ -230,7 +230,7 @@ So to profile Rails:
    do this is by adding the following code to <tt>config.ru</tt>:
 
     if Rails.env.profile?
-      use Rack::RubyProf, :path => '/temp/profile'
+      use Rack::RubyProf, :path => './tmp/profile'
     end
 
    The path is where you want profiling results to be stored.  By default the

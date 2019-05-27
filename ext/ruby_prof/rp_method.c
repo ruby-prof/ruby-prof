@@ -100,12 +100,6 @@ method_name(ID mid)
 {
     volatile VALUE name = Qnil;
 
-#ifdef ID_ALLOCATOR
-    if (mid == ID_ALLOCATOR) {
-        return rb_str_new2("allocate");
-    }
-#endif
-
     if (RTEST(mid)) {
         name = rb_id2str(mid);
         return rb_str_dup(name);

@@ -422,6 +422,7 @@ prof_allocate(VALUE klass)
     profile->include_threads_tbl = NULL;
     profile->running = Qfalse;
     profile->merge_fibers = 0;
+    profile->allow_exceptions = 0;
     profile->exclude_methods_tbl = method_table_create();
     profile->running = Qfalse;
     return result;
@@ -433,13 +434,15 @@ prof_allocate(VALUE klass)
 
    Returns a new profiler. Possible options for the options hash are:
 
-   measure_mode::    Measure mode. Specifies the profile measure mode.
-                     If not specified, defaults to RubyProf::WALL_TIME.
-   exclude_threads:: Threads to exclude from the profiling results.
-   include_threads:: Focus profiling on only the given threads. This will ignore
-                     all other threads.
-   merge_fibers::    Whether to merge all fibers under a given thread. This should be
-                     used when profiling for a callgrind printer.
+   measure_mode::     Measure mode. Specifies the profile measure mode.
+                      If not specified, defaults to RubyProf::WALL_TIME.
+   exclude_threads::  Threads to exclude from the profiling results.
+   include_threads::  Focus profiling on only the given threads. This will ignore
+                      all other threads.
+   merge_fibers::     Whether to merge all fibers under a given thread. This should be
+                      used when profiling for a callgrind printer.
+   allow_exceptions:: Whether to raise exceptions encountered during profiling,
+                      or to suppress all exceptions during profiling
 */
 static VALUE
 prof_initialize(int argc,  VALUE *argv, VALUE self)
@@ -451,6 +454,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE include_threads = Qnil;
     VALUE merge_fibers = Qnil;
     VALUE exclude_common = Qnil;
+    VALUE allow_exceptions = Qnil;
     int i;
 
     switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads)) {
@@ -464,6 +468,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
             merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
+            allow_exceptions = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("allow_exceptions")));
             exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
             include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
@@ -481,6 +486,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     }
     profile->measurer = prof_get_measurer(NUM2INT(mode));
     profile->merge_fibers = merge_fibers != Qnil && merge_fibers != Qfalse;
+    profile->allow_exceptions = allow_exceptions != Qnil && allow_exceptions != Qfalse;
 
     if (exclude_threads != Qnil) {
         Check_Type(exclude_threads, T_ARRAY);
@@ -678,6 +684,34 @@ prof_threads(VALUE self)
 }
 
 /* call-seq:
+   profile {block} -> RubyProf::Result
+
+Profiles the specified block and returns a RubyProf::Result object. */
+static VALUE
+prof_profile_object(VALUE self)
+{
+    int result;
+    prof_profile_t* profile = prof_get_profile(self);
+
+    if (!rb_block_given_p())
+    {
+        rb_raise(rb_eArgError, "A block must be provided to the profile method.");
+    }
+
+    prof_start(self);
+    rb_protect(rb_yield, self, &result);
+    self = prof_stop(self);
+
+    if (profile->allow_exceptions && result != 0)
+    {
+        rb_jump_tag(result);
+    }
+
+    return self;
+
+}
+
+/* call-seq:
    profile(&block) -> self
    profile(options, &block) -> self
 
@@ -687,36 +721,7 @@ object. Arguments are passed to Profile initialize method.
 static VALUE
 prof_profile_class(int argc,  VALUE *argv, VALUE klass)
 {
-    int result;
-    VALUE profile = rb_class_new_instance(argc, argv, cProfile);
-
-    if (!rb_block_given_p())
-    {
-        rb_raise(rb_eArgError, "A block must be provided to the profile method.");
-    }
-
-    prof_start(profile);
-    rb_protect(rb_yield, profile, &result);
-    return prof_stop(profile);
-}
-
-/* call-seq:
-   profile {block} -> RubyProf::Result
-
-Profiles the specified block and returns a RubyProf::Result object. */
-static VALUE
-prof_profile_object(VALUE self)
-{
-    int result;
-    if (!rb_block_given_p())
-    {
-        rb_raise(rb_eArgError, "A block must be provided to the profile method.");
-    }
-
-    prof_start(self);
-    rb_protect(rb_yield, self, &result);
-    return prof_stop(self);
-
+    return prof_profile_object(rb_class_new_instance(argc, argv, cProfile));
 }
 
 static VALUE

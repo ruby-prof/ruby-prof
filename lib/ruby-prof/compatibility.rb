@@ -145,6 +145,7 @@ module RubyProf
     gc_stat_was_enabled = enable_gc_stats_if_needed
     options = { measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
     result = Profile.profile(options, &block)
+  ensure
     disable_gc_stats_if_needed(gc_stat_was_enabled)
     result
   end

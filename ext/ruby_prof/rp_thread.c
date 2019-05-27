@@ -121,10 +121,10 @@ threads_table_free(st_table *table)
 }
 
 size_t
-threads_table_insert(prof_profile_t* profile, VALUE fiber, thread_data_t *thread_data)
+threads_table_insert(prof_profile_t* profile, VALUE key, thread_data_t *thread_data)
 {
-    /* Its too slow to key on the real thread id so just typecast thread instead. */
-    return st_insert(profile->threads_tbl, (st_data_t) fiber, (st_data_t) thread_data);
+	unsigned LONG_LONG key_value = NUM2ULL(key);
+	return st_insert(profile->threads_tbl, key_value, (st_data_t) thread_data);
 }
 
 thread_data_t *
@@ -138,7 +138,8 @@ threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
        A real solution would require integration with the garbage collector.
      */
     VALUE key = profile->merge_fibers ? thread_id : fiber_id;
-    if (st_lookup(profile->threads_tbl, (st_data_t) key, &val))
+    unsigned LONG_LONG key_value = NUM2ULL(key);
+    if (st_lookup(profile->threads_tbl, key_value, &val))
     {
       result = (thread_data_t *) val;
     }

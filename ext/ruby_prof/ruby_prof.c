@@ -248,8 +248,8 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
        we don't merge fibers and the fiber ids differ, or the thread ids differ.
      */
     if (!profile->last_thread_data
-        || (!profile->merge_fibers && profile->last_thread_data->fiber_id != fiber_id)
-        || profile->last_thread_data->thread_id != thread_id
+        || (!profile->merge_fibers && !rb_equal(profile->last_thread_data->fiber_id, fiber_id))
+        || !rb_equal(profile->last_thread_data->thread_id, thread_id)
         )
         thread_data = switch_thread(profile, thread_id, fiber_id);
     else

@@ -25,6 +25,7 @@ module RubyProf
           next if (l =~ /^(#.*|\s*)$/) # emtpy lines and lines starting with #
           matchers << Regexp.new(l.strip)
         end
+        matchers
       end
 
       # eliminate methods matching matcher

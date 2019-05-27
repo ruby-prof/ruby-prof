@@ -184,7 +184,7 @@ had been inlined at their call sites.
 
 == Method Exclusion
 
-ruby-prof supports exluding methods from profiling. The effect on
+ruby-prof supports excluding methods from profiling. The effect on
 collected metrics are identical to eliminating methods from the
 profiling result in a prost process step. The interface is slightly
 different though:

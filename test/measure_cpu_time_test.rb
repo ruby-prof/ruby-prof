@@ -209,5 +209,4 @@ class MeasureCpuTimeTest < TestCase
     assert_in_delta(0.1, fg.wait_time, 0.01)
     assert_in_delta(0.1, bg.total_time, 0.01)
   end
-
 end

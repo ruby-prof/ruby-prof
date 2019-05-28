@@ -42,8 +42,7 @@ class StackPrinterTest < TestCase
 
     file_contents = nil
     assert_nothing_raised { file_contents = print(result) }
-    # TODO: why are thread ids negative on travis-ci.org (32 bit build maybe?)
-    re = /Thread: (-?\d+)(, Fiber: (-?\d+))? \(100\.00% ~ ([\.0-9]+)\)/
+    re = /Thread: (\d+)(, Fiber: (\d+))? \([\.0-9]+.[\.0-9]+% ~ ([\.0-9]+)\)/
     assert_match(re, file_contents)
     file_contents =~ re
     actual_time = $4.to_f

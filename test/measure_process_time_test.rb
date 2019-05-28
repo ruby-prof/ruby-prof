@@ -33,8 +33,6 @@ class MeasureProcessTimeTest < TestCase
 
     expected_number_of_methods =
       case RUBY_VERSION
-      when /^1\.9\.3/  then 16
-      when /^2\.0/     then 15
       when /^2\.(1|2)/ then 14
       else                  13
       end

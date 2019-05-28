@@ -229,17 +229,17 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     fiber = rb_fiber_current();
     fiber_id = rb_obj_id(fiber);
 
+    unsigned LONG_LONG thread_value = NUM2ULL(thread_id);
+
     /* Don't measure anything if the include_threads option has been specified
-       and the current thread is not in the list
-     */
-    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, (st_data_t) thread_id, 0))
+       and the current thread is not in the list */
+    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, thread_value, 0))
     {
         return;
     }
 
-    /* Don't measure anything if the current thread is in the excluded thread table
-     */
-    if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, (st_data_t) thread_id, 0))
+    /* Don't measure anything if the current thread is in the excluded thread table */
+    if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, thread_value, 0))
     {
         return;
     }
@@ -391,12 +391,14 @@ prof_free(prof_profile_t *profile)
     threads_table_free(profile->threads_tbl);
     profile->threads_tbl = NULL;
 
-    if (profile->exclude_threads_tbl) {
+    if (profile->exclude_threads_tbl)
+    {
         st_free_table(profile->exclude_threads_tbl);
         profile->exclude_threads_tbl = NULL;
     }
 
-    if (profile->include_threads_tbl) {
+    if (profile->include_threads_tbl)
+    {
         st_free_table(profile->include_threads_tbl);
         profile->include_threads_tbl = NULL;
     }
@@ -457,14 +459,17 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE allow_exceptions = Qnil;
     int i;
 
-    switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads)) {
+    switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads))
+    {
     case 0:
         break;
     case 1:
-        if (FIXNUM_P(mode_or_options)) {
+        if (FIXNUM_P(mode_or_options))
+        {
             mode = mode_or_options;
         }
-        else {
+        else
+        {
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
             merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
@@ -479,34 +484,43 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         break;
     }
 
-    if (mode == Qnil) {
+    if (mode == Qnil)
+    {
         mode = INT2NUM(MEASURE_WALL_TIME);
-    } else {
+    }
+    else
+    {
         Check_Type(mode, T_FIXNUM);
     }
     profile->measurer = prof_get_measurer(NUM2INT(mode));
     profile->merge_fibers = merge_fibers != Qnil && merge_fibers != Qfalse;
     profile->allow_exceptions = allow_exceptions != Qnil && allow_exceptions != Qfalse;
 
-    if (exclude_threads != Qnil) {
+    if (exclude_threads != Qnil)
+    {
         Check_Type(exclude_threads, T_ARRAY);
         assert(profile->exclude_threads_tbl == NULL);
         profile->exclude_threads_tbl = threads_table_create();
-        for (i = 0; i < RARRAY_LEN(exclude_threads); i++) {
+        for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
+        {
             VALUE thread = rb_ary_entry(exclude_threads, i);
             VALUE thread_id = rb_obj_id(thread);
-            st_insert(profile->exclude_threads_tbl, thread_id, Qtrue);
+            unsigned LONG_LONG thread_value = NUM2ULL(thread_id);
+            st_insert(profile->exclude_threads_tbl, thread_value, Qtrue);
         }
     }
 
-    if (include_threads != Qnil) {
+    if (include_threads != Qnil)
+    {
         Check_Type(include_threads, T_ARRAY);
         assert(profile->include_threads_tbl == NULL);
         profile->include_threads_tbl = threads_table_create();
-        for (i = 0; i < RARRAY_LEN(include_threads); i++) {
+        for (i = 0; i < RARRAY_LEN(include_threads); i++)
+        {
             VALUE thread = rb_ary_entry(include_threads, i);
             VALUE thread_id = rb_obj_id(thread);
-            st_insert(profile->include_threads_tbl, thread_id, Qtrue);
+            unsigned LONG_LONG thread_value = NUM2ULL(thread_id);
+            st_insert(profile->include_threads_tbl, thread_value, Qtrue);
         }
     }
 

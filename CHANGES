@@ -1,3 +1,21 @@
+0.18.0 (2019-05-27)
+=====================
+Fixes
+------
+* Fix grouping by thread/fiber (Charlie Savage)
+* Fix include/exclude thread checking (Charlie Savage)
+* Fix failing tests (Charlie Savage)
+* Fix grouping by thread_id and fiber_id (Charlie Savage)
+* Update Visual Studio solution to 2019 (Charlie Savage)
+* Adjust AbstractPrinter#editor_uri so it's possible to disable uri (Maciek Dubiński)-
+* Fix -X/--exclude-file option not working (John Lindgren)
+* Different directory for middleware output in readme (Aldric Giacomoni)
+* Fixing spelling mistakes and typos (David Kennedy and Roger Pack)
+* Add "allow_exceptions" option to Profile (Ryan Duryea)
+* Update readme (Jan Piotrowski, Nathan Seither, victor-am)
+* Travis updates (Niocals Leger and Charlie Savage)
+* Fix NewRelic module detection in exclude_common_methods! (Ben Hughes)
+
 0.17.0 (2017-12-17)
 =====================
 * Changed method/class names produced by the callgrind printer to be more kcachegrind

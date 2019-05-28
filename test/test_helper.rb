@@ -157,7 +157,7 @@ module RubyProf
   # store printer output in this directory
   def self.tmpdir
     path = File.expand_path('../../tmp', __FILE__)
-    unless Dir.exists?(path)
+    unless Dir.exist?(path)
       Dir.mkdir(path)
     end
     path

@@ -1,4 +1,4 @@
-/* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
+/* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
 /* ruby-prof tracks the time spent executing every method in ruby programming.
@@ -203,6 +203,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
     double measurement;
+    unsigned LONG_LONG thread_value;
 
     /* if we don't have a valid method id, try to retrieve one */
     if (mid == 0) {
@@ -229,7 +230,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     fiber = rb_fiber_current();
     fiber_id = rb_obj_id(fiber);
 
-    unsigned LONG_LONG thread_value = NUM2ULL(thread_id);
+    thread_value = NUM2ULL(thread_id);
 
     /* Don't measure anything if the include_threads option has been specified
        and the current thread is not in the list */

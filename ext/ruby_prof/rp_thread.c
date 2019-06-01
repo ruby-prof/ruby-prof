@@ -121,8 +121,9 @@ threads_table_free(st_table *table)
 }
 
 thread_data_t *
-threads_table_lookup(prof_profile_t* profile, VALUE fiber)
+threads_table_lookup(void *prof, VALUE fiber)
 {
+    prof_profile_t *profile = prof;
     thread_data_t* result = NULL;
     st_data_t val;
 
@@ -135,8 +136,9 @@ threads_table_lookup(prof_profile_t* profile, VALUE fiber)
 }
 
 thread_data_t*
-threads_table_insert(prof_profile_t* profile, VALUE thread, VALUE fiber)
+threads_table_insert(void *prof, VALUE thread, VALUE fiber)
 {
+    prof_profile_t *profile = prof;
     thread_data_t *result = thread_data_create();
     result->fiber = fiber;
     result->thread_id = rb_obj_id(thread);
@@ -146,8 +148,9 @@ threads_table_insert(prof_profile_t* profile, VALUE thread, VALUE fiber)
 }
 
 void
-switch_thread(prof_profile_t* profile, thread_data_t *thread_data)
+switch_thread(void *prof, thread_data_t *thread_data)
 {
+    prof_profile_t *profile = prof;
     double measurement = profile->measurer->measure();
 
     /* Get current frame for this thread */
@@ -249,7 +252,7 @@ prof_thread_methods(VALUE self)
     return thread->methods;
 }
 
-void rp_init_thread()
+void rp_init_thread(void)
 {
     cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
     rb_undef_method(CLASS_OF(cRpThread), "new");

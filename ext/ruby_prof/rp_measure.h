@@ -6,7 +6,7 @@
 
 extern VALUE mMeasure;
 
-typedef double (*get_measurement)();
+typedef uint64_t (*get_measurement)(void);
 
 typedef struct
 {
@@ -25,21 +25,21 @@ typedef enum
 } prof_measure_mode_t;
 
 prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure);
-prof_measurer_t* prof_measurer_allocations();
-prof_measurer_t* prof_measurer_cpu_time();
-prof_measurer_t* prof_measurer_gc_runs();
-prof_measurer_t* prof_measurer_gc_time();
-prof_measurer_t* prof_measurer_memory();
-prof_measurer_t* prof_measurer_process_time();
-prof_measurer_t* prof_measurer_wall_time();
+prof_measurer_t* prof_measurer_allocations(void);
+prof_measurer_t* prof_measurer_cpu_time(void);
+prof_measurer_t* prof_measurer_gc_runs(void);
+prof_measurer_t* prof_measurer_gc_time(void);
+prof_measurer_t* prof_measurer_memory(void);
+prof_measurer_t* prof_measurer_process_time(void);
+prof_measurer_t* prof_measurer_wall_time(void);
 
-void rp_init_measure();
-void rp_init_measure_allocations();
-void rp_init_measure_cpu_time();
-void rp_init_measure_gc_runs();
-void rp_init_measure_gc_time();
-void rp_init_measure_memory();
-void rp_init_measure_process_time();
-void rp_init_measure_wall_time();
+void rp_init_measure(void);
+void rp_init_measure_allocations(void);
+void rp_init_measure_cpu_time(void);
+void rp_init_measure_gc_runs(void);
+void rp_init_measure_gc_time(void);
+void rp_init_measure_memory(void);
+void rp_init_measure_process_time(void);
+void rp_init_measure_wall_time(void);
 
 #endif //__RP_MEASUREMENT_H__

@@ -7,7 +7,7 @@ VALUE cRpThread;
 
 /* ======   thread_data_t  ====== */
 thread_data_t*
-thread_data_create()
+thread_data_create(void)
 {
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = prof_stack_create();

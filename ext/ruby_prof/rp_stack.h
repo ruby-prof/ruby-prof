@@ -47,7 +47,7 @@ typedef struct
     prof_frame_t *ptr;
 } prof_stack_t;
 
-prof_stack_t *prof_stack_create();
+prof_stack_t *prof_stack_create(void);
 void prof_stack_free(prof_stack_t *stack);
 
 prof_frame_t *prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int paused);

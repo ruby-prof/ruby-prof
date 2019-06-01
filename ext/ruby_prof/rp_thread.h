@@ -18,8 +18,8 @@ typedef struct
     st_table* method_table;           /* Methods called in the thread */
 } thread_data_t;
 
-void rp_init_thread();
-st_table * threads_table_create();
+void rp_init_thread(void);
+st_table * threads_table_create(void);
 thread_data_t *threads_table_lookup(void *profile, VALUE fiber);
 thread_data_t* threads_table_insert(void *profile, VALUE thread, VALUE fiber);
 void switch_thread(void *profile, thread_data_t *thread_data);

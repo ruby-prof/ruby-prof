@@ -1,0 +1,414 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8B2A0D4322A22CE600F67C5D /* libruby.2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */; };
+		8B2A0D4522A22D0000F67C5D /* ruby_prof.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */; };
+		8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2922A21EA800F36350 /* rp_call_info.c */; };
+		8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2B22A21EA800F36350 /* rp_call_info.h */; };
+		8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */; };
+		8B6DDFA322A22C8D00F36350 /* rp_measure_cpu_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2C22A21EA900F36350 /* rp_measure_cpu_time.c */; };
+		8B6DDFA422A22C8D00F36350 /* rp_measure_gc_runs.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2022A21EA800F36350 /* rp_measure_gc_runs.c */; };
+		8B6DDFA522A22C8D00F36350 /* rp_measure_gc_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2E22A21EA900F36350 /* rp_measure_gc_time.c */; };
+		8B6DDFA622A22C8D00F36350 /* rp_measure_memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */; };
+		8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */; };
+		8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */; };
+		8B6DDFA922A22C8D00F36350 /* rp_measure.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF3022A21EA900F36350 /* rp_measure.c */; };
+		8B6DDFAA22A22C8D00F36350 /* rp_measure.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2122A21EA800F36350 /* rp_measure.h */; };
+		8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2822A21EA800F36350 /* rp_method.c */; };
+		8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2F22A21EA900F36350 /* rp_method.h */; };
+		8B6DDFAD22A22C8D00F36350 /* rp_stack.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2322A21EA800F36350 /* rp_stack.c */; };
+		8B6DDFAE22A22C8D00F36350 /* rp_stack.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF3222A21EA900F36350 /* rp_stack.h */; };
+		8B6DDFAF22A22C8D00F36350 /* rp_thread.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2722A21EA800F36350 /* rp_thread.c */; };
+		8B6DDFB022A22C8D00F36350 /* rp_thread.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2622A21EA800F36350 /* rp_thread.h */; };
+		8B6DDFB122A22C8D00F36350 /* ruby_prof.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF3122A21EA900F36350 /* ruby_prof.c */; };
+		8B6DDFB222A22C8D00F36350 /* ruby_prof.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2422A21EA800F36350 /* ruby_prof.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		8B2A0D4422A22CF100F67C5D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "/opt/local/src/ruby-prof/ext/ruby_prof";
+			dstSubfolderSpec = 0;
+			files = (
+				8B2A0D4522A22D0000F67C5D /* ruby_prof.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		8B6DDF2022A21EA800F36350 /* rp_measure_gc_runs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_gc_runs.c; path = ../rp_measure_gc_runs.c; sourceTree = "<group>"; };
+		8B6DDF2122A21EA800F36350 /* rp_measure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_measure.h; path = ../rp_measure.h; sourceTree = "<group>"; };
+		8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_process_time.c; path = ../rp_measure_process_time.c; sourceTree = "<group>"; };
+		8B6DDF2322A21EA800F36350 /* rp_stack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_stack.c; path = ../rp_stack.c; sourceTree = "<group>"; };
+		8B6DDF2422A21EA800F36350 /* ruby_prof.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ruby_prof.h; path = ../ruby_prof.h; sourceTree = "<group>"; };
+		8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_allocations.c; path = ../rp_measure_allocations.c; sourceTree = "<group>"; };
+		8B6DDF2622A21EA800F36350 /* rp_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_thread.h; path = ../rp_thread.h; sourceTree = "<group>"; };
+		8B6DDF2722A21EA800F36350 /* rp_thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_thread.c; path = ../rp_thread.c; sourceTree = "<group>"; };
+		8B6DDF2822A21EA800F36350 /* rp_method.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_method.c; path = ../rp_method.c; sourceTree = "<group>"; };
+		8B6DDF2922A21EA800F36350 /* rp_call_info.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_call_info.c; path = ../rp_call_info.c; sourceTree = "<group>"; };
+		8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_memory.c; path = ../rp_measure_memory.c; sourceTree = "<group>"; };
+		8B6DDF2B22A21EA800F36350 /* rp_call_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_call_info.h; path = ../rp_call_info.h; sourceTree = "<group>"; };
+		8B6DDF2C22A21EA900F36350 /* rp_measure_cpu_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_cpu_time.c; path = ../rp_measure_cpu_time.c; sourceTree = "<group>"; };
+		8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_wall_time.c; path = ../rp_measure_wall_time.c; sourceTree = "<group>"; };
+		8B6DDF2E22A21EA900F36350 /* rp_measure_gc_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_gc_time.c; path = ../rp_measure_gc_time.c; sourceTree = "<group>"; };
+		8B6DDF2F22A21EA900F36350 /* rp_method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_method.h; path = ../rp_method.h; sourceTree = "<group>"; };
+		8B6DDF3022A21EA900F36350 /* rp_measure.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure.c; path = ../rp_measure.c; sourceTree = "<group>"; };
+		8B6DDF3122A21EA900F36350 /* ruby_prof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ruby_prof.c; path = ../ruby_prof.c; sourceTree = "<group>"; };
+		8B6DDF3222A21EA900F36350 /* rp_stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_stack.h; path = ../rp_stack.h; sourceTree = "<group>"; };
+		8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libruby.2.6.dylib; path = ../../../../../lib/libruby.2.6.dylib; sourceTree = "<group>"; };
+		8B6DDF5122A2291D00F36350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8B6DDF5E22A22AB600F36350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8B6DDF7D22A22BC000F36350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ruby_prof.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8B6DDF9A22A22C8100F36350 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B2A0D4322A22CE600F67C5D /* libruby.2.6.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8B6DDF1022A21E8200F36350 = {
+			isa = PBXGroup;
+			children = (
+				8B6DDF2922A21EA800F36350 /* rp_call_info.c */,
+				8B6DDF2B22A21EA800F36350 /* rp_call_info.h */,
+				8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */,
+				8B6DDF2C22A21EA900F36350 /* rp_measure_cpu_time.c */,
+				8B6DDF2022A21EA800F36350 /* rp_measure_gc_runs.c */,
+				8B6DDF2E22A21EA900F36350 /* rp_measure_gc_time.c */,
+				8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */,
+				8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */,
+				8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */,
+				8B6DDF3022A21EA900F36350 /* rp_measure.c */,
+				8B6DDF2122A21EA800F36350 /* rp_measure.h */,
+				8B6DDF2822A21EA800F36350 /* rp_method.c */,
+				8B6DDF2F22A21EA900F36350 /* rp_method.h */,
+				8B6DDF2322A21EA800F36350 /* rp_stack.c */,
+				8B6DDF3222A21EA900F36350 /* rp_stack.h */,
+				8B6DDF2722A21EA800F36350 /* rp_thread.c */,
+				8B6DDF2622A21EA800F36350 /* rp_thread.h */,
+				8B6DDF3122A21EA900F36350 /* ruby_prof.c */,
+				8B6DDF2422A21EA800F36350 /* ruby_prof.h */,
+				8B6DDF5022A2291D00F36350 /* ruby_prof */,
+				8B6DDF5D22A22AB600F36350 /* ruby_prof */,
+				8B6DDF7C22A22BC000F36350 /* ruby_prof */,
+				8B6DDF1A22A21E8200F36350 /* Products */,
+				8B6DDF4622A2227300F36350 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		8B6DDF1A22A21E8200F36350 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8B6DDF4622A2227300F36350 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8B6DDF5022A2291D00F36350 /* ruby_prof */ = {
+			isa = PBXGroup;
+			children = (
+				8B6DDF5122A2291D00F36350 /* Info.plist */,
+			);
+			path = ruby_prof;
+			sourceTree = "<group>";
+		};
+		8B6DDF5D22A22AB600F36350 /* ruby_prof */ = {
+			isa = PBXGroup;
+			children = (
+				8B6DDF5E22A22AB600F36350 /* Info.plist */,
+			);
+			path = ruby_prof;
+			sourceTree = "<group>";
+		};
+		8B6DDF7C22A22BC000F36350 /* ruby_prof */ = {
+			isa = PBXGroup;
+			children = (
+				8B6DDF7D22A22BC000F36350 /* Info.plist */,
+			);
+			path = ruby_prof;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		8B6DDF9822A22C8100F36350 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		8B6DDF9B22A22C8100F36350 /* ruby_prof */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8B6DDF9D22A22C8100F36350 /* Build configuration list for PBXNativeTarget "ruby_prof" */;
+			buildPhases = (
+				8B6DDF9822A22C8100F36350 /* Headers */,
+				8B6DDF9922A22C8100F36350 /* Sources */,
+				8B6DDF9A22A22C8100F36350 /* Frameworks */,
+				8B2A0D4422A22CF100F67C5D /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ruby_prof;
+			productName = ruby_prof;
+			productReference = 8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8B6DDF1122A21E8200F36350 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1020;
+				ORGANIZATIONNAME = "Charlie Savage";
+				TargetAttributes = {
+					8B6DDF9B22A22C8100F36350 = {
+						CreatedOnToolsVersion = 10.2.1;
+					};
+				};
+			};
+			buildConfigurationList = 8B6DDF1422A21E8200F36350 /* Build configuration list for PBXProject "ruby-prof" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 8B6DDF1022A21E8200F36350;
+			productRefGroup = 8B6DDF1A22A21E8200F36350 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8B6DDF9B22A22C8100F36350 /* ruby_prof */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8B6DDF9922A22C8100F36350 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */,
+				8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */,
+				8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */,
+				8B6DDFA322A22C8D00F36350 /* rp_measure_cpu_time.c in Sources */,
+				8B6DDFA422A22C8D00F36350 /* rp_measure_gc_runs.c in Sources */,
+				8B6DDFA522A22C8D00F36350 /* rp_measure_gc_time.c in Sources */,
+				8B6DDFA622A22C8D00F36350 /* rp_measure_memory.c in Sources */,
+				8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */,
+				8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */,
+				8B6DDFA922A22C8D00F36350 /* rp_measure.c in Sources */,
+				8B6DDFAA22A22C8D00F36350 /* rp_measure.h in Sources */,
+				8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */,
+				8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */,
+				8B6DDFAD22A22C8D00F36350 /* rp_stack.c in Sources */,
+				8B6DDFAE22A22C8D00F36350 /* rp_stack.h in Sources */,
+				8B6DDFAF22A22C8D00F36350 /* rp_thread.c in Sources */,
+				8B6DDFB022A22C8D00F36350 /* rp_thread.h in Sources */,
+				8B6DDFB122A22C8D00F36350 /* ruby_prof.c in Sources */,
+				8B6DDFB222A22C8D00F36350 /* ruby_prof.h in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8B6DDF1B22A21E8200F36350 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/opt/local/include/ruby-2.6.0",
+					"/opt/local/include/ruby-2.6.0/x86_64-darwin18/**",
+				);
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		8B6DDF1C22A21E8200F36350 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"/opt/local/include/ruby-2.6.0",
+					"/opt/local/include/ruby-2.6.0/x86_64-darwin18/**",
+				);
+				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		8B6DDF9E22A22C8100F36350 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		8B6DDF9F22A22C8100F36350 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8B6DDF1422A21E8200F36350 /* Build configuration list for PBXProject "ruby-prof" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B6DDF1B22A21E8200F36350 /* Debug */,
+				8B6DDF1C22A21E8200F36350 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8B6DDF9D22A22C8100F36350 /* Build configuration list for PBXNativeTarget "ruby_prof" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B6DDF9E22A22C8100F36350 /* Debug */,
+				8B6DDF9F22A22C8100F36350 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8B6DDF1122A21E8200F36350 /* Project object */;
+}

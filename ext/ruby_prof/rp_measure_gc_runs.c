@@ -21,7 +21,7 @@ static VALUE cMeasureGcRuns;
 
 
 static uint64_t
-measure_gc_runs()
+measure_gc_runs(void)
 {
 #if defined(HAVE_RB_GC_COLLECTIONS)
 #define MEASURE_GC_RUNS_ENABLED Qtrue

@@ -12,7 +12,7 @@ static VALUE cMeasureGcTimes;
 #endif
 
 static uint64_t
-measure_gc_time()
+measure_gc_time(void)
 {
 #if defined(HAVE_RB_GC_TOTAL_TIME)
 #define MEASURE_GC_TIME_ENABLED Qtrue

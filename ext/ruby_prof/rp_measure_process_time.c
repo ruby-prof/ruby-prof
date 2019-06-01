@@ -7,7 +7,7 @@
 static VALUE cMeasureProcessTime;
 
 static uint64_t
-measure_process_time()
+measure_process_time(void)
 {
 #if defined(__linux__)
     struct timespec clock;

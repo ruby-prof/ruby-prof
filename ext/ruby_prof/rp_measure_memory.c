@@ -22,7 +22,7 @@ static VALUE cMeasureMemory;
 #endif
 
 static uint64_t
-measure_memory()
+measure_memory(void)
 {
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
 #define MEASURE_MEMORY_ENABLED Qtrue

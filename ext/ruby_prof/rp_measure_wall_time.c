@@ -14,7 +14,7 @@ mach_timebase_info_data_t mach_timebase;
 static VALUE cMeasureWallTime;
 
 static uint64_t
-measure_wall_time()
+measure_wall_time(void)
 {
 #if defined(_WIN32)
     return GetTickCount() / 1000;
@@ -56,6 +56,4 @@ void rp_init_measure_wall_time()
 
     cMeasureWallTime = rb_define_class_under(mMeasure, "WallTime", rb_cObject);
     rb_define_singleton_method(cMeasureWallTime, "measure", prof_measure_wall_time, 0);
-
-    mach_timebase_info(&mach_timebase);
 }

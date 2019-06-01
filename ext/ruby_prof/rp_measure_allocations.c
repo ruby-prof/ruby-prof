@@ -23,7 +23,7 @@ size_t rb_gc_stat(VALUE key);
 #endif
 
 static uint64_t
-measure_allocations()
+measure_allocations(void)
 {
 #if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)
 #define MEASURE_ALLOCATIONS_ENABLED Qtrue

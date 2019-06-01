@@ -264,7 +264,8 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
          called from. */
       if (frame)
       {
-        if (prof_frame_is_real(frame)) {
+        if (prof_frame_is_real(frame))
+        {
           frame->line = rb_sourceline();
         }
         break;
@@ -283,7 +284,8 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
         method = get_method(event, klass, mid, thread_data, profile);
 
-        if (method->excluded) {
+        if (method->excluded)
+        {
           prof_stack_pass(thread_data->stack);
           break;
         }

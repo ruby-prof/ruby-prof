@@ -55,7 +55,8 @@ prof_frame_t *prof_stack_pop(prof_stack_t *stack, double measurement);
 prof_frame_t *prof_stack_pass(prof_stack_t *stack);
 
 static inline prof_frame_t *
-prof_stack_peek(prof_stack_t *stack) {
+prof_stack_peek(prof_stack_t *stack)
+{
     return stack->ptr != stack->start ? stack->ptr - 1 : NULL;
 }
 

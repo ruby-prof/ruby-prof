@@ -20,7 +20,7 @@ static VALUE cMeasureGcRuns;
 #endif
 
 
-static double
+static uint64_t
 measure_gc_runs()
 {
 #if defined(HAVE_RB_GC_COLLECTIONS)

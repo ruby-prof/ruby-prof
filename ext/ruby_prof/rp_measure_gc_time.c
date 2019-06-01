@@ -11,7 +11,7 @@ static VALUE cMeasureGcTimes;
   VALUE rb_gc_time();
 #endif
 
-static double
+static uint64_t
 measure_gc_time()
 {
 #if defined(HAVE_RB_GC_TOTAL_TIME)

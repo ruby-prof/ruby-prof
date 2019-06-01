@@ -22,7 +22,7 @@ size_t rb_gc_stat(VALUE key);
 
 #endif
 
-static double
+static uint64_t
 measure_allocations()
 {
 #if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)

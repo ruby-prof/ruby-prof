@@ -21,7 +21,7 @@ static VALUE cMeasureMemory;
   size_t rb_heap_total_mem();
 #endif
 
-static double
+static uint64_t
 measure_memory()
 {
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)

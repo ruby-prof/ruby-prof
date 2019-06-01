@@ -6,7 +6,7 @@
 
 static VALUE cMeasureProcessTime;
 
-static double
+static uint64_t
 measure_process_time()
 {
 #if defined(__linux__)

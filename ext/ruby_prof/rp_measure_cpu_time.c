@@ -28,7 +28,7 @@ static unsigned long long get_cpu_frequency()
     return cpu_frequency;
 }
 
-static double measure_cpu_time()
+static uint64_t measure_cpu_time()
 {
     return ((double)get_cpu_time()) / get_cpu_frequency();
 }
@@ -79,7 +79,7 @@ static unsigned long long get_cpu_frequency()
     return cpu_frequency;
 }
 
-static double measure_cpu_time()
+static uint64_t measure_cpu_time()
 {
     struct rusage rusage;
     getrusage(RUSAGE_SELF, &rusage);

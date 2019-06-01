@@ -3,28 +3,27 @@
 
 /* :nodoc: */
 #include "ruby_prof.h"
-/*#if HAVE_GETTIMEOFDAY && !defined(_WIN32)
+
+#if defined(__APPLE__)
+#include <mach/mach_time.h>
+mach_timebase_info_data_t mach_timebase;
+#elif !defined(_WIN32)
 #include <sys/time.h>
-#endif*/
+#endif
 
 static VALUE cMeasureWallTime;
 
-static double
+static uint64_t
 measure_wall_time()
 {
-    double current_time;
-
 #if defined(_WIN32)
-    current_time = GetTickCount() / 1000.0;
+    return GetTickCount() / 1000;
 #elif defined(__linux__)
     struct timespec tv;
     clock_gettime(CLOCK_MONOTONIC, &tv);
     return tv.tv_sec + (tv.tv_nsec / 1000000000.0);
 #elif defined(__APPLE__)
-    // #pragma message "GetRealTime: mach_absolute_time"
-    // Mac OS X
-    // https://developer.apple.com/library/mac/qa/qa1398/_index.html
-    current_time = mach_absolute_time() * mach_timebase.numer / mach_timebase.denom / 1000;
+    return mach_absolute_time();// * (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom;
 #else
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -57,4 +56,6 @@ void rp_init_measure_wall_time()
 
     cMeasureWallTime = rb_define_class_under(mMeasure, "WallTime", rb_cObject);
     rb_define_singleton_method(cMeasureWallTime, "measure", prof_measure_wall_time, 0);
+
+    mach_timebase_info(&mach_timebase);
 }

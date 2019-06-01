@@ -116,7 +116,9 @@ get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t *thread_dat
            tables share the same exclusion method struct? The first attempt failed due to my
            ignorance of the whims of the GC. */
         method = prof_method_create_excluded(klass, mid);
-      } else {
+      }
+      else
+      {
         /* This method has no entry for this thread/fiber and isn't specifically excluded. */
         const char* source_file = rb_sourcefile();
         int line = rb_sourceline();
@@ -131,21 +133,14 @@ get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t *thread_dat
 }
 
 static int
-pop_frames(st_data_t key, st_data_t value, st_data_t data)
+pop_frames(VALUE key, st_data_t value, st_data_t data)
 {
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
-    VALUE thread_id = thread_data->thread_id;
-    VALUE fiber_id = thread_data->fiber_id;
     double measurement = profile->measurer->measure();
 
-    if (!profile->last_thread_data
-        || (!profile->merge_fibers && profile->last_thread_data->fiber_id != fiber_id)
-        || profile->last_thread_data->thread_id != thread_id
-        )
-        thread_data = switch_thread(profile, thread_id, fiber_id);
-    else
-        thread_data = profile->last_thread_data;
+    if (profile->last_thread_data->fiber != thread_data->fiber)
+        switch_thread(profile, thread_data);
 
     while (prof_stack_pop(thread_data->stack, measurement));
 
@@ -162,7 +157,7 @@ prof_pop_threads(prof_profile_t* profile)
 static void
 prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, double measurement)
 {
-    static VALUE last_fiber_id = Qnil;
+    static VALUE last_fiber = Qnil;
 
     VALUE thread = rb_thread_current();
     VALUE thread_id = rb_obj_id(thread);
@@ -180,16 +175,16 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
 
     class_name = rb_class2name(klass);
 
-    if (last_fiber_id != fiber_id)
+    if (last_fiber != fiber)
     {
         fprintf(trace_file, "\n");
     }
 
     fprintf(trace_file, "%2lu:%2lu:%2ums %-8s %s:%2d  %s#%s\n",
-            (unsigned long) thread_id, (unsigned long) fiber_id, (unsigned int) measurement*1000,
+            (unsigned long)thread_id, (unsigned long)fiber_id, (unsigned int) measurement*1000,
             event_name, source_file, source_line, class_name, method_name);
     fflush(trace_file);
-    last_fiber_id = fiber_id;
+    last_fiber = fiber;
 }
 
 static void
@@ -197,16 +192,15 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 {
     prof_profile_t* profile = prof_get_profile(data);
     VALUE thread = Qnil;
-    VALUE thread_id = Qnil;
     VALUE fiber = Qnil;
-    VALUE fiber_id = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
     double measurement;
     unsigned LONG_LONG thread_value;
 
     /* if we don't have a valid method id, try to retrieve one */
-    if (mid == 0) {
+    if (mid == 0)
+    {
         rb_frame_method_id_and_class(&mid, &klass);
     }
 
@@ -226,35 +220,38 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
     /* Get the current thread and fiber information. */
     thread = rb_thread_current();
-    thread_id = rb_obj_id(thread);
     fiber = rb_fiber_current();
-    fiber_id = rb_obj_id(fiber);
-
-    thread_value = NUM2ULL(thread_id);
 
     /* Don't measure anything if the include_threads option has been specified
        and the current thread is not in the list */
-    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, thread_value, 0))
+    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, thread, 0))
     {
         return;
     }
 
     /* Don't measure anything if the current thread is in the excluded thread table */
-    if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, thread_value, 0))
+    if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, thread, 0))
     {
         return;
     }
 
     /* We need to switch the profiling context if we either had none before,
-       we don't merge fibers and the fiber ids differ, or the thread ids differ.
-     */
-    if (!profile->last_thread_data
-        || (!profile->merge_fibers && !rb_equal(profile->last_thread_data->fiber_id, fiber_id))
-        || !rb_equal(profile->last_thread_data->thread_id, thread_id)
-        )
-        thread_data = switch_thread(profile, thread_id, fiber_id);
+       we don't merge fibers and the fiber ids differ, or the thread ids differ. */
+    if (!profile->last_thread_data ||
+        (!profile->merge_fibers && profile->last_thread_data->fiber != fiber) ||
+        (profile->merge_fibers && profile->last_thread_data->fiber != fiber))
+    {
+        thread_data = threads_table_lookup(profile, fiber);
+        if (!thread_data)
+        {
+            thread_data = threads_table_insert(profile, thread, fiber);
+        }
+        switch_thread(profile, thread_data);
+    }
     else
+    {
         thread_data = profile->last_thread_data;
+    }
 
     /* Get the current frame for the current thread. */
     frame = prof_stack_peek(thread_data->stack);
@@ -314,7 +311,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
         next_frame->line = rb_sourceline();
         break;
-    }
+    } 
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
@@ -505,9 +502,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
         {
             VALUE thread = rb_ary_entry(exclude_threads, i);
-            VALUE thread_id = rb_obj_id(thread);
-            unsigned LONG_LONG thread_value = NUM2ULL(thread_id);
-            st_insert(profile->exclude_threads_tbl, thread_value, Qtrue);
+            st_insert(profile->exclude_threads_tbl, thread, Qtrue);
         }
     }
 
@@ -519,9 +514,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         for (i = 0; i < RARRAY_LEN(include_threads); i++)
         {
             VALUE thread = rb_ary_entry(include_threads, i);
-            VALUE thread_id = rb_obj_id(thread);
-            unsigned LONG_LONG thread_value = NUM2ULL(thread_id);
-            st_insert(profile->include_threads_tbl, thread_value, Qtrue);
+            st_insert(profile->include_threads_tbl, thread, Qtrue);
         }
     }
 

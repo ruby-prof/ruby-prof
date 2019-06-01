@@ -120,51 +120,35 @@ threads_table_free(st_table *table)
     st_free_table(table);
 }
 
-size_t
-threads_table_insert(prof_profile_t* profile, VALUE key, thread_data_t *thread_data)
-{
-	unsigned LONG_LONG key_value = NUM2ULL(key);
-	return st_insert(profile->threads_tbl, key_value, (st_data_t) thread_data);
-}
-
 thread_data_t *
-threads_table_lookup(prof_profile_t* profile, VALUE thread_id, VALUE fiber_id)
+threads_table_lookup(prof_profile_t* profile, VALUE fiber)
 {
-    thread_data_t* result;
+    thread_data_t* result = NULL;
     st_data_t val;
 
-    /* If we should merge fibers, we use the thread_id as key, otherwise the fiber id.
-       None of this is perfect, as garbage collected fiber/thread might be reused again later.
-       A real solution would require integration with the garbage collector.
-     */
-    VALUE key = profile->merge_fibers ? thread_id : fiber_id;
-    unsigned LONG_LONG key_value = NUM2ULL(key);
-    if (st_lookup(profile->threads_tbl, key_value, &val))
+    if (st_lookup(profile->threads_tbl, fiber, &val))
     {
-      result = (thread_data_t *) val;
+        result = (thread_data_t*)val;
     }
-    else
-    {
-        result = thread_data_create();
-        result->thread_id = thread_id;
-        /* We set fiber id to 0 in the merge fiber case. Real fibers never have id 0,
-           so we can identify them later during printing.
-        */
-        result->fiber_id = profile->merge_fibers ? INT2FIX(0) : fiber_id;
-        /* Insert the table */
-        threads_table_insert(profile, key, result);
-    }
+
     return result;
 }
 
-thread_data_t *
-switch_thread(void* prof, VALUE thread_id, VALUE fiber_id)
+thread_data_t*
+threads_table_insert(prof_profile_t* profile, VALUE thread, VALUE fiber)
 {
-    prof_profile_t* profile = (prof_profile_t*)prof;
-    double measurement = profile->measurer->measure();
+    thread_data_t *result = thread_data_create();
+    result->fiber = fiber;
+    result->thread_id = rb_obj_id(thread);
+    result->fiber_id = rb_obj_id(fiber);
+    st_insert(profile->threads_tbl, (st_data_t)fiber, (st_data_t)result);
+    return result;
+}
 
-    /* Get new thread information. */
-    thread_data_t *thread_data = threads_table_lookup(profile, thread_id, fiber_id);
+void
+switch_thread(prof_profile_t* profile, thread_data_t *thread_data)
+{
+    double measurement = profile->measurer->measure();
 
     /* Get current frame for this thread */
     prof_frame_t *frame = prof_stack_peek(thread_data->stack);
@@ -186,7 +170,6 @@ switch_thread(void* prof, VALUE thread_id, VALUE fiber_id)
     }
 
     profile->last_thread_data = thread_data;
-    return thread_data;
 }
 
 int pause_thread(st_data_t key, st_data_t value, st_data_t data)

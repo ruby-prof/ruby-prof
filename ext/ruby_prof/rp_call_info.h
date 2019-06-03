@@ -14,7 +14,7 @@ typedef struct prof_call_info_t
 {
     prof_method_t *target; /* Use target instead of method to avoid conflict with Ruby method */
     struct prof_call_info_t *parent;
-    st_table *call_infos;
+    st_table *child_call_infos;
 
     double total_time;
     double self_time;

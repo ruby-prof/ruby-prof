@@ -293,14 +293,14 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         }
         else
         {
-          call_info = call_info_table_lookup(frame->call_info->call_infos, method->key);
+          call_info = call_info_table_lookup(frame->call_info->child_call_infos, method->key);
 
           if (!call_info)
           {
             /* This call info does not yet exist.  So create it, then add
                it to previous callinfo's children and to the current method .*/
             call_info = prof_call_info_create(method, frame->call_info);
-            call_info_table_insert(frame->call_info->call_infos, method->key, call_info);
+            call_info_table_insert(frame->call_info->child_call_infos, method->key, call_info);
             prof_add_call_info(method->call_infos, call_info);
           }
         }

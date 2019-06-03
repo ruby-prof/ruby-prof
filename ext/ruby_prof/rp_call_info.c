@@ -20,7 +20,7 @@ prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
     result->object = Qnil;
     result->target = method;
     result->parent = parent;
-    result->call_infos = call_info_table_create();
+    result->child_call_infos = call_info_table_create();
     result->children = Qnil;
 
     result->total_time = 0;
@@ -53,7 +53,7 @@ static void
 prof_call_info_free(prof_call_info_t *call_info)
 {
 	prof_call_info_ruby_gc_free(call_info);
-	st_free_table(call_info->call_infos);
+	st_free_table(call_info->child_call_infos);
 	xfree(call_info);
 }
 
@@ -328,7 +328,7 @@ prof_call_info_children(VALUE self)
     if (call_info->children == Qnil)
     {
       call_info->children = rb_ary_new();
-      st_foreach(call_info->call_infos, prof_call_info_collect_children, call_info->children);
+      st_foreach(call_info->child_call_infos, prof_call_info_collect_children, call_info->children);
     }
     return call_info->children;
 }

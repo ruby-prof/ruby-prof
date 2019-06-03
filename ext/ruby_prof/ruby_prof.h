@@ -6,27 +6,6 @@
 
 #include <ruby.h>
 #include <stdio.h>
-
-#if RUBY_PROF_RUBY_VERSION == 10806
-# error 1.8.6 is not supported. Please upgrade to 1.9.3 or higher.
-#endif
-
-#if RUBY_PROF_RUBY_VERSION == 10807
-# error 1.8.7 is not supported. Please upgrade to 1.9.3 or higher.
-#endif
-
-#if RUBY_PROF_RUBY_VERSION == 10900
-# error 1.9.0 is not supported. Please upgrade to 1.9.3 or higher.
-#endif
-
-#if RUBY_PROF_RUBY_VERSION == 10901
-# error 1.9.1 is not supported. Please upgrade to 1.9.3 or higher.
-#endif
-
-#if RUBY_PROF_RUBY_VERSION == 10902
-# error 1.9.2 is not supported. Please upgrade to 1.9.3 or higher.
-#endif
-
 #include "rp_measure.h"
 #include "rp_method.h"
 #include "rp_call_info.h"

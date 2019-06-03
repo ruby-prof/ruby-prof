@@ -85,36 +85,35 @@ prof_exclude_common_methods(VALUE profile)
 }
 
 static prof_method_t*
-get_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_file, int line,
-           thread_data_t *thread_data, prof_profile_t *profile)
+get_method(prof_method_key_t key, thread_data_t* thread_data)
 {
-    prof_method_key_t key;
-    prof_method_t *method = NULL;
+    prof_method_t* method = NULL;
 
     /* Probe the local table. */
-    method_key(&key, klass, mid);
-    method = method_table_lookup(thread_data->method_table, &key);
+    return method_table_lookup(thread_data->method_table, &key);
+}
 
-    if (!method)
+static prof_method_t*
+create_method(rb_event_flag_t event, prof_method_key_t key, thread_data_t* thread_data, prof_profile_t* profile, int line)
+{
+    prof_method_t* method = NULL;
+
+    if (excludes_method(&key, profile))
     {
-      /* Didn't find it; are we excluding it specifically? */
-      if (excludes_method(&key, profile)) {
         /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
         /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
            tables share the same exclusion method struct? The first attempt failed due to my
            ignorance of the whims of the GC. */
-        method = prof_method_create_excluded(klass, mid);
-      }
-      else
-      {
-        /* This method has no entry for this thread/fiber and isn't specifically excluded. */
-  	    method = prof_method_create(klass, mid, source_file, line);
-      }
-
-      /* Insert the newly created method, or the exlcusion sentinel. */
-      method_table_insert(thread_data->method_table, method->key, method);
+        method = prof_method_create_excluded(key.klass, key.mid);
+    }
+    else
+    {
+  	    method = prof_method_create(event, key.klass, key.mid, line);
     }
 
+    /* Insert the newly created method, or the exlcusion sentinel. */
+    method_table_insert(thread_data->method_table, method->key, method);
+    
     return method;
 }
 
@@ -253,27 +252,23 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
+        prof_frame_t* next_frame;
+        prof_call_info_t* call_info;
+        prof_method_t* method;
+
         if (klass == Qnil)
         {
             rb_frame_method_id_and_class(&mid, &klass);
         }
 
-        const char* source_file = NULL;
-        int line = 0;
+        int line = rb_sourceline();
+        prof_method_key_t key;
+        method_key(&key, klass, mid);
 
-        if (event != RUBY_EVENT_C_CALL)
-        {
-            // These calls are inaccurate for C extensions and expensive to do
-            source_file = rb_sourcefile();
-            line = rb_sourceline();
-        }
-
-        prof_frame_t *next_frame;
-        prof_call_info_t *call_info;
-        prof_method_t *method;
-
-        method = get_method(event, klass, mid, source_file, line, thread_data, profile);
-
+        method = get_method(key, thread_data);
+        if (!method)
+            method = create_method(event, key, thread_data, profile, line);
+        
         if (method->excluded)
         {
           prof_stack_pass(thread_data->stack);

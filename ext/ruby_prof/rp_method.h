@@ -55,12 +55,12 @@ void rp_init_method_info(void);
 
 void method_key(prof_method_key_t* key, VALUE klass, ID mid);
 
-st_table * method_table_create();
-prof_method_t * method_table_lookup(st_table *table, const prof_method_key_t* key);
+st_table *method_table_create();
+prof_method_t *method_table_lookup(st_table *table, const prof_method_key_t* key);
 size_t method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val);
 void method_table_free(st_table *table);
 
-prof_method_t* prof_method_create(VALUE klass, ID mid, const char* source_file, int line);
+prof_method_t* prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line);
 prof_method_t* prof_method_create_excluded(VALUE klass, ID mid);
 
 VALUE prof_method_wrap(prof_method_t *result);

@@ -187,7 +187,7 @@ method_key(prof_method_key_t* key, VALUE klass, ID mid)
 /* ================  prof_method_t   =================*/
 
 prof_method_t*
-prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
+prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
 {
     prof_method_t *result = ALLOC(prof_method_t);
 
@@ -202,6 +202,8 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
 
     result->object = Qnil;
 
+    const char* source_file = (event != RUBY_EVENT_C_CALL ? rb_sourcefile() : NULL);
+
     if (source_file != NULL)
     {
       size_t len = strlen(source_file) + 1;
@@ -209,8 +211,10 @@ prof_method_create(VALUE klass, ID mid, const char* source_file, int line)
 
       MEMCPY(buffer, source_file, char, len);
       result->source_file = buffer;
-    } else {
-      result->source_file = source_file;
+    }
+    else
+    {
+        result->source_file = NULL;
     }
 
     result->source_klass = Qnil;
@@ -239,6 +243,7 @@ prof_method_create_excluded(VALUE klass, ID mid)
 
     result->object = Qnil;
     result->source_klass = Qnil;
+    result->source_file = NULL;
     result->line = 0;
 
     result->resolved = 0;
@@ -489,11 +494,14 @@ return the source file of the method
 */
 static VALUE prof_method_source_file(VALUE self)
 {
-    const char* sf = get_prof_method(self)->source_file;
-    if(!sf) {
-      return rb_str_new2("ruby_runtime");
-    } else {
-      return rb_str_new2(sf);
+    prof_method_t *method = get_prof_method(self);
+    if (method->source_file)
+    {
+      return rb_str_new2(method->source_file);
+    } 
+    else 
+    {
+        return rb_str_new2("ruby_runtime");
     }
 }
 

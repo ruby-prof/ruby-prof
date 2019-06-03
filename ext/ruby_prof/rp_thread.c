@@ -144,14 +144,29 @@ threads_table_insert(void *prof, VALUE thread, VALUE fiber)
     result->thread_id = rb_obj_id(thread);
     result->fiber_id = rb_obj_id(fiber);
     st_insert(profile->threads_tbl, (st_data_t)fiber, (st_data_t)result);
+
+    // Are we tracing this thread?
+    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, thread, 0))
+    {
+        result->trace= false;
+    }
+    else if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, thread, 0))
+    {
+        result->trace = false;
+    }
+    else
+    {
+        result->trace = true;
+    }
+
+
     return result;
 }
 
 void
-switch_thread(void *prof, thread_data_t *thread_data)
+switch_thread(void *prof, thread_data_t *thread_data, double measurement)
 {
     prof_profile_t *profile = prof;
-    double measurement = profile->measurer->measure();
 
     /* Get current frame for this thread */
     prof_frame_t *frame = prof_stack_peek(thread_data->stack);

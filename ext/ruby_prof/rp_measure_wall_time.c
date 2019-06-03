@@ -17,7 +17,7 @@ static uint64_t
 measure_wall_time(void)
 {
 #if defined(_WIN32)
-    return GetTickCount() / 1000;
+    return GetTickCount();
 #elif defined(__linux__)
     struct timespec tv;
     clock_gettime(CLOCK_MONOTONIC, &tv);

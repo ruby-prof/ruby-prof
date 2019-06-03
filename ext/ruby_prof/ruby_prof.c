@@ -126,7 +126,7 @@ pop_frames(VALUE key, st_data_t value, st_data_t data)
     double measurement = profile->measurer->measure();
 
     if (profile->last_thread_data->fiber != thread_data->fiber)
-        switch_thread(profile, thread_data);
+        switch_thread(profile, thread_data, measurement);
 
     while (prof_stack_pop(thread_data->stack, measurement));
 
@@ -149,6 +149,12 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
     VALUE thread_id = rb_obj_id(thread);
     VALUE fiber = rb_fiber_current();
     VALUE fiber_id = rb_obj_id(fiber);
+
+    if (klass == Qnil)
+    {
+        rb_frame_method_id_and_class(&mid, &klass);
+    }
+
     const char* class_name = NULL;
     const char* method_name = rb_id2name(mid);
     const char* source_file = rb_sourcefile();
@@ -182,22 +188,15 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
     double measurement;
-    unsigned LONG_LONG thread_value;
-
-    /* if we don't have a valid method id, try to retrieve one */
-    if (mid == 0)
-    {
-        rb_frame_method_id_and_class(&mid, &klass);
-    }
-
-    /* Get current measurement */
-    measurement = profile->measurer->measure();
 
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
        the results but aren't important to them results. */
     if (self == mProf || klass == cProfile)
         return;
+
+    /* Get current measurement */
+    measurement = profile->measurer->measure();
 
     if (trace_file != NULL)
     {
@@ -207,19 +206,6 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     /* Get the current thread and fiber information. */
     thread = rb_thread_current();
     fiber = rb_fiber_current();
-
-    /* Don't measure anything if the include_threads option has been specified
-       and the current thread is not in the list */
-    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, thread, 0))
-    {
-        return;
-    }
-
-    /* Don't measure anything if the current thread is in the excluded thread table */
-    if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, thread, 0))
-    {
-        return;
-    }
 
     /* We need to switch the profiling context if we either had none before,
        we don't merge fibers and the fiber ids differ, or the thread ids differ. */
@@ -232,12 +218,15 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         {
             thread_data = threads_table_insert(profile, thread, fiber);
         }
-        switch_thread(profile, thread_data);
+        switch_thread(profile, thread_data, measurement);
     }
     else
     {
         thread_data = profile->last_thread_data;
     }
+
+    if (!thread_data->trace)
+        return;
 
     /* Get the current frame for the current thread. */
     frame = prof_stack_peek(thread_data->stack);
@@ -264,6 +253,11 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
+        if (klass == Qnil)
+        {
+            rb_frame_method_id_and_class(&mid, &klass);
+        }
+
         const char* source_file = NULL;
         int line = 0;
 
@@ -338,8 +332,11 @@ static int
 collect_threads(st_data_t key, st_data_t value, st_data_t result)
 {
     thread_data_t* thread_data = (thread_data_t*) value;
-    VALUE threads_array = (VALUE) result;
-    rb_ary_push(threads_array, prof_thread_wrap(thread_data));
+    if (thread_data->trace)
+    {
+        VALUE threads_array = (VALUE)result;
+        rb_ary_push(threads_array, prof_thread_wrap(thread_data));
+    }
     return ST_CONTINUE;
 }
 

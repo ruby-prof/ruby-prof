@@ -85,20 +85,8 @@ prof_exclude_common_methods(VALUE profile)
 }
 
 static prof_method_t*
-create_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_file, int line)
-{
-    /* Line numbers are not accurate for c method calls */
-    if (event == RUBY_EVENT_C_CALL)
-    {
-		line = 0;
-		source_file = NULL;
-    }
-
-    return prof_method_create(klass, mid, source_file, line);
-}
-
-static prof_method_t*
-get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t *thread_data, prof_profile_t *profile)
+get_method(rb_event_flag_t event, VALUE klass, ID mid, const char* source_file, int line,
+           thread_data_t *thread_data, prof_profile_t *profile)
 {
     prof_method_key_t key;
     prof_method_t *method = NULL;
@@ -120,9 +108,7 @@ get_method(rb_event_flag_t event, VALUE klass, ID mid, thread_data_t *thread_dat
       else
       {
         /* This method has no entry for this thread/fiber and isn't specifically excluded. */
-        const char* source_file = rb_sourcefile();
-        int line = rb_sourceline();
-  	    method = create_method(event, klass, mid, source_file, line);
+  	    method = prof_method_create(klass, mid, source_file, line);
       }
 
       /* Insert the newly created method, or the exlcusion sentinel. */
@@ -278,11 +264,21 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
+        const char* source_file = NULL;
+        int line = 0;
+
+        if (event != RUBY_EVENT_C_CALL)
+        {
+            // These calls are inaccurate for C extensions and expensive to do
+            source_file = rb_sourcefile();
+            line = rb_sourceline();
+        }
+
         prof_frame_t *next_frame;
         prof_call_info_t *call_info;
         prof_method_t *method;
 
-        method = get_method(event, klass, mid, thread_data, profile);
+        method = get_method(event, klass, mid, source_file, line, thread_data, profile);
 
         if (method->excluded)
         {
@@ -311,7 +307,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
-        next_frame->line = rb_sourceline();
+        next_frame->line = line;
         break;
     } 
     case RUBY_EVENT_RETURN:

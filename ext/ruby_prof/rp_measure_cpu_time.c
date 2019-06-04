@@ -16,7 +16,8 @@ measure_cpu_time(void)
     return time.QuadPart;
 }
 
-static double multiplier_cpu_frequency()
+static double
+multiplier_cpu_frequency()
 {
     LARGE_INTEGER cpu_frequency_struct;
     QueryPerformanceFrequency(&cpu_frequency_struct);
@@ -89,7 +90,7 @@ prof_measurer_t* prof_measurer_cpu_time()
 {
     prof_measurer_t* measure = ALLOC(prof_measurer_t);
     measure->measure = measure_cpu_time;
-    measure->multiplier = multiplier_cpu_frequency();
+    measure->multiplier = 1.0/multiplier_cpu_frequency();
     return measure;
 }
 

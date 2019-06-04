@@ -76,6 +76,7 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   result->wait_time = 0;
   result->child_time = 0;
   result->dead_time = 0;
+  result->line = 0;
 
   method = call_info->target;
 

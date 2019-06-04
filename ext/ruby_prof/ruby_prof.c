@@ -231,21 +231,21 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     switch (event) {
     case RUBY_EVENT_LINE:
     {
-      /* Keep track of the current line number in this method.  When
-         a new method is called, we know what line number it was
-         called from. */
-      if (frame)
-      {
-        if (prof_frame_is_real(frame))
+        /* Keep track of the current line number in this method.  When
+           a new method is called, we know what line number it was
+           called from. */
+        if (frame)
         {
-          frame->line = rb_sourceline();
+            if (prof_frame_is_real(frame))
+            {
+                frame->line = rb_sourceline();
+            }
+            break;
         }
-        break;
-      }
 
-      /* If we get here there was no frame, which means this is
-         the first method seen for this thread, so fall through
-         to below to create it. */
+        /* If we get here there was no frame, which means this is
+           the first method seen for this thread, so fall through
+           to below to create it. */
     }
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:

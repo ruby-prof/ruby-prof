@@ -211,15 +211,15 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
 
       MEMCPY(buffer, source_file, char, len);
       result->source_file = buffer;
+      result->line = line;
     }
     else
     {
         result->source_file = NULL;
+        result->line = 0;
     }
 
     result->source_klass = Qnil;
-    result->line = line;
-
     result->resolved = 0;
     result->relation = 0;
 

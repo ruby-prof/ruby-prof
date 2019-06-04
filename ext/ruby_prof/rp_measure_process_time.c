@@ -13,43 +13,36 @@ measure_process_time(void)
     struct timespec clock;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
     return clock.tv_sec + (clock.tv_nsec/1000000000.0);
-#elif defined(_win32)
-	FILETIME createTime;
-	FILETIME exitTime;
-	FILETIME sysTime;
-	FILETIME cpuTime;
+#elif defined(_WIN32)
+    FILETIME  createTime;
+    FILETIME  exitTime;
+    FILETIME  sysTime;
+    FILETIME  userTime;
 
 	ULARGE_INTEGER sysTimeInt;
-	ULARGE_INTEGER cpuTimeInt;
-	ULONGLONG totalTime;
+	ULARGE_INTEGER userTimeInt;
 
-	GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &cpuTime); 
-
-	/* Doing this based on MSFT's recommendation in the FILETIME structure documentation at
-	  http://msdn.microsoft.com/en-us/library/ms724284%28VS.85%29.aspx*/
+	GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &userTime); 
 
 	sysTimeInt.LowPart = sysTime.dwLowDateTime;
 	sysTimeInt.HighPart = sysTime.dwHighDateTime;
-	cpuTimeInt.LowPart = cpuTime.dwLowDateTime;
-	cpuTimeInt.HighPart = cpuTime.dwHighDateTime;
+    userTimeInt.LowPart = userTime.dwLowDateTime;
+    userTimeInt.HighPart = userTime.dwHighDateTime;
 
-	return sysTimeInt.QuadPart + cpuTimeInt.QuadPart;
-
-	// Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
-	return totalTime / 10000000.0;
+	return sysTimeInt.QuadPart + userTimeInt.QuadPart;
 #else
     return ((double)clock());
 #endif
 }
 
 static double
-multiplier_wall_time(void)
+multiplier_process_time(void)
 {
 #if defined(__linux__)
     return 1.0 / 1000000000.0;
-#elif defined(_win32)
+#elif defined(_WIN32)
     // Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
-    return 1 / 10000000.0;
+    return 1.0 / 10000000.0;
 #else
     return CLOCKS_PER_SEC;
 #endif
@@ -69,10 +62,9 @@ prof_measurer_t* prof_measurer_process_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_process_time;
-  measure->multiplier = multiplier_wall_time();
+  measure->multiplier = multiplier_process_time();
   return measure;
 }
-
 
 void rp_init_measure_process_time()
 {

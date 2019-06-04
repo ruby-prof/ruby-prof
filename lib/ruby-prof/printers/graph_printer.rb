@@ -23,7 +23,7 @@ module RubyProf
     def print_header(thread)
       @output << "Measure Mode: %s\n" % RubyProf.measure_mode_string
       @output << "Thread ID: #{thread.id}\n"
-      @output << "Fiber ID: #{thread.fiber_id}\n" unless thread.id == thread.fiber_id
+      @output << "Fiber ID: #{thread.fiber_id}\n"
       @output << "Total Time: #{thread.total_time}\n"
       @output << "Sort by: #{sort_method}\n"
       @output << "\n"

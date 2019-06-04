@@ -11,7 +11,7 @@ static VALUE cMeasureGcTimes;
   VALUE rb_gc_time();
 #endif
 
-static uint64_t
+static double
 measure_gc_time(void)
 {
 #if defined(HAVE_RB_GC_TOTAL_TIME)
@@ -37,6 +37,7 @@ prof_measurer_t* prof_measurer_gc_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_gc_time;
+  measure->multiplier = 1;
   return measure;
 }
 

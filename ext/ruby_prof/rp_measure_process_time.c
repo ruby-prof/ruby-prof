@@ -6,7 +6,7 @@
 
 static VALUE cMeasureProcessTime;
 
-static uint64_t
+static double
 measure_process_time(void)
 {
 #if defined(__linux__)
@@ -33,15 +33,28 @@ measure_process_time(void)
 	cpuTimeInt.LowPart = cpuTime.dwLowDateTime;
 	cpuTimeInt.HighPart = cpuTime.dwHighDateTime;
 
-	totalTime = sysTimeInt.QuadPart + cpuTimeInt.QuadPart;
+	return sysTimeInt.QuadPart + cpuTimeInt.QuadPart;
 
 	// Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
 	return totalTime / 10000000.0;
 #else
-    return ((double)clock()) / CLOCKS_PER_SEC;
+    return ((double)clock());
 #endif
 }
 
+static double
+multiplier_wall_time(void)
+{
+#if defined(__linux__)
+    return 1.0 / 1000000000.0;
+#elif defined(_win32)
+    // Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
+    return 1 / 10000000.0;
+#else
+    return CLOCKS_PER_SEC;
+#endif
+
+}
 /* call-seq:
    measure_process_time -> float
 
@@ -56,6 +69,7 @@ prof_measurer_t* prof_measurer_process_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_process_time;
+  measure->multiplier = multiplier_wall_time();
   return measure;
 }
 

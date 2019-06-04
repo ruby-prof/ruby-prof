@@ -13,17 +13,17 @@ mach_timebase_info_data_t mach_timebase;
 
 static VALUE cMeasureWallTime;
 
-static uint64_t
+static double
 measure_wall_time(void)
 {
 #if defined(_WIN32)
     return GetTickCount();
+#elif defined(__APPLE__)
+    return mach_absolute_time();// * (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom;
 #elif defined(__linux__)
     struct timespec tv;
     clock_gettime(CLOCK_MONOTONIC, &tv);
     return tv.tv_sec + (tv.tv_nsec / 1000000000.0);
-#elif defined(__APPLE__)
-    return mach_absolute_time();// * (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom;
 #else
     struct timeval tv;
     gettimeofday(&tv, NULL);
@@ -31,10 +31,23 @@ measure_wall_time(void)
 #endif
 }
 
+static double
+multiplier_wall_time(void)
+{
+#if defined(_WIN32)
+    return 1.0/1000.0;
+#elif defined(__APPLE__)
+    return 1.0 * (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom;
+#else
+    return 1.0
+#endif
+}
+
 prof_measurer_t* prof_measurer_wall_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_wall_time;
+  measure->multiplier = multiplier_wall_time();
   return measure;
 }
 

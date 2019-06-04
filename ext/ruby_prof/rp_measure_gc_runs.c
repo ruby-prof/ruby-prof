@@ -20,7 +20,7 @@ static VALUE cMeasureGcRuns;
 #endif
 
 
-static uint64_t
+static double
 measure_gc_runs(void)
 {
 #if defined(HAVE_RB_GC_COLLECTIONS)
@@ -46,6 +46,7 @@ prof_measurer_t* prof_measurer_gc_runs()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_gc_runs;
+  measure->multiplier = 1;
   return measure;
 }
 

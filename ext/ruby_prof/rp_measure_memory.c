@@ -21,7 +21,7 @@ static VALUE cMeasureMemory;
   size_t rb_heap_total_mem();
 #endif
 
-static uint64_t
+static double
 measure_memory(void)
 {
 #if defined(HAVE_RB_GC_ALLOCATED_SIZE)
@@ -54,6 +54,7 @@ prof_measurer_t* prof_measurer_memory()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_memory;
+  measure->multiplier = 1;
   return measure;
 }
 

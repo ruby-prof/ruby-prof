@@ -122,7 +122,7 @@ pop_frames(VALUE key, st_data_t value, st_data_t data)
 {
     thread_data_t* thread_data = (thread_data_t *) value;
     prof_profile_t* profile = (prof_profile_t*) data;
-    double measurement = profile->measurer->measure();
+    double measurement = prof_measure(profile->measurer);
 
     if (profile->last_thread_data->fiber != thread_data->fiber)
         switch_thread(profile, thread_data, measurement);
@@ -149,7 +149,7 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
     VALUE fiber = rb_fiber_current();
     VALUE fiber_id = rb_obj_id(fiber);
 
-    if (klass == Qnil)
+    if (mid == 0)
     {
         rb_frame_method_id_and_class(&mid, &klass);
     }
@@ -195,7 +195,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         return;
 
     /* Get current measurement */
-    measurement = profile->measurer->measure();
+    measurement = prof_measure(profile->measurer);
 
     if (trace_file != NULL)
     {
@@ -256,7 +256,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         prof_call_info_t* call_info;
         prof_method_t* method;
 
-        if (klass == Qnil)
+        if (mid == 0)
         {
             rb_frame_method_id_and_class(&mid, &klass);
         }

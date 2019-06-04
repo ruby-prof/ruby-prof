@@ -8,31 +8,20 @@ static VALUE cMeasureCpuTime;
 /* The _WIN32 check is needed for msys (and maybe cygwin?) */
 #if defined(_WIN32)
 
-static unsigned long long get_cpu_time()
+static double
+measure_cpu_time(void)
 {
     LARGE_INTEGER time;
     QueryPerformanceCounter(&time);
     return time.QuadPart;
 }
 
-static unsigned long long get_cpu_frequency()
+static double multiplier_cpu_frequency()
 {
-    static unsigned long long cpu_frequency;
-
-    if(!cpu_frequency) {
-        LARGE_INTEGER cpu_frequency_struct;
-        QueryPerformanceFrequency(&cpu_frequency_struct);
-        cpu_frequency = cpu_frequency_struct.QuadPart;
-    }
-
-    return cpu_frequency;
+    LARGE_INTEGER cpu_frequency_struct;
+    QueryPerformanceFrequency(&cpu_frequency_struct);
+    return cpu_frequency_struct.QuadPart;
 }
-
-static uint64_t measure_cpu_time(void)
-{
-    return ((double)get_cpu_time()) / get_cpu_frequency();
-}
-
 #else
 
 #include <sys/resource.h>
@@ -79,7 +68,7 @@ static unsigned long long get_cpu_frequency()
     return cpu_frequency;
 }
 
-static uint64_t measure_cpu_time(void)
+static double measure_cpu_time(void)
 {
     struct rusage rusage;
     getrusage(RUSAGE_SELF, &rusage);
@@ -96,11 +85,11 @@ static uint64_t measure_cpu_time(void)
 }
 #endif
 
-
 prof_measurer_t* prof_measurer_cpu_time()
 {
     prof_measurer_t* measure = ALLOC(prof_measurer_t);
     measure->measure = measure_cpu_time;
+    measure->multiplier = multiplier_cpu_frequency();
     return measure;
 }
 
@@ -111,7 +100,7 @@ Returns the cpu time.*/
 static VALUE
 prof_measure_cpu_time(VALUE self)
 {
-    return rb_float_new(measure_cpu_time());
+    return ULL2NUM(measure_cpu_time());
 }
 
 /* call-seq:
@@ -122,7 +111,8 @@ RubyProf::measure_mode is set to CPU_TIME. */
 static VALUE
 prof_get_cpu_frequency(VALUE self)
 {
-    return ULL2NUM(get_cpu_frequency());
+    prof_measurer_t* measurer = DATA_PTR(self);
+    return rb_float_new(measurer->multiplier);
 }
 
 void rp_init_measure_cpu_time()

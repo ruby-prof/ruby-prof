@@ -22,7 +22,7 @@ size_t rb_gc_stat(VALUE key);
 
 #endif
 
-static uint64_t
+static double
 measure_allocations(void)
 {
 #if defined(HAVE_RB_OS_ALLOCATED_OBJECTS)
@@ -48,6 +48,7 @@ prof_measurer_t* prof_measurer_allocations()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_allocations;
+  measure->multiplier = 1;
   return measure;
 }
 

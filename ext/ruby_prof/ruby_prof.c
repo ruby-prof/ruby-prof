@@ -208,9 +208,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
     /* We need to switch the profiling context if we either had none before,
        we don't merge fibers and the fiber ids differ, or the thread ids differ. */
-    if (!profile->last_thread_data ||
-        (!profile->merge_fibers && profile->last_thread_data->fiber != fiber) ||
-        (profile->merge_fibers && profile->last_thread_data->fiber != fiber))
+    if (!profile->last_thread_data || profile->last_thread_data->fiber != fiber)
     {
         thread_data = threads_table_lookup(profile, fiber);
         if (!thread_data)
@@ -402,7 +400,6 @@ prof_allocate(VALUE klass)
     profile->exclude_threads_tbl = NULL;
     profile->include_threads_tbl = NULL;
     profile->running = Qfalse;
-    profile->merge_fibers = 0;
     profile->allow_exceptions = 0;
     profile->exclude_methods_tbl = method_table_create();
     profile->running = Qfalse;
@@ -433,7 +430,6 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE mode = Qnil;
     VALUE exclude_threads = Qnil;
     VALUE include_threads = Qnil;
-    VALUE merge_fibers = Qnil;
     VALUE exclude_common = Qnil;
     VALUE allow_exceptions = Qnil;
     int i;
@@ -451,7 +447,6 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         {
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
-            merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
             allow_exceptions = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("allow_exceptions")));
             exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
@@ -472,7 +467,6 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         Check_Type(mode, T_FIXNUM);
     }
     profile->measurer = prof_get_measurer(NUM2INT(mode));
-    profile->merge_fibers = merge_fibers != Qnil && merge_fibers != Qfalse;
     profile->allow_exceptions = allow_exceptions != Qnil && allow_exceptions != Qfalse;
 
     if (exclude_threads != Qnil)

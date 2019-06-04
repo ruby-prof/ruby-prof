@@ -150,10 +150,6 @@ module RubyProf
     end
   end
 
-  def self.ruby_2?
-    ruby_major_version == 2
-  end
-
   # store printer output in this directory
   def self.tmpdir
     path = File.expand_path('../../tmp', __FILE__)

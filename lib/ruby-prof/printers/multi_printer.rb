@@ -18,7 +18,7 @@ module RubyProf
 
     # create profile files under options[:path] or the current
     # directory. options[:profile] is used as the base name for the
-    # pofile file, defaults to "profile".
+    # profile file, defaults to "profile".
     def print(options)
       validate_print_params(options)
 

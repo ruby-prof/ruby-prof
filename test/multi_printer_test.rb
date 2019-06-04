@@ -80,7 +80,7 @@ class MultiPrinterTest < TestCase
     assert_match(re, graph)
     graph =~ re
     display_time = $4.to_f
-    assert_in_delta expected_time, display_time, 0.001
+    assert_in_delta(expected_time, display_time, 0.02)
   end
 
   private
@@ -95,10 +95,6 @@ class MultiPrinterTest < TestCase
     if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"
       system("open '#{printer.stack_profile}'")
     end
-    # if GC.respond_to?(:dump_file_and_line_info)
-    #   GC.start
-    #   GC.dump_file_and_line_info("heap.dump")
-    # end
     [File.read(printer.stack_profile), File.read(printer.graph_profile)]
   end
 end

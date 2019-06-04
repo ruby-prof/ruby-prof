@@ -6,6 +6,7 @@ require File.expand_path('../test_helper', __FILE__)
 class MeasureCpuTimeTest < TestCase
   def setup
     RubyProf::measure_mode = RubyProf::CPU_TIME
+    GC.start
   end
 
   def teardown
@@ -154,31 +155,19 @@ class MeasureCpuTimeTest < TestCase
     assert_in_delta(0, methods[1].self_time, 0.01)
   end
 
-
-  def test_sleeping_does_accumulate_wall_time
-    RubyProf::measure_mode = RubyProf::WALL_TIME
+  def test_sleeping_does_not_accumulate
     result = RubyProf.profile do
       sleep 0.1
     end
-    methods = result.threads.first.methods.sort.reverse
-    assert_equal(["MeasureCpuTimeTest#test_sleeping_does_accumulate_wall_time", "Kernel#sleep"], methods.map(&:full_name))
-    assert_in_delta(0.1, methods[1].total_time, 0.01)
-    assert_equal(0, methods[1].wait_time)
-    assert_in_delta(0.1, methods[1].self_time, 0.01)
-  end
 
-  def test_sleeping_does_not_accumulate_significant_cpu_time
-    result = RubyProf.profile do
-      sleep 0.1
-    end
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(["MeasureCpuTimeTest#test_sleeping_does_not_accumulate_significant_cpu_time", "Kernel#sleep"], methods.map(&:full_name))
+    assert_equal(["MeasureCpuTimeTest#test_sleeping_does_not_accumulate", "Kernel#sleep"], methods.map(&:full_name))
     assert_in_delta(0, methods[1].total_time, 0.01)
     assert_equal(0, methods[1].wait_time)
     assert_in_delta(0, methods[1].self_time, 0.01)
   end
 
-  def test_waiting_for_threads_does_not_accumulate_cpu_time
+  def test_waiting_for_threads_does_not_accumulate
     background_thread = nil
     result = RubyProf.profile do
       background_thread = Thread.new{ sleep 0.1 }
@@ -191,22 +180,5 @@ class MeasureCpuTimeTest < TestCase
     assert(bg.methods.map(&:full_name).include?("Kernel#sleep"))
     assert_in_delta(0, fg.total_time, 0.01)
     assert_in_delta(0, bg.total_time, 0.01)
-  end
-
-  def test_waiting_for_threads_does_accumulate_wall_time
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-    background_thread = nil
-    result = RubyProf.profile do
-      background_thread = Thread.new{ sleep 0.1 }
-      background_thread.join
-    end
-    # check number of threads
-    assert_equal(2, result.threads.length)
-    fg, bg = result.threads
-    assert(fg.methods.map(&:full_name).include?("Thread#join"))
-    assert(bg.methods.map(&:full_name).include?("Kernel#sleep"))
-    assert_in_delta(0.1, fg.total_time, 0.01)
-    assert_in_delta(0.1, fg.wait_time, 0.01)
-    assert_in_delta(0.1, bg.total_time, 0.01)
   end
 end

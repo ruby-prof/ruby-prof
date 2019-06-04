@@ -133,11 +133,6 @@ RubyProf::Profile.new::
        Array of threads which should be profiled. All other threads will
        be ignored.
 
-   merge_fibers::
-       Whether profiling data for a given thread's fibers should all be
-       subsumed under a single entry. Basically only useful to produce
-       callgrind profiles.
-
 RubyProf::Profile#start::
    Start profiling
 

@@ -7,6 +7,7 @@ class MeasureWallTimeTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME
+    GC.start
   end
 
   def test_mode
@@ -24,7 +25,7 @@ class MeasureWallTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.1, thread.total_time, 0.01)
+    assert_in_delta(0.1, thread.total_time, 0.02)
 
     top_methods = thread.top_methods
     assert_equal(1, top_methods.count)
@@ -44,17 +45,17 @@ class MeasureWallTimeTest < TestCase
     assert_equal('Kernel#sleep', methods[2].full_name)
 
     # Check times
-    assert_in_delta(0.1, methods[0].total_time, 0.01)
-    assert_in_delta(0, methods[0].wait_time, 0.01)
-    assert_in_delta(0, methods[0].self_time, 0.01)
+    assert_in_delta(0.1, methods[0].total_time, 0.02)
+    assert_in_delta(0, methods[0].wait_time, 0.02)
+    assert_in_delta(0, methods[0].self_time, 0.02)
 
-    assert_in_delta(0.1, methods[1].total_time, 0.01)
-    assert_in_delta(0, methods[1].wait_time, 0.01)
-    assert_in_delta(0, methods[1].self_time, 0.01)
+    assert_in_delta(0.1, methods[1].total_time, 0.02)
+    assert_in_delta(0, methods[1].wait_time, 0.02)
+    assert_in_delta(0, methods[1].self_time, 0.02)
 
-    assert_in_delta(0.1, methods[2].total_time, 0.01)
-    assert_in_delta(0, methods[2].wait_time, 0.01)
-    assert_in_delta(0.1, methods[2].self_time, 0.01)
+    assert_in_delta(0.1, methods[2].total_time, 0.02)
+    assert_in_delta(0, methods[2].wait_time, 0.02)
+    assert_in_delta(0.1, methods[2].self_time, 0.02)
   end
 
   def test_instance_methods
@@ -63,7 +64,7 @@ class MeasureWallTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.2, thread.total_time, 0.01)
+    assert_in_delta(0.2, thread.total_time, 0.02)
 
     top_methods = thread.top_methods
     assert_equal(1, top_methods.count)
@@ -78,7 +79,7 @@ class MeasureWallTimeTest < TestCase
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(RubyProf.ruby_2? ? 5 : 6, methods.length)
+    assert_equal(5, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureWallTimeTest#test_instance_methods', names[0])
     assert_equal('RubyProf::C1#hello', names[1])
@@ -87,9 +88,6 @@ class MeasureWallTimeTest < TestCase
 
     # order can differ
     assert(names.include?("#{RubyProf.parent_object}#initialize"))
-    unless RubyProf.ruby_2?
-      assert(names.include?("<Class::#{RubyProf.parent_object}>#allocate"))
-    end
 
     # Check times
     assert_in_delta(0.2, methods[0].total_time, 0.02)
@@ -104,19 +102,13 @@ class MeasureWallTimeTest < TestCase
     assert_in_delta(0, methods[2].wait_time, 0.02)
     assert_in_delta(0.2, methods[2].self_time, 0.02)
 
-    assert_in_delta(0, methods[3].total_time, 0.01)
-    assert_in_delta(0, methods[3].wait_time, 0.01)
-    assert_in_delta(0, methods[3].self_time, 0.01)
+    assert_in_delta(0, methods[3].total_time, 0.02)
+    assert_in_delta(0, methods[3].wait_time, 0.02)
+    assert_in_delta(0, methods[3].self_time, 0.02)
 
-    assert_in_delta(0, methods[4].total_time, 0.01)
-    assert_in_delta(0, methods[4].wait_time, 0.01)
-    assert_in_delta(0, methods[4].self_time, 0.01)
-
-    unless RubyProf.ruby_2?
-      assert_in_delta(0, methods[5].total_time, 0.01)
-      assert_in_delta(0, methods[5].wait_time, 0.01)
-      assert_in_delta(0, methods[5].self_time, 0.01)
-    end
+    assert_in_delta(0, methods[4].total_time, 0.02)
+    assert_in_delta(0, methods[4].wait_time, 0.02)
+    assert_in_delta(0, methods[4].self_time, 0.02)
   end
 
   def test_module_methods
@@ -125,7 +117,7 @@ class MeasureWallTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.3, thread.total_time, 0.01)
+    assert_in_delta(0.3, thread.total_time, 0.02)
 
     top_methods = thread.top_methods
     assert_equal(1, top_methods.count)
@@ -163,7 +155,7 @@ class MeasureWallTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.3, thread.total_time, 0.01)
+    assert_in_delta(0.3, thread.total_time, 0.02)
 
     top_methods = thread.top_methods
     assert_equal(1, top_methods.count)
@@ -178,7 +170,7 @@ class MeasureWallTimeTest < TestCase
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(RubyProf.ruby_2? ? 5 : 6, methods.length)
+    assert_equal(5, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureWallTimeTest#test_module_instance_methods', names[0])
     assert_equal('RubyProf::M1#hello', names[1])
@@ -187,9 +179,6 @@ class MeasureWallTimeTest < TestCase
 
     # order can differ
     assert(names.include?("#{RubyProf.parent_object}#initialize"))
-    unless RubyProf.ruby_2?
-      assert(names.include?("<Class::#{RubyProf.parent_object}>#allocate"))
-    end
 
     # Check times
     assert_in_delta(0.3, methods[0].total_time, 0.1)
@@ -197,26 +186,20 @@ class MeasureWallTimeTest < TestCase
     assert_in_delta(0, methods[0].self_time, 0.1)
 
     assert_in_delta(0.3, methods[1].total_time, 0.02)
-    assert_in_delta(0, methods[1].wait_time, 0.01)
-    assert_in_delta(0, methods[1].self_time, 0.01)
+    assert_in_delta(0, methods[1].wait_time, 0.02)
+    assert_in_delta(0, methods[1].self_time, 0.02)
 
     assert_in_delta(0.3, methods[2].total_time, 0.02)
-    assert_in_delta(0, methods[2].wait_time, 0.01)
+    assert_in_delta(0, methods[2].wait_time, 0.02)
     assert_in_delta(0.3, methods[2].self_time, 0.02)
 
-    assert_in_delta(0, methods[3].total_time, 0.01)
-    assert_in_delta(0, methods[3].wait_time, 0.01)
-    assert_in_delta(0, methods[3].self_time, 0.01)
+    assert_in_delta(0, methods[3].total_time, 0.02)
+    assert_in_delta(0, methods[3].wait_time, 0.02)
+    assert_in_delta(0, methods[3].self_time, 0.02)
 
-    assert_in_delta(0, methods[4].total_time, 0.01)
-    assert_in_delta(0, methods[4].wait_time, 0.01)
-    assert_in_delta(0, methods[4].self_time, 0.01)
-
-    unless RubyProf.ruby_2?
-      assert_in_delta(0, methods[5].total_time, 0.01)
-      assert_in_delta(0, methods[5].wait_time, 0.01)
-      assert_in_delta(0, methods[5].self_time, 0.01)
-    end
+    assert_in_delta(0, methods[4].total_time, 0.02)
+    assert_in_delta(0, methods[4].wait_time, 0.02)
+    assert_in_delta(0, methods[4].self_time, 0.02)
   end
 
   def test_singleton
@@ -232,7 +215,7 @@ class MeasureWallTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.0, thread.total_time, 0.01)
+    assert_in_delta(0.0, thread.total_time, 0.02)
 
     top_methods = thread.top_methods
     assert_equal(1, top_methods.count)
@@ -244,12 +227,40 @@ class MeasureWallTimeTest < TestCase
     assert_equal('MeasureWallTimeTest#test_singleton', methods[0].full_name)
     assert_equal('<Object::RubyProf::C3>#hello', methods[1].full_name)
 
-    assert_in_delta(0, methods[0].total_time, 0.01)
-    assert_in_delta(0, methods[0].wait_time, 0.01)
-    assert_in_delta(0, methods[0].self_time, 0.01)
+    assert_in_delta(0, methods[0].total_time, 0.02)
+    assert_in_delta(0, methods[0].wait_time, 0.02)
+    assert_in_delta(0, methods[0].self_time, 0.02)
 
-    assert_in_delta(0, methods[1].total_time, 0.01)
-    assert_in_delta(0, methods[1].wait_time, 0.01)
-    assert_in_delta(0, methods[1].self_time, 0.01)
+    assert_in_delta(0, methods[1].total_time, 0.02)
+    assert_in_delta(0, methods[1].wait_time, 0.02)
+    assert_in_delta(0, methods[1].self_time, 0.02)
+  end
+
+  def test_waiting_for_threads_does_accumulate
+    background_thread = nil
+    result = RubyProf.profile do
+      background_thread = Thread.new{ sleep 0.1 }
+      background_thread.join
+    end
+
+    # check number of threads
+    assert_equal(2, result.threads.length)
+    fg, bg = result.threads
+    assert(fg.methods.map(&:full_name).include?("Thread#join"))
+    assert(bg.methods.map(&:full_name).include?("Kernel#sleep"))
+    assert_in_delta(0.1, fg.total_time, 0.02)
+    assert_in_delta(0.1, fg.wait_time, 0.02)
+    assert_in_delta(0.1, bg.total_time, 0.02)
+  end
+
+  def test_sleeping_does_accumulate
+    result = RubyProf.profile do
+      sleep 0.1
+    end
+    methods = result.threads.first.methods.sort.reverse
+    assert_equal(["MeasureWallTimeTest#test_sleeping_does_accumulate", "Kernel#sleep"], methods.map(&:full_name))
+    assert_in_delta(0.1, methods[1].total_time, 0.02)
+    assert_equal(0, methods[1].wait_time)
+    assert_in_delta(0.1, methods[1].self_time, 0.02)
   end
 end

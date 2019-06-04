@@ -24,7 +24,7 @@ class BlockMethodTest < TestCase
     #  BlockMethodTest#test_block
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(RubyProf.ruby_2? ? 6 : 7, methods.length)
+    assert_equal(6, methods.length)
 
     # Check times
     assert_equal("BlockMethodTest#test_block", methods[0].full_name)
@@ -63,12 +63,5 @@ class BlockMethodTest < TestCase
     assert_in_delta(0.0, methods[5].total_time, 0.01)
     assert_in_delta(0.0, methods[5].wait_time, 0.01)
     assert_in_delta(0.0, methods[5].self_time, 0.01)
-
-    unless RubyProf.ruby_2?
-      assert_equal("<Class::#{RubyProf.parent_object}>#allocate", methods[6].full_name)
-      assert_in_delta(0.0, methods[6].total_time, 0.01)
-      assert_in_delta(0.0, methods[6].wait_time, 0.01)
-      assert_in_delta(0.0, methods[6].self_time, 0.01)
-    end
   end
 end

@@ -7,10 +7,6 @@ require 'fileutils'
 module RubyProf
   # Generate profiling information in callgrind format for use by
   # kcachegrind and similar tools.
-  #
-  # Note: when profiling for a callgrind printer, one should use the
-  # merge_fibers: true option when creating the profile. Otherwise
-  # each fiber would appear as a separate profile.
 
   class CallTreePrinter < AbstractPrinter
 

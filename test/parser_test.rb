@@ -14,8 +14,15 @@ result = RubyProf.profile do
   parse = Parser::CurrentRuby.parse(code)
 end
 
-finish = Time.now
+finish1 = Time.now
 
-puts "#{finish - start} seconds"
-# printer = RubyProf::GraphPrinter.new(result)
-# printer.print(STDOUT)
+puts "#{finish1 - start} seconds"
+
+printer = RubyProf::GraphHtmlPrinter.new(result)
+File.open('c:/temp/graph.html', 'wb') do |file|
+  printer.print(file)
+end
+
+finish2 = Time.now
+
+puts "#{finish2 - finish1} seconds"

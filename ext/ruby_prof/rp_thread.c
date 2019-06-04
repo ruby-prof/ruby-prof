@@ -14,6 +14,10 @@ thread_data_create(void)
     result->method_table = method_table_create();
     result->object = Qnil;
     result->methods = Qnil;
+    result->fiber_id = Qnil;
+    result->thread_id = Qnil;
+    result->trace = true;
+    result->fiber = Qnil;
     return result;
 }
 
@@ -44,8 +48,6 @@ thread_data_free(thread_data_t* thread_data)
     method_table_free(thread_data->method_table);
     prof_stack_free(thread_data->stack);
 
-    thread_data->thread_id = Qnil;
-
     xfree(thread_data);
 }
 
@@ -57,6 +59,14 @@ mark_methods(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
+static VALUE
+prof_thread_allocate(VALUE klass)
+{
+    thread_data_t* thread_data = thread_data_create();
+    thread_data->object = prof_thread_wrap(thread_data);
+    return thread_data->object;
+}
+
 void
 prof_thread_mark(thread_data_t *thread)
 {
@@ -66,11 +76,11 @@ prof_thread_mark(thread_data_t *thread)
     if (thread->methods != Qnil)
         rb_gc_mark(thread->methods);
 
-    if (thread->thread_id != Qnil)
-        rb_gc_mark(thread->thread_id);
-
     if (thread->fiber_id != Qnil)
         rb_gc_mark(thread->fiber_id);
+
+    if (thread->thread_id != Qnil)
+        rb_gc_mark(thread->thread_id);
 
     st_foreach(thread->method_table, mark_methods, 0);
 }
@@ -78,7 +88,8 @@ prof_thread_mark(thread_data_t *thread)
 VALUE
 prof_thread_wrap(thread_data_t *thread)
 {
-    if (thread->object == Qnil) {
+    if (thread->object == Qnil)
+    {
         thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, thread_data_ruby_gc_free, thread);
     }
     return thread->object;
@@ -227,7 +238,6 @@ collect_methods(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
-
 /* call-seq:
    id -> number
 
@@ -267,12 +277,42 @@ prof_thread_methods(VALUE self)
     return thread->methods;
 }
 
+static VALUE
+prof_thread_dump(VALUE self)
+{
+    thread_data_t* thread_data = (thread_data_t*)self;
+    VALUE result = rb_hash_new();
+    rb_hash_aset(result, ID2SYM(rb_intern("methods")), prof_thread_methods(self));
+
+    return result;
+}
+
+static VALUE
+prof_thread_load(VALUE self, VALUE data)
+{
+    thread_data_t* thread_data = DATA_PTR(self);
+    thread_data->fiber_id = rb_hash_aref(data, ID2SYM(rb_intern("fiber_id")));
+    VALUE methods = rb_hash_aref(data, ID2SYM(rb_intern("methods")));
+
+    for (int i = 0; i < rb_array_len(methods); i++)
+    {
+        VALUE method = rb_ary_entry(methods, i);
+        prof_method_t *method_data = DATA_PTR(method);
+        method_table_insert(thread_data->method_table, method_data->key, method_data);
+    }
+
+    return data;
+}
+
 void rp_init_thread(void)
 {
     cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
     rb_undef_method(CLASS_OF(cRpThread), "new");
+    rb_define_alloc_func(cRpThread, prof_thread_allocate);
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
     rb_define_method(cRpThread, "fiber_id", prof_fiber_id, 0);
     rb_define_method(cRpThread, "methods", prof_thread_methods, 0);
+    rb_define_method(cRpThread, "_dump_data", prof_thread_dump, 0);
+    rb_define_method(cRpThread, "_load_data", prof_thread_load, 1);
 }

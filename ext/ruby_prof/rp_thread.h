@@ -5,6 +5,7 @@
 #define __RP_THREAD__
 
 #include <stdbool.h>
+#include <ruby/thread_native.h>
 
 /* Profiling information for a thread. */
 typedef struct
@@ -13,7 +14,7 @@ typedef struct
     VALUE object;                     /* Cache to wrapped object */
     VALUE fiber;                      /* Fiber */
     prof_stack_t* stack;              /* Stack of frames */
-    bool trace;                    /* Are we tracking this thread */
+    bool trace;                       /* Are we tracking this thread */
 
     VALUE thread_id;                  /* Thread id */
     VALUE fiber_id;                   /* Fiber id */

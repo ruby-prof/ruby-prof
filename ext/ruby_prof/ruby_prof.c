@@ -35,7 +35,7 @@ prof_get_profile(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    return (prof_profile_t*)RDATA(self)->data;
+    return DATA_PTR(self);
 }
 
 /* support tracing ruby events from ruby-prof. useful for getting at
@@ -732,6 +732,27 @@ prof_exclude_method(VALUE self, VALUE klass, VALUE sym)
     return self;
 }
 
+VALUE prof_profile_dump(VALUE self)
+{
+    VALUE result = rb_hash_new();
+    rb_hash_aset(result, ID2SYM(rb_intern("threads")), prof_threads(self));
+    return result;
+}
+
+VALUE prof_profile_load(VALUE self, VALUE data)
+{
+    prof_profile_t* profile = prof_get_profile(self);
+    VALUE threads = rb_hash_aref(data, ID2SYM(rb_intern("threads")));
+    for (int i = 0; i < rb_array_len(threads); i++)
+    {
+        VALUE thread = rb_ary_entry(threads, i);
+        thread_data_t* thread_data = DATA_PTR(thread);
+        st_insert(profile->threads_tbl, (st_data_t)thread_data->fiber_id, (st_data_t)thread_data);
+    }
+
+    return data;
+}
+
 void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
@@ -744,6 +765,7 @@ void Init_ruby_prof()
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_alloc_func (cProfile, prof_allocate);
 
+    rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);
@@ -752,11 +774,10 @@ void Init_ruby_prof()
     rb_define_method(cProfile, "running?", prof_running, 0);
     rb_define_method(cProfile, "paused?", prof_paused, 0);
     rb_define_method(cProfile, "threads", prof_threads, 0);
-
-    rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
-    rb_define_method(cProfile, "profile", prof_profile_object, 0);
-
     rb_define_method(cProfile, "exclude_method!", prof_exclude_method, 2);
+    rb_define_method(cProfile, "profile", prof_profile_object, 0);
+    rb_define_method(cProfile, "_dump_data", prof_profile_dump, 0);
+    rb_define_method(cProfile, "_load_data", prof_profile_load, 1);
 
     cExcludeCommonMethods = rb_define_class_under(cProfile, "ExcludeCommonMethods", rb_cObject);
 }

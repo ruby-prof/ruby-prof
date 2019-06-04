@@ -7,10 +7,8 @@
 
 VALUE cCallInfo;
 
-
 // Forward declarations
 st_table * call_info_table_create();
-
 
 /* =======  prof_call_info_t   ========*/
 prof_call_info_t *
@@ -80,6 +78,14 @@ prof_call_info_wrap(prof_call_info_t *call_info)
   return call_info->object;
 }
 
+static VALUE
+prof_call_info_allocate(VALUE klass)
+{
+    prof_call_info_t* call_info = prof_call_info_create(NULL, NULL);
+    call_info->object = prof_call_info_wrap(call_info);
+    return call_info->object;
+}
+
 static prof_call_info_t *
 prof_get_call_info(VALUE self)
 {
@@ -119,7 +125,6 @@ call_info_table_lookup(st_table *table, const prof_method_key_t *key)
       return NULL;
     }
 }
-
 
 /* =======  RubyProf::CallInfo   ========*/
 
@@ -401,11 +406,65 @@ prof_call_infos_wrap(prof_call_infos_t *call_infos)
   return call_infos->object;
 }
 
+static VALUE
+prof_call_info_dump(VALUE self)
+{
+    prof_call_info_t* call_info_data = prof_get_call_info(self);
+    VALUE result = rb_hash_new();
+
+    rb_hash_aset(result, ID2SYM(rb_intern("total_time")), rb_float_new(call_info_data->total_time));
+    rb_hash_aset(result, ID2SYM(rb_intern("self_time")), rb_float_new(call_info_data->self_time));
+    rb_hash_aset(result, ID2SYM(rb_intern("wait_time")), rb_float_new(call_info_data->wait_time));
+
+    rb_hash_aset(result, ID2SYM(rb_intern("called")), INT2FIX(call_info_data->called));
+
+    rb_hash_aset(result, ID2SYM(rb_intern("recursive")), INT2FIX(call_info_data->recursive));
+    rb_hash_aset(result, ID2SYM(rb_intern("depth")), INT2FIX(call_info_data->depth));
+    rb_hash_aset(result, ID2SYM(rb_intern("line")), INT2FIX(call_info_data->line));
+
+    rb_hash_aset(result, ID2SYM(rb_intern("target")), prof_call_info_target(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("parent")), prof_call_info_parent(self));
+    struct prof_call_info_t* parent;
+    st_table* child_call_infos;
+
+    return result;
+}
+
+static VALUE
+prof_call_info_load(VALUE self, VALUE data)
+{
+    prof_call_info_t* call_info = prof_get_call_info(self);
+
+    call_info->total_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("total_time"))));
+    call_info->self_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("self_time"))));
+    call_info->wait_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("wait_time"))));
+
+    call_info->called = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("called"))));
+
+    call_info->recursive = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("recursive"))));
+    call_info->depth = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("depth"))));
+    call_info->line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
+
+    VALUE target = rb_hash_aref(data, ID2SYM(rb_intern("target")));
+    call_info->target = DATA_PTR(target);
+
+    VALUE parent = rb_hash_aref(data, ID2SYM(rb_intern("parent")));
+    if (parent != Qnil)
+    {
+        call_info->parent = prof_get_call_info(parent);
+        call_info_table_insert(call_info->parent->child_call_infos, call_info->target->key, call_info);
+    }
+
+    return data;
+}
+
 void rp_init_call_info()
 {
     /* CallInfo */
     cCallInfo = rb_define_class_under(mProf, "CallInfo", rb_cObject);
     rb_undef_method(CLASS_OF(cCallInfo), "new");
+    rb_define_alloc_func(cCallInfo, prof_call_info_allocate);
+
     rb_define_method(cCallInfo, "parent", prof_call_info_parent, 0);
     rb_define_method(cCallInfo, "parent=", prof_call_info_set_parent, 1);
     rb_define_method(cCallInfo, "children", prof_call_info_children, 0);
@@ -422,4 +481,7 @@ void rp_init_call_info()
     rb_define_method(cCallInfo, "recursive?", prof_call_info_recursive, 0);
     rb_define_method(cCallInfo, "depth", prof_call_info_depth, 0);
     rb_define_method(cCallInfo, "line", prof_call_info_line, 0);
+
+    rb_define_method(cCallInfo, "_dump_data", prof_call_info_dump, 0);
+    rb_define_method(cCallInfo, "_load_data", prof_call_info_load, 1);
 }

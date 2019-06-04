@@ -20,9 +20,9 @@ module RubyProf
   #   :template    - specify an ERB template to use, instead of the
   #                  built-in self.template
   #
-  #    :editor_uri - Specifies editor uri scheme used for opening files
-  #                  e.g. :atm or :mvim. For OS X default is :txmt.
-  #                  Use RUBY_PROF_EDITOR_URI environment variable to overide.
+  #   :editor_uri - Specifies editor uri scheme used for opening files
+  #                 e.g. :atm or :mvim. For OS X default is :txmt.
+  #                 Use RUBY_PROF_EDITOR_URI environment variable to overide.
 
   class GraphHtmlPrinter < AbstractPrinter
     include ERB::Util

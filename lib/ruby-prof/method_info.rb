@@ -116,6 +116,5 @@ module RubyProf
       call_infos.each{ |call_info| call_info.eliminate! }
       call_infos.clear
     end
-
   end
 end

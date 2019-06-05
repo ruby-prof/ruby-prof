@@ -6,7 +6,6 @@
 VALUE mMeasure;
 
 prof_measurer_t* prof_measurer_allocations(void);
-prof_measurer_t* prof_measurer_cpu_time(void);
 prof_measurer_t* prof_measurer_gc_runs(void);
 prof_measurer_t* prof_measurer_gc_time(void);
 prof_measurer_t* prof_measurer_memory(void);
@@ -14,7 +13,6 @@ prof_measurer_t* prof_measurer_process_time(void);
 prof_measurer_t* prof_measurer_wall_time(void);
 
 void rp_init_measure_allocations(void);
-void rp_init_measure_cpu_time(void);
 void rp_init_measure_gc_runs(void);
 void rp_init_measure_gc_time(void);
 void rp_init_measure_memory(void);
@@ -28,8 +26,6 @@ prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure)
         return prof_measurer_wall_time();
     case MEASURE_PROCESS_TIME:
         return prof_measurer_process_time();
-    case MEASURE_CPU_TIME:
-        return prof_measurer_cpu_time();
     case MEASURE_ALLOCATIONS:
         return prof_measurer_allocations();
     case MEASURE_MEMORY:
@@ -53,7 +49,6 @@ void rp_init_measure()
 {
     mMeasure = rb_define_module_under(mProf, "Measure");
     rp_init_measure_wall_time();
-    rp_init_measure_cpu_time();
     rp_init_measure_process_time();
     rp_init_measure_allocations();
     rp_init_measure_memory();

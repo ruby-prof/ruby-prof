@@ -19,9 +19,6 @@ module RubyProf
         when RubyProf::WALL_TIME
           @value_scale = 1_000_000
           @event_specification << 'wall_time'
-        when RubyProf.const_defined?(:CPU_TIME) && RubyProf::CPU_TIME
-          @value_scale = RubyProf.cpu_frequency
-          @event_specification << 'cpu_time'
         when RubyProf.const_defined?(:ALLOCATIONS) && RubyProf::ALLOCATIONS
           @value_scale = 1
           @event_specification << 'allocations'

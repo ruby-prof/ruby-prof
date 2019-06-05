@@ -71,7 +71,6 @@ module RubyProf
   def self.measure_mode_string
     case measure_mode
     when WALL_TIME    then "wall_time"
-    when CPU_TIME     then "cpu_time"
     when PROCESS_TIME then "process_time_time"
     when ALLOCATIONS  then "allocations"
     when MEMORY       then "memory"

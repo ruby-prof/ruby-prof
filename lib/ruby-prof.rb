@@ -47,8 +47,6 @@ module RubyProf
     case ENV["RUBY_PROF_MEASURE_MODE"]
     when "wall", "wall_time"
       RubyProf.measure_mode = RubyProf::WALL_TIME
-    when "cpu", "cpu_time"
-      RubyProf.measure_mode = RubyProf::CPU_TIME
     when "allocations"
       RubyProf.measure_mode = RubyProf::ALLOCATIONS
     when "memory"

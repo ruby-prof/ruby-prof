@@ -58,7 +58,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/opt/local/src/ruby-prof/test/parser_test.rb"
+            argument = "/opt/local/src/ruby-prof/test/measure_process_time_test.rb"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

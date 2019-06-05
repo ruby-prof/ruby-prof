@@ -308,7 +308,8 @@ prof_call_info_dump(VALUE self)
 static VALUE
 prof_call_info_load(VALUE self, VALUE data)
 {
-    prof_call_info_t* call_info = prof_get_call_info(self);
+	VALUE target = Qnil;
+	prof_call_info_t* call_info = prof_get_call_info(self);
 
     call_info->total_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("total_time"))));
     call_info->self_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("self_time"))));

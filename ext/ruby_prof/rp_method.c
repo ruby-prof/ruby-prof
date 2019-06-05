@@ -234,6 +234,7 @@ prof_method_t*
 prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
 {
     prof_method_t *result = ALLOC(prof_method_t);
+    const char* source_file = NULL;
 
     result->key = ALLOC(prof_method_key_t);
     method_key(result->key, klass, mid);

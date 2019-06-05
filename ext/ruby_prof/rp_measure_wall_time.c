@@ -7,7 +7,7 @@
 #if defined(__APPLE__)
 #include <mach/mach_time.h>
 #elif !defined(_WIN32)
-#include <sys/time.h>
+#include <time.h>
 #endif
 
 static VALUE cMeasureWallTime;
@@ -40,7 +40,7 @@ multiplier_wall_time(void)
     mach_timebase_info (&mach_timebase);
     return (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom / 1000000000.0;
 #else
-    return 1.0
+    return 1.0;
 #endif
 }
 

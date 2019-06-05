@@ -325,7 +325,7 @@ prof_call_info_load(VALUE self, VALUE data)
     if (parent != Qnil)
         call_info->parent = prof_method_get(parent);
 
-    VALUE target = rb_hash_aref(data, ID2SYM(rb_intern("target")));
+    target = rb_hash_aref(data, ID2SYM(rb_intern("target")));
     call_info->method = prof_method_get(target);
 
     return data;

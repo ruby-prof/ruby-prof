@@ -250,7 +250,7 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
 
     result->object = Qnil;
 
-    const char* source_file = (event != RUBY_EVENT_C_CALL ? rb_sourcefile() : NULL);
+    source_file = (event != RUBY_EVENT_C_CALL ? rb_sourcefile() : NULL);
     prof_method_set_source_info(result, source_file, line);
 
     result->source_klass = Qnil;

@@ -11,7 +11,7 @@ class BasicTest < TestCase
 
   def start
     RubyProf.start
-    RubyProf::C1.hello
+    RubyProf::C1.sleep_wait
   end
 
   def test_running
@@ -64,7 +64,7 @@ class BasicTest < TestCase
     methods = profile.threads.first.methods.sort
 
     # Check times
-    assert_equal("<Class::RubyProf::C1>#hello", methods[0].full_name)
+    assert_equal("<Class::RubyProf::C1>#sleep_wait", methods[0].full_name)
     assert_in_delta(0.1, methods[0].total_time, 0.015)
     assert_in_delta(0.0,  methods[0].wait_time, 0.015)
     assert_in_delta(0.0,  methods[0].self_time, 0.015)
@@ -87,8 +87,8 @@ class BasicTest < TestCase
 
   def test_leave_method_2
     start
-    RubyProf::C1.hello
-    RubyProf::C1.hello
+    RubyProf::C1.sleep_wait
+    RubyProf::C1.sleep_wait
     profile = RubyProf.stop
 
     assert_equal(1, profile.threads.count)
@@ -120,7 +120,7 @@ class BasicTest < TestCase
     assert_in_delta(0.0, methods[2].wait_time, 0.015)
     assert_in_delta(0.3, methods[2].self_time, 0.015)
 
-    assert_equal("<Class::RubyProf::C1>#hello", methods[3].full_name)
+    assert_equal("<Class::RubyProf::C1>#sleep_wait", methods[3].full_name)
     assert_in_delta(0.3, methods[3].total_time, 0.015)
     assert_in_delta(0.0, methods[3].wait_time, 0.015)
     assert_in_delta(0.0, methods[3].self_time, 0.015)

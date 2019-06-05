@@ -46,11 +46,6 @@ class RecursiveTest < TestCase
       simple(2)
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 

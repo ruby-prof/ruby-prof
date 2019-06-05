@@ -14,16 +14,6 @@ $LOAD_PATH << ext
 
 require 'ruby-prof'
 
-# stub deprecation warnings
-module RubyProf
-  module SuppressDeprecationWarnings
-    def deprecation_warning(*args)
-      super if ENV['SHOW_RUBY_PROF_DEPRECATION_WARNINGS'] == '1'
-    end
-  end
-  extend SuppressDeprecationWarnings
-end
-
 require 'minitest/autorun'
 
 class TestCase < Minitest::Test
@@ -50,113 +40,42 @@ require File.expand_path('../prime', __FILE__)
 # Some classes used in measurement tests
 module RubyProf
   class C1
-    def C1.hello
+    def C1.sleep_wait
       sleep(0.1)
     end
 
-    def hello
+    def C1.busy_wait
+      starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      while (Process.clock_gettime(Process::CLOCK_MONOTONIC) - starting) < 0.1
+      end
+    end
+
+    def sleep_wait
       sleep(0.2)
+    end
+
+    def busy_wait
+      starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      while (Process.clock_gettime(Process::CLOCK_MONOTONIC) - starting) < 0.2
+      end
     end
   end
 
   module M1
-    def hello
+    def sleep_wait
       sleep(0.3)
+    end
+
+    def busy_wait
+      starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      while (Process.clock_gettime(Process::CLOCK_MONOTONIC) - starting) < 0.3
+      end
     end
   end
 
   class C2
     include M1
     extend M1
-  end
-
-  class C3
-    def hello
-      sleep(0.4)
-    end
-  end
-
-  module M4
-    def hello
-      sleep(0.5)
-    end
-  end
-
-  module M5
-    include M4
-    def goodbye
-      hello
-    end
-  end
-
-  class C6
-    include M5
-    def test
-      goodbye
-    end
-  end
-
-  class C7
-    def self.busy_wait
-      t = Time.now.to_f
-      while Time.now.to_f - t < 0.1; end
-    end
-
-    def self.sleep_wait
-      sleep 0.1
-    end
-
-    def busy_wait
-      t = Time.now.to_f
-      while Time.now.to_f - t < 0.2; end
-    end
-
-    def sleep_wait
-      sleep 0.2
-    end
-  end
-
-  module M7
-    def busy_wait
-      t = Time.now.to_f
-      while Time.now.to_f - t < 0.3; end
-    end
-
-    def sleep_wait
-      sleep 0.3
-    end
-  end
-
-  class C8
-    include M7
-    extend M7
-  end
-
-  def self.ruby_major_version
-    match = RUBY_VERSION.match(/(\d)\.(\d)/)
-    return Integer(match[1])
-  end
-
-  def self.ruby_minor_version
-    match = RUBY_VERSION.match(/(\d)\.(\d)/)
-    return Integer(match[2])
-  end
-
-  def self.parent_object
-    if ruby_major_version == 1 && ruby_minor_version == 8
-      Object
-    else
-      BasicObject
-    end
-  end
-
-  # store printer output in this directory
-  def self.tmpdir
-    path = File.expand_path('../../tmp', __FILE__)
-    unless Dir.exist?(path)
-      Dir.mkdir(path)
-    end
-    path
   end
 end
 

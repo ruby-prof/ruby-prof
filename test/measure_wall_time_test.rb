@@ -21,7 +21,7 @@ class MeasureWallTimeTest < TestCase
 
   def test_class_methods
     result = RubyProf.profile do
-      RubyProf::C1.hello
+      RubyProf::C1.sleep_wait
     end
 
     thread = result.threads.first
@@ -33,7 +33,7 @@ class MeasureWallTimeTest < TestCase
 
     # Length should be 3:
     #   MeasureWallTimeTest#test_class_methods
-    #   <Class::RubyProf::C1>#hello
+    #   <Class::RubyProf::C1>#sleep_wait
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
@@ -41,7 +41,7 @@ class MeasureWallTimeTest < TestCase
 
     # Check the names
     assert_equal('MeasureWallTimeTest#test_class_methods', methods[0].full_name)
-    assert_equal('<Class::RubyProf::C1>#hello', methods[1].full_name)
+    assert_equal('<Class::RubyProf::C1>#sleep_wait', methods[1].full_name)
     assert_equal('Kernel#sleep', methods[2].full_name)
 
     # Check times
@@ -60,7 +60,7 @@ class MeasureWallTimeTest < TestCase
 
   def test_instance_methods
     result = RubyProf.profile do
-      RubyProf::C1.new.hello
+      RubyProf::C1.new.sleep_wait
     end
 
     thread = result.threads.first
@@ -75,14 +75,14 @@ class MeasureWallTimeTest < TestCase
     #   Class.new
     #   Class:Object#allocate
     #   for Object#initialize
-    #   C1#hello
+    #   C1#sleep_wait
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureWallTimeTest#test_instance_methods', names[0])
-    assert_equal('RubyProf::C1#hello', names[1])
+    assert_equal('RubyProf::C1#sleep_wait', names[1])
     assert_equal('Kernel#sleep', names[2])
     assert_equal('Class#new', names[3])
 
@@ -113,7 +113,7 @@ class MeasureWallTimeTest < TestCase
 
   def test_module_methods
     result = RubyProf.profile do
-      RubyProf::C2.hello
+      RubyProf::C2.sleep_wait
     end
 
     thread = result.threads.first
@@ -125,14 +125,14 @@ class MeasureWallTimeTest < TestCase
 
     # Methods:
     #   MeasureWallTimeTest#test_module_methods
-    #   M1#hello
+    #   M1#sleep_wait
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 
     assert_equal('MeasureWallTimeTest#test_module_methods', methods[0].full_name)
-    assert_equal('RubyProf::M1#hello', methods[1].full_name)
+    assert_equal('RubyProf::M1#sleep_wait', methods[1].full_name)
     assert_equal('Kernel#sleep', methods[2].full_name)
 
     # Check times
@@ -151,7 +151,7 @@ class MeasureWallTimeTest < TestCase
 
   def test_module_instance_methods
     result = RubyProf.profile do
-      RubyProf::C2.new.hello
+      RubyProf::C2.new.sleep_wait
     end
 
     thread = result.threads.first
@@ -166,14 +166,14 @@ class MeasureWallTimeTest < TestCase
     #   Class#new
     #   <Class::Object>#allocate
     #   Object#initialize
-    #   M1#hello
+    #   M1#sleep_wait
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)
     names = methods.map(&:full_name)
     assert_equal('MeasureWallTimeTest#test_module_instance_methods', names[0])
-    assert_equal('RubyProf::M1#hello', names[1])
+    assert_equal('RubyProf::M1#sleep_wait', names[1])
     assert_equal('Kernel#sleep', names[2])
     assert_equal('Class#new', names[3])
 
@@ -206,12 +206,12 @@ class MeasureWallTimeTest < TestCase
     c3 = RubyProf::C3.new
 
     class << c3
-      def hello
+      def sleep_wait
       end
     end
 
     result = RubyProf.profile do
-      c3.hello
+      c3.sleep_wait
     end
 
     thread = result.threads.first
@@ -225,7 +225,7 @@ class MeasureWallTimeTest < TestCase
     assert_equal(2, methods.length)
 
     assert_equal('MeasureWallTimeTest#test_singleton', methods[0].full_name)
-    assert_equal('<Object::RubyProf::C3>#hello', methods[1].full_name)
+    assert_equal('<Object::RubyProf::C3>#sleep_wait', methods[1].full_name)
 
     assert_in_delta(0, methods[0].total_time, 0.02)
     assert_in_delta(0, methods[0].wait_time, 0.02)

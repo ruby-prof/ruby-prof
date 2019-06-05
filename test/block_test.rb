@@ -11,14 +11,14 @@ class BlockMethodTest < TestCase
 
   def test_block
     result = RubyProf.profile do
-      1.times { RubyProf::C1.new.hello }
+      1.times { RubyProf::C1.new.sleep_wait }
     end
 
     # Methods called
     #  Kernel#sleep
     #  <Class::BasicObject>#allocate
     #  #{RubyProf.parent_object}#inizialize
-    #  RubyProf::C1#hello
+    #  RubyProf::C1#sleep_wait
     #  Class#new
     #  Integer#times
     #  BlockMethodTest#test_block
@@ -37,7 +37,7 @@ class BlockMethodTest < TestCase
     assert_in_delta(0.0, methods[1].wait_time, 0.02)
     assert_in_delta(0.0, methods[1].self_time, 0.02)
 
-    assert_equal("RubyProf::C1#hello", methods[2].full_name)
+    assert_equal("RubyProf::C1#sleep_wait", methods[2].full_name)
     assert_in_delta(0.2, methods[2].total_time, 0.02)
     assert_in_delta(0.0, methods[2].wait_time, 0.02)
     assert_in_delta(0.0, methods[2].self_time, 0.02)

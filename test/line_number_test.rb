@@ -52,11 +52,6 @@ class LineNumbersTest < TestCase
       numbers.method3
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     methods = result.threads.first.methods.sort_by {|method| method.full_name}
     assert_equal(3, methods.length)
 

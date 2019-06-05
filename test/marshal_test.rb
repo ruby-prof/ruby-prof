@@ -72,7 +72,7 @@ class MarshalTest < TestCase
 
   def test_marshal
     profile_1 = RubyProf.profile do
-      1.times { RubyProf::C1.new.hello }
+      1.times { RubyProf::C1.new.sleep_wait }
     end
 
     data = Marshal.dump(profile_1)
@@ -83,7 +83,7 @@ class MarshalTest < TestCase
 
   # def test_printer
   #   profile_1 = RubyProf.profile do
-  #     1.times { RubyProf::C1.new.hello }
+  #     1.times { RubyProf::C1.new.sleep_wait }
   #   end
   #
   #   data = Marshal.dump(profile_1)

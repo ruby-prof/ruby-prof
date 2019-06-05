@@ -7,20 +7,20 @@ require File.expand_path('../test_helper', __FILE__)
 RubyProf::measure_mode = RubyProf::WALL_TIME
 
 module Foo
-  def Foo::hello
+  def Foo::sleep_wait
     sleep(0.5)
   end
 end
 
 module Bar
-  def Bar::hello
+  def Bar::sleep_wait
     sleep(0.5)
-    Foo::hello
+    Foo::sleep_wait
   end
 
-  def hello
+  def sleep_wait
     sleep(0.5)
-    Bar::hello
+    Bar::sleep_wait
   end
 end
 
@@ -29,7 +29,7 @@ include Bar
 class ModuleTest < TestCase
   def test_nested_modules
     result = RubyProf.profile do
-      hello
+      sleep_wait
     end
 
     methods = result.threads.first.methods
@@ -38,7 +38,7 @@ class ModuleTest < TestCase
     assert_equal(5, methods.length)
 
     # these methods should be in there... (hard to tell order though).
-    for name in ['ModuleTest#test_nested_modules','Bar#hello','Kernel#sleep','<Module::Bar>#hello','<Module::Foo>#hello']
+    for name in ['ModuleTest#test_nested_modules','Bar#sleep_wait','Kernel#sleep','<Module::Bar>#sleep_wait','<Module::Foo>#sleep_wait']
       assert methods.map(&:full_name).include?( name )
     end
   end

@@ -11,7 +11,7 @@ class CallInfoVisitorTest < TestCase
 
   def test_visit
     result = RubyProf.profile do
-      RubyProf::C1.hello
+      RubyProf::C1.sleep_wait
     end
 
     visitor = RubyProf::CallInfoVisitor.new(result.threads.first.top_call_infos)
@@ -24,7 +24,7 @@ class CallInfoVisitorTest < TestCase
 
     assert_equal(3, method_names.length)
     assert_equal("CallInfoVisitorTest#test_visit", method_names[0])
-    assert_equal("<Class::RubyProf::C1>#hello", method_names[1])
+    assert_equal("<Class::RubyProf::C1>#sleep_wait", method_names[1])
     assert_equal("Kernel#sleep", method_names[2])
   end
 end

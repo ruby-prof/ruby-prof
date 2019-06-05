@@ -11,7 +11,7 @@ class CallInfoTest < TestCase
 
 #  def test_clone
 #    result = RubyProf.profile do
-#      RubyProf::C1.hello
+#      RubyProf::C1.sleep_wait
 #    end
 #
 #    method = result.threads.first.top_methods.first
@@ -24,7 +24,7 @@ class CallInfoTest < TestCase
 
   def test_merge
     result1 = RubyProf.profile do
-      RubyProf::C1.hello
+      RubyProf::C1.sleep_wait
     end
 
     methods = result1.threads.first.methods.sort.reverse
@@ -36,7 +36,7 @@ class CallInfoTest < TestCase
     assert_in_delta(0, methods[0].self_time, 0.01)
     assert_equal(1, methods[0].called)
 
-    assert_equal('<Class::RubyProf::C1>#hello', methods[1].full_name)
+    assert_equal('<Class::RubyProf::C1>#sleep_wait', methods[1].full_name)
     assert_in_delta(0.1, methods[1].total_time, 0.01)
     assert_in_delta(0, methods[1].wait_time, 0.01)
     assert_in_delta(0, methods[1].self_time, 0.01)
@@ -49,7 +49,7 @@ class CallInfoTest < TestCase
     assert_equal(1, methods[2].called)
 
     RubyProf.profile do
-      RubyProf::C1.hello
+      RubyProf::C1.sleep_wait
     end
 
     # Merge the trees
@@ -62,7 +62,7 @@ class CallInfoTest < TestCase
     assert_in_delta(0, methods[0].self_time, 0.01)
     assert_equal(1, methods[0].called)
 
-    assert_equal('<Class::RubyProf::C1>#hello', methods[1].full_name)
+    assert_equal('<Class::RubyProf::C1>#sleep_wait', methods[1].full_name)
     assert_in_delta(0.1, methods[1].total_time, 0.01)
     assert_in_delta(0, methods[1].wait_time, 0.01)
     assert_in_delta(0, methods[1].self_time, 0.01)

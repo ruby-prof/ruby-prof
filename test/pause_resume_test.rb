@@ -12,22 +12,22 @@ class PauseResumeTest < TestCase
   def test_pause_resume
     # Measured
     RubyProf.start
-    RubyProf::C1.hello
+    RubyProf::C1.sleep_wait
 
     # Not measured
     RubyProf.pause
     sleep 1
-    RubyProf::C1.hello
+    RubyProf::C1.sleep_wait
 
     # Measured
     RubyProf.resume
-    RubyProf::C1.hello
+    RubyProf::C1.sleep_wait
 
     result = RubyProf.stop
 
     # Length should be 3:
     #   PauseResumeTest#test_pause_resume
-    #   <Class::RubyProf::C1>#hello
+    #   <Class::RubyProf::C1>#sleep_wait
     #   Kernel#sleep
 
     methods = result.threads.first.methods.sort_by {|method_info| method_info.full_name}
@@ -38,7 +38,7 @@ class PauseResumeTest < TestCase
     assert_equal(3, methods.length)
 
     # Check the names
-    assert_equal('<Class::RubyProf::C1>#hello', methods[0].full_name)
+    assert_equal('<Class::RubyProf::C1>#sleep_wait', methods[0].full_name)
     assert_equal('Kernel#sleep', methods[1].full_name)
     assert_equal('PauseResumeTest#test_pause_resume', methods[2].full_name)
 

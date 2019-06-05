@@ -50,7 +50,7 @@ static unsigned long long get_cpu_time()
 #endif
 }
 
-static unsigned long long get_cpu_frequency()
+static double multiplier_cpu_frequency()
 {
     static unsigned long long cpu_frequency;
 

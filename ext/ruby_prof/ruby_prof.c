@@ -24,6 +24,7 @@
 */
 
 #include "ruby_prof.h"
+#include <ruby/debug.h>
 #include <assert.h>
 
 VALUE mProf;
@@ -87,9 +88,6 @@ prof_exclude_common_methods(VALUE profile)
 static prof_method_t*
 get_method(prof_method_key_t *key, thread_data_t* thread_data)
 {
-    prof_method_t* method = NULL;
-
-    /* Probe the local table. */
     return method_table_lookup(thread_data->method_table, key);
 }
 

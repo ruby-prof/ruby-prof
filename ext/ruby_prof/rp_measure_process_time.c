@@ -9,11 +9,7 @@ static VALUE cMeasureProcessTime;
 static double
 measure_process_time(void)
 {
-#if defined(__linux__)
-    struct timespec clock;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
-    return clock.tv_sec + (clock.tv_nsec/1000000000.0);
-#elif defined(_WIN32)
+#if defined(_WIN32)
     FILETIME  createTime;
     FILETIME  exitTime;
     FILETIME  sysTime;
@@ -31,23 +27,23 @@ measure_process_time(void)
 
 	return sysTimeInt.QuadPart + userTimeInt.QuadPart;
 #else
-    return ((double)clock());
+    struct timespec clock;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
+    return clock.tv_sec + (clock.tv_nsec/1000000000.0);
 #endif
 }
 
 static double
 multiplier_process_time(void)
 {
-#if defined(__linux__)
-    return 1.0 / 1000000000.0;
-#elif defined(_WIN32)
+#if defined(_WIN32)
     // Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
     return 1.0 / 10000000.0;
 #else
-    return CLOCKS_PER_SEC;
+    return 1.0;
 #endif
-
 }
+
 /* call-seq:
    measure_process_time -> float
 

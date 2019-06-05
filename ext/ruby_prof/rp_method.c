@@ -3,13 +3,14 @@
 
 #include "ruby_prof.h"
 
+prof_method_key_t blank_key;
+VALUE cMethodInfo;
+
 #define RP_REL_GET(r, off) ((r) & (1 << (off)))
 #define RP_REL_SET(r, off)                                            \
 do {                                                                  \
     r |= (1 << (off));                                                \
 } while (0)
-
-VALUE cMethodInfo;
 
 /* ================  Helper Functions  =================*/
 static VALUE

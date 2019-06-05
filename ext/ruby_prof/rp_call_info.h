@@ -31,7 +31,10 @@ typedef struct prof_call_info_t
 prof_call_info_t *prof_call_info_create(prof_method_t *method, prof_method_t *parent);
 void prof_call_info_mark(prof_call_info_t *call_info);
 prof_call_info_t *call_info_table_lookup(st_table* table, const prof_method_key_t* key);
+size_t call_info_table_insert(st_table *table, const prof_method_key_t *key, prof_call_info_t *val);
 prof_call_info_t* prof_get_call_info(VALUE self);
 VALUE prof_call_info_wrap(prof_call_info_t* call_info);
+
+void rp_init_call_info(void);
 
 #endif //__RP_CALL_INFO_H__

@@ -8,7 +8,7 @@
 VALUE cCallInfo;
 
 // Forward declarations
-st_table * call_info_table_create();
+st_table * call_info_table_create(void);
 
 /* =======  prof_call_info_t   ========*/
 prof_call_info_t *
@@ -43,13 +43,6 @@ prof_call_info_ruby_gc_free(prof_call_info_t *call_info)
 		RDATA(call_info->object)->dmark = NULL;
     }
 	call_info->object = Qnil;
-}
-
-static void
-prof_call_info_free(prof_call_info_t *call_info)
-{
-	prof_call_info_ruby_gc_free(call_info);
-	xfree(call_info);
 }
 
 void

@@ -6,7 +6,6 @@
 
 #if defined(__APPLE__)
 #include <mach/mach_time.h>
-mach_timebase_info_data_t mach_timebase;
 #elif !defined(_WIN32)
 #include <sys/time.h>
 #endif
@@ -37,7 +36,9 @@ multiplier_wall_time(void)
 #if defined(_WIN32)
     return 1.0/1000.0;
 #elif defined(__APPLE__)
-    return 1.0 * (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom;
+    mach_timebase_info_data_t mach_timebase;
+    mach_timebase_info (&mach_timebase);
+    return (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom / 1000000000.0;
 #else
     return 1.0
 #endif

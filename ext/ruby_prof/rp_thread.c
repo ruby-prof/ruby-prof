@@ -279,7 +279,6 @@ prof_thread_methods(VALUE self)
 static VALUE
 prof_thread_dump(VALUE self)
 {
-    thread_data_t* thread_data = (thread_data_t*)self;
     VALUE result = rb_hash_new();
     rb_hash_aset(result, ID2SYM(rb_intern("methods")), prof_thread_methods(self));
 

@@ -53,9 +53,9 @@ typedef struct
 void rp_init_method_info(void);
 
 void method_key(prof_method_key_t* key, VALUE klass, ID mid);
-prof_method_key_t blank_key;
+extern prof_method_key_t blank_key;
 
-st_table *method_table_create();
+st_table *method_table_create(void);
 prof_method_t *method_table_lookup(st_table *table, const prof_method_key_t* key);
 size_t method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val);
 void method_table_free(st_table *table);

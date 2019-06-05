@@ -169,8 +169,7 @@ threads_table_insert(void *prof, VALUE thread, VALUE fiber)
     {
         result->trace = true;
     }
-
-
+    
     return result;
 }
 

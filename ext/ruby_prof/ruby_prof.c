@@ -124,8 +124,8 @@ pop_frames(VALUE key, st_data_t value, st_data_t data)
     prof_profile_t* profile = (prof_profile_t*) data;
     double measurement = prof_measure(profile->measurer);
 
-    if (profile->last_thread_data->fiber != thread_data->fiber)
-        switch_thread(profile, thread_data, measurement);
+    //if (profile->last_thread_data->fiber != thread_data->fiber)
+      //  switch_thread(profile, thread_data, measurement);
 
     while (prof_stack_pop(thread_data->stack, measurement));
 
@@ -133,7 +133,7 @@ pop_frames(VALUE key, st_data_t value, st_data_t data)
 }
 
 static void
-prof_pop_threads(prof_profile_t* profile)
+prof_stop_threads(prof_profile_t* profile)
 {
     st_foreach(profile->threads_tbl, pop_frames, (st_data_t) profile);
 }
@@ -208,15 +208,14 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
     /* We need to switch the profiling context if we either had none before,
        we don't merge fibers and the fiber ids differ, or the thread ids differ. */
-    if (!profile->last_thread_data || profile->last_thread_data->fiber != fiber)
+    if (profile->last_thread_data->fiber != fiber)
     {
         thread_data = threads_table_lookup(profile, fiber);
         if (!thread_data)
         {
             thread_data = threads_table_insert(profile, thread, fiber);
         }
-        if (!profile->last_thread_data)
-            switch_thread(profile, thread_data, measurement);
+        switch_thread(profile, thread_data, measurement);
     }
     else
     {
@@ -544,7 +543,7 @@ prof_start(VALUE self)
 
     profile->running = Qtrue;
     profile->paused = Qfalse;
-    profile->last_thread_data = NULL;
+    profile->last_thread_data = threads_table_insert(profile, rb_thread_current(), rb_fiber_current());
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
@@ -645,7 +644,7 @@ prof_stop(VALUE self)
       trace_file = NULL;
     }
 
-    prof_pop_threads(profile);
+    prof_stop_threads(profile);
 
     /* Unset the last_thread_data (very important!)
        and the threads table */

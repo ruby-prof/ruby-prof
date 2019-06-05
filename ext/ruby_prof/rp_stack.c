@@ -15,7 +15,8 @@ prof_frame_pause(prof_frame_t *frame, double current_measurement)
 void
 prof_frame_unpause(prof_frame_t *frame, double current_measurement)
 {
-    if (frame && prof_frame_is_paused(frame)) {
+    if (frame && prof_frame_is_paused(frame))
+    {
         frame->dead_time += (current_measurement - frame->pause_time);
         frame->pause_time = -1;
     }
@@ -78,7 +79,7 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   result->dead_time = 0;
   result->line = 0;
 
-  method = call_info->target;
+  method = call_info->method;
 
   /* If the method was visited previously, it's recursive. */
   if (method->visits > 0)
@@ -95,7 +96,8 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   //   2) The parent will inherit the child's dead time.
   prof_frame_unpause(parent_frame, measurement);
 
-  if (paused) {
+  if (paused)
+  {
     prof_frame_pause(result, measurement);
   }
 
@@ -120,12 +122,14 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
      RubProf.start is called from a method that exits.  And it can happen if an
      exception is raised in code that is being profiled and the stack unwinds
      (RubyProf is not notified of that by the ruby runtime. */
-  if (!frame) {
+  if (!frame)
+  {
     return NULL;
   }
 
   /* Match passes until we reach the frame itself. */
-  if (prof_frame_is_pass(frame)) {
+  if (prof_frame_is_pass(frame))
+  {
     frame->passes--;
     /* Additional frames can be consumed. See pop_frames(). */
     return frame;
@@ -141,7 +145,7 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
 
   /* Update information about the current method */
   call_info = frame->call_info;
-  method = call_info->target;
+  method = call_info->method;
 
   call_info->called++;
   call_info->total_time += total_time;
@@ -167,7 +171,8 @@ prof_frame_t *
 prof_stack_pass(prof_stack_t *stack)
 {
   prof_frame_t *frame = prof_stack_peek(stack);
-  if (frame) {
+  if (frame)
+  {
     frame->passes++;
   }
   return frame;

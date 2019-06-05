@@ -64,7 +64,7 @@ module RubyProf
         thread.methods.each do |m|
           # $stderr.print m.dump
           next unless m.root?
-          m.call_infos.each do |ci|
+          m.callers.each do |ci|
             next unless ci.root?
             print_stack ci, thread.total_time
           end

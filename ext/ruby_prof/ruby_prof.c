@@ -85,12 +85,12 @@ prof_exclude_common_methods(VALUE profile)
 }
 
 static prof_method_t*
-get_method(prof_method_key_t key, thread_data_t* thread_data)
+get_method(prof_method_key_t *key, thread_data_t* thread_data)
 {
     prof_method_t* method = NULL;
 
     /* Probe the local table. */
-    return method_table_lookup(thread_data->method_table, &key);
+    return method_table_lookup(thread_data->method_table, key);
 }
 
 static prof_method_t*
@@ -215,7 +215,8 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         {
             thread_data = threads_table_insert(profile, thread, fiber);
         }
-        switch_thread(profile, thread_data, measurement);
+        if (!profile->last_thread_data)
+            switch_thread(profile, thread_data, measurement);
     }
     else
     {
@@ -263,10 +264,12 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         prof_method_key_t key;
         method_key(&key, klass, mid);
 
-        method = get_method(key, thread_data);
+        method = get_method(&key, thread_data);
         if (!method)
+        {
             method = create_method(event, key, thread_data, profile, line);
-        
+        }
+
         if (method->excluded)
         {
           prof_stack_pass(thread_data->stack);
@@ -275,20 +278,21 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
         if (!frame)
         {
-          call_info = prof_call_info_create(method, NULL);
-          prof_add_call_info(method->call_infos, call_info);
+            method->root = true;
+            call_info = prof_call_info_create(method, NULL);
+            st_insert(method->parent_call_infos, (st_data_t)&key, (st_data_t)call_info);
         }
         else
         {
-          call_info = call_info_table_lookup(frame->call_info->child_call_infos, method->key);
+            call_info = call_info_table_lookup(method->parent_call_infos, frame->call_info->method->key);
 
-          if (!call_info)
-          {
-            /* This call info does not yet exist.  So create it, then add
-               it to previous callinfo's children and to the current method .*/
-            call_info = prof_call_info_create(method, frame->call_info);
-            call_info_table_insert(frame->call_info->child_call_infos, method->key, call_info);
-            prof_add_call_info(method->call_infos, call_info);
+            if (!call_info)
+            {
+                /* This call info does not yet exist.  So create it, then add
+                   it to previous callinfo's children and to the current method .*/
+                call_info = prof_call_info_create(method, frame->call_info->method);
+                call_info_table_insert(method->parent_call_infos, frame->call_info->method->key, call_info);
+                call_info_table_insert(frame->call_info->method->child_call_infos, method->key, call_info);
           }
         }
 
@@ -542,7 +546,6 @@ prof_start(VALUE self)
     profile->paused = Qfalse;
     profile->last_thread_data = NULL;
 
-
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
     if (trace_file_name != NULL) 
@@ -581,7 +584,7 @@ prof_pause(VALUE self)
     if (profile->paused == Qfalse)
     {
         profile->paused = Qtrue;
-        profile->measurement_at_pause_resume = profile->measurer->measure();
+        profile->measurement_at_pause_resume = prof_measure(profile->measurer);
         st_foreach(profile->threads_tbl, pause_thread, (st_data_t) profile);
     }
 
@@ -605,7 +608,7 @@ prof_resume(VALUE self)
     if (profile->paused == Qtrue)
     {
         profile->paused = Qfalse;
-        profile->measurement_at_pause_resume = profile->measurer->measure();
+        profile->measurement_at_pause_resume = prof_measure(profile->measurer);
         st_foreach(profile->threads_tbl, unpause_thread, (st_data_t) profile);
     }
 

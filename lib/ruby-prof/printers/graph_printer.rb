@@ -75,8 +75,8 @@ module RubyProf
     end
 
     def print_parents(thread, method)
-      method.aggregate_parents.sort_by(&:total_time).each do |caller|
-        next unless caller.parent
+      return if method.root?
+      method.callers.sort_by(&:total_time).each do |caller|
         @output << " " * 2 * PERCENTAGE_WIDTH
         @output << sprintf("%#{TIME_WIDTH}.3f", caller.total_time)
         @output << sprintf("%#{TIME_WIDTH}.3f", caller.self_time)
@@ -85,13 +85,13 @@ module RubyProf
 
         call_called = "#{caller.called}/#{method.called}"
         @output << sprintf("%#{CALL_WIDTH}s", call_called)
-        @output << sprintf("     %s", caller.parent.target.full_name)
+        @output << sprintf("     %s", caller.parent.full_name)
         @output << "\n"
       end
     end
 
     def print_children(method)
-      method.aggregate_children.sort_by(&:total_time).reverse.each do |child|
+      method.callees.sort_by(&:total_time).reverse.each do |child|
         # Get children method
 
         @output << " " * 2 * PERCENTAGE_WIDTH

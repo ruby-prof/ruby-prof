@@ -178,18 +178,39 @@ method_key(prof_method_key_t* key, VALUE klass, ID mid)
     /* Is this an include for a module?  If so get the actual
         module class since we want to combine all profiling
         results for that module. */
-    if (klass != Qnil && BUILTIN_TYPE(klass) == T_ICLASS)
+    if (klass == 0 || klass == Qnil)
     {
-        klass = RBASIC(klass)->klass;
+        key->klass = Qnil;
+        key->mid = mid;
     }
-
-    key->klass = klass;
-    key->mid = mid;
+    else if (BUILTIN_TYPE(klass) == T_ICLASS)
+    {
+        key->klass = RBASIC(klass)->klass;
+        key->mid = mid;
+    }
+    else
+    {
+        key->klass = klass;
+        key->mid = mid;
+    }
     key->key = (klass << 4) + (mid << 2);
 }
 
 /* ================  prof_method_t   =================*/
-static void 
+static prof_method_t*
+prof_get_method(VALUE self)
+{
+    /* Can't use Data_Get_Struct because that triggers the event hook
+       ending up in endless recursion. */
+    prof_method_t* result = DATA_PTR(self);
+
+    if (!result)
+        rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
+
+    return result;
+}
+
+static void
 prof_method_set_source_info(prof_method_t* method_data, const char* source_file, int source_line)
 {
     if (source_file != NULL)
@@ -208,7 +229,6 @@ prof_method_set_source_info(prof_method_t* method_data, const char* source_file,
     }
 }
 
-
 prof_method_t*
 prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
 {
@@ -217,10 +237,13 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
     result->key = ALLOC(prof_method_key_t);
     method_key(result->key, klass, mid);
 
+    result->root = false;
     result->excluded = 0;
     result->recursive = 0;
 
-    result->call_infos = prof_call_infos_create();
+    result->parent_call_infos = method_table_create();
+    result->child_call_infos = method_table_create();
+    
     result->visits = 0;
 
     result->object = Qnil;
@@ -247,7 +270,6 @@ prof_method_create_excluded(VALUE klass, ID mid)
     result->excluded = 1;
     result->recursive = 0;
 
-    result->call_infos = 0;
     result->visits = 0;
 
     result->object = Qnil;
@@ -259,6 +281,23 @@ prof_method_create_excluded(VALUE klass, ID mid)
     result->relation = 0;
 
     return result;
+}
+
+static int
+prof_method_collect_call_infos(st_data_t key, st_data_t value, st_data_t result)
+{
+    prof_call_info_t* call_info = (prof_call_info_t*)value;
+    VALUE arr = (VALUE)result;
+    rb_ary_push(arr, prof_call_info_wrap(call_info));
+    return ST_CONTINUE;
+}
+
+static int
+prof_method_mark_call_infos(st_data_t key, st_data_t value, st_data_t data)
+{
+    prof_call_info_t* call_info = (prof_call_info_t*)value;
+    prof_call_info_mark(call_info);
+    return ST_CONTINUE;
 }
 
 /* The underlying c structures are freed when the parent profile is freed.
@@ -286,13 +325,10 @@ prof_method_free(prof_method_t* method)
 {
 	prof_method_ruby_gc_free(method);
 
-  if (method->call_infos) {
-	  prof_call_infos_free(method->call_infos);
-	  xfree(method->call_infos);
-  }
+    st_free_table(method->parent_call_infos);
+    st_free_table(method->child_call_infos);
 
 	xfree(method->key);
-
 	method->key = NULL;
 	method->source_klass = Qnil;
 
@@ -302,21 +338,23 @@ prof_method_free(prof_method_t* method)
 void
 prof_method_mark(prof_method_t *method)
 {
-	if (method->key->klass) {
+	if (method->key->klass)
+    {
 		rb_gc_mark(method->key->klass);
 	}
 
-	if (method->source_klass) {
+	if (method->source_klass)
+    {
 		rb_gc_mark(method->source_klass);
 	}
 
-	if (method->object) {
+	if (method->object)
+    {
 		rb_gc_mark(method->object);
 	}
 
-  if (method->call_infos) {
-	  prof_call_infos_mark(method->call_infos);
-  }
+    st_foreach(method->parent_call_infos, prof_method_mark_call_infos, 0);
+    st_foreach(method->child_call_infos, prof_method_mark_call_infos, 0);
 }
 
 static VALUE
@@ -415,14 +453,15 @@ prof_method_wrap(prof_method_t *result)
   return result->object;
 }
 
-static prof_method_t *
-get_prof_method(VALUE self)
+prof_method_t *
+prof_method_get(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
 	prof_method_t* result = DATA_PTR(self);
 
-	if (!result) {
+	if (!result)
+    {
 	    rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
 	}
 
@@ -470,16 +509,19 @@ method_table_free(st_table *table)
 size_t
 method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val)
 {
-  return st_insert(table, (st_data_t) key, (st_data_t) val);
+    return st_insert(table, (st_data_t) key, (st_data_t) val);
 }
 
 prof_method_t *
 method_table_lookup(st_table *table, const prof_method_key_t* key)
 {
     st_data_t val;
-    if (st_lookup(table, (st_data_t)key, &val)) {
+    if (st_lookup(table, (st_data_t)key, &val))
+    {
       return (prof_method_t *) val;
-    } else {
+    }
+    else
+    {
       return NULL;
     }
 }
@@ -495,13 +537,39 @@ the RubyProf::Profile object.
 */
 
 /* call-seq:
+   callers -> hash
+
+Returns an array of call info objects that called this method  (ie, parents).*/
+static VALUE
+prof_method_callers(VALUE self)
+{
+    prof_method_t* method = prof_get_method(self);
+    VALUE result = rb_ary_new();
+    st_foreach(method->parent_call_infos, prof_method_collect_call_infos, result);
+    return result;
+}
+
+/* call-seq:
+   callees -> hash
+
+Returns an array of call info objects that this method called (ie, children).*/
+static VALUE
+prof_method_callees(VALUE self)
+{
+    prof_method_t* method = prof_get_method(self);
+    VALUE result = rb_ary_new();
+    st_foreach(method->child_call_infos, prof_method_collect_call_infos, result);
+    return result;
+}
+
+/* call-seq:
    line_no -> int
 
    returns the line number of the method */
 static VALUE
 prof_method_line(VALUE self)
 {
-    int line = get_prof_method(self)->line;
+    int line = prof_method_get(self)->line;
     return rb_int_new(line);
 }
 
@@ -512,7 +580,7 @@ return the source file of the method
 */
 static VALUE prof_method_source_file(VALUE self)
 {
-    prof_method_t *method = get_prof_method(self);
+    prof_method_t *method = prof_method_get(self);
     if (method->source_file)
     {
       return rb_str_new2(method->source_file);
@@ -523,7 +591,6 @@ static VALUE prof_method_source_file(VALUE self)
     }
 }
 
-
 /* call-seq:
    method_class -> klass
 
@@ -531,7 +598,7 @@ Returns the Ruby klass that owns this method. */
 static VALUE
 prof_method_klass(VALUE self)
 {
-    prof_method_t *result = get_prof_method(self);
+    prof_method_t *result = prof_method_get(self);
     return result->key->klass;
 }
 
@@ -542,7 +609,7 @@ Returns the id of this method. */
 static VALUE
 prof_method_id(VALUE self)
 {
-    prof_method_t *result = get_prof_method(self);
+    prof_method_t *result = prof_method_get(self);
     return ID2SYM(result->key->mid);
 }
 
@@ -555,7 +622,7 @@ will have the form <Object::Object>. */
 static VALUE
 prof_klass_name(VALUE self)
 {
-    prof_method_t *method = get_prof_method(self);
+    prof_method_t *method = prof_method_get(self);
     return klass_name(method->key->klass);
 }
 
@@ -568,7 +635,7 @@ methods will be returned in the format <Object::Object>#method.*/
 static VALUE
 prof_method_name(VALUE self)
 {
-    prof_method_t *method = get_prof_method(self);
+    prof_method_t *method = prof_method_get(self);
     return method_name(method->key->mid);
 }
 
@@ -580,23 +647,19 @@ Returns the full name of this method in the format Object#method.*/
 static VALUE
 prof_full_name(VALUE self)
 {
-    prof_method_t *method = get_prof_method(self);
+    prof_method_t *method = prof_method_get(self);
     return full_name(method->key->klass, method->key->mid);
 }
 
 /* call-seq:
-   call_infos -> Array of call_info
+   root? -> boolean
 
-Returns an array of call info objects that contain profiling information
-about the current method.*/
+   Returns the true if this method is at the top of the call stack */
 static VALUE
-prof_method_call_infos(VALUE self)
+prof_method_root(VALUE self)
 {
-    prof_method_t *method = get_prof_method(self);
-	if (method->call_infos->object == Qnil) {
-		method->call_infos->object = prof_call_infos_wrap(method->call_infos);
-	}
-	return method->call_infos->object;
+  prof_method_t *method = prof_method_get(self);
+  return method->root ? Qtrue : Qfalse;
 }
 
 /* call-seq:
@@ -606,8 +669,8 @@ prof_method_call_infos(VALUE self)
 static VALUE
 prof_method_recursive(VALUE self)
 {
-  prof_method_t *method = get_prof_method(self);
-  return method->recursive ? Qtrue : Qfalse;
+    prof_method_t* method = prof_method_get(self);
+    return method->recursive ? Qtrue : Qfalse;
 }
 
 /* call-seq:
@@ -617,7 +680,7 @@ Returns the Ruby klass of the natural source-level definition. */
 static VALUE
 prof_source_klass(VALUE self)
 {
-    prof_method_t *method = get_prof_method(self);
+    prof_method_t *method = prof_method_get(self);
     return resolve_source_klass(method);
 }
 
@@ -629,7 +692,7 @@ Returns the full name of this method in the calltree format.*/
 static VALUE
 prof_calltree_name(VALUE self)
 {
-    prof_method_t *method = get_prof_method(self);
+    prof_method_t *method = prof_method_get(self);
     volatile VALUE source_klass = resolve_source_klass(method);
     return calltree_name(source_klass, method->relation, method->key->mid);
 }
@@ -641,14 +704,14 @@ prof_method_dump(VALUE self)
     VALUE result = rb_hash_new();
     rb_hash_aset(result, ID2SYM(rb_intern("klass")), method_data->key->klass);
     rb_hash_aset(result, ID2SYM(rb_intern("mid")), LL2NUM(method_data->key->mid));
-
     rb_hash_aset(result, ID2SYM(rb_intern("recursive")), INT2FIX(method_data->recursive));
-
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file ?
                                                               rb_str_new_cstr(method_data->source_file) :
                                                               Qnil);
     rb_hash_aset(result, ID2SYM(rb_intern("line")), INT2FIX(method_data->line));
-    rb_hash_aset(result, ID2SYM(rb_intern("call_infos")), prof_method_call_infos(self));
+
+    rb_hash_aset(result, ID2SYM(rb_intern("callers")), prof_method_callers(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("callees")), prof_method_callees(self));
 
     return result;
 }
@@ -668,21 +731,30 @@ prof_method_load(VALUE self, VALUE data)
 
     method_data->recursive = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("recursive"))));
 
-    VALUE call_infos = rb_hash_aref(data, ID2SYM(rb_intern("call_infos")));
-
-    for (int i = 0; i < rb_array_len(call_infos); i++)
+    VALUE callers = rb_hash_aref(data, ID2SYM(rb_intern("callers")));
+    for (int i = 0; i < rb_array_len(callers); i++)
     {
-        VALUE call_info = rb_ary_entry(call_infos, i);
-        prof_call_info_t *call_info_data = DATA_PTR(call_info);
-  //      call_info_data->target = method_data;
-        prof_add_call_info(method_data->call_infos, call_info_data);
+        VALUE call_info = rb_ary_entry(callers, i);
+        prof_call_info_t *call_info_data = prof_get_call_info(call_info);
+        prof_method_key_t *key = call_info_data->parent ? call_info_data->parent->key : &blank_key;
+        call_info_table_insert(method_data->parent_call_infos, key, call_info_data);
     }
 
+    VALUE callees = rb_hash_aref(data, ID2SYM(rb_intern("callees")));
+    for (int i = 0; i < rb_array_len(callees); i++)
+    {
+        VALUE call_info = rb_ary_entry(callees, i);
+        prof_call_info_t *call_info_data = prof_get_call_info(call_info);
+        prof_method_key_t *key = call_info_data->method->key;
+        call_info_table_insert(method_data->child_call_infos, key, call_info_data);
+    }
     return data;
 }
 
 void rp_init_method_info()
 {
+    method_key(&blank_key, Qnil, 0);
+
     /* MethodInfo */
     cMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cObject);
     rb_undef_method(CLASS_OF(cMethodInfo), "new");
@@ -694,11 +766,14 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "full_name", prof_full_name, 0);
     rb_define_method(cMethodInfo, "method_id", prof_method_id, 0);
 
-    rb_define_method(cMethodInfo, "call_infos", prof_method_call_infos, 0);
+    rb_define_method(cMethodInfo, "callers", prof_method_callers, 0);
+    rb_define_method(cMethodInfo, "callees", prof_method_callees, 0);
+
     rb_define_method(cMethodInfo, "source_klass", prof_source_klass, 0);
     rb_define_method(cMethodInfo, "source_file", prof_method_source_file, 0);
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);
 
+    rb_define_method(cMethodInfo, "root?", prof_method_root, 0);
     rb_define_method(cMethodInfo, "recursive?", prof_method_recursive, 0);
     rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
 

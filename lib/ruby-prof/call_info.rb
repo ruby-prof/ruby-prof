@@ -6,13 +6,10 @@ module RubyProf
     # it provides the following attributes pertaining to tree structure:
     # depth:      tree level (0 == root)
     # parent:     parent call info (can be nil)
-    # children:   array of call info children (can be empty)
     # target:     method info (containing an array of call infos)
 
     def children_time
-      children.inject(0) do |sum, call_info|
-        sum += call_info.total_time
-      end
+      self.total_time - self.self_time - self.wait_time
     end
 
     def stack

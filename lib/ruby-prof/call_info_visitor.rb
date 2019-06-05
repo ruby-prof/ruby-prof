@@ -28,6 +28,7 @@ module RubyProf
     end
 
     private
+
     def visit_call_info(call_info, &block)
       yield call_info, :enter
       call_info.children.each do |child|

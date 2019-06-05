@@ -44,9 +44,10 @@ module RubyProf
          end
 
          callers = []
-         method.call_infos.each do |ci|
-           if ci.parent && ci.parent.target.source_file != 'ruby_runtime'
-             callers << [method_name(ci.parent.target), File.expand_path(ci.parent.target.source_file), ci.parent.target.line]
+         method.callers.each do |call_info|
+           if call_info.parent && call_info.parent.source_file != 'ruby_runtime'
+             callers << [method_name(call_info.parent),
+                         File.expand_path(call_info.parent.source_file), call_info.parent.line]
            end
          end
          # make sure callers are unique

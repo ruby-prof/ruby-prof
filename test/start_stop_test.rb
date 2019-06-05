@@ -64,7 +64,7 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.05)
-    assert_equal(1, method.call_infos.length)
+    assert_equal(1, method.callers.length)
 
     call_info = method.call_infos[0]
     assert_equal('StartStopTest#method1', call_info.call_sequence)

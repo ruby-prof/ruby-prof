@@ -67,8 +67,8 @@ class UniqueCallPathTest < TestCase
     assert_equal(1, root_methods.length)
 
     root_children = Array.new
-    root_methods[0].children.each do | c |
-      if c.parent.target.eql?(root_methods[0])
+    root_methods[0].callees.each do | c |
+      if c.parent.eql?(root_methods[0])
         root_children.push(c)
       end
     end
@@ -104,7 +104,7 @@ class UniqueCallPathTest < TestCase
     assert_equal('UniqueCallPathTest#test_children_of', method.full_name)
 
     call_info_a = nil
-    root_methods[0].children.each do | c |
+    root_methods[0].callees.each do | c |
       if c.target.full_name == "UniqueCallPath#method_a"
         call_info_a = c
         break
@@ -115,7 +115,7 @@ class UniqueCallPathTest < TestCase
 
     children_of_a = Array.new
 
-    call_info_a.children.each do | c |
+    call_info_a.callees.each do | c |
       if c.parent.eql?(call_info_a)
         children_of_a.push(c)
       end
@@ -147,8 +147,7 @@ class UniqueCallPathTest < TestCase
       end
     end
 
-    child = root_methods[0].children[0]
-
+    child = root_methods[0].callees[0]
     refute_equal(0, child.object_id)
     #assert_equal(RubyProf::CallInfo.id2ref(child.id).target.full_name, child.target.full_name)
   end
@@ -173,7 +172,7 @@ class UniqueCallPathTest < TestCase
     assert_equal(1, root_methods.length)
 
     call_info_a = nil
-    root_methods[0].children.each do | c |
+    root_methods[0].callees.each do |c|
       if c.target.full_name == "UniqueCallPath#method_a"
         call_info_a = c
         break
@@ -183,8 +182,8 @@ class UniqueCallPathTest < TestCase
     assert !call_info_a.nil?
 
     children_of_a = Array.new
-    call_info_a.children.each do |c|
-      if c.parent.eql?(call_info_a)
+    call_info_a.callees.each do |c|
+      if c.parent.eql?(call_info_a.target)
         children_of_a.push(c)
       end
     end

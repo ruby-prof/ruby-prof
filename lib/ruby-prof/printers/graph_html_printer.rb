@@ -183,8 +183,8 @@ module RubyProf
           %>
                <!-- Parents -->
                <%
-                  for caller in method.aggregate_parents.sort_by(&:total_time)
-                    next unless caller.parent
+                  for caller in method.callers.sort_by(&:total_time)
+                    next if method.root?
                     next if min_time && caller.total_time < min_time
                %>
                  <tr>
@@ -195,8 +195,8 @@ module RubyProf
                    <td><%= sprintf("%.2f", caller.wait_time) %></td>
                    <td><%= sprintf("%.2f", caller.children_time) %></td>
                    <td><%= "#{caller.called}/#{method.called}" %></td>
-                   <td class="method_name"><%= create_link(thread, total_time, caller.parent.target) %></td>
-                   <td><%= file_link(caller.parent.target.source_file, caller.line) %></td>
+                   <td class="method_name"><%= create_link(thread, total_time, caller.parent) %></td>
+                   <td><%= file_link(caller.parent.source_file, caller.line) %></td>
                  </tr>
                <% end %>
                <tr class="method">
@@ -216,7 +216,7 @@ module RubyProf
                </tr>
                <!-- Children -->
                <%
-                  for callee in method.aggregate_children.sort_by(&:total_time).reverse
+                  for callee in method.callees.sort_by(&:total_time).reverse
                     next if min_time && callee.total_time < min_time
                %>
                  <tr>

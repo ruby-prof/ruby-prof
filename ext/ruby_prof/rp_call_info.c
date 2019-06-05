@@ -12,14 +12,12 @@ st_table * call_info_table_create();
 
 /* =======  prof_call_info_t   ========*/
 prof_call_info_t *
-prof_call_info_create(prof_method_t* method, prof_call_info_t* parent)
+prof_call_info_create(prof_method_t *method, prof_method_t *parent)
 {
     prof_call_info_t *result = ALLOC(prof_call_info_t);
-    result->object = Qnil;
-    result->target = method;
+    result->method = method;
     result->parent = parent;
-    result->child_call_infos = call_info_table_create();
-    result->children = Qnil;
+    result->object = Qnil;
 
     result->total_time = 0;
     result->self_time = 0;
@@ -51,21 +49,20 @@ static void
 prof_call_info_free(prof_call_info_t *call_info)
 {
 	prof_call_info_ruby_gc_free(call_info);
-	st_free_table(call_info->child_call_infos);
 	xfree(call_info);
 }
 
-static void
+void
 prof_call_info_mark(prof_call_info_t *call_info)
 {
-	if (call_info->object)
+	if (call_info->object != Qnil)
 		rb_gc_mark(call_info->object);
 
-	if (call_info->children)
-		rb_gc_mark(call_info->children);
+    if (call_info->method->object != Qnil)
+        rb_gc_mark(call_info->method->object);
 
-	/* We don't mark the call info child table since that will be done
-	   via the appropriate method */
+    if (call_info->parent && call_info->parent->object != Qnil)
+        rb_gc_mark(call_info->parent->object);
 }
 
 VALUE
@@ -86,7 +83,7 @@ prof_call_info_allocate(VALUE klass)
     return call_info->object;
 }
 
-static prof_call_info_t *
+prof_call_info_t *
 prof_get_call_info(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
@@ -135,18 +132,28 @@ they took to execute. */
 
 
 /* call-seq:
+   parent -> call_info
+
+Returns the call_infos parent call_info object (the method that called this method).*/
+static VALUE
+prof_call_info_parent(VALUE self)
+{
+    prof_call_info_t* call_info = prof_get_call_info(self);
+    if (call_info->parent)
+        return prof_method_wrap(call_info->parent);
+    else
+        return Qnil;
+}
+
+/* call-seq:
    called -> MethodInfo
 
 Returns the target method. */
 static VALUE
 prof_call_info_target(VALUE self)
 {
-    /* Target is a pointer to a method_info - so we have to be careful
-       about the GC.  We will wrap the method_info but provide no
-       free method so the underlying object is not freed twice! */
-
-    prof_call_info_t *result = prof_get_call_info(self);
-    return prof_method_wrap(result->target);
+    prof_call_info_t *call_info = prof_get_call_info(self);
+    return prof_method_wrap(call_info->method);
 }
 
 /* call-seq:
@@ -283,129 +290,6 @@ prof_call_info_add_wait_time(VALUE self, VALUE other)
     return Qnil;
 }
 
-/* call-seq:
-   parent -> call_info
-
-Returns the call_infos parent call_info object (the method that called this method).*/
-static VALUE
-prof_call_info_parent(VALUE self)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-    if (result->parent)
-      return prof_call_info_wrap(result->parent);
-    else
-      return Qnil;
-}
-
-/* call-seq:
-   parent=new_parent -> new_parent
-
-Changes the parent of self to new_parent and returns it.*/
-static VALUE
-prof_call_info_set_parent(VALUE self, VALUE new_parent)
-{
-    prof_call_info_t *result = prof_get_call_info(self);
-    if (new_parent == Qnil)
-      result->parent = NULL;
-    else
-      result->parent = prof_get_call_info(new_parent);
-    return prof_call_info_parent(self);
-}
-
-static int
-prof_call_info_collect_children(st_data_t key, st_data_t value, st_data_t result)
-{
-    prof_call_info_t *call_info = (prof_call_info_t *) value;
-    VALUE arr = (VALUE) result;
-    rb_ary_push(arr, prof_call_info_wrap(call_info));
-    return ST_CONTINUE;
-}
-
-/* call-seq:
-   children -> hash
-
-Returns an array of call info objects of methods that this method
-called (ie, children).*/
-static VALUE
-prof_call_info_children(VALUE self)
-{
-    prof_call_info_t *call_info = prof_get_call_info(self);
-    if (call_info->children == Qnil)
-    {
-      call_info->children = rb_ary_new();
-      st_foreach(call_info->child_call_infos, prof_call_info_collect_children, call_info->children);
-    }
-    return call_info->children;
-}
-
-/* =======  Call Infos   ========*/
-prof_call_infos_t*
-prof_call_infos_create()
-{
-   prof_call_infos_t *result = ALLOC(prof_call_infos_t);
-   result->start = ALLOC_N(prof_call_info_t*, INITIAL_CALL_INFOS_SIZE);
-   result->end = result->start + INITIAL_CALL_INFOS_SIZE;
-   result->ptr = result->start;
-   result->object = Qnil;
-   return result;
-}
-
-void
-prof_call_infos_mark(prof_call_infos_t *call_infos)
-{
-    prof_call_info_t **call_info;
-
-	if (call_infos->object)
-		rb_gc_mark(call_infos->object);
-
-    for(call_info=call_infos->start; call_info<call_infos->ptr; call_info++)
-    {
-		prof_call_info_mark(*call_info);
-    }
-}
-
-void
-prof_call_infos_free(prof_call_infos_t *call_infos)
-{
-    prof_call_info_t **call_info;
-
-    for(call_info=call_infos->start; call_info<call_infos->ptr; call_info++)
-    {
-		prof_call_info_free(*call_info);
-    }
-}
-
-void
-prof_add_call_info(prof_call_infos_t *call_infos, prof_call_info_t *call_info)
-{
-  if (call_infos->ptr == call_infos->end)
-  {
-    size_t len = call_infos->ptr - call_infos->start;
-    size_t new_capacity = (call_infos->end - call_infos->start) * 2;
-    REALLOC_N(call_infos->start, prof_call_info_t*, new_capacity);
-    call_infos->ptr = call_infos->start + len;
-    call_infos->end = call_infos->start + new_capacity;
-  }
-  *call_infos->ptr = call_info;
-  call_infos->ptr++;
-}
-
-VALUE
-prof_call_infos_wrap(prof_call_infos_t *call_infos)
-{
-  if (call_infos->object == Qnil)
-  {
-    prof_call_info_t **i;
-    call_infos->object = rb_ary_new();
-    for(i=call_infos->start; i<call_infos->ptr; i++)
-    {
-      VALUE call_info = prof_call_info_wrap(*i);
-      rb_ary_push(call_infos->object, call_info);
-    }
-  }
-  return call_infos->object;
-}
-
 static VALUE
 prof_call_info_dump(VALUE self)
 {
@@ -422,10 +306,8 @@ prof_call_info_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("depth")), INT2FIX(call_info_data->depth));
     rb_hash_aset(result, ID2SYM(rb_intern("line")), INT2FIX(call_info_data->line));
 
-    rb_hash_aset(result, ID2SYM(rb_intern("target")), prof_call_info_target(self));
     rb_hash_aset(result, ID2SYM(rb_intern("parent")), prof_call_info_parent(self));
-    struct prof_call_info_t* parent;
-    st_table* child_call_infos;
+    rb_hash_aset(result, ID2SYM(rb_intern("target")), prof_call_info_target(self));
 
     return result;
 }
@@ -445,15 +327,12 @@ prof_call_info_load(VALUE self, VALUE data)
     call_info->depth = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("depth"))));
     call_info->line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
 
-    VALUE target = rb_hash_aref(data, ID2SYM(rb_intern("target")));
-    call_info->target = DATA_PTR(target);
-
     VALUE parent = rb_hash_aref(data, ID2SYM(rb_intern("parent")));
     if (parent != Qnil)
-    {
-        call_info->parent = prof_get_call_info(parent);
-        call_info_table_insert(call_info->parent->child_call_infos, call_info->target->key, call_info);
-    }
+        call_info->parent = prof_method_get(parent);
+
+    VALUE target = rb_hash_aref(data, ID2SYM(rb_intern("target")));
+    call_info->method = prof_method_get(target);
 
     return data;
 }
@@ -466,9 +345,8 @@ void rp_init_call_info()
     rb_define_alloc_func(cCallInfo, prof_call_info_allocate);
 
     rb_define_method(cCallInfo, "parent", prof_call_info_parent, 0);
-    rb_define_method(cCallInfo, "parent=", prof_call_info_set_parent, 1);
-    rb_define_method(cCallInfo, "children", prof_call_info_children, 0);
     rb_define_method(cCallInfo, "target", prof_call_info_target, 0);
+
     rb_define_method(cCallInfo, "called", prof_call_info_called, 0);
     rb_define_method(cCallInfo, "called=", prof_call_info_set_called, 1);
     rb_define_method(cCallInfo, "total_time", prof_call_info_total_time, 0);

@@ -113,13 +113,12 @@ module RubyProf
     end
 
     def print_edges(total_time, method)
-      method.aggregate_children.sort_by(&:total_time).reverse.each do |child|
-
-        target_percentage = (child.target.total_time / total_time) * 100.0
+      method.callers.sort_by(&:total_time).reverse.each do |call_info|
+        target_percentage = (call_info.target.total_time / total_time) * 100.0
         next if target_percentage < min_percent
 
         # Get children method
-        puts "#{dot_id(method)} -> #{dot_id(child.target)} [label=\"#{child.called}/#{child.target.called}\" fontsize=10 fontcolor=#{EDGE_COLOR}];"
+        puts "#{dot_id(method)} -> #{dot_id(call_info.target)} [label=\"#{call_info.called}/#{call_info.target.called}\" fontsize=10 fontcolor=#{EDGE_COLOR}];"
       end
     end
 

@@ -5,7 +5,6 @@
 #define __RP_THREAD__
 
 #include <stdbool.h>
-#include <ruby/thread_native.h>
 
 /* Profiling information for a thread. */
 typedef struct

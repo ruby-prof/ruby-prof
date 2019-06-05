@@ -59,6 +59,4 @@ prof_stack_peek(prof_stack_t *stack)
 {
     return stack->ptr != stack->start ? stack->ptr - 1 : NULL;
 }
-
-
 #endif //__RP_STACK__

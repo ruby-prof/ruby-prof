@@ -3,7 +3,6 @@
 
 #include "ruby_prof.h"
 
-prof_method_key_t blank_key;
 VALUE cMethodInfo;
 
 #define RP_REL_GET(r, off) ((r) & (1 << (off)))
@@ -67,7 +66,7 @@ figure_singleton_name(VALUE klass)
 }
 
 static VALUE
-klass_name(VALUE klass)
+resolve_klass_name(VALUE klass)
 {
     volatile VALUE result = Qnil;
 
@@ -97,36 +96,99 @@ klass_name(VALUE klass)
 }
 
 static VALUE
-method_name(ID mid)
+resolve_method_name(ID mid)
 {
     volatile VALUE name = Qnil;
 
-    if (RTEST(mid)) {
+    if (RTEST(mid))
+    {
         name = rb_id2str(mid);
         return rb_str_dup(name);
-    } else {
+    }
+    else
+    {
         return rb_str_new2("[no method]");
     }
 }
 
 static VALUE
-full_name(VALUE klass, ID mid)
+full_name(prof_method_t *method_data)
 {
-    volatile VALUE klass_str, method_str;
-    volatile VALUE result = Qnil;
-
-    klass_str = klass_name(klass);
-    method_str = method_name(mid);
-
-    result = rb_str_dup(klass_str);
+    VALUE result = rb_str_dup(method_data->klass_name);
     rb_str_cat2(result, "#");
-    rb_str_append(result, method_str);
+    rb_str_append(result, method_data->method_name);
 
     return result;
 }
 
 static VALUE
-source_klass_name(VALUE source_klass)
+resolve_source_klass(VALUE klass)
+{
+    volatile VALUE attached;
+    unsigned int relation;
+
+    /* We want to group methods according to their source-level
+       definitions, not their implementation class. Follow module
+       inclusions and singleton classes back to a meaningful root
+       while keeping track of these relationships. */
+
+    // klass = method->key->klass;
+    relation = 0;
+
+    while (1)
+    {
+        /* This is a global/unknown class */
+        if (klass == 0 || klass == Qnil)
+            break;
+
+        /* Is this a singleton class? (most common case) */
+        if (BUILTIN_TYPE(klass) == T_CLASS && FL_TEST(klass, FL_SINGLETON))
+        {
+            /* We have come across a singleton object. First
+              figure out what it is attached to.*/
+            attached = rb_iv_get(klass, "__attached__");
+
+            /* Is this a singleton class acting as a metaclass?
+                Or for singleton methods on a module? */
+            if (BUILTIN_TYPE(attached) == T_CLASS ||
+                BUILTIN_TYPE(attached) == T_MODULE)
+            {
+                RP_REL_SET(relation, kModuleSingleton);
+                klass = attached;
+            }
+            /* Is this for singleton methods on an object? */
+            else if (BUILTIN_TYPE(attached) == T_OBJECT)
+            {
+                RP_REL_SET(relation, kObjectSingleton);
+                klass = rb_class_superclass(klass);
+            }
+            /* This is a singleton of an instance of a builtin type. */
+            else
+            {
+                RP_REL_SET(relation, kObjectSingleton);
+                klass = rb_class_superclass(klass);
+            }
+        }
+        /* Is this an include for a module?  If so get the actual
+            module class since we want to combine all profiling
+            results for that module. */
+        else if (BUILTIN_TYPE(klass) == T_ICLASS)
+        {
+            RP_REL_SET(relation, kModuleIncludee);
+            klass = RBASIC(klass)->klass;
+        }
+        /* No transformations apply; so bail. */
+        else
+        {
+            break;
+        }
+    }
+
+    return klass;
+}
+
+static VALUE
+resolve_source_klass_name(VALUE source_klass)
 {
     volatile VALUE klass_str;
     volatile VALUE result = Qnil;
@@ -144,57 +206,23 @@ source_klass_name(VALUE source_klass)
     return result;
 }
 
-static VALUE
-calltree_name(VALUE source_klass, int relation, ID mid)
+st_data_t
+method_key(VALUE klass, ID mid)
 {
-    volatile VALUE klass_str, klass_path, joiner;
-    volatile VALUE method_str;
-    volatile VALUE result = Qnil;
+    VALUE resolved_klass = klass;
 
-    klass_str = source_klass_name(source_klass);
-    method_str = method_name(mid);
-
-    klass_path = rb_str_split(klass_str, "::");
-    joiner = rb_str_new2("/");
-    result = rb_ary_join(klass_path, joiner);
-
-    rb_str_cat2(result, "::");
-
-    if (RP_REL_GET(relation, kObjectSingleton)) {
-        rb_str_cat2(result, "*");
-    }
-
-    if (RP_REL_GET(relation, kModuleSingleton)) {
-        rb_str_cat2(result, "^");
-    }
-
-    rb_str_append(result, method_str);
-
-    return result;
-}
-
-void
-method_key(prof_method_key_t* key, VALUE klass, ID mid)
-{
     /* Is this an include for a module?  If so get the actual
         module class since we want to combine all profiling
         results for that module. */
     if (klass == 0 || klass == Qnil)
     {
-        key->klass = Qnil;
-        key->mid = mid;
+        resolved_klass = Qnil;
     }
     else if (BUILTIN_TYPE(klass) == T_ICLASS)
     {
-        key->klass = RBASIC(klass)->klass;
-        key->mid = mid;
+        resolved_klass = RBASIC(klass)->klass;
     }
-    else
-    {
-        key->klass = klass;
-        key->mid = mid;
-    }
-    key->key = (klass << 4) + (mid << 2);
+    return (klass << 4) + (mid << 2);
 }
 
 /* ================  prof_method_t   =================*/
@@ -236,8 +264,11 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
     prof_method_t *result = ALLOC(prof_method_t);
     const char* source_file = NULL;
 
-    result->key = ALLOC(prof_method_key_t);
-    method_key(result->key, klass, mid);
+    result->key = method_key(klass, mid);
+    result->klass_name = resolve_klass_name(klass);
+    result->source_klass_name = resolve_source_klass_name(resolve_source_klass(klass));
+    result->method_name = resolve_method_name(mid);
+
 
     result->root = false;
     result->excluded = 0;
@@ -253,35 +284,14 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
     source_file = (event != RUBY_EVENT_C_CALL ? rb_sourcefile() : NULL);
     prof_method_set_source_info(result, source_file, line);
 
-    result->source_klass = Qnil;
-    result->resolved = 0;
-    result->relation = 0;
-
     return result;
 }
 
 prof_method_t*
 prof_method_create_excluded(VALUE klass, ID mid)
 {
-    prof_method_t *result = ALLOC(prof_method_t);
-
-    result->key = ALLOC(prof_method_key_t);
-    method_key(result->key, klass, mid);
-
-    /* Invisible with this flag set. */
+    prof_method_t* result = prof_method_create(RUBY_EVENT_C_CALL, klass, mid, 0);
     result->excluded = 1;
-    result->recursive = 0;
-
-    result->visits = 0;
-
-    result->object = Qnil;
-    result->source_klass = Qnil;
-    result->source_file = NULL;
-    result->line = 0;
-
-    result->resolved = 0;
-    result->relation = 0;
-
     return result;
 }
 
@@ -320,6 +330,9 @@ prof_method_ruby_gc_free(prof_method_t* method)
 		RDATA(method->object)->dmark = NULL;
 	}
 	method->object = Qnil;
+    method->klass_name = Qnil;
+    method->source_klass_name = Qnil;
+    method->method_name = Qnil;
 }
 
 static void
@@ -330,30 +343,23 @@ prof_method_free(prof_method_t* method)
     st_free_table(method->parent_call_infos);
     st_free_table(method->child_call_infos);
 
-	xfree(method->key);
-	method->key = NULL;
-	method->source_klass = Qnil;
-
 	xfree(method);
 }
 
 void
 prof_method_mark(prof_method_t *method)
 {
-	if (method->key->klass)
-    {
-		rb_gc_mark(method->key->klass);
-	}
+    if (method->klass_name)
+        rb_gc_mark(method->klass_name);
 
-	if (method->source_klass)
-    {
-		rb_gc_mark(method->source_klass);
-	}
+    if (method->source_klass_name)
+        rb_gc_mark(method->source_klass_name);
 
-	if (method->object)
-    {
+    if (method->method_name)
+        rb_gc_mark(method->method_name);
+    
+    if (method->object)
 		rb_gc_mark(method->object);
-	}
 
     st_foreach(method->parent_call_infos, prof_method_mark_call_infos, 0);
     st_foreach(method->child_call_infos, prof_method_mark_call_infos, 0);
@@ -365,84 +371,6 @@ prof_method_allocate(VALUE klass)
     prof_method_t* method_data = prof_method_create(0, Qnil, 0, 0);
     method_data->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_ruby_gc_free, method_data);
     return method_data->object;
-}
-
-static VALUE
-resolve_source_klass(prof_method_t* method)
-{
-    volatile VALUE klass, next_klass;
-    volatile VALUE attached;
-    unsigned int relation;
-
-    /* We want to group methods according to their source-level
-       definitions, not their implementation class. Follow module
-       inclusions and singleton classes back to a meaningful root
-       while keeping track of these relationships. */
-
-    if (method->resolved) {
-        return method->source_klass;
-    }
-
-    klass = method->key->klass;
-    relation = 0;
-
-    while (1)
-    {
-        /* This is a global/unknown class */
-        if (klass == 0 || klass == Qnil)
-          break;
-
-        /* Is this a singleton class? (most common case) */
-        if (BUILTIN_TYPE(klass) == T_CLASS && FL_TEST(klass, FL_SINGLETON))
-        {
-          /* We have come across a singleton object. First
-            figure out what it is attached to.*/
-          attached = rb_iv_get(klass, "__attached__");
-
-          /* Is this a singleton class acting as a metaclass?
-              Or for singleton methods on a module? */
-          if (BUILTIN_TYPE(attached) == T_CLASS ||
-              BUILTIN_TYPE(attached) == T_MODULE)
-          {
-            RP_REL_SET(relation, kModuleSingleton);
-            klass = attached;
-          }
-          /* Is this for singleton methods on an object? */
-          else if (BUILTIN_TYPE(attached) == T_OBJECT)
-          {
-            RP_REL_SET(relation, kObjectSingleton);
-            next_klass = rb_class_superclass(klass);
-            klass = next_klass;
-          }
-          /* This is a singleton of an instance of a builtin type. */
-          else
-          {
-            RP_REL_SET(relation, kObjectSingleton);
-            next_klass = rb_class_superclass(klass);
-            klass = next_klass;
-          }
-        }
-        /* Is this an include for a module?  If so get the actual
-            module class since we want to combine all profiling
-            results for that module. */
-        else if (BUILTIN_TYPE(klass) == T_ICLASS)
-        {
-          RP_REL_SET(relation, kModuleIncludee);
-          next_klass = RBASIC(klass)->klass;
-          klass = next_klass;
-        }
-        /* No transformations apply; so bail. */
-        else
-        {
-          break;
-        }
-    }
-
-    method->resolved = 1;
-    method->relation = relation;
-    method->source_klass = klass;
-
-    return klass;
 }
 
 VALUE
@@ -470,28 +398,10 @@ prof_method_get(VALUE self)
    return result;
 }
 
-/* ================  Method Table   =================*/
-int
-method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2)
-{
-    return (key1->klass != key2->klass) || (key1->mid != key2->mid);
-}
-
-st_index_t
-method_table_hash(prof_method_key_t *key)
-{
-    return key->key;
-}
-
-struct st_hash_type type_method_hash = {
-    method_table_cmp,
-    method_table_hash
-};
-
 st_table *
 method_table_create()
 {
-  return st_init_table(&type_method_hash);
+    return st_init_numtable();
 }
 
 static int
@@ -509,13 +419,13 @@ method_table_free(st_table *table)
 }
 
 size_t
-method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val)
+method_table_insert(st_table *table, st_data_t key, prof_method_t *val)
 {
     return st_insert(table, (st_data_t) key, (st_data_t) val);
 }
 
 prof_method_t *
-method_table_lookup(st_table *table, const prof_method_key_t* key)
+method_table_lookup(st_table *table, st_data_t key)
 {
     st_data_t val;
     if (st_lookup(table, (st_data_t)key, &val))
@@ -594,28 +504,6 @@ static VALUE prof_method_source_file(VALUE self)
 }
 
 /* call-seq:
-   method_class -> klass
-
-Returns the Ruby klass that owns this method. */
-static VALUE
-prof_method_klass(VALUE self)
-{
-    prof_method_t *result = prof_method_get(self);
-    return result->key->klass;
-}
-
-/* call-seq:
-   method_id -> ID
-
-Returns the id of this method. */
-static VALUE
-prof_method_id(VALUE self)
-{
-    prof_method_t *result = prof_method_get(self);
-    return ID2SYM(result->key->mid);
-}
-
-/* call-seq:
    klass_name -> string
 
 Returns the name of this method's class.  Singleton classes
@@ -625,7 +513,19 @@ static VALUE
 prof_klass_name(VALUE self)
 {
     prof_method_t *method = prof_method_get(self);
-    return klass_name(method->key->klass);
+    return method->klass_name;
+}
+
+/* call-seq:
+   source_klass_name -> string
+
+Returns the name of this method's source class. */
+
+static VALUE
+prof_source_klass_name(VALUE self)
+{
+    prof_method_t* method = prof_method_get(self);
+    return method->source_klass_name;
 }
 
 /* call-seq:
@@ -638,7 +538,7 @@ static VALUE
 prof_method_name(VALUE self)
 {
     prof_method_t *method = prof_method_get(self);
-    return method_name(method->key->mid);
+    return method->method_name;
 }
 
 /* call-seq:
@@ -650,7 +550,7 @@ static VALUE
 prof_full_name(VALUE self)
 {
     prof_method_t *method = prof_method_get(self);
-    return full_name(method->key->klass, method->key->mid);
+    return full_name(method);
 }
 
 /* call-seq:
@@ -675,37 +575,18 @@ prof_method_recursive(VALUE self)
     return method->recursive ? Qtrue : Qfalse;
 }
 
-/* call-seq:
-   source_klass -> klass
-
-Returns the Ruby klass of the natural source-level definition. */
-static VALUE
-prof_source_klass(VALUE self)
-{
-    prof_method_t *method = prof_method_get(self);
-    return resolve_source_klass(method);
-}
-
-/* call-seq:
-   calltree_name -> string
-
-Returns the full name of this method in the calltree format.*/
-
-static VALUE
-prof_calltree_name(VALUE self)
-{
-    prof_method_t *method = prof_method_get(self);
-    volatile VALUE source_klass = resolve_source_klass(method);
-    return calltree_name(source_klass, method->relation, method->key->mid);
-}
-
 static VALUE
 prof_method_dump(VALUE self)
 {
     prof_method_t* method_data = DATA_PTR(self);
     VALUE result = rb_hash_new();
-    rb_hash_aset(result, ID2SYM(rb_intern("klass")), method_data->key->klass);
-    rb_hash_aset(result, ID2SYM(rb_intern("mid")), LL2NUM(method_data->key->mid));
+
+    rb_hash_aset(result, ID2SYM(rb_intern("klass_name")), method_data->klass_name);
+    rb_hash_aset(result, ID2SYM(rb_intern("source_klass_name")), method_data->source_klass_name);
+    rb_hash_aset(result, ID2SYM(rb_intern("method_name")), method_data->method_name);
+
+    rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(method_data->key));
+    rb_hash_aset(result, ID2SYM(rb_intern("root")), prof_method_root(self));
     rb_hash_aset(result, ID2SYM(rb_intern("recursive")), INT2FIX(method_data->recursive));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file ?
                                                               rb_str_new_cstr(method_data->source_file) :
@@ -723,22 +604,25 @@ prof_method_load(VALUE self, VALUE data)
 {
     prof_method_t* method_data = RDATA(self)->data;
 
-    VALUE klass = rb_hash_aref(data, ID2SYM(rb_intern("klass")));
-    ID mid = NUM2LL(rb_hash_aref(data, ID2SYM(rb_intern("mid"))));
-    method_key(method_data->key, klass, mid);
+    method_data->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));
+    method_data->source_klass_name = rb_hash_aref(data, ID2SYM(rb_intern("source_klass_name")));
+    method_data->method_name = rb_hash_aref(data, ID2SYM(rb_intern("method_name")));
+    method_data->key = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
+
+    method_data->root = rb_hash_aref(data, ID2SYM(rb_intern("root"))) == Qtrue ? true : false;
+    method_data->recursive = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("recursive"))));
 
     VALUE source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     int source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
     prof_method_set_source_info(method_data, source_file == Qnil ? NULL : StringValueCStr(source_file), source_line);
 
-    method_data->recursive = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("recursive"))));
 
     VALUE callers = rb_hash_aref(data, ID2SYM(rb_intern("callers")));
     for (int i = 0; i < rb_array_len(callers); i++)
     {
         VALUE call_info = rb_ary_entry(callers, i);
         prof_call_info_t *call_info_data = prof_get_call_info(call_info);
-        prof_method_key_t *key = call_info_data->parent ? call_info_data->parent->key : &blank_key;
+        st_data_t key = call_info_data->parent ? call_info_data->parent->key : method_key(Qnil, 0);
         call_info_table_insert(method_data->parent_call_infos, key, call_info_data);
     }
 
@@ -747,37 +631,31 @@ prof_method_load(VALUE self, VALUE data)
     {
         VALUE call_info = rb_ary_entry(callees, i);
         prof_call_info_t *call_info_data = prof_get_call_info(call_info);
-        prof_method_key_t *key = call_info_data->method->key;
-        call_info_table_insert(method_data->child_call_infos, key, call_info_data);
+        call_info_table_insert(method_data->child_call_infos, call_info_data->method->key, call_info_data);
     }
     return data;
 }
 
 void rp_init_method_info()
 {
-    method_key(&blank_key, Qnil, 0);
-
     /* MethodInfo */
     cMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cObject);
     rb_undef_method(CLASS_OF(cMethodInfo), "new");
     rb_define_alloc_func(cMethodInfo, prof_method_allocate);
 
-    rb_define_method(cMethodInfo, "klass", prof_method_klass, 0);
     rb_define_method(cMethodInfo, "klass_name", prof_klass_name, 0);
+    rb_define_method(cMethodInfo, "source_klass_name", prof_klass_name, 0);
     rb_define_method(cMethodInfo, "method_name", prof_method_name, 0);
     rb_define_method(cMethodInfo, "full_name", prof_full_name, 0);
-    rb_define_method(cMethodInfo, "method_id", prof_method_id, 0);
 
     rb_define_method(cMethodInfo, "callers", prof_method_callers, 0);
     rb_define_method(cMethodInfo, "callees", prof_method_callees, 0);
 
-    rb_define_method(cMethodInfo, "source_klass", prof_source_klass, 0);
     rb_define_method(cMethodInfo, "source_file", prof_method_source_file, 0);
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);
 
     rb_define_method(cMethodInfo, "root?", prof_method_root, 0);
     rb_define_method(cMethodInfo, "recursive?", prof_method_recursive, 0);
-    rb_define_method(cMethodInfo, "calltree_name", prof_calltree_name, 0);
 
     rb_define_method(cMethodInfo, "_dump_data", prof_method_dump, 0);
     rb_define_method(cMethodInfo, "_load_data", prof_method_load, 1);

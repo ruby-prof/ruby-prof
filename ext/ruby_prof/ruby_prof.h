@@ -15,8 +15,6 @@
 extern VALUE mProf;
 extern VALUE cProfile;
 
-void method_key(prof_method_key_t* key, VALUE klass, ID mid);
-
 typedef struct
 {
     VALUE running;
@@ -33,6 +31,5 @@ typedef struct
     double measurement_at_pause_resume;
     int allow_exceptions;
 } prof_profile_t;
-
 
 #endif //__RUBY_PROF_H__

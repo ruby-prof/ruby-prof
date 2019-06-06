@@ -73,7 +73,7 @@ get_event_name(rb_event_flag_t event)
 }
 
 static int
-excludes_method(prof_method_key_t *key, prof_profile_t *profile)
+excludes_method(st_data_t key, prof_profile_t *profile)
 {
   return (profile->exclude_methods_tbl &&
     method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
@@ -86,27 +86,21 @@ prof_exclude_common_methods(VALUE profile)
 }
 
 static prof_method_t*
-get_method(prof_method_key_t *key, thread_data_t* thread_data)
-{
-    return method_table_lookup(thread_data->method_table, key);
-}
-
-static prof_method_t*
-create_method(rb_event_flag_t event, prof_method_key_t key, thread_data_t* thread_data, prof_profile_t* profile, int line)
+create_method(rb_event_flag_t event, st_data_t key, VALUE klass, ID mid, thread_data_t* thread_data, prof_profile_t* profile, int line)
 {
     prof_method_t* method = NULL;
 
-    if (excludes_method(&key, profile))
+    if (excludes_method(key, profile))
     {
         /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
         /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
            tables share the same exclusion method struct? The first attempt failed due to my
            ignorance of the whims of the GC. */
-        method = prof_method_create_excluded(key.klass, key.mid);
+        method = prof_method_create_excluded(klass, mid);
     }
     else
     {
-  	    method = prof_method_create(event, key.klass, key.mid, line);
+  	    method = prof_method_create(event, klass, mid, line);
     }
 
     /* Insert the newly created method, or the exlcusion sentinel. */
@@ -258,13 +252,12 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         }
 
         int line = rb_sourceline();
-        prof_method_key_t key;
-        method_key(&key, klass, mid);
+        st_data_t key = method_key(klass, mid);
+        method = method_table_lookup(thread_data->method_table, key);
 
-        method = get_method(&key, thread_data);
         if (!method)
         {
-            method = create_method(event, key, thread_data, profile, line);
+            method = create_method(event, key, klass, mid, thread_data, profile, line);
         }
 
         if (method->excluded)
@@ -713,7 +706,7 @@ prof_exclude_method(VALUE self, VALUE klass, VALUE sym)
     prof_profile_t* profile = prof_get_profile(self);
     ID mid = SYM2ID(sym);
 
-    prof_method_key_t key;
+    st_data_t key = method_key(klass, mid);
     prof_method_t *method;
 
     if (profile->running == Qtrue)
@@ -721,10 +714,10 @@ prof_exclude_method(VALUE self, VALUE klass, VALUE sym)
         rb_raise(rb_eRuntimeError, "RubyProf.start was already called");
     }
 
-    method_key(&key, klass, mid);
-    method = method_table_lookup(profile->exclude_methods_tbl, &key);
+    method = method_table_lookup(profile->exclude_methods_tbl, key);
 
-    if (!method) {
+    if (!method)
+    {
       method = prof_method_create_excluded(klass, mid);
       method_table_insert(profile->exclude_methods_tbl, method->key, method);
     }

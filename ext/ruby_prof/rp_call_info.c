@@ -7,9 +7,6 @@
 
 VALUE cCallInfo;
 
-// Forward declarations
-st_table * call_info_table_create(void);
-
 /* =======  prof_call_info_t   ========*/
 prof_call_info_t *
 prof_call_info_create(prof_method_t *method, prof_method_t *parent)
@@ -93,17 +90,17 @@ prof_get_call_info(VALUE self)
 st_table *
 call_info_table_create()
 {
-  return st_init_table(&type_method_hash);
+    return st_init_numtable();
 }
 
 size_t
-call_info_table_insert(st_table *table, const prof_method_key_t *key, prof_call_info_t *val)
+call_info_table_insert(st_table *table, st_data_t key, prof_call_info_t *val)
 {
   return st_insert(table, (st_data_t) key, (st_data_t) val);
 }
 
 prof_call_info_t *
-call_info_table_lookup(st_table *table, const prof_method_key_t *key)
+call_info_table_lookup(st_table *table, st_data_t key)
 {
     st_data_t val;
     if (st_lookup(table, (st_data_t) key, &val))

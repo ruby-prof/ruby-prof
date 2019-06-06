@@ -9,14 +9,6 @@
 
 extern VALUE cMethodInfo;
 
-/* A key used to identify each method */
-typedef struct
-{
-    VALUE klass;                            /* The method's class. */
-    ID mid;                                 /* The method id. */
-    st_index_t key;                         /* Cache calculated key */
-} prof_method_key_t;
-
 /* Source relation bit offsets. */
 enum {
     kModuleIncludee = 0,                    /* Included module */
@@ -31,8 +23,7 @@ struct prof_call_infos_t;
 /* Excluded methods have no call_infos, source_klass, or source_file. */
 typedef struct
 {
-    prof_method_key_t *key;                 /* Table key */
-    bool root;                              /* Is this method at the top of the call chain*/
+    st_data_t key;                          /* Table key */
 
     int visits;                             /* Current visits on the stack */
     unsigned int excluded : 1;              /* Exclude from profile? */
@@ -42,35 +33,29 @@ typedef struct
     st_table* child_call_infos;             /* Call infos that this method calls */
 
     VALUE object;                           /* Cached ruby object */
-    VALUE source_klass;                     /* Source class */
+    VALUE klass_name;                       /* Resolved klass name for this method */
+    VALUE source_klass_name;                /* Resolved klass name for this method */
+    VALUE method_name;                      /* Resolved method name for this method */
+
+    bool root;                              /* Is this a root method */
     const char *source_file;                /* Source file */
     int line;                               /* Line number */
-
-    unsigned int resolved : 1;              /* Source resolved? */
-    unsigned int relation : 3;              /* Source relation bits */
 } prof_method_t;
 
 void rp_init_method_info(void);
 
-void method_key(prof_method_key_t* key, VALUE klass, ID mid);
-extern prof_method_key_t blank_key;
+st_data_t method_key(VALUE klass, ID mid);
 
 st_table *method_table_create(void);
-prof_method_t *method_table_lookup(st_table *table, const prof_method_key_t* key);
-size_t method_table_insert(st_table *table, const prof_method_key_t *key, prof_method_t *val);
+prof_method_t* prof_method_create_excluded(VALUE klass, ID mid);
+prof_method_t *method_table_lookup(st_table *table, st_data_t key);
+size_t method_table_insert(st_table *table, st_data_t key, prof_method_t *val);
 void method_table_free(st_table *table);
 
 prof_method_t *prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line);
-prof_method_t *prof_method_create_excluded(VALUE klass, ID mid);
-prof_method_t* prof_method_get(VALUE self);
+prof_method_t *prof_method_get(VALUE self);
 
 VALUE prof_method_wrap(prof_method_t *result);
 void prof_method_mark(prof_method_t *method);
 
-/* Setup infrastructure to use method keys as hash comparisons */
-int method_table_cmp(prof_method_key_t *key1, prof_method_key_t *key2);
-st_index_t method_table_hash(prof_method_key_t *key);
-
-extern struct st_hash_type type_method_hash;
-
-#endif
+#endif //__RP_METHOD_INFO__

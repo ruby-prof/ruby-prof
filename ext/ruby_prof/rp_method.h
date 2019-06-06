@@ -11,9 +11,11 @@ extern VALUE cMethodInfo;
 
 /* Source relation bit offsets. */
 enum {
-    kModuleIncludee = 0,                    /* Included module */
-    kModuleSingleton,                       /* Singleton class of a module */
-    kObjectSingleton                        /* Singleton class of an object */
+    kModuleIncludee = 0x1,                    /* Included in module */
+    kClassSingleton = 0x2,                    /* Singleton of a class */
+    kModuleSingleton = 0x4,                   /* Singleton of a module */
+    kObjectSingleton = 0x8,                   /* Singleton of an object */
+    kOtherSingleton = 0x10                    /* Singleton of unkown object */
 };
 
 /* Forward declaration, see rp_call_info.h */
@@ -26,15 +28,15 @@ typedef struct
     st_data_t key;                          /* Table key */
 
     int visits;                             /* Current visits on the stack */
-    unsigned int excluded : 1;              /* Exclude from profile? */
-    unsigned int recursive : 1;             /* Recursive (direct or mutual)? */
+    boolean excluded;                       /* Exclude from profile? */
+    boolean recursive;                      /* Recursive (direct or mutual)? */
 
     st_table* parent_call_infos;            /* Call infos that call this method */
     st_table* child_call_infos;             /* Call infos that this method calls */
 
     VALUE object;                           /* Cached ruby object */
+    unsigned int klass_flags;               /* Information about the type of class */
     VALUE klass_name;                       /* Resolved klass name for this method */
-    VALUE source_klass_name;                /* Resolved klass name for this method */
     VALUE method_name;                      /* Resolved method name for this method */
 
     bool root;                              /* Is this a root method */

@@ -9,6 +9,21 @@ module RubyProf
   # kcachegrind and similar tools.
 
   class CallTreePrinter < AbstractPrinter
+    def calltree_name(method_info)
+      klass_path = method_info.klass_name.gsub("::", '/')
+      result = "#{klass_path}::#{method_info.method_name}"
+
+      case method_info.klass_flags
+        when 0x2
+          "#{result}^"
+        when 0x4
+          "#{result}^"
+        when 0x8
+         "#{result}*"
+        else
+         result
+      end
+    end
 
     def determine_event_specification_and_value_scale
       @event_specification = "events: "
@@ -116,7 +131,7 @@ module RubyProf
     def print_method(output, method)
       # Print out the file and method name
       output << "fl=#{file(method)}\n"
-      output << "fn=#{method.calltree_name}\n"
+      output << "fn=#{self.calltree_name(method)}\n"
 
       # Now print out the function line number and its self time
       output << "#{method.line} #{convert(method.self_time)}\n"
@@ -124,7 +139,7 @@ module RubyProf
       # Now print out all the children methods
       method.callees.each do |callee|
         output << "cfl=#{file(callee.target)}\n"
-        output << "cfn=#{callee.target.calltree_name}\n"
+        output << "cfn=#{self.calltree_name(callee.target)}\n"
         output << "calls=#{callee.called} #{callee.line}\n"
 
         # Print out total times here!

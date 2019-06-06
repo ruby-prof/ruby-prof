@@ -28,14 +28,13 @@ class MarshalTest < TestCase
       method_1 = methods_1[i]
       method_2 = methods_2[i]
 
-      assert_equal(method_1.root?, method_2.root?)
-
       assert_equal(method_1.klass_name, method_2.klass_name)
-      assert_equal(method_1.source_klass_name, method_2.source_klass_name)
       assert_equal(method_1.method_name, method_2.method_name)
       assert_equal(method_1.full_name, method_2.full_name)
 
       assert_equal(method_1.recursive?, method_2.recursive?)
+      assert_equal(method_1.root?, method_2.root?)
+      assert_equal(method_1.excluded?, method_2.excluded?)
 
       assert_equal(method_1.source_file, method_2.source_file)
       assert_equal(method_1.line, method_2.line)
@@ -90,27 +89,4 @@ class MarshalTest < TestCase
 
     verify_profile(profile_1, profile_2)
   end
-
-  # def test_printer
-  #   profile_1 = RubyProf.profile do
-  #     1.times { RubyProf::C1.new.sleep_wait }
-  #   end
-  #
-  #   data = Marshal.dump(profile_1)
-  #   profile_2 = Marshal.load(data)
-  #
-  #   printer_1 = RubyProf::GraphPrinter.new(profile_1)
-  #   io_1 = StringIO.new
-  #   printer_1.print(io_1)
-  #   output_1 = io_1.string
-  #   output_1 = output_1.gsub(/^Thread ID:.*$/, 'Thread ID: ')
-  #   output_1 = output_1.gsub(/^Fiber ID:.*$/, 'Fiber ID: ')
-  #
-  #   printer_2 = RubyProf::GraphPrinter.new(profile_2)
-  #   io_2 = StringIO.new
-  #   printer_2.print(io_2)
-  #   output_2 = io_2.string
-  #
-  #   assert_equal(output_1, output_2)
-  # end
 end

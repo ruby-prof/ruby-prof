@@ -4,6 +4,21 @@ module RubyProf
   class MethodInfo
     include Comparable
 
+    def full_name
+      decorated_class_name = case self.klass_flags
+                             when 0x2
+                               "<Class::#{klass_name}>"
+                             when 0x4
+                               "<Module::#{klass_name}>"
+                             when 0x8
+                               "<Object::#{klass_name}>"
+                             else
+                               klass_name
+                             end
+
+      "#{decorated_class_name}##{method_name}"
+    end
+
     def <=>(other)
       if self.total_time < other.total_time
         -1

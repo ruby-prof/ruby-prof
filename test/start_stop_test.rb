@@ -66,9 +66,9 @@ class StartStopTest < TestCase
     assert_in_delta(2, method.children_time, 0.05)
     assert_equal(1, method.callers.length)
 
-    call_info = method.call_infos[0]
+    call_info = method.callers[0]
     assert_equal('StartStopTest#method1', call_info.call_sequence)
-    assert_equal(1, call_info.children.length)
+    assert_equal(1, method.callees.length)
 
     method = methods[1]
     assert_equal('StartStopTest#method2', method.full_name)
@@ -77,11 +77,10 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.05)
-    assert_equal(1, method.call_infos.length)
+    assert_equal(1, method.callers.length)
 
-    call_info = method.call_infos[0]
-    assert_equal('StartStopTest#method1->StartStopTest#method2', call_info.call_sequence)
-    assert_equal(1, call_info.children.length)
+    call_info = method.callers[0]
+    assert_equal(1, method.callees.length)
 
     method = methods[2]
     assert_equal('StartStopTest#method3', method.full_name)
@@ -90,11 +89,10 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.02)
-    assert_equal(1, method.call_infos.length)
+    assert_equal(1, method.callers.length)
 
-    call_info = method.call_infos[0]
-    assert_equal('StartStopTest#method1->StartStopTest#method2->StartStopTest#method3', call_info.call_sequence)
-    assert_equal(1, call_info.children.length)
+    call_info = method.callers[0]
+    assert_equal(1, method.callees.length)
 
     method = methods[3]
     assert_equal('Kernel#sleep', method.full_name)
@@ -103,10 +101,9 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(2, method.self_time, 0.02)
     assert_in_delta(0, method.children_time, 0.02)
-    assert_equal(1, method.call_infos.length)
+    assert_equal(1, method.callers.length)
 
-    call_info = method.call_infos[0]
-    assert_equal('StartStopTest#method1->StartStopTest#method2->StartStopTest#method3->Kernel#sleep', call_info.call_sequence)
-    assert_equal(0, call_info.children.length)
+    call_info = method.callers[0]
+    assert_equal(0, method.callees.length)
   end
 end

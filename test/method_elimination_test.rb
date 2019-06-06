@@ -36,7 +36,7 @@ class MethodEliminationTest < TestCase
     end
     method_infos = result.threads.first.methods.sort.reverse
     assert(m1 = method_infos[0])
-    assert(c1 = m1.call_infos.first)
+    assert(c1 = m1.callers.first)
     assert_nil(c1.parent)
   end
 
@@ -49,11 +49,11 @@ class MethodEliminationTest < TestCase
 
     assert_equal(6, methods.count)
     assert_equal('MethodEliminationTest#test_methods_can_be_eliminated', methods[0].full_name)
-    assert_equal('Integer#times', methods[1].full_name)
-    assert_equal('<Module::MethodElimination>#a', methods[2].full_name)
-    assert_equal('<Module::MethodElimination>#c', methods[3].full_name)
-    assert_equal('<Module::MethodElimination>#b', methods[4].full_name)
-    assert_equal('Kernel#sleep', methods[5].full_name)
+    assert_equal('<Module::MethodElimination>#a', methods[1].full_name)
+    assert_equal('<Module::MethodElimination>#c', methods[2].full_name)
+    assert_equal('<Module::MethodElimination>#b', methods[3].full_name)
+    assert_equal('Kernel#sleep', methods[4].full_name)
+    assert_equal('Integer#times', methods[5].full_name)
 
     result.eliminate_methods!([/Integer#times/])
 

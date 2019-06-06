@@ -28,16 +28,15 @@ class MarshalTest < TestCase
       method_1 = methods_1[i]
       method_2 = methods_2[i]
 
-      assert_equal(method_1.klass, method_2.klass)
+      assert_equal(method_1.root?, method_2.root?)
+
       assert_equal(method_1.klass_name, method_2.klass_name)
+      assert_equal(method_1.source_klass_name, method_2.source_klass_name)
       assert_equal(method_1.method_name, method_2.method_name)
       assert_equal(method_1.full_name, method_2.full_name)
-      assert_equal(method_1.method_id, method_2.method_id)
 
       assert_equal(method_1.recursive?, method_2.recursive?)
-      assert_equal(method_1.calltree_name, method_2.calltree_name)
 
-      assert_equal(method_1.source_klass, method_2.source_klass)
       assert_equal(method_1.source_file, method_2.source_file)
       assert_equal(method_1.line, method_2.line)
 
@@ -73,6 +72,17 @@ class MarshalTest < TestCase
   def test_marshal
     profile_1 = RubyProf.profile do
       1.times { RubyProf::C1.new.sleep_wait }
+    end
+
+    data = Marshal.dump(profile_1)
+    profile_2 = Marshal.load(data)
+
+    verify_profile(profile_1, profile_2)
+  end
+
+  def test_singleton
+    profile_1 = RubyProf.profile do
+      SingletonTest.instance.busy_wait
     end
 
     data = Marshal.dump(profile_1)

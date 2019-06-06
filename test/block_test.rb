@@ -59,7 +59,7 @@ class BlockMethodTest < TestCase
       methods[5], methods[6] = methods[6], methods[5]
     end
 
-    assert_equal("#{RubyProf.parent_object}#initialize", methods[5].full_name)
+    assert_equal("BasicObject#initialize", methods[5].full_name)
     assert_in_delta(0.0, methods[5].total_time, 0.01)
     assert_in_delta(0.0, methods[5].wait_time, 0.01)
     assert_in_delta(0.0, methods[5].self_time, 0.01)

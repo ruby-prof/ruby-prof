@@ -2,6 +2,7 @@
 
 require "rubygems"
 gem "minitest"
+require 'singleton'
 
 # To make testing/debugging easier, test within this source tree versus an installed gem
 dir = File.dirname(__FILE__)
@@ -77,6 +78,20 @@ module RubyProf
     include M1
     extend M1
   end
+
+  class C3
+    include Singleton
+    def sleep_wait
+      sleep(0.3)
+    end
+
+    def busy_wait
+      starting = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+      while (Process.clock_gettime(Process::CLOCK_MONOTONIC) - starting) < 0.2
+      end
+    end
+  end
+
 end
 
 module MemoryTestHelper

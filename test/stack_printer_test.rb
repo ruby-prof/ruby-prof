@@ -49,21 +49,10 @@ class StackPrinterTest < TestCase
     assert_in_delta(expected_time, actual_time, 0.1)
   end
 
-  def test_method_elimination
-    RubyProf.start
-    5.times{STPT.new.a}
-    result = RubyProf.stop
-    # result.dump
-    result.eliminate_methods!([/Integer#times/])
-    # $stderr.puts "================================"
-    # result.dump
-    print(result)
-  end
-
   private
   def print(result)
     test = caller.first =~ /in `(.*)'/ ? $1 : "test"
-    testfile_name = "#{RubyProf.tmpdir}/ruby_prof_#{test}.html"
+    testfile_name = "#{Dir.tmpdir}/ruby_prof_#{test}.html"
     # puts "printing to #{testfile_name}"
     printer = RubyProf::CallStackPrinter.new(result)
     File.open(testfile_name, "w") {|f| printer.print(f, :threshold => 0, :min_percent => 0, :title => "ruby_prof #{test}")}

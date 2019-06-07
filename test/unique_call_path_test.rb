@@ -103,31 +103,26 @@ class UniqueCallPathTest < TestCase
     method = root_methods[0]
     assert_equal('UniqueCallPathTest#test_children_of', method.full_name)
 
-    call_info_a = nil
-    root_methods[0].callees.each do | c |
-      if c.target.full_name == "UniqueCallPath#method_a"
-        call_info_a = c
-        break
-      end
+    call_info_a = root_methods[0].callees.detect do |call_info|
+      call_info.target.full_name == "UniqueCallPath#method_a"
     end
-
-    assert !call_info_a.nil?
+    refute_nil(call_info_a)
 
     children_of_a = Array.new
 
-    call_info_a.callees.each do | c |
+    call_info_a.target.callees.each do | c |
       if c.parent.eql?(call_info_a)
         children_of_a.push(c)
       end
     end
 
-    assert_equal(2, call_info_a.target.children.length)
+    assert_equal(2, call_info_a.target.callees.length)
 
     children_of_a = children_of_a.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
 
-    assert_equal(1, children_of_a.length)
+    assert_equal(0, children_of_a.length)
     assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
   end
 
@@ -171,31 +166,26 @@ class UniqueCallPathTest < TestCase
 
     assert_equal(1, root_methods.length)
 
-    call_info_a = nil
-    root_methods[0].callees.each do |c|
-      if c.target.full_name == "UniqueCallPath#method_a"
-        call_info_a = c
-        break
-      end
+    call_info_a = root_methods[0].callees.detect do |call_info|
+      call_info.target.full_name == "UniqueCallPath#method_a"
     end
-
-    assert !call_info_a.nil?
+    refute_nil(call_info_a)
 
     children_of_a = Array.new
-    call_info_a.callees.each do |c|
+    call_info_a.target.callees.each do |c|
       if c.parent.eql?(call_info_a.target)
         children_of_a.push(c)
       end
     end
 
-    assert_equal(2, call_info_a.target.children.length)
+    assert_equal(1, call_info_a.target.callees.length)
 
     children_of_a = children_of_a.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
 
     assert_equal(1, children_of_a.length)
-    assert_equal(1, children_of_a[0].called)
+    assert_equal(2, children_of_a[0].called)
     assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
   end
 end

@@ -17,51 +17,47 @@ class PrintersTest < TestCase
   end
 
   def test_printers
-    assert_nothing_raised do
-      output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new('')
+    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new('')
 
-#      printer = RubyProf::CallInfoPrinter.new(@result)
- #     printer.print(output)
+    printer = RubyProf::CallInfoPrinter.new(@result)
+    printer.print(output)
 
-      printer = RubyProf::CallTreePrinter.new(@result)
-      printer.print()
+    printer = RubyProf::CallTreePrinter.new(@result)
+    printer.print()
 
-      printer = RubyProf::FlatPrinter.new(@result)
-      printer.print(output)
+    printer = RubyProf::FlatPrinter.new(@result)
+    printer.print(output)
 
-      printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
-      printer.print(output)
+    printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
+    printer.print(output)
 
-      printer = RubyProf::GraphHtmlPrinter.new(@result)
-      printer.print(output)
+    printer = RubyProf::GraphHtmlPrinter.new(@result)
+    printer.print(output)
 
-      printer = RubyProf::GraphPrinter.new(@result)
-      printer.print(output)
-    end
+    printer = RubyProf::GraphPrinter.new(@result)
+    printer.print(output)
   end
 
   def test_print_to_files
-    assert_nothing_raised do
-      output_dir = 'examples2'
+    output_dir = 'examples2'
 
-      if ENV['SAVE_NEW_PRINTER_EXAMPLES']
-        output_dir = 'examples'
-      end
-      FileUtils.mkdir_p output_dir
-
-      printer = RubyProf::DotPrinter.new(@result)
-      File.open("#{output_dir}/graph.dot", "w") {|f| printer.print(f)}
-
-      #printer = RubyProf::CallStackPrinter.new(@result)
-      #File.open("#{output_dir}/stack.html", "w") {|f| printer.print(f, :application => "primes")}
-
-      # printer = RubyProf::MultiPrinter.new(@result)
-      # printer.print(:path => "#{output_dir}", :profile => "multi", :application => "primes")
-      # for file in ['graph.dot', 'multi.flat.txt', 'multi.graph.html', "multi.callgrind.out.#{$$}", 'multi.stack.html', 'stack.html']
-      #   existant_file = output_dir + '/' + file
-      #   assert File.size(existant_file) > 0
-      # end
+    if ENV['SAVE_NEW_PRINTER_EXAMPLES']
+      output_dir = 'examples'
     end
+    FileUtils.mkdir_p output_dir
+
+    printer = RubyProf::DotPrinter.new(@result)
+    File.open("#{output_dir}/graph.dot", "w") {|f| printer.print(f)}
+
+    printer = RubyProf::CallStackPrinter.new(@result)
+    File.open("#{output_dir}/stack.html", "w") {|f| printer.print(f, :application => "primes")}
+
+    # printer = RubyProf::MultiPrinter.new(@result)
+    # printer.print(:path => "#{output_dir}", :profile => "multi", :application => "primes")
+    # for file in ['graph.dot', 'multi.flat.txt', 'multi.graph.html', "multi.callgrind.out.#{$$}", 'multi.stack.html', 'stack.html']
+    #   existant_file = output_dir + '/' + file
+    #   assert File.size(existant_file) > 0
+    # end
   end
 
   def test_refuses_io_objects

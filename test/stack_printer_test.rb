@@ -41,7 +41,7 @@ class StackPrinterTest < TestCase
     expected_time = end_time - start_time
 
     file_contents = nil
-    assert_nothing_raised { file_contents = print(result) }
+    file_contents = print(result)
     re = /Thread: (\d+)(, Fiber: (\d+))? \([\.0-9]+.[\.0-9]+% ~ ([\.0-9]+)\)/
     assert_match(re, file_contents)
     file_contents =~ re
@@ -53,13 +53,11 @@ class StackPrinterTest < TestCase
     RubyProf.start
     5.times{STPT.new.a}
     result = RubyProf.stop
-    assert_nothing_raised {
-      # result.dump
-      result.eliminate_methods!([/Integer#times/])
-      # $stderr.puts "================================"
-      # result.dump
-      print(result)
-    }
+    # result.dump
+    result.eliminate_methods!([/Integer#times/])
+    # $stderr.puts "================================"
+    # result.dump
+    print(result)
   end
 
   private

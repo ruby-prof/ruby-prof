@@ -15,25 +15,12 @@ $LOAD_PATH << ext
 
 require 'ruby-prof'
 
+# Disable minitest parallel tests. The problem is the thread switching will cahnge test results
+# (self vs wait time)
+ENV["N"] = "0"
 require 'minitest/autorun'
 
 class TestCase < Minitest::Test
-  # I know this sucks, but ...
-  def assert_nothing_raised(*)
-    yield
-  end
-
-  def before_setup
-    # make sure to exclude all threads except the one running the test
-    # minitest allocates a thread pool and they would otherwise show
-    # up in the profile data, breaking tests randomly
-    RubyProf.exclude_threads = Thread.list.select{|t| t != Thread.current}
-  end
-
-  def after_teardown
-    # reset exclude threads after testing
-    RubyProf.exclude_threads = nil
-  end
 end
 
 require File.expand_path('../prime', __FILE__)

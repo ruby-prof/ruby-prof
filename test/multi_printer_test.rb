@@ -87,7 +87,7 @@ class MultiPrinterTest < TestCase
 
   def print(result)
     test = caller.first =~ /in `(.*)'/ ? $1 : "test"
-    path = RubyProf.tmpdir
+    path = Dir.tmpdir
     profile = "ruby_prof_#{test}"
     printer = RubyProf::MultiPrinter.new(result)
     printer.print(:path => path, :profile => profile,

@@ -247,16 +247,6 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
            the first method seen for this thread, so fall through
            to below to create it. */
     }
-    case RUBY_EVENT_THREAD_BEGIN:
-    case RUBY_EVENT_THREAD_END:
-    case RUBY_EVENT_FIBER_SWITCH:
-    {
-        // do nothing, we just want to listen to thread/fiber switch events
-    }
-    case RUBY_EVENT_B_CALL:
-    {
-        int a = 1;
-    }
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
@@ -309,10 +299,6 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         next_frame->line = line;
         break;
     } 
-    case RUBY_EVENT_B_RETURN:
-    {
-        int a = 2;
-    }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
@@ -326,10 +312,8 @@ void
 prof_install_hook(VALUE self)
 {
     rb_add_event_hook(prof_event_hook,
-          RUBY_EVENT_THREAD_BEGIN  | RUBY_EVENT_THREAD_END | RUBY_EVENT_FIBER_SWITCH |
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN |
-          RUBY_EVENT_B_CALL | RUBY_EVENT_B_RETURN |
           RUBY_EVENT_LINE, self);
 }
 

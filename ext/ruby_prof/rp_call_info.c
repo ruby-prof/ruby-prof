@@ -292,7 +292,7 @@ prof_call_info_dump(VALUE self)
 
     rb_hash_aset(result, ID2SYM(rb_intern("called")), INT2FIX(call_info_data->called));
 
-    rb_hash_aset(result, ID2SYM(rb_intern("recursive")), INT2FIX(call_info_data->recursive));
+    rb_hash_aset(result, ID2SYM(rb_intern("recursive")), prof_call_info_recursive(self));
     rb_hash_aset(result, ID2SYM(rb_intern("depth")), INT2FIX(call_info_data->depth));
     rb_hash_aset(result, ID2SYM(rb_intern("line")), INT2FIX(call_info_data->line));
 
@@ -314,7 +314,7 @@ prof_call_info_load(VALUE self, VALUE data)
 
     call_info->called = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("called"))));
 
-    call_info->recursive = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("recursive"))));
+    call_info->recursive = rb_hash_aref(data, ID2SYM(rb_intern("recursive"))) == Qtrue ? true : false;
     call_info->depth = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("depth"))));
     call_info->line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
 

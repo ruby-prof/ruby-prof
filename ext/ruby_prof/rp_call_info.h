@@ -23,7 +23,7 @@ typedef struct prof_call_info_t
 
     int called;
 
-    unsigned int recursive : 1;
+    bool recursive;
     unsigned int depth : 15;
     unsigned int line : 16;
 } prof_call_info_t;

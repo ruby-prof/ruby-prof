@@ -29,7 +29,6 @@ typedef struct
 
     int visits;                             /* Current visits on the stack */
     boolean excluded;                       /* Exclude from profile? */
-    boolean recursive;                      /* Recursive (direct or mutual)? */
 
     st_table* parent_call_infos;            /* Call infos that call this method */
     st_table* child_call_infos;             /* Call infos that this method calls */

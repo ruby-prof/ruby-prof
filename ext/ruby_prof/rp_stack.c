@@ -84,7 +84,6 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   /* If the method was visited previously, it's recursive. */
   if (method->visits > 0)
   {
-    method->recursive = 1;
     call_info->recursive = 1;
   }
   /* Enter the method. */

@@ -61,10 +61,20 @@ get_event_name(rb_event_flag_t event)
     return "call";
   case RUBY_EVENT_RETURN:
     return "return";
+  case RUBY_EVENT_B_CALL:
+      return "b-call";
+  case RUBY_EVENT_B_RETURN:
+      return "b-return";
   case RUBY_EVENT_C_CALL:
     return "c-call";
   case RUBY_EVENT_C_RETURN:
     return "c-return";
+  case RUBY_EVENT_THREAD_BEGIN:
+      return "thread-begin";
+  case RUBY_EVENT_THREAD_END:
+      return "thread-end";
+  case RUBY_EVENT_FIBER_SWITCH:
+      return "fiber-switch";
   case RUBY_EVENT_RAISE:
     return "raise";
   default:
@@ -116,8 +126,8 @@ pop_frames(VALUE key, st_data_t value, st_data_t data)
     prof_profile_t* profile = (prof_profile_t*) data;
     double measurement = prof_measure(profile->measurer);
 
-    //if (profile->last_thread_data->fiber != thread_data->fiber)
-      //  switch_thread(profile, thread_data, measurement);
+    if (profile->last_thread_data->fiber != thread_data->fiber)
+        switch_thread(profile, thread_data, measurement);
 
     while (prof_stack_pop(thread_data->stack, measurement));
 
@@ -137,9 +147,7 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
     static VALUE last_fiber = Qnil;
 
     VALUE thread = rb_thread_current();
-    VALUE thread_id = rb_obj_id(thread);
     VALUE fiber = rb_fiber_current();
-    VALUE fiber_id = rb_obj_id(fiber);
 
     if (mid == 0)
     {
@@ -163,9 +171,9 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
         fprintf(trace_file, "\n");
     }
 
-    fprintf(trace_file, "%2lu:%2lu:%2ums %-8s %s:%2d  %s#%s\n",
-            (unsigned long)thread_id, (unsigned long)fiber_id, (unsigned int) measurement*1000,
-            event_name, source_file, source_line, class_name, method_name);
+    fprintf(trace_file, "%2lu:%2lu:%2f %-8s %s#%s    %s:%2d\n",
+        FIX2ULONG(thread), FIX2ULONG(fiber), (double) measurement,
+            event_name, class_name, method_name, source_file, source_line);
     fflush(trace_file);
     last_fiber = fiber;
 }
@@ -239,6 +247,16 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
            the first method seen for this thread, so fall through
            to below to create it. */
     }
+    case RUBY_EVENT_THREAD_BEGIN:
+    case RUBY_EVENT_THREAD_END:
+    case RUBY_EVENT_FIBER_SWITCH:
+    {
+        // do nothing, we just want to listen to thread/fiber switch events
+    }
+    case RUBY_EVENT_B_CALL:
+    {
+        int a = 1;
+    }
     case RUBY_EVENT_CALL:
     case RUBY_EVENT_C_CALL:
     {
@@ -291,6 +309,10 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         next_frame->line = line;
         break;
     } 
+    case RUBY_EVENT_B_RETURN:
+    {
+        int a = 2;
+    }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_C_RETURN:
     {
@@ -304,8 +326,10 @@ void
 prof_install_hook(VALUE self)
 {
     rb_add_event_hook(prof_event_hook,
+          RUBY_EVENT_THREAD_BEGIN  | RUBY_EVENT_THREAD_END | RUBY_EVENT_FIBER_SWITCH |
           RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
           RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN |
+          RUBY_EVENT_B_CALL | RUBY_EVENT_B_RETURN |
           RUBY_EVENT_LINE, self);
 }
 

@@ -123,7 +123,6 @@ class UniqueCallPathTest < TestCase
     end
 
     assert_equal(0, children_of_a.length)
-    assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
   end
 
   def test_id2ref

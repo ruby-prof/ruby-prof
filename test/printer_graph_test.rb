@@ -26,14 +26,6 @@ class PrinterGraphTest < TestCase
     assert_equal array, array.sort.reverse, "Array #{array.inspect} is not sorted"
   end
 
-  def test_graph_result_sorting_by_total_time_is_default
-    printer = RubyProf::GraphPrinter.new(@result)
-    printer.print(output = '')
-    total_times = graph_output_nth_column_values(output, 3)
-
-    assert_sorted total_times
-  end
-
   def test_graph_results_sorting
     printer = RubyProf::GraphPrinter.new(@result)
 

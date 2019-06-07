@@ -14,7 +14,7 @@ class CallInfoVisitorTest < TestCase
       RubyProf::C1.sleep_wait
     end
 
-    visitor = RubyProf::CallInfoVisitor.new(result.threads.first.top_call_infos)
+    visitor = RubyProf::CallInfoVisitor.new(result.threads.first.root_methods)
 
     method_names = Array.new
 

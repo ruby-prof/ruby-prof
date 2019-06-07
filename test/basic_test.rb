@@ -55,10 +55,10 @@ class BasicTest < TestCase
     thread = profile.threads.first
     assert_in_delta(0.25, thread.total_time, 0.015)
 
-    top_methods = thread.top_methods.sort
-    assert_equal(2, top_methods.count)
-    assert_equal("BasicTest#start", top_methods[0].full_name)
-    assert_equal("BasicTest#test_leave_method", top_methods[1].full_name)
+    root_methods = thread.root_methods.sort
+    assert_equal(2, root_methods.count)
+    assert_equal("BasicTest#start", root_methods[0].full_name)
+    assert_equal("BasicTest#test_leave_method", root_methods[1].full_name)
 
     assert_equal(4, thread.methods.length)
     methods = profile.threads.first.methods.sort
@@ -96,10 +96,10 @@ class BasicTest < TestCase
     thread = profile.threads.first
     assert_in_delta(0.3, thread.total_time, 0.015)
 
-    top_methods = thread.top_methods.sort
-    assert_equal(2, top_methods.count)
-    assert_equal("BasicTest#start", top_methods[0].full_name)
-    assert_equal("BasicTest#test_leave_method_2", top_methods[1].full_name)
+    root_methods = thread.root_methods.sort
+    assert_equal(2, root_methods.count)
+    assert_equal("BasicTest#start", root_methods[0].full_name)
+    assert_equal("BasicTest#test_leave_method_2", root_methods[1].full_name)
 
     assert_equal(4, thread.methods.length)
     methods = profile.threads.first.methods.sort

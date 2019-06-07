@@ -14,7 +14,7 @@ class CallInfoTest < TestCase
 #      RubyProf::C1.sleep_wait
 #    end
 #
-#    method = result.threads.first.top_methods.first
+#    method = result.threads.first.root_methods.first
 #    call_info = method.call_infos.first
 #    call_info_clone = call_info.clone
 #

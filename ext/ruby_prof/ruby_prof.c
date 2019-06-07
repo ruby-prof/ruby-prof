@@ -779,6 +779,4 @@ void Init_ruby_prof()
     rb_define_method(cProfile, "profile", prof_profile_object, 0);
     rb_define_method(cProfile, "_dump_data", prof_profile_dump, 0);
     rb_define_method(cProfile, "_load_data", prof_profile_load, 1);
-
-    cExcludeCommonMethods = rb_define_class_under(cProfile, "ExcludeCommonMethods", rb_cObject);
 }

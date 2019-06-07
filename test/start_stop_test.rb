@@ -39,24 +39,15 @@ class StartStopTest < TestCase
     end
   end
     
-
   def test_different_methods
     method1
 
     # Ruby prof should be stopped
     assert_equal(false, RubyProf.running?)
 
-
-    # Length should be 4:
-    #   StartStopTest#method1
-    #   StartStopTest#method2
-    #   StartStopTest#method3
-    #   Kernel#sleep
-
     methods = @result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
 
-    # Check StackTest#test_call_sequence
     method = methods[0]
     assert_equal('StartStopTest#method1', method.full_name)
     assert_equal(1, method.called)
@@ -64,11 +55,11 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.05)
-    assert_equal(1, method.callers.length)
 
-    call_info = method.callers[0]
-    assert_equal('StartStopTest#method1', call_info.call_sequence)
     assert_equal(1, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('StartStopTest#method2', call_info.target.full_name)
+    refute(call_info.recursive?)
 
     method = methods[1]
     assert_equal('StartStopTest#method2', method.full_name)
@@ -77,10 +68,16 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.05)
-    assert_equal(1, method.callers.length)
 
+    assert_equal(1, method.callers.length)
     call_info = method.callers[0]
+    assert_equal('StartStopTest#method1', call_info.parent.full_name)
+    refute(call_info.recursive?)
+
     assert_equal(1, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('StartStopTest#method3', call_info.target.full_name)
+    refute(call_info.recursive?)
 
     method = methods[2]
     assert_equal('StartStopTest#method3', method.full_name)
@@ -89,10 +86,16 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.02)
-    assert_equal(1, method.callers.length)
 
+    assert_equal(1, method.callers.length)
     call_info = method.callers[0]
+    assert_equal('StartStopTest#method2', call_info.parent.full_name)
+    refute(call_info.recursive?)
+
     assert_equal(1, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('Kernel#sleep', call_info.target.full_name)
+    refute(call_info.recursive?)
 
     method = methods[3]
     assert_equal('Kernel#sleep', method.full_name)
@@ -101,9 +104,12 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.wait_time, 0.02)
     assert_in_delta(2, method.self_time, 0.02)
     assert_in_delta(0, method.children_time, 0.02)
-    assert_equal(1, method.callers.length)
 
+    assert_equal(1, method.callers.length)
     call_info = method.callers[0]
+    assert_equal('StartStopTest#method3', call_info.parent.full_name)
+    refute(call_info.recursive?)
+
     assert_equal(0, method.callees.length)
   end
 end

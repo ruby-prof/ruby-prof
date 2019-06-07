@@ -175,7 +175,8 @@ module RubyProf
         <tbody>
           <%
              min_time = @options[:min_time] || (@options[:nonzero] ? 0.005 : nil)
-             methods.sort_by(&sort_method).reverse_each do |method|
+             sorted_methods = sort_method ? methods.sort_by(&sort_method) : methods.sort
+             sorted_methods.reverse_each do |method|
                total_percentage = (method.total_time/total_time) * 100
                next if total_percentage < min_percent
                next if min_time && method.total_time < min_time
@@ -183,7 +184,7 @@ module RubyProf
           %>
                <!-- Parents -->
                <%
-                  for caller in method.callers.sort_by(&:total_time)
+                  for caller in method.callers.sort
                     next if method.root?
                     next if min_time && caller.total_time < min_time
                %>

@@ -43,7 +43,7 @@ module RubyProf
     end
 
     def sort_method
-      @options[:sort_method] || :total_time
+      @options[:sort_method]
     end
 
     def editor_uri

@@ -1,17 +1,17 @@
 module RubyProf
   class Thread
-    def top_methods
+    def root_methods
       self.methods.select do |method_info|
         method_info.root?
       end
     end
 
-    def top_call_infos
-      top_methods.select(&:root?).map(&:callers).flatten
-    end
+    # def top_call_infos
+    #   root_methods.select(&:root?).map(&:callers).flatten
+    # end
 
     def total_time
-      self.top_methods.inject(0) do |sum, method_info|
+      self.root_methods.inject(0) do |sum, method_info|
         method_info.callers.each do |call_info|
           sum += call_info.total_time
         end

@@ -4,7 +4,7 @@
 # parameters, the event and the call_info instance. Event will be
 # either :enter or :exit.
 #
-#   visitor = RubyProf::CallInfoVisitor.new(result.threads.first.top_call_infos)
+#   visitor = RubyProf::CallInfoVisitor.new(result.threads.first.root_methods)
 #
 #   method_names = Array.new
 #
@@ -16,9 +16,8 @@
 
 module RubyProf
   class CallInfoVisitor
-
-    def initialize(call_infos)
-      @call_infos = CallInfo.roots_of(call_infos)
+    def initialize(root_methods)
+      @call_infos = root_methods.map(&:callers).flatten
     end
 
     def visit(&block)
@@ -31,11 +30,10 @@ module RubyProf
 
     def visit_call_info(call_info, &block)
       yield call_info, :enter
-      call_info.children.each do |child|
+      call_info.target.callees.each do |child|
         visit_call_info(child, &block)
       end
       yield call_info, :exit
     end
   end
-
 end

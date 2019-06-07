@@ -12,46 +12,6 @@ module RubyProf
       self.total_time - self.self_time - self.wait_time
     end
 
-    def stack
-      @stack ||= begin
-        methods = Array.new
-        call_info = self
-
-        while call_info
-          methods << call_info.target
-          call_info = call_info.parent
-        end
-        methods.reverse
-      end
-    end
-
-    def call_sequence
-      @call_sequence ||= begin
-        stack.map {|method| method.full_name}.join('->')
-      end
-    end
-
-    def root?
-      self.parent.nil?
-    end
-
-    def descendent_of(other)
-      p = self.parent
-      while p && p != other && p.depth > other.depth
-        p = p.parent
-      end
-      p == other
-    end
-
-    def self.roots_of(call_infos)
-      roots = []
-      sorted = call_infos.sort_by(&:depth).reverse
-      while call_info = sorted.shift
-        roots << call_info unless sorted.any?{|p| call_info.descendent_of(p)}
-      end
-      roots
-    end
-
     def to_s
       "#{target.full_name} (c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
     end

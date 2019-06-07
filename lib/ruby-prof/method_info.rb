@@ -33,6 +33,10 @@ module RubyProf
       end
     end
 
+    def recursive?
+      self.callers.detect(&:recursive?)
+    end
+
     def called
       @called ||= begin
         callers.inject(0) do |sum, call_info|
@@ -44,7 +48,7 @@ module RubyProf
     def total_time
       @total_time ||= begin
         callers.inject(0) do |sum, call_info|
-          sum += call_info.total_time if !call_info.target.recursive?
+          sum += call_info.total_time if !call_info.recursive?
           sum
         end
       end
@@ -53,7 +57,7 @@ module RubyProf
     def children_time
       @children_time ||= begin
         callers.inject(0) do |sum, call_info|
-          sum += call_info.children_time if !call_info.target.recursive?
+          sum += call_info.children_time if !call_info.recursive?
           sum
         end
       end

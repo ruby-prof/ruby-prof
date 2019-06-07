@@ -3,6 +3,7 @@
 require 'erb'
 require 'fileutils'
 require 'base64'
+require 'set'
 
 module RubyProf
   # prints a HTML visualization of the call tree
@@ -36,7 +37,7 @@ module RubyProf
     #   :application - a String to overide the name of the application,
     #                  as it appears on the report.
     #
-    #    :editor_uri - Specifies editor uri scheme used for opening files
+    #   :editor_uri  - Specifies editor uri scheme used for opening files
     #                  e.g. :atm or :mvim. For OS X default is :txmt.
     #                  Use RUBY_PROF_EDITOR_URI environment variable to overide.
     def print(output = STDOUT, options = {})
@@ -64,29 +65,29 @@ module RubyProf
         thread.methods.each do |m|
           # $stderr.print m.dump
           next unless m.root?
-          m.callers.each do |ci|
-            next unless ci.root?
-            print_stack ci, thread.total_time
+          m.callers.each do |call_info|
+            visited = Set.new
+            print_stack(visited, call_info, thread.total_time)
           end
         end
         @output.print "</ul>"
       end
 
       print_footer
-
     end
 
-    def print_stack(call_info, parent_time)
+    def print_stack(visited, call_info, parent_time)
       total_time = call_info.total_time
       percent_parent = (total_time/parent_time)*100
       percent_total = (total_time/@overall_time)*100
       return unless percent_total > min_percent
       color = self.color(percent_total)
-      kids = call_info.children
+      kids = call_info.target.callees
       visible = percent_total >= threshold
       expanded = percent_total >= expansion
       display = visible ? "block" : "none"
       @output.print "<li class=\"color#{color}\" style=\"display:#{display}\">"
+
       if kids.empty?
         @output.print "<a href=\"#\" class=\"toggle empty\" ></a>"
       else
@@ -95,14 +96,21 @@ module RubyProf
         @output.print "<a href=\"#\" class=\"toggle #{image}\" ></a>"
       end
       @output.printf "<span> %4.2f%% (%4.2f%%) %s %s</span>\n", percent_total, percent_parent, link(call_info), graph_link(call_info)
+
+      if visited.include?(call_info)
+        return
+      else
+        visited << call_info
+      end
+
       unless kids.empty?
         if expanded
           @output.print "<ul>"
         else
           @output.print '<ul style="display:none">'
         end
-        kids.sort_by{|c| -c.total_time}.each do |callinfo|
-          print_stack callinfo, total_time
+        kids.sort_by{|c| -c.total_time}.each do |child_call_info|
+          print_stack(visited, child_call_info, total_time)
         end
         @output.print "</ul>"
       end
@@ -131,7 +139,7 @@ module RubyProf
     end
 
     def graph_link(call_info)
-      total_calls = call_info.target.call_infos.inject(0){|t, ci| t += ci.called}
+      total_calls = call_info.target.callers.inject(0){|t, ci| t += ci.called}
       href = "#{@graph_html}##{method_href(call_info.target)}"
       totals = @graph_html ? "<a href='#{href}'>#{total_calls}</a>" : total_calls.to_s
       "[#{call_info.called} calls, #{totals} total]"

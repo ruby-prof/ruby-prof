@@ -6,55 +6,28 @@
 #include "ruby_prof.h"
 
 static VALUE cMeasureMemory;
-
-
-#if defined(HAVE_RB_GC_ALLOCATED_SIZE)
-  VALUE rb_gc_allocated_size();
-#endif
-
-#if defined(HAVE_RB_GC_MALLOC_ALLOCATED_SIZE)
-  size_t rb_gc_malloc_allocated_size();
-#endif
-
-#if defined(HAVE_RB_HEAP_TOTAL_MEM)
-  //FIXME: did not find the patch to check prototype, assuming it to return size_t
-  size_t rb_heap_total_mem();
-#endif
+VALUE heap_allocated_pages_key;
 
 static double
 measure_memory(void)
 {
-#if defined(HAVE_RB_GC_ALLOCATED_SIZE)
-#define MEASURE_MEMORY_ENABLED Qtrue
-#if defined(HAVE_LONG_LONG)
-    return NUM2LL(rb_gc_allocated_size()) / 1024.0;
-#else
-    return NUM2ULONG(rb_gc_allocated_size()) / 1024.0;
-#endif
-
-#elif defined(HAVE_RB_GC_MALLOC_ALLOCATED_SIZE)
-#define MEASURE_MEMORY_ENABLED Qtrue
-    return rb_gc_malloc_allocated_size() / 1024.0;
-
-#elif defined(HAVE_RB_GC_TOTAL_MALLOCED_BYTES)
-#define MEASURE_MEMORY_ENABLED Qtrue
-    return rb_gc_total_malloced_bytes() / 1024.0;
-
-#elif defined(HAVE_RB_HEAP_TOTAL_MEM)
-#define MEASURE_MEMORY_ENABLED Qtrue
-    return rb_heap_total_mem() / 1024.0;
-
-#else
-#define MEASURE_MEMORY_ENABLED Qfalse
-    return 0;
-#endif
+    return rb_gc_stat(heap_allocated_pages_key);
 }
 
 prof_measurer_t* prof_measurer_memory()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_memory;
-  measure->multiplier = 1;
+
+  // Copied form gc.c
+  /* default tiny heap size: 16KB */
+  size_t HEAP_PAGE_ALIGN_LOG = 14;
+  size_t HEAP_PAGE_ALIGN = (1UL << HEAP_PAGE_ALIGN_LOG);
+  size_t HEAP_PAGE_ALIGN_MASK = (~(~0UL << HEAP_PAGE_ALIGN_LOG));
+  size_t REQUIRED_SIZE_BY_MALLOC = (sizeof(size_t) * 5);
+  size_t HEAP_PAGE_SIZE = (HEAP_PAGE_ALIGN - REQUIRED_SIZE_BY_MALLOC);
+  measure->multiplier = HEAP_PAGE_SIZE;
+
   return measure;
 }
 
@@ -70,8 +43,8 @@ prof_measure_memory(VALUE self)
 
 void rp_init_measure_memory()
 {
+    heap_allocated_pages_key = ID2SYM(rb_intern("heap_allocated_pages"));
     rb_define_const(mProf, "MEMORY", INT2NUM(MEASURE_MEMORY));
-    rb_define_const(mProf, "MEMORY_ENABLED", MEASURE_MEMORY_ENABLED);
 
     cMeasureMemory = rb_define_class_under(mMeasure, "Memory", rb_cObject);
     rb_define_singleton_method(cMeasureMemory, "measure", prof_measure_memory, 0);

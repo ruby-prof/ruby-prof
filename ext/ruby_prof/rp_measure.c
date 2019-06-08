@@ -6,15 +6,11 @@
 VALUE mMeasure;
 
 prof_measurer_t* prof_measurer_allocations(void);
-prof_measurer_t* prof_measurer_gc_runs(void);
-prof_measurer_t* prof_measurer_gc_time(void);
 prof_measurer_t* prof_measurer_memory(void);
 prof_measurer_t* prof_measurer_process_time(void);
 prof_measurer_t* prof_measurer_wall_time(void);
 
 void rp_init_measure_allocations(void);
-void rp_init_measure_gc_runs(void);
-void rp_init_measure_gc_time(void);
 void rp_init_measure_memory(void);
 void rp_init_measure_process_time(void);
 void rp_init_measure_wall_time(void);

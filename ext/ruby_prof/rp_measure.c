@@ -30,10 +30,6 @@ prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure)
         return prof_measurer_allocations();
     case MEASURE_MEMORY:
         return prof_measurer_memory();
-    case MEASURE_GC_TIME:
-        return prof_measurer_gc_time();
-    case MEASURE_GC_RUNS:
-        return prof_measurer_gc_runs();
     default:
         rb_raise(rb_eArgError, "Unknown measure mode: %d", measure);
     }
@@ -52,6 +48,4 @@ void rp_init_measure()
     rp_init_measure_process_time();
     rp_init_measure_allocations();
     rp_init_measure_memory();
-    rp_init_measure_gc_time();
-    rp_init_measure_gc_runs();
 }

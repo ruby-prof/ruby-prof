@@ -19,9 +19,7 @@ typedef enum
     MEASURE_WALL_TIME,
     MEASURE_PROCESS_TIME,
     MEASURE_ALLOCATIONS,
-    MEASURE_MEMORY,
-    MEASURE_GC_TIME,
-    MEASURE_GC_RUNS,
+    MEASURE_MEMORY
 } prof_measure_mode_t;
 
 prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure);

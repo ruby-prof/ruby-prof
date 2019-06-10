@@ -465,7 +465,7 @@ prof_method_dump(VALUE self)
 
     rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(method_data->key));
     rb_hash_aset(result, ID2SYM(rb_intern("root")), prof_method_root(self));
-    rb_hash_aset(result, ID2SYM(rb_intern("recursive")), prof_method_excluded(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("excluded")), prof_method_excluded(self));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file ?
                                                               rb_str_new_cstr(method_data->source_file) :
                                                               Qnil);
@@ -485,7 +485,7 @@ prof_method_load(VALUE self, VALUE data)
     method_data->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));
     method_data->klass_flags = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("klass_flags"))));
     method_data->method_name = rb_hash_aref(data, ID2SYM(rb_intern("method_name")));
-    method_data->key = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
+    method_data->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
 
     method_data->root = rb_hash_aref(data, ID2SYM(rb_intern("root"))) == Qtrue ? true : false;
     method_data->excluded = rb_hash_aref(data, ID2SYM(rb_intern("excluded"))) == Qtrue ? true : false;

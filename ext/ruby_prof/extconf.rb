@@ -13,6 +13,9 @@ end
 # For the love of bitfields...
 $CFLAGS += ' -std=c99'
 
+# And since we are using C99
+CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')
+
 def add_define(name, value = nil)
   if value
     $defs.push("-D#{name}=#{value}")

@@ -28,7 +28,7 @@ typedef struct
     st_data_t key;                          /* Table key */
 
     int visits;                             /* Current visits on the stack */
-    boolean excluded;                       /* Exclude from profile? */
+    bool excluded;                          /* Exclude from profile? */
 
     st_table* parent_call_infos;            /* Call infos that call this method */
     st_table* child_call_infos;             /* Call infos that this method calls */

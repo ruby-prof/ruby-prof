@@ -306,6 +306,7 @@ static VALUE
 prof_call_info_load(VALUE self, VALUE data)
 {
 	VALUE target = Qnil;
+	VALUE parent = Qnil;
 	prof_call_info_t* call_info = prof_get_call_info(self);
 
     call_info->total_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("total_time"))));
@@ -318,7 +319,7 @@ prof_call_info_load(VALUE self, VALUE data)
     call_info->depth = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("depth"))));
     call_info->line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
 
-    VALUE parent = rb_hash_aref(data, ID2SYM(rb_intern("parent")));
+    parent = rb_hash_aref(data, ID2SYM(rb_intern("parent")));
     if (parent != Qnil)
         call_info->parent = prof_method_get(parent);
 

@@ -114,7 +114,8 @@ method_key(VALUE klass, ID mid)
     {
         resolved_klass = RBASIC(klass)->klass;
     }
-    return (klass << 4) + (mid << 2);
+
+    return (resolved_klass << 4) + (mid << 2);
 }
 
 /* ================  prof_method_t   =================*/

@@ -16,19 +16,19 @@ measure_memory(void)
 
 prof_measurer_t* prof_measurer_memory()
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_memory;
+	// Copied form gc.c
+	/* default tiny heap size: 16KB */
+	size_t HEAP_PAGE_ALIGN_LOG = 14;
+	size_t HEAP_PAGE_ALIGN = (1UL << HEAP_PAGE_ALIGN_LOG);
+	size_t REQUIRED_SIZE_BY_MALLOC = (sizeof(size_t) * 5);
+	size_t HEAP_PAGE_SIZE = (HEAP_PAGE_ALIGN - REQUIRED_SIZE_BY_MALLOC);
 
-  // Copied form gc.c
-  /* default tiny heap size: 16KB */
-  size_t HEAP_PAGE_ALIGN_LOG = 14;
-  size_t HEAP_PAGE_ALIGN = (1UL << HEAP_PAGE_ALIGN_LOG);
-  size_t HEAP_PAGE_ALIGN_MASK = (~(~0UL << HEAP_PAGE_ALIGN_LOG));
-  size_t REQUIRED_SIZE_BY_MALLOC = (sizeof(size_t) * 5);
-  size_t HEAP_PAGE_SIZE = (HEAP_PAGE_ALIGN - REQUIRED_SIZE_BY_MALLOC);
-  measure->multiplier = HEAP_PAGE_SIZE;
+	prof_measurer_t* measure = ALLOC(prof_measurer_t);
+	measure->measure = measure_memory;
 
-  return measure;
+	measure->multiplier = HEAP_PAGE_SIZE;
+
+	return measure;
 }
 
 /* call-seq:

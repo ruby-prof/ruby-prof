@@ -29,7 +29,6 @@
 
 VALUE mProf;
 VALUE cProfile;
-VALUE cExcludeCommonMethods;
 
 static prof_profile_t*
 prof_get_profile(VALUE self)
@@ -92,7 +91,7 @@ excludes_method(st_data_t key, prof_profile_t *profile)
 static void
 prof_exclude_common_methods(VALUE profile)
 {
-  rb_funcall(cExcludeCommonMethods, rb_intern("apply!"), 1, profile);
+  rb_funcall(profile, rb_intern("exclude_common_methods!"), 0);
 }
 
 static prof_method_t*

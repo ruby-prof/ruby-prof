@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-require 'ruby-prof/profile/exclude_common_methods'
+require 'ruby-prof/exclude_common_methods'
 
 module RubyProf
   class Profile

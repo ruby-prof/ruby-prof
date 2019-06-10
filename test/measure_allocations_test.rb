@@ -343,11 +343,6 @@ class MeasureAllocationsTest < TestCase
       RubyProf::C3.instance.sleep_wait
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     thread = result.threads.first
     assert_equal(16, thread.total_time)
 

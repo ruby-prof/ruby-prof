@@ -349,11 +349,6 @@ class MeasureWallTimeTest < TestCase
       RubyProf::C3.instance.sleep_wait
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     thread = result.threads.first
     assert_in_delta(0.3, thread.total_time, 0.02)
 

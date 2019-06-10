@@ -34,7 +34,7 @@ module RubyProf
     end
 
     def recursive?
-      self.callers.detect(&:recursive?)
+      self.callers.detect(&:recursive?) ? true : false
     end
 
     def called

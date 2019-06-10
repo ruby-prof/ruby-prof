@@ -10,7 +10,7 @@ class MeasureMemoryTest < TestCase
 
   def test_memory_mode
     RubyProf::measure_mode = RubyProf::MEMORY
-    assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
+    assert_equal(RubyProf::MEMORY, RubyProf::measure_mode)
   end
 
   # def test_class_methods

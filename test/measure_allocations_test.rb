@@ -19,7 +19,7 @@ class MeasureAllocationsTest < TestCase
     end
 
     thread = result.threads.first
-    assert_equal(7, thread.total_time)
+    assert_equal(6, thread.total_time)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -34,7 +34,7 @@ class MeasureAllocationsTest < TestCase
     assert_equal('Kernel#sleep', methods[2].full_name)
 
     # Check times
-    assert_equal(7, methods[0].total_time)
+    assert_equal(6, methods[0].total_time)
     assert_equal(0, methods[0].wait_time)
     assert_equal(2, methods[0].self_time)
 
@@ -58,7 +58,7 @@ class MeasureAllocationsTest < TestCase
     assert_equal(2, result.threads.count)
 
     thread = result.threads.first
-    assert_equal(25, thread.total_time)
+    assert_equal(24, thread.total_time)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -76,7 +76,7 @@ class MeasureAllocationsTest < TestCase
 
     assert_equal('<Class::Thread>#new', methods[1].full_name)
     assert_equal(11, methods[2].total_time)
-    assert_equal(9, methods[2].wait_time)
+    assert_equal(8, methods[2].wait_time)
     assert_equal(2, methods[2].self_time)
     assert_equal(0, methods[2].children_time)
 
@@ -181,7 +181,7 @@ class MeasureAllocationsTest < TestCase
     assert_equal(2, result.threads.count)
 
     thread = result.threads.first
-    assert_equal(31, thread.total_time)
+    assert_equal(29, thread.total_time)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -192,7 +192,7 @@ class MeasureAllocationsTest < TestCase
 
     # Check times
     assert_equal('MeasureAllocationsTest#test_instance_methods_threaded', methods[0].full_name)
-    assert_equal(30, methods[0].total_time)
+    assert_equal(29, methods[0].total_time)
     assert_equal(0, methods[0].wait_time)
     assert_equal(2, methods[0].self_time)
     assert_equal(28, methods[0].children_time)
@@ -299,7 +299,7 @@ class MeasureAllocationsTest < TestCase
     end
 
     thread = result.threads.first
-    assert_equal(12, thread.total_time)
+    assert_equal(13, thread.total_time)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -344,7 +344,7 @@ class MeasureAllocationsTest < TestCase
     end
 
     thread = result.threads.first
-    assert_equal(16, thread.total_time)
+    assert_equal(15, thread.total_time)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -362,7 +362,7 @@ class MeasureAllocationsTest < TestCase
     assert_equal('<Class::RubyProf::C3>#instance', methods[1].full_name)
     assert_equal(9, methods[1].total_time)
     assert_equal(0, methods[1].wait_time)
-    assert_equal(3, methods[1].self_time)
+    assert_equal(2, methods[1].self_time)
     assert_equal(2, methods[1].children_time)
 
     assert_equal('Thread::Mutex#synchronize', methods[2].full_name)

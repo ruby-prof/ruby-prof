@@ -159,11 +159,12 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
     unsigned int source_line = rb_sourceline();
 
     const char* event_name = get_event_name(event);
+    
+    unsigned int klass_flags;
+    VALUE resolved_klass = resolve_klass(klass, &klass_flags);
 
-    if (klass != 0)
-        klass = (BUILTIN_TYPE(klass) == T_ICLASS ? RBASIC(klass)->klass : klass);
-
-    class_name = rb_class2name(klass);
+    if (resolved_klass != Qnil)
+        class_name = rb_class2name(resolved_klass);
 
     if (last_fiber != fiber)
     {

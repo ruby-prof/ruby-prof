@@ -58,5 +58,7 @@ prof_method_t *prof_method_get(VALUE self);
 
 VALUE prof_method_wrap(prof_method_t *result);
 void prof_method_mark(prof_method_t *method);
+VALUE resolve_klass(VALUE klass, unsigned int *klass_flags);
+
 
 #endif //__RP_METHOD_INFO__

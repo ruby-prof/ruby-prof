@@ -6,7 +6,7 @@
 VALUE cMethodInfo;
 
 /* ================  Helper Functions  =================*/
-static VALUE
+VALUE
 resolve_klass(VALUE klass, unsigned int *klass_flags)
 {
     VALUE result = klass;

@@ -4,22 +4,22 @@
 require File.expand_path("../test_helper", __FILE__)
 
 class Operators
-  def self.should_be_called_by_main
+  def self.should_be_called_by_test
   end
 
-  def self.main
-    self.order
-    should_be_called_by_main
+  def self.test
+    self.a
+    should_be_called_by_test
   end
 
-  def self.order1=(value)
+  def self.b=(value)
   end
 
-  def self.order1
+  def self.b
   end
 
-  def self.order
-    self.order1 ||= :random
+  def self.a
+    self.b ||= :random
   end
 end
 
@@ -28,7 +28,7 @@ tp = TracePoint.new(:call, :c_call, :return, :c_return) do |event|
 end
 
 tp.enable do
-  Operators.main
+  Operators.test
 end
 
 # class OperatorTest < TestCase

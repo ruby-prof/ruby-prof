@@ -12,8 +12,6 @@
 		8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2922A21EA800F36350 /* rp_call_info.c */; };
 		8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2B22A21EA800F36350 /* rp_call_info.h */; };
 		8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */; };
-		8B6DDFA422A22C8D00F36350 /* rp_measure_gc_runs.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2022A21EA800F36350 /* rp_measure_gc_runs.c */; };
-		8B6DDFA522A22C8D00F36350 /* rp_measure_gc_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2E22A21EA900F36350 /* rp_measure_gc_time.c */; };
 		8B6DDFA622A22C8D00F36350 /* rp_measure_memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */; };
 		8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */; };
 		8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */; };
@@ -43,7 +41,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		8B6DDF2022A21EA800F36350 /* rp_measure_gc_runs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_gc_runs.c; path = ../rp_measure_gc_runs.c; sourceTree = "<group>"; };
 		8B6DDF2122A21EA800F36350 /* rp_measure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_measure.h; path = ../rp_measure.h; sourceTree = "<group>"; };
 		8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_process_time.c; path = ../rp_measure_process_time.c; sourceTree = "<group>"; };
 		8B6DDF2322A21EA800F36350 /* rp_stack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_stack.c; path = ../rp_stack.c; sourceTree = "<group>"; };
@@ -56,7 +53,6 @@
 		8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_memory.c; path = ../rp_measure_memory.c; sourceTree = "<group>"; };
 		8B6DDF2B22A21EA800F36350 /* rp_call_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_call_info.h; path = ../rp_call_info.h; sourceTree = "<group>"; };
 		8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_wall_time.c; path = ../rp_measure_wall_time.c; sourceTree = "<group>"; };
-		8B6DDF2E22A21EA900F36350 /* rp_measure_gc_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_gc_time.c; path = ../rp_measure_gc_time.c; sourceTree = "<group>"; };
 		8B6DDF2F22A21EA900F36350 /* rp_method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_method.h; path = ../rp_method.h; sourceTree = "<group>"; };
 		8B6DDF3022A21EA900F36350 /* rp_measure.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure.c; path = ../rp_measure.c; sourceTree = "<group>"; };
 		8B6DDF3122A21EA900F36350 /* ruby_prof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ruby_prof.c; path = ../ruby_prof.c; sourceTree = "<group>"; };
@@ -86,8 +82,6 @@
 				8B6DDF2922A21EA800F36350 /* rp_call_info.c */,
 				8B6DDF2B22A21EA800F36350 /* rp_call_info.h */,
 				8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */,
-				8B6DDF2022A21EA800F36350 /* rp_measure_gc_runs.c */,
-				8B6DDF2E22A21EA900F36350 /* rp_measure_gc_time.c */,
 				8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */,
 				8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */,
 				8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */,
@@ -219,8 +213,6 @@
 				8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */,
 				8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */,
 				8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */,
-				8B6DDFA422A22C8D00F36350 /* rp_measure_gc_runs.c in Sources */,
-				8B6DDFA522A22C8D00F36350 /* rp_measure_gc_time.c in Sources */,
 				8B6DDFA622A22C8D00F36350 /* rp_measure_memory.c in Sources */,
 				8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */,
 				8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */,

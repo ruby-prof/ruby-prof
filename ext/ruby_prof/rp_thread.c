@@ -279,7 +279,10 @@ prof_thread_methods(VALUE self)
 static VALUE
 prof_thread_dump(VALUE self)
 {
+    thread_data_t* thread_data = DATA_PTR(self);
+
     VALUE result = rb_hash_new();
+    rb_hash_aset(result, ID2SYM(rb_intern("fiber_id")), thread_data->fiber_id);
     rb_hash_aset(result, ID2SYM(rb_intern("methods")), prof_thread_methods(self));
 
     return result;

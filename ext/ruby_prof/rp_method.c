@@ -509,7 +509,9 @@ prof_method_load(VALUE self, VALUE data)
     {
         VALUE call_info = rb_ary_entry(callees, i);
         prof_call_info_t *call_info_data = prof_get_call_info(call_info);
-        call_info_table_insert(method_data->child_call_infos, call_info_data->method->key, call_info_data);
+
+        st_data_t key = call_info_data->method ? call_info_data->method->key : method_key(Qnil, 0);
+        call_info_table_insert(method_data->child_call_infos, key, call_info_data);
     }
     return data;
 }

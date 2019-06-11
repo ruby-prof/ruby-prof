@@ -48,7 +48,7 @@ prof_call_info_mark(prof_call_info_t *call_info)
 	if (call_info->object != Qnil)
 		rb_gc_mark(call_info->object);
 
-    if (call_info->method->object != Qnil)
+    if (call_info->method && call_info->method->object != Qnil)
         rb_gc_mark(call_info->method->object);
 
     if (call_info->parent && call_info->parent->object != Qnil)

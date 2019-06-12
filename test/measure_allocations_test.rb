@@ -134,7 +134,7 @@ class MeasureAllocationsTest < TestCase
     assert_equal(2, method.self_time)
     assert_equal(0, method.children_time)
   end
-  #
+
   def test_instance_methods
     result = RubyProf.profile do
       RubyProf::C1.new.sleep_wait
@@ -179,6 +179,57 @@ class MeasureAllocationsTest < TestCase
     assert_equal(0, method.children_time)
 
     method = methods[4]
+    assert_equal('BasicObject#initialize',  method.full_name)
+    assert_equal(2, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(2, method.self_time)
+    assert_equal(0, method.children_time)
+  end
+
+  def test_instance_methods_block
+    result = RubyProf.profile do
+      1.times { RubyProf::C1.new.sleep_wait }
+    end
+
+    methods = result.threads.first.methods.sort.reverse
+    assert_equal(6, methods.length)
+
+    method = methods[0]
+    assert_equal('MeasureAllocationsTest#test_instance_methods_block',  method.full_name)
+    assert_in_delta(13, method.total_time, 1)
+    assert_equal(0, method.wait_time)
+    assert_equal(2, method.self_time)
+    assert_in_delta(11, method.children_time, 1)
+
+    method = methods[1]
+    assert_equal('Integer#times', method.full_name)
+    assert_in_delta(12, method.total_time, 1)
+    assert_equal(0, method.wait_time)
+    assert_equal(2, method.self_time)
+    assert_in_delta(10, method.children_time, 1)
+
+    method = methods[2]
+    assert_equal('Class#new', method.full_name)
+    assert_equal(5, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(3, method.self_time)
+    assert_equal(2, method.children_time)
+
+    method = methods[3]
+    assert_equal('RubyProf::C1#sleep_wait',  method.full_name)
+    assert_equal(4, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(2, method.self_time)
+    assert_equal(2, method.children_time)
+
+    method = methods[4]
+    assert_equal('Kernel#sleep',  method.full_name)
+    assert_equal(2, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(2, method.self_time)
+    assert_equal(0, method.children_time)
+
+    method = methods[5]
     assert_equal('BasicObject#initialize',  method.full_name)
     assert_equal(2, method.total_time)
     assert_equal(0, method.wait_time)
@@ -304,14 +355,14 @@ class MeasureAllocationsTest < TestCase
     assert_equal('MeasureAllocationsTest#test_module_methods', method.full_name)
     assert_in_delta(7, method.total_time, 1)
     assert_equal(0, method.wait_time)
-    assert_equal(3, method.self_time)
+    assert_in_delta(3, method.self_time, 1)
     assert_in_delta(4, method.children_time, 1)
 
     method = methods[1]
     assert_equal('RubyProf::M1#sleep_wait', method.full_name)
     assert_in_delta(4, method.total_time, 1)
     assert_equal(0, method.wait_time)
-    assert_equal(2, method.self_time)
+    assert_in_delta(3, method.self_time, 1)
     assert_equal(2, method.children_time)
 
     method = methods[2]
@@ -341,7 +392,7 @@ class MeasureAllocationsTest < TestCase
     assert_equal('MeasureAllocationsTest#test_module_instance_methods', method.full_name)
     assert_in_delta(12, method.total_time, 1)
     assert_equal(0, method.wait_time)
-    assert_equal(3, method.self_time)
+    assert_in_delta(3, method.self_time, 1)
     assert_in_delta(9, method.children_time, 1)
 
     method = methods[1]

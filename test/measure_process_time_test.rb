@@ -321,11 +321,6 @@ class MeasureProcessTimeTest < TestCase
       1.times { RubyProf::C1.new.sleep_wait }
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(6, methods.length)
 

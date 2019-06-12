@@ -7,12 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B2A0D4322A22CE600F67C5D /* libruby.2.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */; };
+		8B08734F22AF9C2900840594 /* libruby.2.5.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */; };
 		8B2A0D4522A22D0000F67C5D /* ruby_prof.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */; };
 		8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2922A21EA800F36350 /* rp_call_info.c */; };
 		8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2B22A21EA800F36350 /* rp_call_info.h */; };
 		8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */; };
-		8B6DDFA622A22C8D00F36350 /* rp_measure_memory.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */; };
 		8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */; };
 		8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */; };
 		8B6DDFA922A22C8D00F36350 /* rp_measure.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF3022A21EA900F36350 /* rp_measure.c */; };
@@ -41,6 +40,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libruby.2.5.5.dylib; path = ../../../../../lib/libruby.2.5.5.dylib; sourceTree = "<group>"; };
 		8B6DDF2122A21EA800F36350 /* rp_measure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_measure.h; path = ../rp_measure.h; sourceTree = "<group>"; };
 		8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_process_time.c; path = ../rp_measure_process_time.c; sourceTree = "<group>"; };
 		8B6DDF2322A21EA800F36350 /* rp_stack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_stack.c; path = ../rp_stack.c; sourceTree = "<group>"; };
@@ -50,7 +50,6 @@
 		8B6DDF2722A21EA800F36350 /* rp_thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_thread.c; path = ../rp_thread.c; sourceTree = "<group>"; };
 		8B6DDF2822A21EA800F36350 /* rp_method.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_method.c; path = ../rp_method.c; sourceTree = "<group>"; };
 		8B6DDF2922A21EA800F36350 /* rp_call_info.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_call_info.c; path = ../rp_call_info.c; sourceTree = "<group>"; };
-		8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_memory.c; path = ../rp_measure_memory.c; sourceTree = "<group>"; };
 		8B6DDF2B22A21EA800F36350 /* rp_call_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_call_info.h; path = ../rp_call_info.h; sourceTree = "<group>"; };
 		8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_wall_time.c; path = ../rp_measure_wall_time.c; sourceTree = "<group>"; };
 		8B6DDF2F22A21EA900F36350 /* rp_method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_method.h; path = ../rp_method.h; sourceTree = "<group>"; };
@@ -69,7 +68,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B2A0D4322A22CE600F67C5D /* libruby.2.6.dylib in Frameworks */,
+				8B08734F22AF9C2900840594 /* libruby.2.5.5.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -82,7 +81,6 @@
 				8B6DDF2922A21EA800F36350 /* rp_call_info.c */,
 				8B6DDF2B22A21EA800F36350 /* rp_call_info.h */,
 				8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */,
-				8B6DDF2A22A21EA800F36350 /* rp_measure_memory.c */,
 				8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */,
 				8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */,
 				8B6DDF3022A21EA900F36350 /* rp_measure.c */,
@@ -114,6 +112,7 @@
 		8B6DDF4622A2227300F36350 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */,
 				8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */,
 			);
 			name = Frameworks;
@@ -213,7 +212,6 @@
 				8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */,
 				8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */,
 				8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */,
-				8B6DDFA622A22C8D00F36350 /* rp_measure_memory.c in Sources */,
 				8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */,
 				8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */,
 				8B6DDFA922A22C8D00F36350 /* rp_measure.c in Sources */,

@@ -114,20 +114,6 @@ prof_measurement_total_time(VALUE self)
 }
 
 /* call-seq:
-   add_total_time(measurement) -> nil
-
-adds total time time from measurement to self. */
-static VALUE
-prof_measurement_add_total_time(VALUE self, VALUE other)
-{
-    prof_measurement_t* result = prof_get_measurement(self);
-    prof_measurement_t* other_info = prof_get_measurement(other);
-
-    result->total_time += other_info->total_time;
-    return Qnil;
-}
-
-/* call-seq:
    self_time -> float
 
 Returns the total amount of time spent in this method. */
@@ -140,20 +126,6 @@ prof_measurement_self_time(VALUE self)
 }
 
 /* call-seq:
-   add_self_time(measurement) -> nil
-
-adds self time from measurement to self. */
-static VALUE
-prof_measurement_add_self_time(VALUE self, VALUE other)
-{
-    prof_measurement_t* result = prof_get_measurement(self);
-    prof_measurement_t* other_info = prof_get_measurement(other);
-
-    result->self_time += other_info->self_time;
-    return Qnil;
-}
-
-/* call-seq:
    wait_time -> float
 
 Returns the total amount of time this method waited for other threads. */
@@ -163,21 +135,6 @@ prof_measurement_wait_time(VALUE self)
     prof_measurement_t* result = prof_get_measurement(self);
 
     return rb_float_new(result->wait_time);
-}
-
-/* call-seq:
-   add_wait_time(measurement) -> nil
-
-adds wait time from measurement to self. */
-
-static VALUE
-prof_measurement_add_wait_time(VALUE self, VALUE other)
-{
-    prof_measurement_t* result = prof_get_measurement(self);
-    prof_measurement_t* other_info = prof_get_measurement(other);
-
-    result->wait_time += other_info->wait_time;
-    return Qnil;
 }
 
 /* call-seq:
@@ -248,11 +205,8 @@ void rp_init_measure()
     rb_define_method(cMeasurement, "called", prof_measurement_called, 0);
     rb_define_method(cMeasurement, "called=", prof_measurement_set_called, 1);
     rb_define_method(cMeasurement, "total_time", prof_measurement_total_time, 0);
-    rb_define_method(cMeasurement, "add_total_time", prof_measurement_add_total_time, 1);
     rb_define_method(cMeasurement, "self_time", prof_measurement_self_time, 0);
-    rb_define_method(cMeasurement, "add_self_time", prof_measurement_add_self_time, 1);
     rb_define_method(cMeasurement, "wait_time", prof_measurement_wait_time, 0);
-    rb_define_method(cMeasurement, "add_wait_time", prof_measurement_add_wait_time, 1);
 
     rb_define_method(cMeasurement, "_dump_data", prof_measurement_dump, 0);
     rb_define_method(cMeasurement, "_load_data", prof_measurement_load, 1);

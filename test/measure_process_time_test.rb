@@ -24,7 +24,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -36,24 +36,24 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_class_methods_sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('<Class::RubyProf::C1>#sleep_wait', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('Kernel#sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_class_methods_sleep_threaded
@@ -67,7 +67,7 @@ class MeasureProcessTimeTest < TestCase
     assert_equal(2, result.threads.count)
 
     thread = result.threads.first
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -79,34 +79,34 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_class_methods_sleep_threaded', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('Thread#join', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Class::Thread>#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
     assert_equal('Thread#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     thread = result.threads.last
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -121,24 +121,24 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_class_methods_sleep_threaded', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('<Class::RubyProf::C1>#sleep_wait', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('Kernel#sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_class_methods_busy
@@ -147,7 +147,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.08, thread.total_time, 0.02)
+    assert_in_delta(0.08, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -159,24 +159,24 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_class_methods_busy', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.1, method.children_time, 0.02)
+    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.1, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('<Class::RubyProf::C1>#busy_wait', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.06, method.self_time, 0.02)
-    assert_in_delta(0.07, method.children_time, 0.02)
+    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.06, method.self_time, 0.05)
+    assert_in_delta(0.07, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.05, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.05, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.05, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.05, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_class_methods_busy_threaded
@@ -190,7 +190,7 @@ class MeasureProcessTimeTest < TestCase
     assert_equal(2, result.threads.count)
 
     thread = result.threads.first
-    assert_in_delta(0.1, thread.total_time, 0.02)
+    assert_in_delta(0.1, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -202,34 +202,34 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_class_methods_busy_threaded', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.1, method.children_time, 0.02)
+    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.1, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('Thread#join', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.02)
-    assert_in_delta(0.1, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.1, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Class::Thread>#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
     assert_equal('Thread#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     thread = result.threads.last
-    assert_in_delta(0.1, thread.total_time, 0.02)
+    assert_in_delta(0.1, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -244,24 +244,24 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_class_methods_busy_threaded', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.1, method.children_time, 0.02)
+    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.1, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('<Class::RubyProf::C1>#busy_wait', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.05, method.self_time, 0.02)
-    assert_in_delta(0.05, method.children_time, 0.02)
+    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.05, method.self_time, 0.05)
+    assert_in_delta(0.05, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.05, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.05, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.05, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.05, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_instance_methods_sleep
@@ -270,7 +270,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -282,38 +282,38 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_instance_methods_sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::C1#sleep_wait', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
-    assert_equal('Kernel#sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
-    assert_equal('Class#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_equal('Kernel#sleep', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
     assert_equal('BasicObject#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_instance_methods_sleep_threaded
@@ -327,7 +327,7 @@ class MeasureProcessTimeTest < TestCase
     assert_equal(2, result.threads.count)
 
     thread = result.threads.first
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -339,34 +339,34 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_instance_methods_sleep_threaded', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('Thread#join', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Class::Thread>#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
     assert_equal('Thread#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     thread = result.threads.last
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -381,38 +381,38 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_instance_methods_sleep_threaded', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::C1#sleep_wait', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
-    assert_equal('Kernel#sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
-    assert_equal('Class#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_equal('Kernel#sleep', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
     assert_equal('BasicObject#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_instance_methods_busy
@@ -421,7 +421,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.2, thread.total_time, 0.03)
+    assert_in_delta(0.2, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -433,38 +433,38 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_instance_methods_busy', method.full_name)
-    assert_in_delta(0.2, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.2, method.children_time, 0.03)
+    assert_in_delta(0.2, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.2, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::C1#busy_wait', method.full_name)
-    assert_in_delta(0.2, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.09, method.self_time, 0.03)
-    assert_in_delta(0.11, method.children_time, 0.03)
+    assert_in_delta(0.2, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.09, method.self_time, 0.05)
+    assert_in_delta(0.11, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.11, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.11, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.11, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.11, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
     assert_equal('Class#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
     assert_equal('BasicObject#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_instance_methods_busy_threaded
@@ -478,7 +478,7 @@ class MeasureProcessTimeTest < TestCase
     assert_equal(2, result.threads.count)
 
     thread = result.threads.first
-    assert_in_delta(0.2, thread.total_time, 0.03)
+    assert_in_delta(0.2, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -490,34 +490,34 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_instance_methods_busy_threaded', method.full_name)
-    assert_in_delta(0.2, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.2, method.children_time, 0.03)
+    assert_in_delta(0.2, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.2, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('Thread#join', method.full_name)
-    assert_in_delta(0.2, method.total_time, 0.03)
-    assert_in_delta(0.2, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.2, method.total_time, 0.05)
+    assert_in_delta(0.2, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Class::Thread>#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
     assert_equal('Thread#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     thread = result.threads.last
-    assert_in_delta(0.2, thread.total_time, 0.03)
+    assert_in_delta(0.2, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -532,38 +532,38 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_instance_methods_busy_threaded', method.full_name)
-    assert_in_delta(0.2, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.2, method.children_time, 0.03)
+    assert_in_delta(0.2, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.2, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::C1#busy_wait', method.full_name)
-    assert_in_delta(0.2, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.1, method.self_time, 0.03)
-    assert_in_delta(0.1, method.children_time, 0.03)
+    assert_in_delta(0.2, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.1, method.self_time, 0.05)
+    assert_in_delta(0.1, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.1, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.1, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
     assert_equal('Class#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
     assert_equal('BasicObject#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_module_methods_sleep
@@ -572,7 +572,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -584,24 +584,24 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_module_methods_sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::M1#sleep_wait', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('Kernel#sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_module_methods_busy
@@ -610,7 +610,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.3, thread.total_time, 0.03)
+    assert_in_delta(0.3, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -622,24 +622,24 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_module_methods_busy', method.full_name)
-    assert_in_delta(0.3, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.0, method.self_time, 0.03)
-    assert_in_delta(0.3, method.children_time, 0.03)
+    assert_in_delta(0.3, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.3, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::M1#busy_wait', method.full_name)
-    assert_in_delta(0.3, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.13, method.self_time, 0.03)
-    assert_in_delta(0.13, method.children_time, 0.03)
+    assert_in_delta(0.3, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.13, method.self_time, 0.05)
+    assert_in_delta(0.13, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.15, method.total_time, 0.03)
-    assert_in_delta(0.0, method.wait_time, 0.03)
-    assert_in_delta(0.15, method.self_time, 0.03)
-    assert_in_delta(0.0, method.children_time, 0.03)
+    assert_in_delta(0.15, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.15, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_module_instance_methods_sleep
@@ -648,7 +648,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.0, thread.total_time, 0.02)
+    assert_in_delta(0.0, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -660,38 +660,38 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_module_instance_methods_sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::M1#sleep_wait', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[2]
-    assert_equal('Kernel#sleep', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
-    assert_equal('Class#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_equal('Kernel#sleep', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
     assert_equal('BasicObject#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 
   def test_module_instance_methods_busy
@@ -700,7 +700,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     thread = result.threads.first
-    assert_in_delta(0.3, thread.total_time, 0.02)
+    assert_in_delta(0.3, thread.total_time, 0.05)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
@@ -712,37 +712,37 @@ class MeasureProcessTimeTest < TestCase
     # Check times
     method = methods[0]
     assert_equal('MeasureProcessTimeTest#test_module_instance_methods_busy', method.full_name)
-    assert_in_delta(0.3, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.3, method.children_time, 0.02)
+    assert_in_delta(0.3, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.3, method.children_time, 0.05)
 
     method = methods[1]
     assert_equal('RubyProf::M1#busy_wait', method.full_name)
-    assert_in_delta(0.3, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.15, method.self_time, 0.02)
-    assert_in_delta(0.15, method.children_time, 0.02)
+    assert_in_delta(0.3, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.15, method.self_time, 0.05)
+    assert_in_delta(0.15, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.15, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.15, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.15, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.15, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
     assert_equal('Class#new', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
     assert_equal('BasicObject#initialize', method.full_name)
-    assert_in_delta(0.0, method.total_time, 0.02)
-    assert_in_delta(0.0, method.wait_time, 0.02)
-    assert_in_delta(0.0, method.self_time, 0.02)
-    assert_in_delta(0.0, method.children_time, 0.02)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
   end
 end

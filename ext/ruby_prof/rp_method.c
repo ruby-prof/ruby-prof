@@ -243,14 +243,14 @@ prof_method_free(prof_method_t* method)
 void
 prof_method_mark(prof_method_t *method)
 {
-    if (method->klass_name)
-        rb_gc_mark(method->klass_name);
-
-    if (method->method_name)
-        rb_gc_mark(method->method_name);
+    rb_gc_mark(method->klass_name);
+    rb_gc_mark(method->method_name);
     
-    if (method->object)
+    if (method->object != Qnil)
 		rb_gc_mark(method->object);
+
+    if (method->measurement->object != Qnil)
+        rb_gc_mark(method->measurement->object);
 
     st_foreach(method->parent_call_infos, prof_method_mark_call_infos, 0);
     st_foreach(method->child_call_infos, prof_method_mark_call_infos, 0);

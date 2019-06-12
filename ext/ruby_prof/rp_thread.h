@@ -28,7 +28,7 @@ thread_data_t* threads_table_insert(void *profile, VALUE thread, VALUE fiber);
 void switch_thread(void *profile, thread_data_t *thread_data, double measurement);
 void threads_table_free(st_table *table);
 VALUE prof_thread_wrap(thread_data_t *thread);
-void prof_thread_mark(thread_data_t *thread);
+void prof_thread_mark(void *data);
 int pause_thread(st_data_t key, st_data_t value, st_data_t data);
 int unpause_thread(st_data_t key, st_data_t value, st_data_t data);
 

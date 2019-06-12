@@ -4,7 +4,7 @@
 #include "ruby_prof.h"
 
 VALUE mMeasure;
-VALUE cMeasurement;
+VALUE cRpMeasurement;
 
 prof_measurer_t* prof_measurer_allocations(void);
 prof_measurer_t* prof_measurer_process_time(void);
@@ -48,8 +48,10 @@ prof_measurement_t *prof_measurement_create(void)
 }
 
 static void
-prof_measurement_ruby_gc_free(prof_measurement_t* measurement)
+prof_measurement_ruby_gc_free(void *data)
 {
+    prof_measurement_t* measurement = (prof_measurement_t*)data;
+
     /* Has this thread object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (measurement->object != Qnil)
@@ -61,19 +63,39 @@ prof_measurement_ruby_gc_free(prof_measurement_t* measurement)
     measurement->object = Qnil;
 }
 
-void
-prof_measurement_mark(prof_measurement_t* measurement)
+size_t
+prof_measurement_size(const void *data)
 {
+    return sizeof(prof_measurement_t);
+}
+
+void
+prof_measurement_mark(void *data)
+{
+    prof_measurement_t* measurement = (prof_measurement_t*)data;
     if (measurement->object != Qnil)
         rb_gc_mark(measurement->object);
 }
+
+static const rb_data_type_t measurement_type =
+{
+    .wrap_struct_name = "Measurement",
+    .function =
+    {
+        .dmark = prof_measurement_mark,
+        .dfree = prof_measurement_ruby_gc_free,
+        .dsize = prof_measurement_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
 
 VALUE
 prof_measurement_wrap(prof_measurement_t* measurement)
 {
     if (measurement->object == Qnil)
     {
-        measurement->object = Data_Wrap_Struct(cMeasurement, prof_measurement_mark, prof_measurement_ruby_gc_free, measurement);
+        measurement->object = TypedData_Wrap_Struct(cRpMeasurement, &measurement_type, measurement);
     }
     return measurement->object;
 }
@@ -192,16 +214,16 @@ void rp_init_measure()
     rp_init_measure_process_time();
     rp_init_measure_allocations();
 
-    cMeasurement = rb_define_class_under(mProf, "Measurement", rb_cObject);
-    rb_undef_method(CLASS_OF(cMeasurement), "new");
-    rb_define_alloc_func(cMeasurement, prof_measurement_allocate);
+    cRpMeasurement = rb_define_class_under(mProf, "Measurement", rb_cData);
+    rb_undef_method(CLASS_OF(cRpMeasurement), "new");
+    rb_define_alloc_func(cRpMeasurement, prof_measurement_allocate);
 
-    rb_define_method(cMeasurement, "called", prof_measurement_called, 0);
-    rb_define_method(cMeasurement, "called=", prof_measurement_set_called, 1);
-    rb_define_method(cMeasurement, "total_time", prof_measurement_total_time, 0);
-    rb_define_method(cMeasurement, "self_time", prof_measurement_self_time, 0);
-    rb_define_method(cMeasurement, "wait_time", prof_measurement_wait_time, 0);
+    rb_define_method(cRpMeasurement, "called", prof_measurement_called, 0);
+    rb_define_method(cRpMeasurement, "called=", prof_measurement_set_called, 1);
+    rb_define_method(cRpMeasurement, "total_time", prof_measurement_total_time, 0);
+    rb_define_method(cRpMeasurement, "self_time", prof_measurement_self_time, 0);
+    rb_define_method(cRpMeasurement, "wait_time", prof_measurement_wait_time, 0);
 
-    rb_define_method(cMeasurement, "_dump_data", prof_measurement_dump, 0);
-    rb_define_method(cMeasurement, "_load_data", prof_measurement_load, 1);
+    rb_define_method(cRpMeasurement, "_dump_data", prof_measurement_dump, 0);
+    rb_define_method(cRpMeasurement, "_load_data", prof_measurement_load, 1);
 }

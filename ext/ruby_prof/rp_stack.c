@@ -48,8 +48,7 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
 {
   prof_frame_t *result;
   prof_frame_t* parent_frame;
-  prof_method_t *method;
-
+  
   /* Is there space on the stack?  If not, double
      its size. */
   if (stack->ptr == stack->end)
@@ -112,7 +111,6 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   prof_frame_t *frame;
   prof_frame_t *parent_frame;
   prof_call_info_t *call_info;
-  prof_method_t *method;
 
   double total_time;
   double self_time;

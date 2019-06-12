@@ -53,7 +53,7 @@ class BasicTest < TestCase
     assert_equal(1, profile.threads.count)
 
     thread = profile.threads.first
-    assert_in_delta(0.25, thread.total_time, 0.015)
+    assert_in_delta(0.25, thread.total_time, 0.05)
 
     root_methods = thread.root_methods.sort
     assert_equal(2, root_methods.count)
@@ -65,24 +65,24 @@ class BasicTest < TestCase
 
     # Check times
     assert_equal("<Class::RubyProf::C1>#sleep_wait", methods[0].full_name)
-    assert_in_delta(0.1, methods[0].total_time, 0.015)
-    assert_in_delta(0.0,  methods[0].wait_time, 0.015)
-    assert_in_delta(0.0,  methods[0].self_time, 0.015)
+    assert_in_delta(0.1, methods[0].total_time, 0.05)
+    assert_in_delta(0.0,  methods[0].wait_time, 0.05)
+    assert_in_delta(0.0,  methods[0].self_time, 0.05)
 
     assert_equal("BasicTest#start", methods[1].full_name)
-    assert_in_delta(0.1, methods[1].total_time, 0.015)
-    assert_in_delta(0.0, methods[1].wait_time, 0.015)
-    assert_in_delta(0.0, methods[1].self_time, 0.015)
+    assert_in_delta(0.1, methods[1].total_time, 0.05)
+    assert_in_delta(0.0, methods[1].wait_time, 0.05)
+    assert_in_delta(0.0, methods[1].self_time, 0.05)
 
     assert_equal("BasicTest#test_leave_method", methods[2].full_name)
-    assert_in_delta(0.15, methods[2].total_time, 0.015)
-    assert_in_delta(0.0, methods[2].wait_time, 0.015)
-    assert_in_delta(0.0, methods[2].self_time, 0.015)
+    assert_in_delta(0.15, methods[2].total_time, 0.05)
+    assert_in_delta(0.0, methods[2].wait_time, 0.05)
+    assert_in_delta(0.0, methods[2].self_time, 0.05)
 
     assert_equal("Kernel#sleep", methods[3].full_name)
-    assert_in_delta(0.25, methods[3].total_time, 0.015)
-    assert_in_delta(0.0, methods[3].wait_time, 0.015)
-    assert_in_delta(0.25, methods[3].self_time, 0.015)
+    assert_in_delta(0.25, methods[3].total_time, 0.05)
+    assert_in_delta(0.0, methods[3].wait_time, 0.05)
+    assert_in_delta(0.25, methods[3].self_time, 0.05)
   end
 
   def test_leave_method_2

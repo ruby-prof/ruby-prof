@@ -19,7 +19,6 @@ typedef enum
     MEASURE_WALL_TIME,
     MEASURE_PROCESS_TIME,
     MEASURE_ALLOCATIONS,
-    MEASURE_MEMORY
 } prof_measure_mode_t;
 
 /* Callers and callee information for a method. */

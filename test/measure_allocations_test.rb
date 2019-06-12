@@ -487,5 +487,5 @@ class MeasureAllocationsTest < TestCase
     assert_equal(0, method.wait_time)
     assert_equal(2, method.self_time)
     assert_equal(0, method.children_time)
-    end
+  end
 end

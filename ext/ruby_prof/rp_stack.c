@@ -22,7 +22,6 @@ prof_frame_unpause(prof_frame_t *frame, double current_measurement)
     }
 }
 
-
 /* Creates a stack of prof_frame_t to keep track
    of timings for active methods. */
 prof_stack_t *
@@ -77,8 +76,6 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   result->child_time = 0;
   result->dead_time = 0;
   result->line = 0;
-
- // call_info->measurement.called++;
 
   call_info->measurement->called++;
   call_info->visits++;

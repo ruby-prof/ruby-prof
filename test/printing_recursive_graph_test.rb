@@ -74,7 +74,6 @@ class PrintingRecursiveGraphTest < TestCase
 
   def test_printing_rescursive_graph
     printer = RubyProf::GraphPrinter.new(@result)
-    printer.print(STDOUT)
 
     buffer = ''
     printer.print(StringIO.new(buffer))

@@ -743,6 +743,7 @@ VALUE prof_profile_dump(VALUE self)
 VALUE prof_profile_load(VALUE self, VALUE data)
 {
     prof_profile_t* profile = prof_get_profile(self);
+
     VALUE threads = rb_hash_aref(data, ID2SYM(rb_intern("threads")));
     for (int i = 0; i < rb_array_len(threads); i++)
     {

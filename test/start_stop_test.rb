@@ -59,7 +59,6 @@ class StartStopTest < TestCase
     assert_equal(1, method.callees.length)
     call_info = method.callees[0]
     assert_equal('StartStopTest#method2', call_info.target.full_name)
-    refute(call_info.recursive?)
 
     method = methods[1]
     assert_equal('StartStopTest#method2', method.full_name)
@@ -72,12 +71,10 @@ class StartStopTest < TestCase
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
     assert_equal('StartStopTest#method1', call_info.parent.full_name)
-    refute(call_info.recursive?)
 
     assert_equal(1, method.callees.length)
     call_info = method.callees[0]
     assert_equal('StartStopTest#method3', call_info.target.full_name)
-    refute(call_info.recursive?)
 
     method = methods[2]
     assert_equal('StartStopTest#method3', method.full_name)
@@ -90,12 +87,10 @@ class StartStopTest < TestCase
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
     assert_equal('StartStopTest#method2', call_info.parent.full_name)
-    refute(call_info.recursive?)
 
     assert_equal(1, method.callees.length)
     call_info = method.callees[0]
     assert_equal('Kernel#sleep', call_info.target.full_name)
-    refute(call_info.recursive?)
 
     method = methods[3]
     assert_equal('Kernel#sleep', method.full_name)
@@ -108,7 +103,6 @@ class StartStopTest < TestCase
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
     assert_equal('StartStopTest#method3', call_info.parent.full_name)
-    refute(call_info.recursive?)
 
     assert_equal(0, method.callees.length)
   end

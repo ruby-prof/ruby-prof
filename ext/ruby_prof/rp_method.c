@@ -162,7 +162,7 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
     result->klass_flags = 0;
     result->klass_name = resolve_klass_name(klass, &result->klass_flags);
     result->method_name = resolve_method_name(mid);
-    //result->calltree_name = resolve_calltree_name(klass, mid);
+    result->measurement = prof_measurement_create();
 
     result->root = false;
     result->excluded = false;
@@ -171,6 +171,7 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
     result->child_call_infos = method_table_create();
     
     result->visits = 0;
+    result->recursive = false;
 
     result->object = Qnil;
 
@@ -235,7 +236,8 @@ prof_method_free(prof_method_t* method)
     st_free_table(method->parent_call_infos);
     st_free_table(method->child_call_infos);
 
-	xfree(method);
+    xfree(method->measurement);
+    xfree(method);
 }
 
 void
@@ -364,6 +366,17 @@ prof_method_callees(VALUE self)
 }
 
 /* call-seq:
+   called -> Measurement
+
+Returns the measurement associated with this method. */
+static VALUE
+prof_method_measurement(VALUE self)
+{
+    prof_method_t* method = prof_get_method(self);
+    return prof_measurement_wrap(method->measurement);
+}
+
+/* call-seq:
    line_no -> int
 
    returns the line number of the method */
@@ -430,7 +443,6 @@ prof_method_name(VALUE self)
     return method->method_name;
 }
 
-
 /* call-seq:
    root? -> boolean
 
@@ -438,8 +450,19 @@ prof_method_name(VALUE self)
 static VALUE
 prof_method_root(VALUE self)
 {
-  prof_method_t *method = prof_method_get(self);
-  return method->root ? Qtrue : Qfalse;
+    prof_method_t *method = prof_method_get(self);
+    return method->root ? Qtrue : Qfalse;
+}
+
+/* call-seq:
+   recursive? -> boolean
+
+   Returns the true if this method is recursively invoked */
+static VALUE
+prof_method_recursive(VALUE self)
+{
+    prof_method_t* method = prof_method_get(self);
+    return method->recursive ? Qtrue : Qfalse;
 }
 
 /* call-seq:
@@ -465,11 +488,14 @@ prof_method_dump(VALUE self)
 
     rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(method_data->key));
     rb_hash_aset(result, ID2SYM(rb_intern("root")), prof_method_root(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("recursive")), prof_method_recursive(self));
     rb_hash_aset(result, ID2SYM(rb_intern("excluded")), prof_method_excluded(self));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file ?
                                                               rb_str_new_cstr(method_data->source_file) :
                                                               Qnil);
     rb_hash_aset(result, ID2SYM(rb_intern("line")), INT2FIX(method_data->line));
+
+    rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(method_data->measurement));
 
     rb_hash_aset(result, ID2SYM(rb_intern("callers")), prof_method_callers(self));
     rb_hash_aset(result, ID2SYM(rb_intern("callees")), prof_method_callees(self));
@@ -481,6 +507,7 @@ static VALUE
 prof_method_load(VALUE self, VALUE data)
 {
     prof_method_t* method_data = RDATA(self)->data;
+    method_data->object = self;
 
     method_data->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));
     method_data->klass_flags = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("klass_flags"))));
@@ -488,12 +515,15 @@ prof_method_load(VALUE self, VALUE data)
     method_data->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
 
     method_data->root = rb_hash_aref(data, ID2SYM(rb_intern("root"))) == Qtrue ? true : false;
+    method_data->recursive = rb_hash_aref(data, ID2SYM(rb_intern("recursive"))) == Qtrue ? true : false;
     method_data->excluded = rb_hash_aref(data, ID2SYM(rb_intern("excluded"))) == Qtrue ? true : false;
 
     VALUE source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     int source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
     prof_method_set_source_info(method_data, source_file == Qnil ? NULL : StringValueCStr(source_file), source_line);
 
+    VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
+    method_data->measurement = prof_get_measurement(measurement);
 
     VALUE callers = rb_hash_aref(data, ID2SYM(rb_intern("callers")));
     for (int i = 0; i < rb_array_len(callers); i++)
@@ -531,10 +561,13 @@ void rp_init_method_info()
     rb_define_method(cMethodInfo, "callers", prof_method_callers, 0);
     rb_define_method(cMethodInfo, "callees", prof_method_callees, 0);
 
+    rb_define_method(cMethodInfo, "measurement", prof_method_measurement, 0);
+        
     rb_define_method(cMethodInfo, "source_file", prof_method_source_file, 0);
     rb_define_method(cMethodInfo, "line", prof_method_line, 0);
 
     rb_define_method(cMethodInfo, "root?", prof_method_root, 0);
+    rb_define_method(cMethodInfo, "recursive?", prof_method_recursive, 0);
     rb_define_method(cMethodInfo, "excluded?", prof_method_excluded, 0);
 
     rb_define_method(cMethodInfo, "_dump_data", prof_method_dump, 0);

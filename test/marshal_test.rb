@@ -15,7 +15,7 @@ class MarshalTest < TestCase
       thread_1 = threads_1[i]
       thread_2 = threads_2[i]
       assert_nil(thread_2.id)
-      assert_nil(thread_2.fiber_id)
+      assert_equal(thread_1.fiber_id, thread_2.fiber_id)
 
       verify_methods(thread_1.methods, thread_2.methods)
     end
@@ -39,6 +39,8 @@ class MarshalTest < TestCase
       assert_equal(method_1.source_file, method_2.source_file)
       assert_equal(method_1.line, method_2.line)
 
+      verify_measurement(method_1.measurement, method_2.measurement)
+
       verify_call_infos(method_1.callers, method_2.callers)
       verify_call_infos(method_1.callees, method_2.callees)
     end
@@ -57,15 +59,17 @@ class MarshalTest < TestCase
     assert_equal(call_info_1.parent, call_info_2.parent)
     assert_equal(call_info_1.target, call_info_2.target)
 
-    assert_equal(call_info_1.total_time, call_info_2.total_time)
-    assert_equal(call_info_1.self_time, call_info_2.self_time)
-    assert_equal(call_info_1.wait_time, call_info_2.wait_time)
-
-    assert_equal(call_info_1.called, call_info_2.called)
-
-    assert_equal(call_info_1.recursive?, call_info_2.recursive?)
     assert_equal(call_info_1.depth, call_info_2.depth)
     assert_equal(call_info_1.line, call_info_2.line)
+
+    verify_measurement(call_info_1.measurement, call_info_2.measurement)
+  end
+
+  def verify_measurement(measurement_1, measurement_2)
+    assert_equal(measurement_1.total_time, measurement_2.total_time)
+    assert_equal(measurement_1.self_time, measurement_2.self_time)
+    assert_equal(measurement_1.wait_time, measurement_2.wait_time)
+    assert_equal(measurement_1.called, measurement_2.called)
   end
 
   def test_marshal

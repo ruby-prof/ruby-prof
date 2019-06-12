@@ -25,38 +25,38 @@ end
 # --- expected test output ---
 =begin
 Measure Mode: wall_time
-Thread ID: 70238775664960
-Fiber ID: 70238784046840
-Total Time: 2.040249824523926
-Sort by: total_time
+Thread ID: 1307675084040
+Fiber ID: 1307708787440
+Total Time: 2.0939999999973224
+Sort by:
 
-  %total   %self      total       self       wait      child            calls    Name
+  %total   %self      total       self       wait      child            calls     name
 --------------------------------------------------------------------------------
- 100.00%   0.00%      2.040      0.000      0.000      2.040                1      PrintingRecursiveGraphTest#setup
-                      2.040      0.000      0.000      2.040              1/1      PRGT#run
+                      1.657      0.000      0.000      1.657              2/2     Integer#times
+  79.13%   0.00%      1.657      0.000      0.000      1.657                2     PRGT#g
+                      1.657      0.000      0.000      1.657              2/5     Integer#times
 --------------------------------------------------------------------------------
-                      2.040      0.000      0.000      2.040              1/1      PrintingRecursiveGraphTest#setup
- 100.00%   0.00%      2.040      0.000      0.000      2.040                1      PRGT#run
-                      2.040      0.000      0.000      2.040              1/5      Integer#times
+                      2.094      2.094      0.000      0.000            12/12     Integer#times
+ 100.00% 100.00%      2.094      2.094      0.000      0.000               12     Kernel#sleep
 --------------------------------------------------------------------------------
-                      0.409      0.000      0.000      0.409              2/5      Prgt#f
-                      1.631      0.000      0.000      1.631              2/5      PRGT#g
-                      2.040      0.000      0.000      2.040              1/5      PRGT#run
- 100.00%   0.00%      2.040      0.000      0.000      2.040                5     *Integer#times
-                      2.040      2.040      0.000      0.000            12/12      Kernel#sleep
-                      1.631      0.000      0.000      1.631              2/2      PRGT#g
-                      0.409      0.000      0.000      0.409              2/2      PRGT#f
+                      0.437      0.000      0.000      0.437              2/2     Integer#times
+  20.87%   0.00%      0.437      0.000      0.000      0.437                2     PRGT#f
+                      0.437      0.000      0.000      0.437              2/5     Integer#times
 --------------------------------------------------------------------------------
-                      2.040      2.040      0.000      0.000            12/12      Integer#times
-  99.99%  99.99%      2.040      2.040      0.000      0.000               12      Kernel#sleep
+                      0.437      0.000      0.000      0.437              2/5     PRGT#f
+                      1.657      0.000      0.000      1.657              2/5     PRGT#g
+                      2.094      0.000      0.000      2.094              1/5     PRGT#run
+ 100.00%   0.00%      2.094      0.000      0.000      2.094                5    *Integer#times
+                      2.094      2.094      0.000      0.000            12/12     Kernel#sleep
+                      1.657      0.000      0.000      1.657              2/2     PRGT#g
+                      0.437      0.000      0.000      0.437              2/2     PRGT#f
 --------------------------------------------------------------------------------
-                      1.631      0.000      0.000      1.631              2/2      Integer#times
-  79.94%   0.00%      1.631      0.000      0.000      1.631                2      PRGT#g
-                      1.631      0.000      0.000      1.631              2/5      Integer#times
+                      2.094      0.000      0.000      2.094              1/1     PrintingRecursiveGraphTest#setup
+ 100.00%   0.00%      2.094      0.000      0.000      2.094                1     PRGT#run
+                      2.094      0.000      0.000      2.094              1/5     Integer#times
 --------------------------------------------------------------------------------
-                      0.409      0.000      0.000      0.409              2/2      Integer#times
-  20.05%   0.00%      0.409      0.000      0.000      0.409                2      PRGT#f
-                      0.409      0.000      0.000      0.409              2/5      Integer#times
+ 100.00%   0.00%      2.094      0.000      0.000      2.094                1     PrintingRecursiveGraphTest#setup
+                      2.094      0.000      0.000      2.094              1/1     PRGT#run
 
 * indicates recursively called methods
 =end
@@ -74,6 +74,7 @@ class PrintingRecursiveGraphTest < TestCase
 
   def test_printing_rescursive_graph
     printer = RubyProf::GraphPrinter.new(@result)
+    printer.print(STDOUT)
 
     buffer = ''
     printer.print(StringIO.new(buffer))
@@ -104,9 +105,9 @@ class PrintingRecursiveGraphTest < TestCase
     assert_in_delta(rp.total, rp.child, 0.01)
     assert_equal("1/5", rp.calls)
 
-    assert_in_delta(4*fp.total, gp.total, 0.05)
-    assert_in_delta(fp.total + gp.total, rp.total, 0.05)
-    assert_in_delta(integer_times.metrics.total, rp.total, 0.05)
+    assert_in_delta(4*fp.total, gp.total, 0.2)
+    assert_in_delta(fp.total + gp.total, rp.total, 0.2)
+    assert_in_delta(integer_times.metrics.total, rp.total, 0.2)
 
     assert( fc = integer_times.child("PRGT#f") )
     assert_in_delta(fc.total, fc.child, 0.01)
@@ -120,7 +121,7 @@ class PrintingRecursiveGraphTest < TestCase
     assert_in_delta(ks.total, ks.self_t, 0.01)
     assert_equal("12/12", ks.calls)
 
-    assert_in_delta(4*fc.total, gc.total, 0.05)
+    assert_in_delta(4*fc.total, gc.total, 0.2)
     assert_in_delta(fp.total + gc.total, ks.total, 0.05)
     assert_in_delta(integer_times.metrics.total, ks.total, 0.05)
   end

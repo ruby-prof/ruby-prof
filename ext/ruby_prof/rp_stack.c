@@ -79,15 +79,17 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   result->dead_time = 0;
   result->line = 0;
 
-  method = call_info->method;
+ // call_info->measurement.called++;
 
-  /* If the method was visited previously, it's recursive. */
-  if (method->visits > 0)
+  call_info->measurement->called++;
+  call_info->visits++;
+  
+  if (call_info->method->visits > 0)
   {
-    call_info->recursive = 1;
+      call_info->method->recursive = true;
   }
-  /* Enter the method. */
-  method->visits++;
+  call_info->method->measurement->called++;
+  call_info->method->visits++;
 
   // Unpause the parent frame, if it exists.
   // If currently paused then:
@@ -139,20 +141,28 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
 
   /* Calculate the total time this method took */
   prof_frame_unpause(frame, measurement);
+  
   total_time = measurement - frame->start_time - frame->dead_time;
   self_time = total_time - frame->child_time - frame->wait_time;
 
   /* Update information about the current method */
   call_info = frame->call_info;
-  method = call_info->method;
 
-  call_info->called++;
-  call_info->total_time += total_time;
-  call_info->self_time += self_time;
-  call_info->wait_time += frame->wait_time;
+  // Update method measurement
+  call_info->method->measurement->self_time += self_time;
+  call_info->method->measurement->wait_time += frame->wait_time;
+  if (call_info->method->visits == 1)
+    call_info->method->measurement->total_time += total_time;
 
-  /* Leave the method. */
-  method->visits--;
+  call_info->method->visits--;
+
+  // Update method measurement
+  call_info->measurement->self_time += self_time;
+  call_info->measurement->wait_time += frame->wait_time;
+  if (call_info->visits == 1)
+      call_info->measurement->total_time += total_time;
+
+  call_info->visits--;
 
   parent_frame = prof_stack_peek(stack);
   if (parent_frame)

@@ -230,7 +230,8 @@ collect_methods(st_data_t key, st_data_t value, st_data_t result)
     VALUE methods = (VALUE) result;
     prof_method_t *method = (prof_method_t *) value;
 
-    if (!method->excluded) {
+    if (!method->excluded)
+    {
       rb_ary_push(methods, prof_method_wrap(method));
     }
 
@@ -292,6 +293,8 @@ static VALUE
 prof_thread_load(VALUE self, VALUE data)
 {
     thread_data_t* thread_data = DATA_PTR(self);
+    thread_data->object = self;
+
     thread_data->fiber_id = rb_hash_aref(data, ID2SYM(rb_intern("fiber_id")));
     VALUE methods = rb_hash_aref(data, ID2SYM(rb_intern("methods")));
 

@@ -6,6 +6,7 @@
 
 #include <ruby.h>
 #include <stdbool.h>
+#include "rp_measure.h"
 
 extern VALUE cMethodInfo;
 
@@ -39,8 +40,11 @@ typedef struct
     VALUE method_name;                      /* Resolved method name for this method */
 
     bool root;                              /* Is this a root method */
+    bool recursive;
     const char *source_file;                /* Source file */
     int line;                               /* Line number */
+
+    prof_measurement_t *measurement;
 } prof_method_t;
 
 void rp_init_method_info(void);

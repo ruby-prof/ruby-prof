@@ -20,7 +20,11 @@ module RubyProf
     end
 
     def <=>(other)
-      if self.total_time < other.total_time
+      if other == nil
+        -1
+      elsif self.full_name == other.full_name
+        0
+      elsif self.total_time < other.total_time
         -1
       elsif self.total_time > other.total_time
         1
@@ -33,81 +37,29 @@ module RubyProf
       end
     end
 
-    def recursive?
-      self.callers.detect(&:recursive?) ? true : false
-    end
-
     def called
-      @called ||= begin
-        callers.inject(0) do |sum, call_info|
-          sum + call_info.called
-        end
-      end
+      self.measurement.called
     end
 
     def total_time
-      @total_time ||= begin
-        callers.inject(0) do |sum, call_info|
-          sum += call_info.total_time if !call_info.recursive?
-          sum
-        end
-      end
-    end
-
-    def children_time
-      @children_time ||= begin
-        callers.inject(0) do |sum, call_info|
-          sum += call_info.children_time if !call_info.recursive?
-          sum
-        end
-      end
-    end
-
-    def wait_time
-      @wait_time ||= begin
-        callers.inject(0) do |sum, call_info|
-          sum += call_info.wait_time if !call_info.recursive?
-          sum
-        end
-      end
+      self.measurement.total_time
     end
 
     def self_time
-      @self_time ||= begin
-        callers.inject(0) do |sum, call_info|
-          sum += call_info.self_time if !call_info.recursive?
-          sum
-        end
-      end
+      self.measurement.self_time
+    end
+
+    def wait_time
+      self.measurement.wait_time
+    end
+
+    def children_time
+      self.total_time - self.self_time - self.wait_time
     end
 
     def min_depth
       @min_depth ||= callers.map(&:depth).min
     end
-
-    # def aggregate_parents
-    #   # group call infos based on their parents
-    #   groups = self.callers.each_with_object({}) do |call_info, hash|
-    #     key = call_info.parent ? call_info.parent.target : self
-    #     (hash[key] ||= []) << call_info
-    #   end
-    #
-    #   groups.map do |key, value|
-    #     AggregateCallInfo.new(value, self)
-    #   end
-    # end
-    #
-    # def aggregate_children
-    #   # group call infos based on their targets
-    #   groups = self.children.each_with_object({}) do |call_info, hash|
-    #     key = call_info.target
-    #     (hash[key] ||= []) << call_info
-    #   end
-    #
-    #   groups.map do |key, value|
-    #     AggregateCallInfo.new(value, self)
-    #   end
-    # end
 
     def to_s
       "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, wt: #{wait_time}, ct: #{self.children_time})"

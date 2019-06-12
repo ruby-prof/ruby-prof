@@ -8,20 +8,38 @@ module RubyProf
     # parent:     parent call info (can be nil)
     # target:     method info (containing an array of call infos)
 
+    def called
+      self.measurement.called
+    end
+
+    def total_time
+      self.measurement.total_time
+    end
+
+    def self_time
+      self.measurement.self_time
+    end
+
+    def wait_time
+      self.measurement.wait_time
+    end
+
     def children_time
       self.total_time - self.self_time - self.wait_time
     end
 
     def to_s
-      "#{target.full_name} (c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
+      "#{parent ? parent.full_name : '<nil>'} - #{target.full_name}"
     end
 
     def inspect
-      super + "(#{target.full_name}, d: #{depth}, c: #{called}, tt: #{total_time}, st: #{self_time}, ct: #{children_time})"
+      super + "(#{self.to_s})"
     end
 
     def <=>(other)
-      if self.total_time < other.total_time
+      if self.target == other.target && self.parent == other.parent
+        0
+      elsif self.total_time < other.total_time
         -1
       elsif self.total_time > other.total_time
         1

@@ -31,7 +31,6 @@ module RubyProf
           @output << "wt:#{sprintf("%#{TIME_WIDTH}.2f", call_info.wait_time)}, "
           @output << "ct:#{sprintf("%#{TIME_WIDTH}.2f", call_info.children_time)}, "
           @output << "call:#{call_info.called}, "
-          @output << "rec:#{call_info.recursive?}"
           @output << ")"
           @output << "\n"
         end

@@ -174,8 +174,6 @@ prof_measurement_dump(VALUE self)
 static VALUE
 prof_measurement_load(VALUE self, VALUE data)
 {
-    VALUE target = Qnil;
-    VALUE parent = Qnil;
     prof_measurement_t* measurement = prof_get_measurement(self);
     measurement->object = self;
 

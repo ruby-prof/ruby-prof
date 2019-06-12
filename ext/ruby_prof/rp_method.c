@@ -236,7 +236,6 @@ prof_method_free(prof_method_t* method)
     st_free_table(method->parent_call_infos);
     st_free_table(method->child_call_infos);
 
-    xfree(method->measurement);
     xfree(method);
 }
 

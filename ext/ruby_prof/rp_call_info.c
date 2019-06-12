@@ -37,7 +37,7 @@ prof_call_info_ruby_gc_free(prof_call_info_t *call_info)
 		RDATA(call_info->object)->dmark = NULL;
     }
 	call_info->object = Qnil;
-    xfree(call_info->measurement);
+    xfree(call_info);
 }
 
 void

@@ -6,6 +6,7 @@
 
 #include <ruby.h>
 #include <stdbool.h>
+#include <ruby/debug.h>
 #include "rp_measure.h"
 
 extern VALUE cMethodInfo;
@@ -41,23 +42,23 @@ typedef struct
 
     bool root;                              /* Is this a root method */
     bool recursive;
-    const char *source_file;                /* Source file */
-    int line;                               /* Line number */
+    VALUE source_file;                /* Source file */
+    VALUE source_line;                               /* Line number */
 
     prof_measurement_t *measurement;
 } prof_method_t;
 
 void rp_init_method_info(void);
 
-st_data_t method_key(VALUE klass, ID mid);
+st_data_t method_key(VALUE klass, VALUE msym);
 
 st_table *method_table_create(void);
-prof_method_t* prof_method_create_excluded(VALUE klass, ID mid);
+prof_method_t* prof_method_create_excluded(VALUE klass, VALUE msym);
 prof_method_t *method_table_lookup(st_table *table, st_data_t key);
 size_t method_table_insert(st_table *table, st_data_t key, prof_method_t *val);
 void method_table_free(st_table *table);
 
-prof_method_t *prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line);
+prof_method_t *prof_method_create(rb_trace_arg_t* trace_arg);
 prof_method_t *prof_method_get(VALUE self);
 
 VALUE prof_method_wrap(prof_method_t *result);

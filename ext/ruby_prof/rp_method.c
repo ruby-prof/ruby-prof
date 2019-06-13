@@ -82,24 +82,8 @@ resolve_klass_name(VALUE klass, unsigned int* klass_flags)
     return result;
 }
 
-static VALUE
-resolve_method_name(ID mid)
-{
-    volatile VALUE name = Qnil;
-
-    if (RTEST(mid))
-    {
-        name = rb_id2str(mid);
-        return rb_str_dup(name);
-    }
-    else
-    {
-        return rb_str_new2("[no method]");
-    }
-}
-
 st_data_t
-method_key(VALUE klass, ID mid)
+method_key(VALUE klass, VALUE msym)
 {
     VALUE resolved_klass = klass;
 
@@ -115,7 +99,7 @@ method_key(VALUE klass, ID mid)
         resolved_klass = RBASIC(klass)->klass;
     }
 
-    return (resolved_klass << 4) + (mid << 2);
+    return (resolved_klass << 4) + (msym);
 }
 
 /* ================  prof_method_t   =================*/
@@ -132,36 +116,19 @@ prof_get_method(VALUE self)
     return result;
 }
 
-static void
-prof_method_set_source_info(prof_method_t* method_data, const char* source_file, int source_line)
-{
-    if (source_file != NULL)
-    {
-        size_t len = strlen(source_file) + 1;
-        char* buffer = ALLOC_N(char, len);
-
-        MEMCPY(buffer, source_file, char, len);
-        method_data->source_file = buffer;
-        method_data->line = source_line;
-    }
-    else
-    {
-        method_data->source_file = NULL;
-        method_data->line = 0;
-    }
-}
-
 prof_method_t*
-prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
+prof_method_create(rb_trace_arg_t* trace_arg)
 {
     prof_method_t *result = ALLOC(prof_method_t);
     const char* source_file = NULL;
 
-    result->key = method_key(klass, mid);
+    VALUE klass = rb_tracearg_defined_class(trace_arg);
+    VALUE msym = rb_tracearg_method_id(trace_arg);
+    result->key = method_key(klass, msym);
 
     result->klass_flags = 0;
     result->klass_name = resolve_klass_name(klass, &result->klass_flags);
-    result->method_name = resolve_method_name(mid);
+    result->method_name = msym;
     result->measurement = prof_measurement_create();
 
     result->root = false;
@@ -175,18 +142,17 @@ prof_method_create(rb_event_flag_t event, VALUE klass, ID mid, int line)
 
     result->object = Qnil;
 
-    source_file = (event != RUBY_EVENT_C_CALL ? rb_sourcefile() : NULL);
-    prof_method_set_source_info(result, source_file, line);
-
+    result->source_file = rb_tracearg_path(trace_arg);
+    result->source_line = rb_tracearg_lineno(trace_arg);
     return result;
 }
 
 prof_method_t*
-prof_method_create_excluded(VALUE klass, ID mid)
+prof_method_create_excluded(VALUE klass, VALUE msym)
 {
-    prof_method_t* result = prof_method_create(RUBY_EVENT_C_CALL, klass, mid, 0);
+  /*  prof_method_t* result = prof_method_create(RUBY_EVENT_C_CALL, klass, msym, 0);
     result->excluded = 1;
-    return result;
+    return result;*/
 }
 
 static int
@@ -243,14 +209,20 @@ prof_method_free(prof_method_t* method)
 void
 prof_method_mark(prof_method_t *method)
 {
-    if (method->klass_name)
+    if (method->klass_name != Qnil)
         rb_gc_mark(method->klass_name);
 
-    if (method->method_name)
+    if (method->method_name != Qnil)
         rb_gc_mark(method->method_name);
     
-    if (method->object)
+    if (method->object != Qnil)
 		rb_gc_mark(method->object);
+
+    if (method->source_file != Qnil)
+        rb_gc_mark(method->source_file);
+
+    if (method->source_line != Qnil)
+        rb_gc_mark(method->source_line);
 
     st_foreach(method->parent_call_infos, prof_method_mark_call_infos, 0);
     st_foreach(method->child_call_infos, prof_method_mark_call_infos, 0);
@@ -259,7 +231,7 @@ prof_method_mark(prof_method_t *method)
 static VALUE
 prof_method_allocate(VALUE klass)
 {
-    prof_method_t* method_data = prof_method_create(0, Qnil, 0, 0);
+    prof_method_t* method_data = prof_method_create(NULL);
     method_data->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_ruby_gc_free, method_data);
     return method_data->object;
 }
@@ -383,8 +355,8 @@ prof_method_measurement(VALUE self)
 static VALUE
 prof_method_line(VALUE self)
 {
-    int line = prof_method_get(self)->line;
-    return rb_int_new(line);
+    prof_method_t* method = prof_method_get(self);
+    return method->source_line;
 }
 
 /* call-seq:
@@ -395,14 +367,7 @@ return the source file of the method
 static VALUE prof_method_source_file(VALUE self)
 {
     prof_method_t *method = prof_method_get(self);
-    if (method->source_file)
-    {
-      return rb_str_new2(method->source_file);
-    } 
-    else 
-    {
-        return rb_str_new2("ruby_runtime");
-    }
+    return method->source_file;
 }
 
 /* call-seq:
@@ -490,10 +455,8 @@ prof_method_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("root")), prof_method_root(self));
     rb_hash_aset(result, ID2SYM(rb_intern("recursive")), prof_method_recursive(self));
     rb_hash_aset(result, ID2SYM(rb_intern("excluded")), prof_method_excluded(self));
-    rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file ?
-                                                              rb_str_new_cstr(method_data->source_file) :
-                                                              Qnil);
-    rb_hash_aset(result, ID2SYM(rb_intern("line")), INT2FIX(method_data->line));
+    rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file);
+    rb_hash_aset(result, ID2SYM(rb_intern("source_line")), method_data->source_line);
 
     rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(method_data->measurement));
 
@@ -519,8 +482,7 @@ prof_method_load(VALUE self, VALUE data)
     method_data->excluded = rb_hash_aref(data, ID2SYM(rb_intern("excluded"))) == Qtrue ? true : false;
 
     VALUE source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
-    int source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
-    prof_method_set_source_info(method_data, source_file == Qnil ? NULL : StringValueCStr(source_file), source_line);
+    VALUE source_line = rb_hash_aref(data, ID2SYM(rb_intern("source_line")));
 
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     method_data->measurement = prof_get_measurement(measurement);

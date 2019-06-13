@@ -95,7 +95,7 @@ prof_exclude_common_methods(VALUE profile)
 }
 
 static prof_method_t*
-create_method(rb_event_flag_t event, st_data_t key, VALUE klass, ID mid, thread_data_t* thread_data, prof_profile_t* profile, int line)
+create_method(rb_trace_arg_t* trace_arg, st_data_t key, thread_data_t* thread_data, prof_profile_t* profile)
 {
     prof_method_t* method = NULL;
 
@@ -105,11 +105,11 @@ create_method(rb_event_flag_t event, st_data_t key, VALUE klass, ID mid, thread_
         /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
            tables share the same exclusion method struct? The first attempt failed due to my
            ignorance of the whims of the GC. */
-        method = prof_method_create_excluded(klass, mid);
+       // method = prof_method_create_excluded(klass, msym);
     }
     else
     {
-  	    method = prof_method_create(event, klass, mid, line);
+        method = prof_method_create(trace_arg);
     }
 
     /* Insert the newly created method, or the exlcusion sentinel. */
@@ -179,19 +179,25 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
 }
 
 static void
-prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
+//prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
+prof_event_hook(VALUE trace_point, void* data)
 {
-    prof_profile_t* profile = prof_get_profile(data);
+    prof_profile_t* profile = (prof_profile_t*)data;
     VALUE thread = Qnil;
     VALUE fiber = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
     double measurement;
 
+    rb_trace_arg_t* trace_arg = rb_tracearg_from_tracepoint(trace_point);
+    rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
+    VALUE self = rb_tracearg_self(trace_arg);
+
+
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
        the results but aren't important to them results. */
-    if (self == mProf || klass == cProfile)
+    if (self == mProf )
         return;
 
     /* Get current measurement */
@@ -199,7 +205,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
     if (trace_file != NULL)
     {
-        prof_trace(profile, event, mid, klass, measurement);
+       // prof_trace(profile, event, mid, klass, measurement);
     }
 
     /* Get the current thread and fiber information. */
@@ -228,7 +234,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
     /* Get the current frame for the current thread. */
     frame = prof_stack_peek(thread_data->stack);
 
-    switch (event) {
+    switch (event){
     case RUBY_EVENT_LINE:
     {
         /* Keep track of the current line number in this method.  When
@@ -238,7 +244,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         {
             if (prof_frame_is_real(frame))
             {
-                frame->line = rb_sourceline();
+                frame->line = rb_tracearg_lineno(trace_arg);
             }
             break;
         }
@@ -253,19 +259,15 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
         prof_frame_t* next_frame;
         prof_call_info_t* call_info;
         prof_method_t* method;
+        VALUE klass = rb_tracearg_defined_class(trace_arg);
+        VALUE msym = rb_tracearg_method_id(trace_arg);
 
-        if (mid == 0)
-        {
-            rb_frame_method_id_and_class(&mid, &klass);
-        }
-
-        int line = rb_sourceline();
-        st_data_t key = method_key(klass, mid);
+        st_data_t key = method_key(klass, msym);
         method = method_table_lookup(thread_data->method_table, key);
 
         if (!method)
         {
-            method = create_method(event, key, klass, mid, thread_data, profile, line);
+            method = create_method(trace_arg, key, thread_data, profile);
         }
 
         if (method->excluded)
@@ -296,7 +298,7 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
         next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
-        next_frame->line = line;
+        next_frame->line = rb_tracearg_lineno(trace_arg);
         break;
     } 
     case RUBY_EVENT_RETURN:
@@ -311,16 +313,27 @@ prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE kla
 void
 prof_install_hook(VALUE self)
 {
-    rb_add_event_hook(prof_event_hook,
-          RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
-          RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN |
-          RUBY_EVENT_LINE, self);
+    prof_profile_t* profile = prof_get_profile(self);
+
+    VALUE event_tracepoint = rb_tracepoint_new(Qnil,
+        RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
+        RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN |
+        RUBY_EVENT_LINE,
+        prof_event_hook, profile);
+    rb_ary_push(profile->tracepoints, event_tracepoint);
+
 }
 
 void
 prof_remove_hook(VALUE self)
 {
-    rb_remove_event_hook_with_data(prof_event_hook, self);
+    prof_profile_t* profile = prof_get_profile(self);
+
+    for (int i = 0; i < RARRAY_LEN(profile->tracepoints); i++)
+    {
+        rb_tracepoint_disable(rb_ary_entry(profile->tracepoints, i));
+    }
+    rb_ary_clear(profile->tracepoints);
 }
 
 static int
@@ -355,6 +368,7 @@ mark_methods(st_data_t key, st_data_t value, st_data_t result)
 static void
 prof_mark(prof_profile_t *profile)
 {
+    rb_gc_mark(profile->tracepoints);
     st_foreach(profile->threads_tbl, mark_threads, 0);
     st_foreach(profile->exclude_methods_tbl, mark_methods, 0);
 }
@@ -405,6 +419,7 @@ prof_allocate(VALUE klass)
     profile->allow_exceptions = 0;
     profile->exclude_methods_tbl = method_table_create();
     profile->running = Qfalse;
+    profile->tracepoints = rb_ary_new();
     return result;
 }
 

@@ -23,6 +23,8 @@ typedef struct
     prof_measurer_t* measurer;
     VALUE threads;
 
+    VALUE tracepoints;
+
     st_table* threads_tbl;
     st_table* exclude_threads_tbl;
     st_table* include_threads_tbl;

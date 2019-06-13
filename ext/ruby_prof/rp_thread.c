@@ -21,30 +21,9 @@ thread_data_create(void)
     return result;
 }
 
-/* The underlying c structures are freed when the parent profile is freed.
-   However, on shutdown the Ruby GC frees objects in any will-nilly order.
-   That means the ruby thread object wrapping the c thread struct may
-   be freed before the parent profile.  Thus we add in a free function
-   for the garbage collector so that if it does get called will nil
-   out our Ruby object reference.*/
 static void
-thread_data_ruby_gc_free(thread_data_t* thread_data)
+prof_thread_free(thread_data_t* thread_data)
 {
-    /* Has this thread object been accessed by Ruby?  If
-       yes clean it up so to avoid a segmentation fault. */
-    if (thread_data->object != Qnil)
-    {
-        RDATA(thread_data->object)->data = NULL;
-        RDATA(thread_data->object)->dfree = NULL;
-        RDATA(thread_data->object)->dmark = NULL;
-    }
-    thread_data->object = Qnil;
-}
-
-static void
-thread_data_free(thread_data_t* thread_data)
-{
-    thread_data_ruby_gc_free(thread_data);
     method_table_free(thread_data->method_table);
     prof_stack_free(thread_data->stack);
 
@@ -59,40 +38,61 @@ mark_methods(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
-static VALUE
-prof_thread_allocate(VALUE klass)
+size_t
+prof_thread_size(const void *data)
 {
-    thread_data_t* thread_data = thread_data_create();
-    thread_data->object = prof_thread_wrap(thread_data);
-    return thread_data->object;
+    return sizeof(prof_call_info_t);
 }
 
 void
-prof_thread_mark(thread_data_t *thread)
+prof_thread_mark(void *data)
 {
+    thread_data_t *thread = (thread_data_t*)data;
+    
     if (thread->object != Qnil)
         rb_gc_mark(thread->object);
-
+    
     if (thread->methods != Qnil)
         rb_gc_mark(thread->methods);
-
+    
     if (thread->fiber_id != Qnil)
         rb_gc_mark(thread->fiber_id);
-
+    
     if (thread->thread_id != Qnil)
         rb_gc_mark(thread->thread_id);
-
+    
     st_foreach(thread->method_table, mark_methods, 0);
 }
+
+static const rb_data_type_t thread_type =
+{
+    .wrap_struct_name = "ThreadInfo",
+    .function =
+    {
+        .dmark = prof_thread_mark,
+        .dfree = NULL, /* The profile class frees its thread table which frees each underlying thread_data instance */
+        .dsize = prof_thread_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
 
 VALUE
 prof_thread_wrap(thread_data_t *thread)
 {
     if (thread->object == Qnil)
     {
-        thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, thread_data_ruby_gc_free, thread);
+        thread->object = TypedData_Wrap_Struct(cRpThread, &thread_type, thread);
     }
     return thread->object;
+}
+
+static VALUE
+prof_thread_allocate(VALUE klass)
+{
+    thread_data_t* thread_data = thread_data_create();
+    thread_data->object = prof_thread_wrap(thread_data);
+    return thread_data->object;
 }
 
 static thread_data_t*
@@ -120,7 +120,7 @@ threads_table_create()
 static int
 thread_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
-    thread_data_free((thread_data_t*)value);
+    prof_thread_free((thread_data_t*)value);
     return ST_CONTINUE;
 }
 
@@ -310,7 +310,7 @@ prof_thread_load(VALUE self, VALUE data)
 
 void rp_init_thread(void)
 {
-    cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
+    cRpThread = rb_define_class_under(mProf, "Thread", rb_cData);
     rb_undef_method(CLASS_OF(cRpThread), "new");
     rb_define_alloc_func(cRpThread, prof_thread_allocate);
 

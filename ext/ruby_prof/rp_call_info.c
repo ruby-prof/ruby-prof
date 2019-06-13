@@ -5,7 +5,7 @@
 
 #define INITIAL_CALL_INFOS_SIZE 2
 
-VALUE cCallInfo;
+VALUE cRpCallnfo;
 
 /* =======  prof_call_info_t   ========*/
 prof_call_info_t *
@@ -26,9 +26,11 @@ prof_call_info_create(prof_method_t *method, prof_method_t *parent)
 }
 
 static void
-prof_call_info_ruby_gc_free(prof_call_info_t *call_info)
+prof_call_info_ruby_gc_free(void *data)
 {
-	/* Has this thread object been accessed by Ruby?  If
+    prof_call_info_t *call_info = (prof_call_info_t*)data;
+
+    /* Has this thread object been accessed by Ruby?  If
 	   yes clean it up so to avoid a segmentation fault. */
 	if (call_info->object != Qnil)
 	{
@@ -37,12 +39,19 @@ prof_call_info_ruby_gc_free(prof_call_info_t *call_info)
 		RDATA(call_info->object)->dmark = NULL;
     }
 	call_info->object = Qnil;
-    xfree(call_info->measurement);
+    xfree(call_info);
+}
+
+size_t
+prof_call_info_size(const void *data)
+{
+    return sizeof(prof_call_info_t);
 }
 
 void
-prof_call_info_mark(prof_call_info_t *call_info)
+prof_call_info_mark(void *data)
 {
+    prof_call_info_t *call_info = (prof_call_info_t*)data;
 	if (call_info->object != Qnil)
 		rb_gc_mark(call_info->object);
 
@@ -52,18 +61,30 @@ prof_call_info_mark(prof_call_info_t *call_info)
     if (call_info->parent && call_info->parent->object != Qnil)
         rb_gc_mark(call_info->parent->object);
 
-    if (call_info->measurement->object != Qnil)
-        rb_gc_mark(call_info->measurement->object);
+    prof_measurement_mark(call_info->measurement);
 }
+
+static const rb_data_type_t call_info_type =
+{
+    .wrap_struct_name = "CallInfo",
+    .function =
+    {
+        .dmark = prof_call_info_mark,
+        .dfree = prof_call_info_ruby_gc_free,
+        .dsize = prof_call_info_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
 
 VALUE
 prof_call_info_wrap(prof_call_info_t *call_info)
 {
-  if (call_info->object == Qnil)
-  {
-    call_info->object = Data_Wrap_Struct(cCallInfo, prof_call_info_mark, prof_call_info_ruby_gc_free, call_info);
-  }
-  return call_info->object;
+    if (call_info->object == Qnil)
+    {
+        call_info->object =  TypedData_Wrap_Struct(cRpCallnfo, &call_info_type, call_info);
+    }
+    return call_info->object;
 }
 
 static VALUE
@@ -224,17 +245,17 @@ prof_call_info_load(VALUE self, VALUE data)
 void rp_init_call_info()
 {
     /* CallInfo */
-    cCallInfo = rb_define_class_under(mProf, "CallInfo", rb_cObject);
-    rb_undef_method(CLASS_OF(cCallInfo), "new");
-    rb_define_alloc_func(cCallInfo, prof_call_info_allocate);
+    cRpCallnfo = rb_define_class_under(mProf, "CallInfo", rb_cData);
+    rb_undef_method(CLASS_OF(cRpCallnfo), "new");
+    rb_define_alloc_func(cRpCallnfo, prof_call_info_allocate);
 
-    rb_define_method(cCallInfo, "parent", prof_call_info_parent, 0);
-    rb_define_method(cCallInfo, "target", prof_call_info_target, 0);
-    rb_define_method(cCallInfo, "measurement", prof_call_info_measurement, 0);
+    rb_define_method(cRpCallnfo, "parent", prof_call_info_parent, 0);
+    rb_define_method(cRpCallnfo, "target", prof_call_info_target, 0);
+    rb_define_method(cRpCallnfo, "measurement", prof_call_info_measurement, 0);
 
-    rb_define_method(cCallInfo, "depth", prof_call_info_depth, 0);
-    rb_define_method(cCallInfo, "line", prof_call_info_line, 0);
+    rb_define_method(cRpCallnfo, "depth", prof_call_info_depth, 0);
+    rb_define_method(cRpCallnfo, "line", prof_call_info_line, 0);
 
-    rb_define_method(cCallInfo, "_dump_data", prof_call_info_dump, 0);
-    rb_define_method(cCallInfo, "_load_data", prof_call_info_load, 1);
+    rb_define_method(cRpCallnfo, "_dump_data", prof_call_info_dump, 0);
+    rb_define_method(cRpCallnfo, "_load_data", prof_call_info_load, 1);
 }

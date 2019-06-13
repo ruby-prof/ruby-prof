@@ -3,7 +3,7 @@
 
 #include "ruby_prof.h"
 
-VALUE cMethodInfo;
+VALUE cRpMethodInfo;
 
 /* ================  Helper Functions  =================*/
 VALUE
@@ -179,9 +179,11 @@ prof_method_mark_call_infos(st_data_t key, st_data_t value, st_data_t data)
    for the garbage collector so that if it does get called will nil
    out our Ruby object reference.*/
 static void
-prof_method_ruby_gc_free(prof_method_t* method)
+prof_method_ruby_gc_free(void *data)
 {
-	/* Has this thread object been accessed by Ruby?  If
+    prof_method_t* method = (prof_method_t*)data;
+
+    /* Has this thread object been accessed by Ruby?  If
 	   yes clean it up so to avoid a segmentation fault. */
 	if (method->object != Qnil)
 	{
@@ -202,24 +204,27 @@ prof_method_free(prof_method_t* method)
     st_free_table(method->parent_call_infos);
     st_free_table(method->child_call_infos);
 
-    xfree(method->measurement);
     xfree(method);
 }
 
-void
-prof_method_mark(prof_method_t *method)
+size_t
+prof_method_size(const void *data)
 {
-    if (method->klass_name != Qnil)
-        rb_gc_mark(method->klass_name);
+    return sizeof(prof_method_t);
+}
 
-    if (method->method_name != Qnil)
-        rb_gc_mark(method->method_name);
+void
+prof_method_mark(void *data)
+{
+    prof_method_t* method = (prof_method_t*)data;
+    rb_gc_mark(method->klass_name);
+    rb_gc_mark(method->method_name);
     
     if (method->object != Qnil)
 		rb_gc_mark(method->object);
 
-    if (method->source_file != Qnil)
-        rb_gc_mark(method->source_file);
+    prof_measurement_mark(method->measurement);
+
 
     if (method->source_line != Qnil)
         rb_gc_mark(method->source_line);
@@ -228,22 +233,35 @@ prof_method_mark(prof_method_t *method)
     st_foreach(method->child_call_infos, prof_method_mark_call_infos, 0);
 }
 
+static const rb_data_type_t method_info_type =
+{
+    .wrap_struct_name = "MethodInfo",
+    .function =
+    {
+        .dmark = prof_method_mark,
+        .dfree = prof_method_ruby_gc_free,
+        .dsize = prof_method_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 static VALUE
 prof_method_allocate(VALUE klass)
 {
     prof_method_t* method_data = prof_method_create(NULL);
-    method_data->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_ruby_gc_free, method_data);
+    method_data->object = prof_method_wrap(method_data);
     return method_data->object;
 }
 
 VALUE
-prof_method_wrap(prof_method_t *result)
+prof_method_wrap(prof_method_t *method)
 {
-  if (result->object == Qnil)
+  if (method->object == Qnil)
   {
-    result->object = Data_Wrap_Struct(cMethodInfo, prof_method_mark, prof_method_ruby_gc_free, result);
+      method->object = TypedData_Wrap_Struct(cRpMethodInfo, &method_info_type, method);
   }
-  return result->object;
+  return method->object;
 }
 
 prof_method_t *
@@ -511,27 +529,27 @@ prof_method_load(VALUE self, VALUE data)
 void rp_init_method_info()
 {
     /* MethodInfo */
-    cMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cObject);
-    rb_undef_method(CLASS_OF(cMethodInfo), "new");
-    rb_define_alloc_func(cMethodInfo, prof_method_allocate);
+    cRpMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cData);
+    rb_undef_method(CLASS_OF(cRpMethodInfo), "new");
+    rb_define_alloc_func(cRpMethodInfo, prof_method_allocate);
 
-    rb_define_method(cMethodInfo, "klass_name", prof_method_klass_name, 0);
-    rb_define_method(cMethodInfo, "klass_flags", prof_method_klass_flags, 0);
+    rb_define_method(cRpMethodInfo, "klass_name", prof_method_klass_name, 0);
+    rb_define_method(cRpMethodInfo, "klass_flags", prof_method_klass_flags, 0);
 
-    rb_define_method(cMethodInfo, "method_name", prof_method_name, 0);
+    rb_define_method(cRpMethodInfo, "method_name", prof_method_name, 0);
  
-    rb_define_method(cMethodInfo, "callers", prof_method_callers, 0);
-    rb_define_method(cMethodInfo, "callees", prof_method_callees, 0);
+    rb_define_method(cRpMethodInfo, "callers", prof_method_callers, 0);
+    rb_define_method(cRpMethodInfo, "callees", prof_method_callees, 0);
 
-    rb_define_method(cMethodInfo, "measurement", prof_method_measurement, 0);
+    rb_define_method(cRpMethodInfo, "measurement", prof_method_measurement, 0);
         
-    rb_define_method(cMethodInfo, "source_file", prof_method_source_file, 0);
-    rb_define_method(cMethodInfo, "line", prof_method_line, 0);
+    rb_define_method(cRpMethodInfo, "source_file", prof_method_source_file, 0);
+    rb_define_method(cRpMethodInfo, "line", prof_method_line, 0);
 
-    rb_define_method(cMethodInfo, "root?", prof_method_root, 0);
-    rb_define_method(cMethodInfo, "recursive?", prof_method_recursive, 0);
-    rb_define_method(cMethodInfo, "excluded?", prof_method_excluded, 0);
+    rb_define_method(cRpMethodInfo, "root?", prof_method_root, 0);
+    rb_define_method(cRpMethodInfo, "recursive?", prof_method_recursive, 0);
+    rb_define_method(cRpMethodInfo, "excluded?", prof_method_excluded, 0);
 
-    rb_define_method(cMethodInfo, "_dump_data", prof_method_dump, 0);
-    rb_define_method(cMethodInfo, "_load_data", prof_method_load, 1);
+    rb_define_method(cRpMethodInfo, "_dump_data", prof_method_dump, 0);
+    rb_define_method(cRpMethodInfo, "_load_data", prof_method_load, 1);
 }

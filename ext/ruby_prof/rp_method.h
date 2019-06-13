@@ -9,7 +9,7 @@
 #include <ruby/debug.h>
 #include "rp_measure.h"
 
-extern VALUE cMethodInfo;
+extern VALUE cRpMethodInfo;
 
 /* Source relation bit offsets. */
 enum {
@@ -62,7 +62,7 @@ prof_method_t *prof_method_create(rb_trace_arg_t* trace_arg);
 prof_method_t *prof_method_get(VALUE self);
 
 VALUE prof_method_wrap(prof_method_t *result);
-void prof_method_mark(prof_method_t *method);
+void prof_method_mark(void *data);
 VALUE resolve_klass(VALUE klass, unsigned int *klass_flags);
 
 

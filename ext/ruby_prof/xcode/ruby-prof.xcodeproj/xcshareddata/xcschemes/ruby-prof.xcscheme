@@ -38,14 +38,14 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "/opt/local/src/ruby-prof/test"
+      customWorkingDirectory = "/opt/local/src/ruby-prof"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/opt/local/bin/ruby2.6">
+         FilePath = "/opt/local/bin/ruby2.5">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
@@ -58,7 +58,7 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/opt/local/src/ruby-prof/test/marshal_test.rb"
+            argument = "/opt/local/src/ruby-prof/test/printers_test.rb"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -73,7 +73,7 @@
       debugDocumentVersioning = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/opt/local/bin/ruby2.6">
+         FilePath = "/opt/local/bin/ruby2.5">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference

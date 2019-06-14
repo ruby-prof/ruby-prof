@@ -36,10 +36,12 @@ typedef struct
     st_table* child_call_infos;             /* Call infos that this method calls */
     st_table* allocations_table;            /* Tracks object allocations */
 
-    VALUE object;                           /* Cached ruby object */
     unsigned int klass_flags;               /* Information about the type of class */
+    VALUE klass;                            /* Resolved klass */
     VALUE klass_name;                       /* Resolved klass name for this method */
     VALUE method_name;                      /* Resolved method name for this method */
+
+    VALUE object;                           /* Cached ruby object */
 
     bool root;                               /* Is this a root method */
     bool recursive;

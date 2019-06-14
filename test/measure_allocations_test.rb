@@ -137,6 +137,7 @@ class MeasureAllocationsTest < TestCase
   #
   def a
     2.times {|i| Hash.new}
+    #4.times {|i| Array.new}
   end
 
   def test_instance_methods

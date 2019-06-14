@@ -245,84 +245,86 @@ prof_event_hook(VALUE trace_point, void* data)
     /* Get the current frame for the current thread. */
     frame = prof_stack_peek(thread_data->stack);
 
-    switch (event){
-    case RUBY_EVENT_LINE:
+    switch (event)
     {
-        /* Keep track of the current line number in this method.  When
-           a new method is called, we know what line number it was
-           called from. */
-        if (frame)
+        case RUBY_EVENT_LINE:
+        case RUBY_EVENT_CALL:
+        case RUBY_EVENT_C_CALL:
         {
-            if (prof_frame_is_real(frame))
+            prof_frame_t* next_frame;
+            prof_call_info_t* call_info;
+            prof_method_t* method;
+            VALUE klass = rb_tracearg_defined_class(trace_arg);
+            VALUE msym = rb_tracearg_method_id(trace_arg);
+            st_data_t key = method_key(klass, msym);
+
+            method = prof_get_method(profile, thread_data, key, trace_arg);
+
+            if (method->excluded)
             {
-                frame->line = rb_tracearg_lineno(trace_arg);
+              prof_stack_pass(thread_data->stack);
+              break;
+            }
+
+            if (!frame)
+            {
+                method->root = true;
+                call_info = prof_call_info_create(method, NULL);
+                st_insert(method->parent_call_infos, (st_data_t)&key, (st_data_t)call_info);
+            }
+            else
+            {
+                call_info = call_info_table_lookup(method->parent_call_infos, frame->call_info->method->key);
+
+                if (!call_info)
+                {
+                    /* This call info does not yet exist.  So create it, then add
+                       it to previous callinfo's children and to the current method .*/
+                    call_info = prof_call_info_create(method, frame->call_info->method);
+                    call_info_table_insert(method->parent_call_infos, frame->call_info->method->key, call_info);
+                    call_info_table_insert(frame->call_info->method->child_call_infos, method->key, call_info);
+              }
+            }
+
+            /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
+            next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
+            next_frame->line = FIX2INT(rb_tracearg_lineno(trace_arg));
+            break;
+        } 
+        case RUBY_EVENT_RETURN:
+        case RUBY_EVENT_C_RETURN:
+        {
+            prof_stack_pop(thread_data->stack, measurement);
+            break;
+        }
+        case RUBY_INTERNAL_EVENT_NEWOBJ:
+        {
+            /* We want to assign the allocations lexically, not the execution context (otherwise all allocations will
+              show up under Class#new */
+            int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
+            VALUE source_file = rb_tracearg_path(trace_arg);
+
+            if (!frame)
+                return;
+
+            for (int i = 0; i <= thread_data->stack->ptr - thread_data->stack->start - 1; i++)
+            {
+                prof_frame_t* a_frame = (thread_data->stack->ptr - i - 1);
+                if (!a_frame)
+                    return;
+
+                if (!a_frame->call_info)
+                    return;
+
+                if (rb_str_equal(source_file, a_frame->call_info->method->source_file) &&
+                    source_line > a_frame->call_info->method->source_line)
+                {
+                    prof_allocate_increment(a_frame->call_info->method, trace_arg);
+                }
             }
             break;
         }
-
-        /* If we get here there was no frame, which means this is
-           the first method seen for this thread, so fall through
-           to below to create it. */
     }
-    case RUBY_EVENT_CALL:
-    case RUBY_EVENT_C_CALL:
-    {
-        prof_frame_t* next_frame;
-        prof_call_info_t* call_info;
-        prof_method_t* method;
-        VALUE klass = rb_tracearg_defined_class(trace_arg);
-        VALUE msym = rb_tracearg_method_id(trace_arg);
-        st_data_t key = method_key(klass, msym);
-
-        method = prof_get_method(profile, thread_data, key, trace_arg);
-
-        if (method->excluded)
-        {
-          prof_stack_pass(thread_data->stack);
-          break;
-        }
-
-        if (!frame)
-        {
-            method->root = true;
-            call_info = prof_call_info_create(method, NULL);
-            st_insert(method->parent_call_infos, (st_data_t)&key, (st_data_t)call_info);
-        }
-        else
-        {
-            call_info = call_info_table_lookup(method->parent_call_infos, frame->call_info->method->key);
-
-            if (!call_info)
-            {
-                /* This call info does not yet exist.  So create it, then add
-                   it to previous callinfo's children and to the current method .*/
-                call_info = prof_call_info_create(method, frame->call_info->method);
-                call_info_table_insert(method->parent_call_infos, frame->call_info->method->key, call_info);
-                call_info_table_insert(frame->call_info->method->child_call_infos, method->key, call_info);
-          }
-        }
-
-        /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
-        next_frame->line = rb_tracearg_lineno(trace_arg);
-        break;
-    } 
-    case RUBY_EVENT_RETURN:
-    case RUBY_EVENT_C_RETURN:
-    {
-        prof_stack_pop(thread_data->stack, measurement);
-        break;
-    }
-    case RUBY_INTERNAL_EVENT_NEWOBJ:
-    {
-        VALUE klass = rb_tracearg_defined_class(trace_arg);
-        VALUE msym = rb_tracearg_method_id(trace_arg);
-        st_data_t key = method_key(klass, msym);
-        prof_method_t *method = prof_get_method(profile, thread_data, key, trace_arg);
-        prof_allocate_increment(method, trace_arg);
-        break;
-    }
-  }
 }
 
 void

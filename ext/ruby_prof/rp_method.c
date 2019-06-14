@@ -72,7 +72,8 @@ resolve_klass_name(VALUE klass, unsigned int* klass_flags)
     }
     else if (*klass_flags & kOtherSingleton)
     {
-        result = rb_any_to_s(resolved_klass);
+        result = rb_class_name(resolved_klass); 
+        //result = rb_any_to_s(resolved_klass);
     }
     else
     {
@@ -165,7 +166,9 @@ prof_method_create(rb_trace_arg_t* trace_arg)
     result->key = method_key(klass, msym);
 
     result->klass_flags = 0;
-    result->klass_name = resolve_klass_name(klass, &result->klass_flags);
+    /* Note we do not call resolve_klass_name now because that causes an object allocation that shows up 
+       in the allocation results so we want to avoid it until after the profile run is complete. */
+    result->klass_name = resolve_klass(klass, &result->klass_flags);
     result->method_name = msym;
     result->measurement = prof_measurement_create();
 
@@ -181,8 +184,18 @@ prof_method_create(rb_trace_arg_t* trace_arg)
 
     result->object = Qnil;
 
-    result->source_file = rb_tracearg_path(trace_arg);
-    result->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
+    rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
+    if (event != RUBY_EVENT_C_CALL)
+    {
+        result->source_file = rb_tracearg_path(trace_arg);
+        result->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
+    }
+    else
+    {
+        result->source_file = Qnil;
+        result->source_line = 0;
+    }
+
     return result;
 }
 
@@ -464,6 +477,9 @@ static VALUE
 prof_method_klass_name(VALUE self)
 {
     prof_method_t *method = prof_method_get(self);
+    if (method->klass_name == Qnil)
+        method->klass_name = resolve_klass_name(method->klass, &method->klass_flags);
+
     return method->klass_name;
 }
 
@@ -531,7 +547,7 @@ prof_method_dump(VALUE self)
     prof_method_t* method_data = DATA_PTR(self);
     VALUE result = rb_hash_new();
 
-    rb_hash_aset(result, ID2SYM(rb_intern("klass_name")), method_data->klass_name);
+    rb_hash_aset(result, ID2SYM(rb_intern("klass_name")), prof_method_klass_name(self));
     rb_hash_aset(result, ID2SYM(rb_intern("klass_flags")), INT2FIX(method_data->klass_flags));
     rb_hash_aset(result, ID2SYM(rb_intern("method_name")), method_data->method_name);
 

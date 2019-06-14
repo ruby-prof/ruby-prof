@@ -112,6 +112,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\rp_allocation.h" />
     <ClInclude Include="..\rp_call_info.h" />
     <ClInclude Include="..\rp_measure.h" />
     <ClInclude Include="..\rp_method.h" />
@@ -121,6 +122,7 @@
     <ClInclude Include="..\version.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\rp_allocation.c" />
     <ClCompile Include="..\rp_call_info.c" />
     <ClCompile Include="..\rp_measure.c" />
     <ClCompile Include="..\rp_measure_allocations.c" />

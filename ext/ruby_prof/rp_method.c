@@ -102,6 +102,44 @@ method_key(VALUE klass, VALUE msym)
     return (resolved_klass << 4) + (msym);
 }
 
+/* ======   Allocation Table  ====== */
+st_table*
+allocations_table_create()
+{
+    return st_init_numtable();
+}
+
+static int
+allocations_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
+{ 
+    prof_allocation_free((prof_allocation_t*)value);
+    return ST_CONTINUE;
+}
+
+static int
+prof_method_collect_allocations(st_data_t key, st_data_t value, st_data_t result)
+{
+    prof_allocation_t* allocation = (prof_allocation_t*)value;
+    VALUE arr = (VALUE)result;
+    rb_ary_push(arr, prof_allocation_wrap(allocation));
+    return ST_CONTINUE;
+}
+
+static int
+prof_method_mark_allocations(st_data_t key, st_data_t value, st_data_t data)
+{
+    prof_allocation_t* allocation = (prof_allocation_t*)value;
+    prof_allocation_mark(allocation);
+    return ST_CONTINUE;
+}
+
+void
+allocations_table_free(st_table* table)
+{
+    st_foreach(table, allocations_table_free_iterator, 0);
+    st_free_table(table);
+}
+
 /* ================  prof_method_t   =================*/
 static prof_method_t*
 prof_get_method(VALUE self)
@@ -136,6 +174,7 @@ prof_method_create(rb_trace_arg_t* trace_arg)
 
     result->parent_call_infos = method_table_create();
     result->child_call_infos = method_table_create();
+    result->allocations_table = allocations_table_create();
     
     result->visits = 0;
     result->recursive = false;
@@ -143,7 +182,7 @@ prof_method_create(rb_trace_arg_t* trace_arg)
     result->object = Qnil;
 
     result->source_file = rb_tracearg_path(trace_arg);
-    result->source_line = rb_tracearg_lineno(trace_arg);
+    result->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
     return result;
 }
 
@@ -170,6 +209,20 @@ prof_method_mark_call_infos(st_data_t key, st_data_t value, st_data_t data)
     prof_call_info_t* call_info = (prof_call_info_t*)value;
     prof_call_info_mark(call_info);
     return ST_CONTINUE;
+}
+
+static int
+call_infos_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
+{
+    prof_call_info_free((prof_call_info_t*)value);
+    return ST_CONTINUE;
+}
+
+void
+call_info_table_free(st_table* table)
+{
+    st_foreach(table, call_infos_free_iterator, 0);
+    st_free_table(table);
 }
 
 /* The underlying c structures are freed when the parent profile is freed.
@@ -200,9 +253,12 @@ static void
 prof_method_free(prof_method_t* method)
 {
 	prof_method_ruby_gc_free(method);
+    allocations_table_free(method->allocations_table);
 
-    st_free_table(method->parent_call_infos);
-    st_free_table(method->child_call_infos);
+    /* Remember call infos are referenced by their parent method and child method, so we only want
+       to iterate over one of them to avoid a double freeing */
+    call_info_table_free(method->parent_call_infos);
+    xfree(method->child_call_infos);
 
     xfree(method);
 }
@@ -224,13 +280,10 @@ prof_method_mark(void *data)
 		rb_gc_mark(method->object);
 
     prof_measurement_mark(method->measurement);
-
-
-    if (method->source_line != Qnil)
-        rb_gc_mark(method->source_line);
-
+    
     st_foreach(method->parent_call_infos, prof_method_mark_call_infos, 0);
     st_foreach(method->child_call_infos, prof_method_mark_call_infos, 0);
+    st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
 }
 
 static const rb_data_type_t method_info_type =
@@ -330,7 +383,7 @@ the RubyProf::Profile object.
 */
 
 /* call-seq:
-   callers -> hash
+   callers -> array
 
 Returns an array of call info objects that called this method  (ie, parents).*/
 static VALUE
@@ -343,7 +396,7 @@ prof_method_callers(VALUE self)
 }
 
 /* call-seq:
-   callees -> hash
+   callees -> array
 
 Returns an array of call info objects that this method called (ie, children).*/
 static VALUE
@@ -352,6 +405,19 @@ prof_method_callees(VALUE self)
     prof_method_t* method = prof_get_method(self);
     VALUE result = rb_ary_new();
     st_foreach(method->child_call_infos, prof_method_collect_call_infos, result);
+    return result;
+}
+
+/* call-seq:
+   allocations -> array
+
+Returns an array of allocation information.*/
+static VALUE
+prof_method_allocations(VALUE self)
+{
+    prof_method_t* method = prof_get_method(self);
+    VALUE result = rb_ary_new();
+    st_foreach(method->allocations_table, prof_method_collect_allocations, result);
     return result;
 }
 
@@ -374,7 +440,7 @@ static VALUE
 prof_method_line(VALUE self)
 {
     prof_method_t* method = prof_method_get(self);
-    return method->source_line;
+    return INT2FIX(method->source_line);
 }
 
 /* call-seq:
@@ -474,7 +540,7 @@ prof_method_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("recursive")), prof_method_recursive(self));
     rb_hash_aset(result, ID2SYM(rb_intern("excluded")), prof_method_excluded(self));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file);
-    rb_hash_aset(result, ID2SYM(rb_intern("source_line")), method_data->source_line);
+    rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(method_data->source_line));
 
     rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(method_data->measurement));
 
@@ -500,7 +566,7 @@ prof_method_load(VALUE self, VALUE data)
     method_data->excluded = rb_hash_aref(data, ID2SYM(rb_intern("excluded"))) == Qtrue ? true : false;
 
     VALUE source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
-    VALUE source_line = rb_hash_aref(data, ID2SYM(rb_intern("source_line")));
+    VALUE source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
 
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     method_data->measurement = prof_get_measurement(measurement);
@@ -540,6 +606,7 @@ void rp_init_method_info()
  
     rb_define_method(cRpMethodInfo, "callers", prof_method_callers, 0);
     rb_define_method(cRpMethodInfo, "callees", prof_method_callees, 0);
+    rb_define_method(cRpMethodInfo, "allocations", prof_method_allocations, 0);
 
     rb_define_method(cRpMethodInfo, "measurement", prof_method_measurement, 0);
         

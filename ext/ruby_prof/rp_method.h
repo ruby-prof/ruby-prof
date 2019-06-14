@@ -34,16 +34,17 @@ typedef struct
 
     st_table* parent_call_infos;            /* Call infos that call this method */
     st_table* child_call_infos;             /* Call infos that this method calls */
+    st_table* allocations_table;            /* Tracks object allocations */
 
     VALUE object;                           /* Cached ruby object */
     unsigned int klass_flags;               /* Information about the type of class */
     VALUE klass_name;                       /* Resolved klass name for this method */
     VALUE method_name;                      /* Resolved method name for this method */
 
-    bool root;                              /* Is this a root method */
+    bool root;                               /* Is this a root method */
     bool recursive;
-    VALUE source_file;                /* Source file */
-    VALUE source_line;                               /* Line number */
+    VALUE source_file;                       /* Source file */
+    int source_line;                         /* Line number */
 
     prof_measurement_t *measurement;
 } prof_method_t;

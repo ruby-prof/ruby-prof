@@ -30,6 +30,13 @@
 VALUE mProf;
 VALUE cProfile;
 
+/* support tracing ruby events from ruby-prof. useful for getting at
+   what actually happens inside the ruby interpreter (and ruby-prof).
+   set environment variable RUBY_PROF_TRACE to filename you want to
+   find the trace in.
+ */
+static FILE* trace_file = NULL;
+
 static prof_profile_t*
 prof_get_profile(VALUE self)
 {
@@ -38,14 +45,43 @@ prof_get_profile(VALUE self)
     return DATA_PTR(self);
 }
 
-/* support tracing ruby events from ruby-prof. useful for getting at
-   what actually happens inside the ruby interpreter (and ruby-prof).
-   set environment variable RUBY_PROF_TRACE to filename you want to
-   find the trace in.
- */
-static FILE* trace_file = NULL;
+static prof_method_t*
+create_method(rb_trace_arg_t* trace_arg, st_data_t key, thread_data_t* thread_data, prof_profile_t* profile)
+{
+    prof_method_t* method = NULL;
 
-/* Copied from thread.c (1.9.3) */
+    if (excludes_method(key, profile))
+    {
+        /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
+        /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
+           tables share the same exclusion method struct? The first attempt failed due to my
+           ignorance of the whims of the GC. */
+           // method = prof_method_create_excluded(klass, msym);
+    }
+    else
+    {
+        method = prof_method_create(trace_arg);
+    }
+
+    /* Insert the newly created method, or the exlcusion sentinel. */
+    method_table_insert(thread_data->method_table, method->key, method);
+
+    return method;
+}
+
+static prof_method_t*
+prof_get_method(prof_profile_t* profile, thread_data_t* thread_data, st_data_t key, rb_trace_arg_t* trace_arg)
+{
+    prof_method_t* method = method_table_lookup(thread_data->method_table, key);
+
+    if (!method)
+    {
+        method = create_method(trace_arg, key, thread_data, profile);
+    }
+
+    return method;
+}
+
 static const char *
 get_event_name(rb_event_flag_t event)
 {
@@ -92,30 +128,6 @@ static void
 prof_exclude_common_methods(VALUE profile)
 {
   rb_funcall(profile, rb_intern("exclude_common_methods!"), 0);
-}
-
-static prof_method_t*
-create_method(rb_trace_arg_t* trace_arg, st_data_t key, thread_data_t* thread_data, prof_profile_t* profile)
-{
-    prof_method_t* method = NULL;
-
-    if (excludes_method(key, profile))
-    {
-        /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
-        /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
-           tables share the same exclusion method struct? The first attempt failed due to my
-           ignorance of the whims of the GC. */
-       // method = prof_method_create_excluded(klass, msym);
-    }
-    else
-    {
-        method = prof_method_create(trace_arg);
-    }
-
-    /* Insert the newly created method, or the exlcusion sentinel. */
-    method_table_insert(thread_data->method_table, method->key, method);
-    
-    return method;
 }
 
 static int
@@ -179,7 +191,6 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
 }
 
 static void
-//prof_event_hook(rb_event_flag_t event, VALUE data, VALUE self, ID mid, VALUE klass)
 prof_event_hook(VALUE trace_point, void* data)
 {
     prof_profile_t* profile = (prof_profile_t*)data;
@@ -261,14 +272,9 @@ prof_event_hook(VALUE trace_point, void* data)
         prof_method_t* method;
         VALUE klass = rb_tracearg_defined_class(trace_arg);
         VALUE msym = rb_tracearg_method_id(trace_arg);
-
         st_data_t key = method_key(klass, msym);
-        method = method_table_lookup(thread_data->method_table, key);
 
-        if (!method)
-        {
-            method = create_method(trace_arg, key, thread_data, profile);
-        }
+        method = prof_get_method(profile, thread_data, key, trace_arg);
 
         if (method->excluded)
         {
@@ -307,6 +313,15 @@ prof_event_hook(VALUE trace_point, void* data)
         prof_stack_pop(thread_data->stack, measurement);
         break;
     }
+    case RUBY_INTERNAL_EVENT_NEWOBJ:
+    {
+        VALUE klass = rb_tracearg_defined_class(trace_arg);
+        VALUE msym = rb_tracearg_method_id(trace_arg);
+        st_data_t key = method_key(klass, msym);
+        prof_method_t *method = prof_get_method(profile, thread_data, key, trace_arg);
+        prof_allocate_increment(method, trace_arg);
+        break;
+    }
   }
 }
 
@@ -322,6 +337,13 @@ prof_install_hook(VALUE self)
         prof_event_hook, profile);
     rb_ary_push(profile->tracepoints, event_tracepoint);
 
+    VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
+    rb_ary_push(profile->tracepoints, allocation_tracepoint);
+
+    for (int i = 0; i < RARRAY_LEN(profile->tracepoints); i++)
+    {
+        rb_tracepoint_enable(rb_ary_entry(profile->tracepoints, i));
+    }
 }
 
 void
@@ -774,6 +796,7 @@ void Init_ruby_prof()
 {
     mProf = rb_define_module("RubyProf");
 
+    rp_init_allocation();
     rp_init_measure();
     rp_init_method_info();
     rp_init_call_info();

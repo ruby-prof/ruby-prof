@@ -39,7 +39,10 @@ module RubyProf
     end
 
     def sleep_wait
+      2.times {|i| Array.new}
+      3.times {|i| Array.new(1000)}
       sleep(0.2)
+      4.times {|i| Hash.new}
     end
 
     def busy_wait

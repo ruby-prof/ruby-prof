@@ -39,6 +39,12 @@ prof_call_info_ruby_gc_free(void *data)
 		RDATA(call_info->object)->dmark = NULL;
     }
 	call_info->object = Qnil;
+}
+
+void
+prof_call_info_free(prof_call_info_t *call_info)
+{
+    prof_call_info_ruby_gc_free(call_info);
     xfree(call_info);
 }
 

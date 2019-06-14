@@ -6,6 +6,7 @@
 
 #include <ruby.h>
 #include <stdio.h>
+#include "rp_allocation.h"
 #include "rp_measure.h"
 #include "rp_method.h"
 #include "rp_call_info.h"

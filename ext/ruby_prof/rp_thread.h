@@ -24,7 +24,7 @@ typedef struct
 void rp_init_thread(void);
 st_table * threads_table_create(void);
 thread_data_t *threads_table_lookup(void *profile, VALUE fiber);
-thread_data_t* threads_table_insert(void *profile, VALUE thread, VALUE fiber);
+thread_data_t* threads_table_insert(void *profile, VALUE fiber);
 void switch_thread(void *profile, thread_data_t *thread_data, double measurement);
 void threads_table_free(st_table *table);
 VALUE prof_thread_wrap(thread_data_t *thread);

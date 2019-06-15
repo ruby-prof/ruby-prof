@@ -10,7 +10,7 @@
 typedef struct
 {
     VALUE klass;                      /* Klass that was created */
-    VALUE source_file;                  /* Line number where allocation happens */
+    VALUE source_file;                /* Line number where allocation happens */
     int source_line;                  /* Line number where allocation happens */
     int count;                        /* Number of allocations */
     size_t memory;                    /* Amount of allocated memory */

@@ -204,7 +204,6 @@ prof_event_hook(VALUE trace_point, void* data)
     rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     VALUE self = rb_tracearg_self(trace_arg);
 
-
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
        the results but aren't important to them results. */
@@ -248,6 +247,23 @@ prof_event_hook(VALUE trace_point, void* data)
     switch (event)
     {
         case RUBY_EVENT_LINE:
+        {
+            /* Keep track of the current line number in this method.  When
+               a new method is called, we know what line number it was
+               called from. */
+            if (frame)
+            {
+                if (prof_frame_is_real(frame))
+                {
+                    frame->line = FIX2INT(rb_tracearg_lineno(trace_arg));
+                }
+                break;
+            }
+
+            /* If we get here there was no frame, which means this is
+               the first method seen for this thread, so fall through
+               to below to create it. */
+        }
         case RUBY_EVENT_CALL:
         case RUBY_EVENT_C_CALL:
         {
@@ -283,12 +299,12 @@ prof_event_hook(VALUE trace_point, void* data)
                     call_info = prof_call_info_create(method, frame->call_info->method);
                     call_info_table_insert(method->parent_call_infos, frame->call_info->method->key, call_info);
                     call_info_table_insert(frame->call_info->method->child_call_infos, method->key, call_info);
-              }
+                }
             }
 
             /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
             next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
-            next_frame->line = FIX2INT(rb_tracearg_lineno(trace_arg));
+            next_frame->line = method->source_file;
             break;
         } 
         case RUBY_EVENT_RETURN:
@@ -317,7 +333,7 @@ prof_event_hook(VALUE trace_point, void* data)
                     return;
 
                 if (rb_str_equal(source_file, a_frame->call_info->method->source_file) &&
-                    source_line > a_frame->call_info->method->source_line)
+                    source_line >= a_frame->call_info->method->source_line)
                 {
                     prof_allocate_increment(a_frame->call_info->method, trace_arg);
                 }
@@ -339,8 +355,8 @@ prof_install_hook(VALUE self)
         prof_event_hook, profile);
     rb_ary_push(profile->tracepoints, event_tracepoint);
 
-    VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
-    rb_ary_push(profile->tracepoints, allocation_tracepoint);
+    //VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
+    //rb_ary_push(profile->tracepoints, allocation_tracepoint);
 
     for (int i = 0; i < RARRAY_LEN(profile->tracepoints); i++)
     {

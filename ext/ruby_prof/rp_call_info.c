@@ -20,7 +20,7 @@ prof_call_info_create(prof_method_t *method, prof_method_t *parent)
     result->visits = 0;
 
     result->depth = 0;
-    result->line = 0;
+    result->line = rb_sourceline();
 
     return result;
 }

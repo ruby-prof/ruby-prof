@@ -64,20 +64,18 @@ static VALUE
 resolve_klass_name(VALUE klass, unsigned int* klass_flags)
 {
     VALUE result = Qnil;
-    VALUE resolved_klass = resolve_klass(klass, klass_flags);
 
-    if (resolved_klass == Qnil)
+    if (klass == Qnil)
     {
         result = rb_str_new2("[global]");
     }
     else if (*klass_flags & kOtherSingleton)
     {
-        result = rb_class_name(resolved_klass); 
-        //result = rb_any_to_s(resolved_klass);
+        result = rb_any_to_s(klass);
     }
     else
     {
-        result = rb_class_name(resolved_klass);
+        result = rb_class_name(klass);
     }
 
     return result;
@@ -168,7 +166,8 @@ prof_method_create(rb_trace_arg_t* trace_arg)
     result->klass_flags = 0;
     /* Note we do not call resolve_klass_name now because that causes an object allocation that shows up 
        in the allocation results so we want to avoid it until after the profile run is complete. */
-    result->klass_name = resolve_klass(klass, &result->klass_flags);
+    result->klass = resolve_klass(klass, &result->klass_flags);
+    result->klass_name = Qnil;
     result->method_name = msym;
     result->measurement = prof_measurement_create();
 
@@ -289,6 +288,9 @@ prof_method_mark(void *data)
     rb_gc_mark(method->klass_name);
     rb_gc_mark(method->method_name);
     
+    if (method->klass != Qnil)
+        rb_gc_mark(method->klass);
+
     if (method->object != Qnil)
 		rb_gc_mark(method->object);
 

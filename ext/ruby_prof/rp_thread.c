@@ -147,13 +147,15 @@ threads_table_lookup(void *prof, VALUE fiber)
 }
 
 thread_data_t*
-threads_table_insert(void *prof, VALUE thread, VALUE fiber)
+threads_table_insert(void *prof, VALUE fiber)
 {
     prof_profile_t *profile = prof;
     thread_data_t *result = thread_data_create();
+    VALUE thread = rb_thread_current();
+
     result->fiber = fiber;
-    result->thread_id = rb_obj_id(thread);
     result->fiber_id = rb_obj_id(fiber);
+    result->thread_id = rb_obj_id(thread);
     st_insert(profile->threads_tbl, (st_data_t)fiber, (st_data_t)result);
 
     // Are we tracing this thread?

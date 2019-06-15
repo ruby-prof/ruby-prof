@@ -51,19 +51,17 @@ prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
     VALUE object = rb_tracearg_object(trace_arg);
     VALUE klass = rb_obj_class(object);
 
-    VALUE source_line = rb_tracearg_lineno(trace_arg);
+    int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
     st_data_t key = allocations_key(klass, source_line);
 
     prof_allocation_t* allocation = allocations_table_lookup(method->allocations_table, key);
     if (!allocation)
     {
-        VALUE class_path = (RTEST(klass) && !OBJ_FROZEN(klass)) ? rb_class_path_cached(klass) : Qnil;
-        const char* class_path_cstr = RTEST(class_path) ? RSTRING_PTR(class_path) : 0;
-
         allocation = prof_allocation_create();
-        allocation->source_line = FIX2INT(source_line);
+        allocation->source_line = source_line;
         allocation->source_file = rb_tracearg_path(trace_arg);
-        allocation->klass = klass;
+       // allocation->klass = klass;
+        allocation->klass = Qnil;
         allocations_table_insert(method->allocations_table, key, allocation);
     }
 
@@ -104,13 +102,13 @@ void
 prof_allocation_mark(prof_allocation_t* allocation)
 {
     if (allocation->klass != Qnil)
-    rb_gc_mark(allocation->klass);
+        rb_gc_mark(allocation->klass);
     
+    if (allocation->object != Qnil)
+            rb_gc_mark(allocation->object);
+
     if (allocation->source_file != Qnil)
         rb_gc_mark(allocation->source_file);
-
-    if (allocation->object != Qnil)
-        rb_gc_mark(allocation->object);
 }
 
 static const rb_data_type_t allocation_type =

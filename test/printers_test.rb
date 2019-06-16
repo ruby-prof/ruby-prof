@@ -115,7 +115,7 @@ class PrintersTest < TestCase
     printer = RubyProf::GraphHtmlPrinter.new(@result)
     printer.print(output)
 
-    assert_match(/DTD HTML 4\.01/i, output)
+    assert_match(/<!DOCTYPE html>/i, output)
     assert_match( %r{<th>Total Time</th>}i, output)
     assert_match(/Object#run_primes/i, output)
   end

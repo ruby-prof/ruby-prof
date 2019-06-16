@@ -34,11 +34,7 @@ class LineNumbersTest < TestCase
 
     method = methods[1]
     assert_equal('LineNumbers#method2', method.full_name)
-    if RUBY_VERSION < "2.5"
-      assert_equal(10, method.line)
-    else
-      assert_equal(11, method.line)
-    end
+    assert_equal(10, method.line)
 
     method = methods[2]
     assert_equal('LineNumbers#method1', method.full_name)
@@ -55,25 +51,16 @@ class LineNumbersTest < TestCase
     methods = result.threads.first.methods.sort_by {|method| method.full_name}
     assert_equal(3, methods.length)
 
-    # Methods:
-    #   LineNumbers#method3
-    #   LineNumbersTest#test_c_function
-    #   Kernel#sleep
-
     method = methods[0]
     assert_equal('Kernel#sleep', method.full_name)
     assert_equal(0, method.line)
 
     method = methods[1]
     assert_equal('LineNumbers#method3', method.full_name)
-    if RUBY_VERSION < "2.5"
-      assert_equal(14, method.line)
-    else
-      assert_equal(15, method.line)
-    end
+    assert_equal(14, method.line)
 
     method = methods[2]
     assert_equal('LineNumbersTest#test_c_function', method.full_name)
-    assert_equal(52, method.line)
+    assert_equal(48, method.line)
   end
 end

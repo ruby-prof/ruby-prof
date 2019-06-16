@@ -146,34 +146,40 @@ class MeasureWallTimeTest < TestCase
     methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)
     names = methods.map(&:full_name)
-    assert_equal('MeasureWallTimeTest#test_instance_methods', names[0])
-    assert_equal('RubyProf::C1#sleep_wait', names[1])
-    assert_equal('Kernel#sleep', names[2])
-    assert_equal('Class#new', names[3])
 
     # order can differ
     assert(names.include?("BasicObject#initialize"))
 
     # Check times
-    assert_in_delta(0.2, methods[0].total_time, 0.03)
-    assert_in_delta(0, methods[0].wait_time, 0.03)
-    assert_in_delta(0, methods[0].self_time, 0.03)
+    method = methods[0]
+    assert_equal('MeasureWallTimeTest#test_instance_methods', method.full_name)
+    assert_in_delta(0.2, method.total_time, 0.03)
+    assert_in_delta(0, method.wait_time, 0.03)
+    assert_in_delta(0, method.self_time, 0.03)
 
-    assert_in_delta(0.2, methods[1].total_time, 0.03)
-    assert_in_delta(0, methods[1].wait_time, 0.03)
-    assert_in_delta(0, methods[1].self_time, 0.03)
+    method = methods[1]
+    assert_equal('RubyProf::C1#sleep_wait', method.full_name)
+    assert_in_delta(0.2, method.total_time, 0.03)
+    assert_in_delta(0, method.wait_time, 0.03)
+    assert_in_delta(0, method.self_time, 0.03)
 
-    assert_in_delta(0.2, methods[2].total_time, 0.03)
-    assert_in_delta(0, methods[2].wait_time, 0.03)
-    assert_in_delta(0.2, methods[2].self_time, 0.03)
+    method = methods[2]
+    assert_equal('Kernel#sleep', method.full_name)
+    assert_in_delta(0.2, method.total_time, 0.03)
+    assert_in_delta(0, method.wait_time, 0.03)
+    assert_in_delta(0.2, method.self_time, 0.03)
 
-    assert_in_delta(0, methods[3].total_time, 0.03)
-    assert_in_delta(0, methods[3].wait_time, 0.03)
-    assert_in_delta(0, methods[3].self_time, 0.03)
+    method = methods[3]
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0, method.total_time, 0.03)
+    assert_in_delta(0, method.wait_time, 0.03)
+    assert_in_delta(0, method.self_time, 0.03)
 
-    assert_in_delta(0, methods[4].total_time, 0.03)
-    assert_in_delta(0, methods[4].wait_time, 0.03)
-    assert_in_delta(0, methods[4].self_time, 0.03)
+    method = methods[4]
+    assert_equal('BasicObject#initialize', method.full_name)
+    assert_in_delta(0, method.total_time, 0.03)
+    assert_in_delta(0, method.wait_time, 0.03)
+    assert_in_delta(0, method.self_time, 0.03)
   end
 
   def test_instance_methods_block

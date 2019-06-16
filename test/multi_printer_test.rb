@@ -54,35 +54,6 @@ class MultiPrinterTest < TestCase
     end
   end
 
-  def test_all_profiles_can_be_created
-    start_time = Time.now
-    RubyProf.start
-    5.times{MSTPT.new.a}
-    result = RubyProf.stop
-    end_time = Time.now
-    expected_time = end_time - start_time
-    graph = print(result)[1]
-    re = Regexp.new('
-\s*<table>
-\s*<tr>
-\s*<th>Thread ID</th>
-\s*(<th>Fiber ID</th>)?
-\s*<th>Total Time</th>
-\s*</tr>
-\s*
-\s*<tr>
-\s*(<td>([\.0-9]+)</td>)?
-\s*<td><a href="#-?\d+">-?\d+</a></td>
-\s*<td>([\.0-9e]+)</td>
-\s*</tr>
-\s*
-\s*</table>')
-    assert_match(re, graph)
-    graph =~ re
-    display_time = $4.to_f
-    assert_in_delta(expected_time, display_time, 0.02)
-  end
-
   private
 
   def print(result)

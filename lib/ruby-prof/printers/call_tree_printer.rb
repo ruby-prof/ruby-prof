@@ -80,7 +80,7 @@ module RubyProf
     end
 
     def file(method)
-      File.expand_path(method.source_file)
+      method.source_file ? File.expand_path(method.source_file) : ''
     end
 
     def print_thread(thread)

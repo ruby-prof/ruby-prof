@@ -124,10 +124,10 @@ module RubyProf
 
     def link(call_info)
       method = call_info.target
-      file = File.expand_path(method.source_file)
-      if file =~ /\/ruby_runtime$/
+      if method.source_file.nil?
         h(name(call_info))
       else
+        file = File.expand_path(method.source_file)
         if @editor
           "<a href=\"#{@editor}://" \
           "open?url=file://#{file}&line=#{method.line}\">" \

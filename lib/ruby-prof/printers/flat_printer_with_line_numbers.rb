@@ -40,14 +40,14 @@ module RubyProf
            @output << "\n"
          else
            @output << "\n    defined at:\n"
-           @output << defined_at_format % [File.expand_path(method.source_file), method.line]
+           @output << defined_at_format % [File.expand_path(method.source_file ? method.source_file : ''), method.line]
          end
 
          callers = []
          method.callers.each do |call_info|
            if call_info.parent && call_info.parent.source_file != 'ruby_runtime'
              callers << [method_name(call_info.parent),
-                         File.expand_path(call_info.parent.source_file), call_info.parent.line]
+                         File.expand_path(call_info.parent.source_file ? call_info.parent.source_file : ''), call_info.parent.line]
            end
          end
          # make sure callers are unique

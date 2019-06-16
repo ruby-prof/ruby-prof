@@ -146,11 +146,6 @@ class MeasureAllocationsTest < TestCase
       a
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     return
 
     thread = result.threads.first

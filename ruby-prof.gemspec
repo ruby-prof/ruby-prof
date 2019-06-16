@@ -49,7 +49,7 @@ EOF
                    'test/*.rb']
 
   spec.test_files = Dir["test/test_*.rb"]
-  spec.required_ruby_version = '>= 2.4.0'
+  spec.required_ruby_version = '>= 2.2.9'
   spec.date = Time.now.strftime('%Y-%m-%d')
   spec.homepage = 'https://github.com/ruby-prof/ruby-prof'
   spec.add_development_dependency('minitest')

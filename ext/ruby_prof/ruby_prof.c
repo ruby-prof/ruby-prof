@@ -229,7 +229,7 @@ prof_event_hook(VALUE trace_point, void* data)
         thread_data = threads_table_lookup(profile, fiber);
         if (!thread_data)
         {
-            thread_data = threads_table_insert(profile, thread, fiber);
+            thread_data = threads_table_insert(profile, fiber);
         }
         switch_thread(profile, thread_data, measurement);
     }
@@ -597,7 +597,7 @@ prof_start(VALUE self)
 
     profile->running = Qtrue;
     profile->paused = Qfalse;
-    profile->last_thread_data = threads_table_insert(profile, rb_thread_current(), rb_fiber_current());
+    profile->last_thread_data = threads_table_insert(profile,rb_fiber_current());
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");

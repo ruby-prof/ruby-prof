@@ -165,27 +165,23 @@ thread_data_t* check_fiber(prof_profile_t *profile, double measurement)
 }
 
 static void
-prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, double measurement)
+prof_trace(prof_profile_t* profile, rb_trace_arg_t *trace_arg, double measurement)
 {
     static VALUE last_fiber = Qnil;
-
-    VALUE thread = rb_thread_current();
     VALUE fiber = rb_fiber_current();
 
-    if (mid == 0)
-    {
-        rb_frame_method_id_and_class(&mid, &klass);
-    }
-
-    const char* class_name = NULL;
-    const char* method_name = rb_id2name(mid);
-    const char* source_file = rb_sourcefile();
-    unsigned int source_line = rb_sourceline();
-
+    rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     const char* event_name = get_event_name(event);
-    
+
+    VALUE self = rb_tracearg_self(trace_arg);
+    VALUE source_file = rb_tracearg_path(trace_arg);
+    int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
+    VALUE msym = rb_tracearg_method_id(trace_arg);
+
     unsigned int klass_flags;
+    VALUE klass = rb_tracearg_defined_class(trace_arg);
     VALUE resolved_klass = resolve_klass(klass, &klass_flags);
+    const char* class_name = "";
 
     if (resolved_klass != Qnil)
         class_name = rb_class2name(resolved_klass);
@@ -195,9 +191,9 @@ prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, 
         fprintf(trace_file, "\n");
     }
 
-    fprintf(trace_file, "%2lu:%2lu:%2f %-8s %s#%s    %s:%2d\n",
-        FIX2ULONG(thread), FIX2ULONG(fiber), (double) measurement,
-            event_name, class_name, method_name, source_file, source_line);
+    fprintf(trace_file, "%2lu:%2f %-8s %s#%s    %s:%2d\n",
+        FIX2ULONG(fiber), (double) measurement,
+            event_name, class_name, rb_id2name(SYM2ID(msym)), StringValuePtr(source_file), source_line);
     fflush(trace_file);
     last_fiber = fiber;
 }
@@ -216,19 +212,22 @@ prof_event_hook(VALUE trace_point, void* data)
     rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     VALUE self = rb_tracearg_self(trace_arg);
 
-    /* Special case - skip any methods from the mProf
-       module or cProfile class since they clutter
-       the results but aren't important to them results. */
-    if (self == mProf)
-        return;
-
     /* Get current measurement */
     measurement = prof_measure(profile->measurer);
 
     if (trace_file != NULL)
     {
-       // prof_trace(profile, event, mid, klass, measurement);
+        prof_trace(profile, trace_arg, measurement);
     }
+
+    VALUE klass = rb_tracearg_defined_class(trace_arg);
+
+    /* Special case - skip any methods from the mProf
+       module or cProfile class since they clutter
+       the results but aren't important to them results. */
+    if (self == mProf || klass == cProfile)
+        return;
+
 
     thread_data = check_fiber(profile, measurement);
 
@@ -264,11 +263,6 @@ prof_event_hook(VALUE trace_point, void* data)
             prof_frame_t* next_frame;
             prof_call_info_t* call_info;
             prof_method_t* method;
-            VALUE klass = rb_tracearg_defined_class(trace_arg);
-
-            // If this is RubyProf::Profile then skip (we do this here because getting the klass above is expensive)
-            if (klass == cProfile)
-                return;
 
             VALUE msym = rb_tracearg_method_id(trace_arg);
             st_data_t key = method_key(klass, msym);
@@ -277,7 +271,7 @@ prof_event_hook(VALUE trace_point, void* data)
             if (!method)
             {
                 VALUE source_file = (event != RUBY_EVENT_C_CALL ? rb_tracearg_path(trace_arg) : Qnil);
-                int source_line = (event != RUBY_EVENT_C_CALL ? rb_tracearg_lineno(trace_arg) : 0);
+                int source_line = (event != RUBY_EVENT_C_CALL ? FIX2INT(rb_tracearg_lineno(trace_arg)) : 0);
                 method = create_method(profile, key, klass, msym, source_file, source_line);
             }
 
@@ -292,7 +286,6 @@ prof_event_hook(VALUE trace_point, void* data)
                 method->root = true;
                 call_info = prof_call_info_create(method, NULL);
                 st_insert(method->parent_call_infos, (st_data_t)&key, (st_data_t)call_info);
-                frame->call_info = call_info;
             }
             else
             {

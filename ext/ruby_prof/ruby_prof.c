@@ -46,9 +46,9 @@ prof_get_profile(VALUE self)
 }
 
 static prof_method_t*
-create_method(rb_trace_arg_t* trace_arg, st_data_t key, thread_data_t* thread_data, prof_profile_t* profile)
+create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
-    prof_method_t* method = NULL;
+    prof_method_t* result = NULL;
 
     if (excludes_method(key, profile))
     {
@@ -56,30 +56,17 @@ create_method(rb_trace_arg_t* trace_arg, st_data_t key, thread_data_t* thread_da
         /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
            tables share the same exclusion method struct? The first attempt failed due to my
            ignorance of the whims of the GC. */
-           // method = prof_method_create_excluded(klass, msym);
+        result = prof_method_create_excluded(klass, msym);
     }
     else
     {
-        method = prof_method_create(trace_arg);
+        result = prof_method_create(klass, msym, source_file, source_line);
     }
 
     /* Insert the newly created method, or the exlcusion sentinel. */
-    method_table_insert(thread_data->method_table, method->key, method);
+    method_table_insert(profile->last_thread_data->method_table, result->key, result);
 
-    return method;
-}
-
-static prof_method_t*
-prof_get_method(prof_profile_t* profile, thread_data_t* thread_data, st_data_t key, rb_trace_arg_t* trace_arg)
-{
-    prof_method_t* method = method_table_lookup(thread_data->method_table, key);
-
-    if (!method)
-    {
-        method = create_method(trace_arg, key, thread_data, profile);
-    }
-
-    return method;
+    return result;
 }
 
 static const char *
@@ -285,8 +272,14 @@ prof_event_hook(VALUE trace_point, void* data)
 
             VALUE msym = rb_tracearg_method_id(trace_arg);
             st_data_t key = method_key(klass, msym);
+            method = method_table_lookup(thread_data->method_table, key);
 
-            method = prof_get_method(profile, thread_data, key, trace_arg);
+            if (!method)
+            {
+                VALUE source_file = (event != RUBY_EVENT_C_CALL ? rb_tracearg_path(trace_arg) : Qnil);
+                int source_line = (event != RUBY_EVENT_C_CALL ? rb_tracearg_lineno(trace_arg) : 0);
+                method = create_method(profile, key, klass, msym, source_file, source_line);
+            }
 
             if (method->excluded)
             {
@@ -777,12 +770,11 @@ prof_profile_class(int argc,  VALUE *argv, VALUE klass)
 }
 
 static VALUE
-prof_exclude_method(VALUE self, VALUE klass, VALUE sym)
+prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
 {
     prof_profile_t* profile = prof_get_profile(self);
-    ID mid = SYM2ID(sym);
 
-    st_data_t key = method_key(klass, mid);
+    st_data_t key = method_key(klass, msym);
     prof_method_t *method;
 
     if (profile->running == Qtrue)
@@ -794,7 +786,7 @@ prof_exclude_method(VALUE self, VALUE klass, VALUE sym)
 
     if (!method)
     {
-      method = prof_method_create_excluded(klass, mid);
+      method = prof_method_create_excluded(klass, msym);
       method_table_insert(profile->exclude_methods_tbl, method->key, method);
     }
 

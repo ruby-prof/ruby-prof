@@ -154,16 +154,12 @@ prof_get_method(VALUE self)
 }
 
 prof_method_t*
-prof_method_create(rb_trace_arg_t* trace_arg)
+prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
     prof_method_t *result = ALLOC(prof_method_t);
-    const char* source_file = NULL;
-
-    VALUE klass = rb_tracearg_defined_class(trace_arg);
-    VALUE msym = rb_tracearg_method_id(trace_arg);
     result->key = method_key(klass, msym);
-
     result->klass_flags = 0;
+
     /* Note we do not call resolve_klass_name now because that causes an object allocation that shows up 
        in the allocation results so we want to avoid it until after the profile run is complete. */
     result->klass = resolve_klass(klass, &result->klass_flags);
@@ -183,17 +179,8 @@ prof_method_create(rb_trace_arg_t* trace_arg)
 
     result->object = Qnil;
 
-    rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
-    if (event != RUBY_EVENT_C_CALL)
-    {
-        result->source_file = rb_tracearg_path(trace_arg);
-        result->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
-    }
-    else
-    {
-        result->source_file = Qnil;
-        result->source_line = 0;
-    }
+    result->source_file = source_file;
+    result->source_line = source_line;
 
     return result;
 }
@@ -201,9 +188,9 @@ prof_method_create(rb_trace_arg_t* trace_arg)
 prof_method_t*
 prof_method_create_excluded(VALUE klass, VALUE msym)
 {
-  /*  prof_method_t* result = prof_method_create(RUBY_EVENT_C_CALL, klass, msym, 0);
+    prof_method_t* result = prof_method_create(klass, msym, Qnil, 0);
     result->excluded = 1;
-    return result;*/
+    return result;
 }
 
 static int
@@ -317,7 +304,7 @@ static const rb_data_type_t method_info_type =
 static VALUE
 prof_method_allocate(VALUE klass)
 {
-    prof_method_t* method_data = prof_method_create(NULL);
+    prof_method_t* method_data = prof_method_create(Qnil, Qnil, Qnil, 0);
     method_data->object = prof_method_wrap(method_data);
     return method_data->object;
 }

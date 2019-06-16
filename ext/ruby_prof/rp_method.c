@@ -570,8 +570,8 @@ prof_method_load(VALUE self, VALUE data)
     method_data->recursive = rb_hash_aref(data, ID2SYM(rb_intern("recursive"))) == Qtrue ? true : false;
     method_data->excluded = rb_hash_aref(data, ID2SYM(rb_intern("excluded"))) == Qtrue ? true : false;
 
-    VALUE source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
-    VALUE source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
+    method_data->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
+    method_data->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
 
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     method_data->measurement = prof_get_measurement(measurement);

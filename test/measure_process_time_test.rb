@@ -735,8 +735,8 @@ class MeasureProcessTimeTest < TestCase
     assert_equal('RubyProf::M1#busy_wait', method.full_name)
     assert_in_delta(0.3, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
-    assert_in_delta(0.14, method.self_time, 0.05)
-    assert_in_delta(0.14, method.children_time, 0.05)
+    assert_in_delta(0.15, method.self_time, 0.05)
+    assert_in_delta(0.15, method.children_time, 0.05)
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)

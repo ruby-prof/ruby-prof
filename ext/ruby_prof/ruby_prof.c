@@ -45,6 +45,13 @@ prof_get_profile(VALUE self)
     return DATA_PTR(self);
 }
 
+static int
+excludes_method(st_data_t key, prof_profile_t* profile)
+{
+    return (profile->exclude_methods_tbl &&
+        method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
+}
+
 static prof_method_t*
 create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
@@ -102,13 +109,6 @@ get_event_name(rb_event_flag_t event)
   default:
     return "unknown";
   }
-}
-
-static int
-excludes_method(st_data_t key, prof_profile_t *profile)
-{
-  return (profile->exclude_methods_tbl &&
-    method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
 }
 
 static void
@@ -173,7 +173,6 @@ prof_trace(prof_profile_t* profile, rb_trace_arg_t *trace_arg, double measuremen
     rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     const char* event_name = get_event_name(event);
 
-    VALUE self = rb_tracearg_self(trace_arg);
     VALUE source_file = rb_tracearg_path(trace_arg);
     int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
     VALUE msym = rb_tracearg_method_id(trace_arg);
@@ -205,8 +204,6 @@ static void
 prof_event_hook(VALUE trace_point, void* data)
 {
     prof_profile_t* profile = (prof_profile_t*)data;
-    VALUE thread = Qnil;
-    VALUE fiber = Qnil;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
     double measurement;

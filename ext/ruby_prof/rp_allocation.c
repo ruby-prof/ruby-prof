@@ -2,6 +2,7 @@
    Please see the LICENSE file for copyright and distribution information */
 
 #include "ruby_prof.h"
+#include <ruby/intern.h>
 
 VALUE cRpAllocation;
 
@@ -66,14 +67,16 @@ prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
     }
 
     allocation->count++;
-    allocation->memory += rb_obj_memsize_of(object);
+    //allocation->memory += rb_obj_memsize_of(object);
 
     return allocation;
 }
 
 static void
-prof_allocation_ruby_gc_free(prof_allocation_t* allocation)
+prof_allocation_ruby_gc_free(void *data)
 {
+    prof_allocation_t* allocation = (prof_allocation_t*)data;
+
     /* Has this thread object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (allocation->object != Qnil)
@@ -99,8 +102,9 @@ prof_allocation_size(const void* data)
 }
 
 void
-prof_allocation_mark(prof_allocation_t* allocation)
+prof_allocation_mark(void *data)
 {
+    prof_allocation_t* allocation = (prof_allocation_t*)data;
     if (allocation->klass != Qnil)
         rb_gc_mark(allocation->klass);
     

@@ -191,9 +191,12 @@ prof_trace(prof_profile_t* profile, rb_trace_arg_t *trace_arg, double measuremen
         fprintf(trace_file, "\n");
     }
 
+    const char* method_name_char = (msym != Qnil ? rb_id2name(SYM2ID(msym)) : "");
+    const char* source_file_char = (source_file != Qnil ? StringValuePtr(source_file) : "");
+
     fprintf(trace_file, "%2lu:%2f %-8s %s#%s    %s:%2d\n",
         FIX2ULONG(fiber), (double) measurement,
-            event_name, class_name, rb_id2name(SYM2ID(msym)), StringValuePtr(source_file), source_line);
+            event_name, class_name, method_name_char, source_file_char, source_line);
     fflush(trace_file);
     last_fiber = fiber;
 }
@@ -220,14 +223,10 @@ prof_event_hook(VALUE trace_point, void* data)
         prof_trace(profile, trace_arg, measurement);
     }
 
-    VALUE klass = rb_tracearg_defined_class(trace_arg);
-
     /* Special case - skip any methods from the mProf
-       module or cProfile class since they clutter
-       the results but aren't important to them results. */
-    if (self == mProf || klass == cProfile)
+       module since they clutter the results but aren't important to them results. */
+    if (self == mProf)
         return;
-
 
     thread_data = check_fiber(profile, measurement);
 
@@ -264,8 +263,17 @@ prof_event_hook(VALUE trace_point, void* data)
             prof_call_info_t* call_info;
             prof_method_t* method;
 
+            VALUE klass = rb_tracearg_defined_class(trace_arg);
+
+            /* Special case - skip any methods from the mProf
+               module or cProfile class since they clutter
+               the results but aren't important to them results. */
+            if (klass == cProfile)
+                return;
+
             VALUE msym = rb_tracearg_method_id(trace_arg);
             st_data_t key = method_key(klass, msym);
+
             method = method_table_lookup(thread_data->method_table, key);
 
             if (!method)

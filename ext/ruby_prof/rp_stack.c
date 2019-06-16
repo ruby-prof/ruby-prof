@@ -76,7 +76,8 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
   result->wait_time = 0;
   result->child_time = 0;
   result->dead_time = 0;
-  result->line = 0;
+  result->source_file = Qnil;
+  result->source_line = 0;
 
   call_info->measurement->called++;
   call_info->visits++;
@@ -160,8 +161,6 @@ prof_stack_pop(prof_stack_t *stack, double measurement)
   {
       parent_frame->child_time += total_time;
       parent_frame->dead_time += frame->dead_time;
-
-      call_info->line = parent_frame->line;
   }
 
   return frame;

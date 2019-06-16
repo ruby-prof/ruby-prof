@@ -18,10 +18,11 @@ typedef struct prof_call_info_t
     int visits;                             /* Current visits on the stack */
 
     unsigned int depth;
-    unsigned int line;
+    unsigned int source_line;
+    VALUE source_file;
 } prof_call_info_t;
 
-prof_call_info_t *prof_call_info_create(prof_method_t *method, prof_method_t *parent);
+prof_call_info_t *prof_call_info_create(prof_method_t *method, prof_method_t *parent, VALUE source_file, int source_line);
 void prof_call_info_mark(void *data);
 prof_call_info_t *call_info_table_lookup(st_table* table, st_data_t key);
 size_t call_info_table_insert(st_table *table, st_data_t key, prof_call_info_t *val);

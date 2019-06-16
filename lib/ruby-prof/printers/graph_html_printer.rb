@@ -48,10 +48,10 @@ module RubyProf
     end
 
     def file_link(path, linenum)
-      srcfile = File.expand_path(path)
-      if srcfile =~ /\/ruby_runtime$/
+      if path.nil?
         ""
       else
+        srcfile = File.expand_path(path)
         "<a href=\"file://#{h srcfile}##{linenum}\" title=\"#{h srcfile}:#{linenum}\">#{linenum}</a>"
       end
     end

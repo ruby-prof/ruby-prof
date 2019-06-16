@@ -435,6 +435,17 @@ prof_method_measurement(VALUE self)
 }
 
 /* call-seq:
+   source_file => string
+
+return the source file of the method
+*/
+static VALUE prof_method_source_file(VALUE self)
+{
+    prof_method_t* method = prof_method_get(self);
+    return method->source_file;
+}
+
+/* call-seq:
    line_no -> int
 
    returns the line number of the method */
@@ -443,17 +454,6 @@ prof_method_line(VALUE self)
 {
     prof_method_t* method = prof_method_get(self);
     return INT2FIX(method->source_line);
-}
-
-/* call-seq:
-   source_file => string
-
-return the source file of the method
-*/
-static VALUE prof_method_source_file(VALUE self)
-{
-    prof_method_t *method = prof_method_get(self);
-    return method->source_file;
 }
 
 /* call-seq:

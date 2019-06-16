@@ -244,7 +244,8 @@ prof_event_hook(VALUE trace_point, void* data)
             {
                 if (prof_frame_is_real(frame))
                 {
-                    frame->line = FIX2INT(rb_tracearg_lineno(trace_arg));
+                    frame->source_file = rb_tracearg_path(trace_arg);
+                    frame->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
                 }
                 break;
             }
@@ -289,7 +290,7 @@ prof_event_hook(VALUE trace_point, void* data)
             if (!frame->call_info)
             {
                 method->root = true;
-                call_info = prof_call_info_create(method, NULL);
+                call_info = prof_call_info_create(method, NULL, method->source_file, method->source_line);
                 st_insert(method->parent_call_infos, (st_data_t)&key, (st_data_t)call_info);
             }
             else
@@ -300,7 +301,7 @@ prof_event_hook(VALUE trace_point, void* data)
                 {
                     /* This call info does not yet exist.  So create it, then add
                        it to previous callinfo's children and to the current method .*/
-                    call_info = prof_call_info_create(method, frame->call_info->method);
+                    call_info = prof_call_info_create(method, frame->call_info->method, frame->source_file, frame->source_line);
                     call_info_table_insert(method->parent_call_infos, frame->call_info->method->key, call_info);
                     call_info_table_insert(frame->call_info->method->child_call_infos, method->key, call_info);
                 }
@@ -308,7 +309,8 @@ prof_event_hook(VALUE trace_point, void* data)
 
             /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
             next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
-            next_frame->line = method->source_file;
+            next_frame->source_file = method->source_file; 
+            next_frame->source_line = method->source_line;
             break;
         } 
         case RUBY_EVENT_RETURN:

@@ -9,7 +9,7 @@ VALUE cRpCallnfo;
 
 /* =======  prof_call_info_t   ========*/
 prof_call_info_t *
-prof_call_info_create(prof_method_t *method, prof_method_t *parent)
+prof_call_info_create(prof_method_t *method, prof_method_t *parent, VALUE source_file, int source_line)
 {
     prof_call_info_t *result = ALLOC(prof_call_info_t);
     result->method = method;
@@ -20,7 +20,8 @@ prof_call_info_create(prof_method_t *method, prof_method_t *parent)
     result->visits = 0;
 
     result->depth = 0;
-    result->line = rb_sourceline();
+    result->source_line = source_line;
+    result->source_file = source_file;
 
     return result;
 }
@@ -58,6 +59,10 @@ void
 prof_call_info_mark(void *data)
 {
     prof_call_info_t *call_info = (prof_call_info_t*)data;
+
+    if (call_info->source_file != Qnil)
+        rb_gc_mark(call_info->source_file);
+
 	if (call_info->object != Qnil)
 		rb_gc_mark(call_info->object);
 
@@ -96,7 +101,7 @@ prof_call_info_wrap(prof_call_info_t *call_info)
 static VALUE
 prof_call_info_allocate(VALUE klass)
 {
-    prof_call_info_t* call_info = prof_call_info_create(NULL, NULL);
+    prof_call_info_t* call_info = prof_call_info_create(NULL, NULL, Qnil, 0);
     call_info->object = prof_call_info_wrap(call_info);
     return call_info->object;
 }
@@ -197,6 +202,18 @@ prof_call_info_depth(VALUE self)
 }
 
 /* call-seq:
+   source_file => string
+
+return the source file of the method
+*/
+static VALUE
+prof_call_info_source_file(VALUE self)
+{
+    prof_call_info_t* result = prof_get_call_info(self);
+    return result->source_file;
+}
+
+/* call-seq:
    line_no -> int
 
    returns the line number of the method */
@@ -204,7 +221,7 @@ static VALUE
 prof_call_info_line(VALUE self)
 {
   prof_call_info_t *result = prof_get_call_info(self);
-  return rb_int_new(result->line);
+  return INT2FIX(result->source_line);
 }
 
 static VALUE
@@ -216,7 +233,8 @@ prof_call_info_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(call_info_data->measurement));
 
     rb_hash_aset(result, ID2SYM(rb_intern("depth")), INT2FIX(call_info_data->depth));
-    rb_hash_aset(result, ID2SYM(rb_intern("line")), INT2FIX(call_info_data->line));
+    rb_hash_aset(result, ID2SYM(rb_intern("source_file")), call_info_data->source_file);
+    rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(call_info_data->source_line));
 
     rb_hash_aset(result, ID2SYM(rb_intern("parent")), prof_call_info_parent(self));
     rb_hash_aset(result, ID2SYM(rb_intern("target")), prof_call_info_target(self));
@@ -236,7 +254,8 @@ prof_call_info_load(VALUE self, VALUE data)
     call_info->measurement = prof_get_measurement(measurement);
 
     call_info->depth = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("depth"))));
-    call_info->line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("line"))));
+    call_info->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
+    call_info->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
 
     parent = rb_hash_aref(data, ID2SYM(rb_intern("parent")));
     if (parent != Qnil)
@@ -260,6 +279,7 @@ void rp_init_call_info()
     rb_define_method(cRpCallnfo, "measurement", prof_call_info_measurement, 0);
 
     rb_define_method(cRpCallnfo, "depth", prof_call_info_depth, 0);
+    rb_define_method(cRpCallnfo, "source_file", prof_call_info_source_file, 0);
     rb_define_method(cRpCallnfo, "line", prof_call_info_line, 0);
 
     rb_define_method(cRpCallnfo, "_dump_data", prof_call_info_dump, 0);

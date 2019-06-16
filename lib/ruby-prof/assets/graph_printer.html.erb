@@ -177,9 +177,7 @@ total_time = thread.total_time
               <td><%= "#{callee.called}/#{callee.target.called}" %></td>
               <td class="method_name"><%= create_link(thread, total_time, callee.target) %></td>
               <td>-</td>
-              <td><%= if method.source_file
-                        file_link(method.source_file, callee.line)
-                      end %></td>
+              <td><%= file_link(callee.source_file, callee.line) %>
           </tr>
          <% end %>
 

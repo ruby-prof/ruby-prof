@@ -19,7 +19,8 @@ typedef struct
        increases performance. */
     prof_call_info_t *call_info;
 
-    unsigned int line;
+    VALUE source_file;
+    unsigned int source_line;
     unsigned int passes; /* Count of "pass" frames, _after_ this one. */
 
     double start_time;

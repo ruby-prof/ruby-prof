@@ -60,6 +60,7 @@ class MarshalTest < TestCase
     assert_equal(call_info_1.target, call_info_2.target)
 
     assert_equal(call_info_1.depth, call_info_2.depth)
+    assert_equal(call_info_1.source_file, call_info_2.source_file)
     assert_equal(call_info_1.line, call_info_2.line)
 
     verify_measurement(call_info_1.measurement, call_info_2.measurement)

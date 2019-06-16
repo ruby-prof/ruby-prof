@@ -152,6 +152,31 @@ prof_stop_threads(prof_profile_t* profile)
 }
 
 /* ===========  Profiling ================= */
+thread_data_t* check_fiber(prof_profile_t *profile, double measurement)
+{
+    thread_data_t* result = NULL;
+
+    /* Get the current thread and fiber information. */
+    VALUE fiber = rb_fiber_current();
+
+    /* We need to switch the profiling context if we either had none before,
+       we don't merge fibers and the fiber ids differ, or the thread ids differ. */
+    if (profile->last_thread_data->fiber != fiber)
+    {
+        result = threads_table_lookup(profile, fiber);
+        if (!result)
+        {
+            result = threads_table_insert(profile, fiber);
+        }
+        switch_thread(profile, result, measurement);
+    }
+    else
+    {
+        result = profile->last_thread_data;
+    }
+    return result;
+}
+
 static void
 prof_trace(prof_profile_t* profile, rb_event_flag_t event, ID mid, VALUE klass, double measurement)
 {
@@ -207,7 +232,7 @@ prof_event_hook(VALUE trace_point, void* data)
     /* Special case - skip any methods from the mProf
        module or cProfile class since they clutter
        the results but aren't important to them results. */
-    if (self == mProf )
+    if (self == mProf)
         return;
 
     /* Get current measurement */
@@ -218,31 +243,13 @@ prof_event_hook(VALUE trace_point, void* data)
        // prof_trace(profile, event, mid, klass, measurement);
     }
 
-    /* Get the current thread and fiber information. */
-    thread = rb_thread_current();
-    fiber = rb_fiber_current();
-
-    /* We need to switch the profiling context if we either had none before,
-       we don't merge fibers and the fiber ids differ, or the thread ids differ. */
-    if (profile->last_thread_data->fiber != fiber)
-    {
-        thread_data = threads_table_lookup(profile, fiber);
-        if (!thread_data)
-        {
-            thread_data = threads_table_insert(profile, fiber);
-        }
-        switch_thread(profile, thread_data, measurement);
-    }
-    else
-    {
-        thread_data = profile->last_thread_data;
-    }
+    thread_data = check_fiber(profile, measurement);
 
     if (!thread_data->trace)
         return;
 
     /* Get the current frame for the current thread. */
-    frame = prof_stack_peek(thread_data->stack);
+    frame = thread_data->stack->ptr;
 
     switch (event)
     {
@@ -251,7 +258,7 @@ prof_event_hook(VALUE trace_point, void* data)
             /* Keep track of the current line number in this method.  When
                a new method is called, we know what line number it was
                called from. */
-            if (frame)
+            if (frame->call_info)
             {
                 if (prof_frame_is_real(frame))
                 {
@@ -271,6 +278,11 @@ prof_event_hook(VALUE trace_point, void* data)
             prof_call_info_t* call_info;
             prof_method_t* method;
             VALUE klass = rb_tracearg_defined_class(trace_arg);
+
+            // If this is RubyProf::Profile then skip (we do this here because getting the klass above is expensive)
+            if (klass == cProfile)
+                return;
+
             VALUE msym = rb_tracearg_method_id(trace_arg);
             st_data_t key = method_key(klass, msym);
 
@@ -282,11 +294,12 @@ prof_event_hook(VALUE trace_point, void* data)
               break;
             }
 
-            if (!frame)
+            if (!frame->call_info)
             {
                 method->root = true;
                 call_info = prof_call_info_create(method, NULL);
                 st_insert(method->parent_call_infos, (st_data_t)&key, (st_data_t)call_info);
+                frame->call_info = call_info;
             }
             else
             {
@@ -597,7 +610,7 @@ prof_start(VALUE self)
 
     profile->running = Qtrue;
     profile->paused = Qfalse;
-    profile->last_thread_data = threads_table_insert(profile,rb_fiber_current());
+    profile->last_thread_data = threads_table_insert(profile, rb_fiber_current());
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");

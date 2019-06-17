@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		8B08734F22AF9C2900840594 /* libruby.2.5.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */; };
 		8B2A0D4522A22D0000F67C5D /* ruby_prof.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */; };
+		8B4E7E8B22B85D9400D53342 /* rp_profile.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8922B85D9400D53342 /* rp_profile.c */; };
+		8B4E7E8C22B85D9400D53342 /* rp_profile.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8A22B85D9400D53342 /* rp_profile.h */; };
+		8B4E7E8F22B85FD400D53342 /* rp_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8D22B85FD200D53342 /* rp_allocation.c */; };
+		8B4E7E9022B85FD400D53342 /* rp_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8E22B85FD300D53342 /* rp_allocation.h */; };
 		8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2922A21EA800F36350 /* rp_call_info.c */; };
 		8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2B22A21EA800F36350 /* rp_call_info.h */; };
 		8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */; };
@@ -41,6 +45,10 @@
 
 /* Begin PBXFileReference section */
 		8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libruby.2.5.5.dylib; path = ../../../../../lib/libruby.2.5.5.dylib; sourceTree = "<group>"; };
+		8B4E7E8922B85D9400D53342 /* rp_profile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_profile.c; path = ../rp_profile.c; sourceTree = "<group>"; };
+		8B4E7E8A22B85D9400D53342 /* rp_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_profile.h; path = ../rp_profile.h; sourceTree = "<group>"; };
+		8B4E7E8D22B85FD200D53342 /* rp_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_allocation.c; path = ../rp_allocation.c; sourceTree = "<group>"; };
+		8B4E7E8E22B85FD300D53342 /* rp_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_allocation.h; path = ../rp_allocation.h; sourceTree = "<group>"; };
 		8B6DDF2122A21EA800F36350 /* rp_measure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_measure.h; path = ../rp_measure.h; sourceTree = "<group>"; };
 		8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_process_time.c; path = ../rp_measure_process_time.c; sourceTree = "<group>"; };
 		8B6DDF2322A21EA800F36350 /* rp_stack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_stack.c; path = ../rp_stack.c; sourceTree = "<group>"; };
@@ -78,6 +86,8 @@
 		8B6DDF1022A21E8200F36350 = {
 			isa = PBXGroup;
 			children = (
+				8B4E7E8D22B85FD200D53342 /* rp_allocation.c */,
+				8B4E7E8E22B85FD300D53342 /* rp_allocation.h */,
 				8B6DDF2922A21EA800F36350 /* rp_call_info.c */,
 				8B6DDF2B22A21EA800F36350 /* rp_call_info.h */,
 				8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */,
@@ -87,6 +97,8 @@
 				8B6DDF2122A21EA800F36350 /* rp_measure.h */,
 				8B6DDF2822A21EA800F36350 /* rp_method.c */,
 				8B6DDF2F22A21EA900F36350 /* rp_method.h */,
+				8B4E7E8922B85D9400D53342 /* rp_profile.c */,
+				8B4E7E8A22B85D9400D53342 /* rp_profile.h */,
 				8B6DDF2322A21EA800F36350 /* rp_stack.c */,
 				8B6DDF3222A21EA900F36350 /* rp_stack.h */,
 				8B6DDF2722A21EA800F36350 /* rp_thread.c */,
@@ -149,6 +161,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B4E7E9022B85FD400D53342 /* rp_allocation.h in Headers */,
+				8B4E7E8C22B85D9400D53342 /* rp_profile.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -218,12 +232,14 @@
 				8B6DDFAA22A22C8D00F36350 /* rp_measure.h in Sources */,
 				8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */,
 				8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */,
+				8B4E7E8F22B85FD400D53342 /* rp_allocation.c in Sources */,
 				8B6DDFAD22A22C8D00F36350 /* rp_stack.c in Sources */,
 				8B6DDFAE22A22C8D00F36350 /* rp_stack.h in Sources */,
 				8B6DDFAF22A22C8D00F36350 /* rp_thread.c in Sources */,
 				8B6DDFB022A22C8D00F36350 /* rp_thread.h in Sources */,
 				8B6DDFB122A22C8D00F36350 /* ruby_prof.c in Sources */,
 				8B6DDFB222A22C8D00F36350 /* ruby_prof.h in Sources */,
+				8B4E7E8B22B85D9400D53342 /* rp_profile.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

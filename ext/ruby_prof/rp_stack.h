@@ -4,11 +4,8 @@
 #ifndef __RP_STACK__
 #define __RP_STACK__
 
-#include <ruby.h>
-
-#include "rp_measure.h"
+#include "ruby_prof.h"
 #include "rp_call_info.h"
-
 
 /* Temporary object that maintains profiling information
    for active methods.  They are created and destroyed

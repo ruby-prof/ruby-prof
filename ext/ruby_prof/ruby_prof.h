@@ -10,6 +10,5 @@
 #include <stdbool.h>
 
 extern VALUE mProf;
-extern FILE* trace_file;
 
 #endif //__RUBY_PROF_H__

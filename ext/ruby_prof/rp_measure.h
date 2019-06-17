@@ -4,6 +4,8 @@
 #ifndef __RP_MEASUREMENT_H__
 #define __RP_MEASUREMENT_H__
 
+#include "ruby_prof.h"
+
 extern VALUE mMeasure;
 
 typedef double (*get_measurement)(void);

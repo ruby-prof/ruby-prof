@@ -2,7 +2,7 @@
    Please see the LICENSE file for copyright and distribution information */
 
 /* :nodoc: */
-#include "ruby_prof.h"
+#include "rp_measure.h"
 
 #if defined(__APPLE__)
 #include <mach/mach_time.h>

@@ -3,7 +3,7 @@
 
 /* :nodoc: */
 
-#include "ruby_prof.h"
+#include "rp_measure.h"
 
 static VALUE cMeasureAllocations;
 VALUE total_allocated_objects_key;

@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#include "ruby_prof.h"
-#include <ruby/intern.h>
+#include "rp_allocation.h"
 
 VALUE cRpAllocation;
 

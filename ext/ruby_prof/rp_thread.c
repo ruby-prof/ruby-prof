@@ -1,7 +1,8 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#include "ruby_prof.h"
+#include "rp_thread.h"
+#include "rp_profile.h"
 
 VALUE cRpThread;
 

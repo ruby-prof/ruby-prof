@@ -4,7 +4,7 @@
 #ifndef _RP_ALLOCATION_
 #define _RP_ALLOCATION_
 
-#include <ruby/debug.h>
+#include "ruby_prof.h"
 #include "rp_method.h"
 
 typedef struct

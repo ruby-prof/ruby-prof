@@ -4,9 +4,7 @@
 #ifndef __RP_METHOD_INFO__
 #define __RP_METHOD_INFO__
 
-#include <ruby.h>
-#include <stdbool.h>
-#include <ruby/debug.h>
+#include "ruby_prof.h"
 #include "rp_measure.h"
 
 extern VALUE cRpMethodInfo;

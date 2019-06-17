@@ -4,7 +4,8 @@
 #ifndef __RP_THREAD__
 #define __RP_THREAD__
 
-#include <stdbool.h>
+#include "ruby_prof.h"
+#include "rp_stack.h"
 
 /* Profiling information for a thread. */
 typedef struct

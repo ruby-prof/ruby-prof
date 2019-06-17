@@ -4,6 +4,7 @@
 #ifndef __RP_CALL_INFO_H__
 #define __RP_CALL_INFO_H__
 
+#include "ruby_prof.h"
 #include "rp_measure.h"
 #include "rp_method.h"
 

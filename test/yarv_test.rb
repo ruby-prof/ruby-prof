@@ -29,6 +29,7 @@ class BugsTest < TestCase
   end
 
   private
+
   def define_methods
     return if respond_to?(:array_push_optimized)
     old_compile_option = RubyVM::InstructionSequence.compile_option

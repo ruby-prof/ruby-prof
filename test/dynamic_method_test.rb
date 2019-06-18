@@ -38,8 +38,6 @@ class DynamicMethodTest < TestCase
       medley.peach
     end
 
-    # RubyProf::FlatPrinter.new(result).print(STDOUT)
-
     methods = result.threads.first.methods.sort.reverse
     expected_method_names = %w(
       DynamicMethodTest#test_dynamic_method

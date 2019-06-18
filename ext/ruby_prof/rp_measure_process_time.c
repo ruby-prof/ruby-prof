@@ -66,7 +66,6 @@ void rp_init_measure_process_time()
 {
     rb_define_const(mProf, "CLOCKS_PER_SEC", INT2NUM(CLOCKS_PER_SEC));
     rb_define_const(mProf, "PROCESS_TIME", INT2NUM(MEASURE_PROCESS_TIME));
-	rb_define_const(mProf, "PROCESS_TIME_ENABLED", Qtrue);
 
     cMeasureProcessTime = rb_define_class_under(mMeasure, "ProcessTime", rb_cObject);
     rb_define_singleton_method(cMeasureProcessTime, "measure", prof_measure_process_time, 0);

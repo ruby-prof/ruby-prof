@@ -15,10 +15,6 @@ class MeasureWallTimeTest < TestCase
     assert_equal(RubyProf::WALL_TIME, RubyProf::measure_mode)
   end
 
-  def test_wall_time_enabled_defined
-    assert(defined?(RubyProf::WALL_TIME_ENABLED))
-  end
-
   def test_class_methods
     result = RubyProf.profile do
       RubyProf::C1.sleep_wait

@@ -50,7 +50,7 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
 
     /* Is there space on the stack?  If not, double
      its size. */
-    if (stack->ptr == stack->end)
+    if (stack->ptr == stack->end - 1)
     {
         size_t len = stack->ptr - stack->start;
         size_t new_capacity = (stack->end - stack->start) * 2;

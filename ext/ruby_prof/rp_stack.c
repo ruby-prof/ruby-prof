@@ -3,7 +3,7 @@
 
 #include "rp_stack.h"
 
-#define INITIAL_STACK_SIZE 32
+#define INITIAL_STACK_SIZE 2
 
 void
 prof_frame_pause(prof_frame_t *frame, double current_measurement)
@@ -45,63 +45,62 @@ prof_stack_free(prof_stack_t *stack)
 prof_frame_t *
 prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int paused)
 {
-  prof_frame_t *result;
-  prof_frame_t* parent_frame;
-  
-  /* Is there space on the stack?  If not, double
+    prof_frame_t *result;
+    prof_frame_t* parent_frame;
+
+    /* Is there space on the stack?  If not, double
      its size. */
-  if (stack->ptr == stack->end)
-  {
-    size_t len = stack->ptr - stack->start;
-    size_t new_capacity = (stack->end - stack->start) * 2;
-    REALLOC_N(stack->start, prof_frame_t, new_capacity);
+    if (stack->ptr == stack->end)
+    {
+        size_t len = stack->ptr - stack->start;
+        size_t new_capacity = (stack->end - stack->start) * 2;
+        REALLOC_N(stack->start, prof_frame_t, new_capacity);
 
-    /* Memory just got moved, reset pointers */
-    stack->ptr = stack->start + len;
-    stack->end = stack->start + new_capacity;
-  }
+        /* Memory just got moved, reset pointers */
+        stack->ptr = stack->start + len;
+        stack->end = stack->start + new_capacity;
+    }
 
-  // Reserve the next available frame pointer.
-  parent_frame = stack->ptr;
-  stack->ptr++;
+    parent_frame = stack->ptr;
+    stack->ptr++;
 
-  result = stack->ptr;
-  result->call_info = call_info;
-  result->call_info->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
-  result->passes = 0;
+    result = stack->ptr;
+    result->call_info = call_info;
+    result->call_info->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
+    result->passes = 0;
 
-  result->start_time = measurement;
-  result->pause_time = -1; // init as not paused.
-  result->switch_time = 0;
-  result->wait_time = 0;
-  result->child_time = 0;
-  result->dead_time = 0;
-  result->source_file = Qnil;
-  result->source_line = 0;
+    result->start_time = measurement;
+    result->pause_time = -1; // init as not paused.
+    result->switch_time = 0;
+    result->wait_time = 0;
+    result->child_time = 0;
+    result->dead_time = 0;
+    result->source_file = Qnil;
+    result->source_line = 0;
 
-  call_info->measurement->called++;
-  call_info->visits++;
-  
-  if (call_info->method->visits > 0)
-  {
-      call_info->method->recursive = true;
-  }
-  call_info->method->measurement->called++;
-  call_info->method->visits++;
+    call_info->measurement->called++;
+    call_info->visits++;
 
-  // Unpause the parent frame, if it exists.
-  // If currently paused then:
-  //   1) The child frame will begin paused.
-  //   2) The parent will inherit the child's dead time.
-  prof_frame_unpause(parent_frame, measurement);
+    if (call_info->method->visits > 0)
+    {
+        call_info->method->recursive = true;
+    }
+    call_info->method->measurement->called++;
+    call_info->method->visits++;
 
-  if (paused)
-  {
-    prof_frame_pause(result, measurement);
-  }
+    // Unpause the parent frame, if it exists.
+    // If currently paused then:
+    //   1) The child frame will begin paused.
+    //   2) The parent will inherit the child's dead time.
+    prof_frame_unpause(parent_frame, measurement);
 
-  // Return the result
-  return result;
+    if (paused)
+    {
+        prof_frame_pause(result, measurement);
+    }
+
+    // Return the result
+    return result;
 }
 
 prof_frame_t *

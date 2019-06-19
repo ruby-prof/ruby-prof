@@ -4,15 +4,15 @@
 require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_allocations'
 
-class MeasureAllocationsTest < TestCase
+class MeasureMemoryTest < TestCase
   def setup
-    RubyProf::measure_mode = RubyProf::ALLOCATIONS
+    RubyProf::measure_mode = RubyProf::MEMORY
   end
 
-  def test_allocations_mode
-    RubyProf::measure_mode = RubyProf::ALLOCATIONS
-    assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
-  end
+  # def test_memory_mode
+  #   RubyProf::measure_mode = RubyProf::MEMORY
+  #   assert_equal(RubyProf::MEMORY, RubyProf::measure_mode)
+  # end
 
   def test_allocations
     result = RubyProf.profile do

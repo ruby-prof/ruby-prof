@@ -127,6 +127,7 @@
     <ClCompile Include="..\rp_call_info.c" />
     <ClCompile Include="..\rp_measure.c" />
     <ClCompile Include="..\rp_measure_allocations.c" />
+    <ClCompile Include="..\rp_measure_memory.c" />
     <ClCompile Include="..\rp_measure_process_time.c" />
     <ClCompile Include="..\rp_measure_wall_time.c" />
     <ClCompile Include="..\rp_method.c" />

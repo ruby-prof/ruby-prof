@@ -7,10 +7,12 @@ VALUE mMeasure;
 VALUE cRpMeasurement;
 
 prof_measurer_t* prof_measurer_allocations(void);
+prof_measurer_t* prof_measurer_memory(void);
 prof_measurer_t* prof_measurer_process_time(void);
 prof_measurer_t* prof_measurer_wall_time(void);
 
 void rp_init_measure_allocations(void);
+void rp_init_measure_memory(void);
 void rp_init_measure_process_time(void);
 void rp_init_measure_wall_time(void);
 
@@ -24,6 +26,8 @@ prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure)
         return prof_measurer_process_time();
     case MEASURE_ALLOCATIONS:
         return prof_measurer_allocations();
+    case MEASURE_MEMORY:
+        return prof_measurer_memory();
     default:
         rb_raise(rb_eArgError, "Unknown measure mode: %d", measure);
     }
@@ -213,6 +217,7 @@ void rp_init_measure()
     rp_init_measure_wall_time();
     rp_init_measure_process_time();
     rp_init_measure_allocations();
+    rp_init_measure_memory();
 
     cRpMeasurement = rb_define_class_under(mProf, "Measurement", rb_cData);
     rb_undef_method(CLASS_OF(cRpMeasurement), "new");

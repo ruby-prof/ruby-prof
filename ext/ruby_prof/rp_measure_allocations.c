@@ -17,15 +17,15 @@ measure_allocations_via_gc_stats(rb_trace_arg_t* trace_arg)
 static double
 measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)
 {
-    static double count = 0;
+    static double result = 0;
 
     if (trace_arg)
     {
         rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
         if (event == RUBY_INTERNAL_EVENT_NEWOBJ)
-            count++;
+            result++;
     }
-    return count;
+    return result;
 }
 
 prof_measurer_t* prof_measurer_allocations()

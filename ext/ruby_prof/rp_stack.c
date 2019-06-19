@@ -179,12 +179,9 @@ prof_stack_pass(prof_stack_t *stack)
 prof_method_t*
 prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line)
 {
-    for (int i = 0; i <= stack->ptr - stack->start - 1; i++)
+    prof_frame_t* frame = stack->ptr;
+    while (frame >= stack->start)
     {
-        prof_frame_t* frame = (stack->ptr - i - 1);
-        if (!frame)
-            return NULL;
-
         if (!frame->call_info)
             return NULL;
 
@@ -193,6 +190,7 @@ prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line)
         {
             return frame->call_info->method;
         }
+        frame--;
     }
     return NULL;
 }

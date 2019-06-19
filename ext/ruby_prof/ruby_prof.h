@@ -11,7 +11,7 @@
 
 extern VALUE mProf;
 
-#ifndef rb_obj_memsize_of
+#ifndef HAVE_RB_OBJ_MEMSIZE_OF
 extern size_t rb_obj_memsize_of(VALUE);
 #endif
 

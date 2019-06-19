@@ -121,7 +121,11 @@ prof_trace(prof_profile_t* profile, rb_trace_arg_t *trace_arg, double measuremen
     VALUE source_file = rb_tracearg_path(trace_arg);
     int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
     
+    #ifdef HAVE_RB_TRACEARG_CALLEE_ID
     VALUE msym = rb_tracearg_callee_id(trace_arg);
+    #else
+    VALUE msym = rb_tracearg_method_id(trace_arg);
+    #endif
     
     unsigned int klass_flags;
     VALUE klass = rb_tracearg_defined_class(trace_arg);
@@ -214,7 +218,12 @@ prof_event_hook(VALUE trace_point, void* data)
             if (klass == cProfile)
                 return;
             
+            #ifdef HAVE_RB_TRACEARG_CALLEE_ID
             VALUE msym = rb_tracearg_callee_id(trace_arg);
+            #else
+            VALUE msym = rb_tracearg_method_id(trace_arg);
+            #endif
+
             st_data_t key = method_key(klass, msym);
             
             method = method_table_lookup(thread_data->method_table, key);

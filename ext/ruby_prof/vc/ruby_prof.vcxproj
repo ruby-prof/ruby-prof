@@ -104,6 +104,7 @@
     <ClCompile>
       <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby263vc\include\ruby-2.6.0\x64-mswin64_140;C:\msys64\usr\local\ruby263vc\include\ruby-2.6.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>HAVE_RB_TRACEARG_CALLEE_ID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby263vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

@@ -813,14 +813,8 @@ void rp_init_profile(void)
 {
     mProf = rb_define_module("RubyProf");
 
-    rp_init_allocation();
-    rp_init_measure();
-    rp_init_method_info();
-    rp_init_call_info();
-    rp_init_thread();
-
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
-    rb_define_alloc_func (cProfile, prof_allocate);
+    rb_define_alloc_func(cProfile, prof_allocate);
 
     rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);

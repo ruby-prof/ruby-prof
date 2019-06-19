@@ -148,7 +148,7 @@ total_time = thread.total_time
                     <% for allocation in method.allocations %>
                     <tr>
                         <td>
-                            <%= allocation.klass %>
+                            <%= allocation.klass_name %>
                         </td>
                         <td>
                             <%= "#{allocation.count} (#{allocation.memory} Bytes)" %>

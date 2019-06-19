@@ -70,14 +70,12 @@ module RubyProf
 
   def self.start
     ensure_not_running!
-    @profile = Profile.new(measure_mode: measure_mode, exclude_threads: exclude_threads)
-    enable_gc_stats_if_needed
+    @profile = Profile.new(:measure_mode => measure_mode, :exclude_threads => exclude_threads)
     @profile.start
   end
 
   def self.pause
     ensure_running!
-    disable_gc_stats_if_needed
     @profile.pause
   end
 
@@ -104,7 +102,7 @@ module RubyProf
   # Profile a block
   def self.profile(options = {}, &block)
     ensure_not_running!
-    options = {measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
+    options = {:measure_mode => measure_mode, :exclude_threads => exclude_threads }.merge!(options)
     Profile.profile(options, &block)
   end
 

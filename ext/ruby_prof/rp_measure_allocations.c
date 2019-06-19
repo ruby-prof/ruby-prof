@@ -28,11 +28,17 @@ measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)
     return result;
 }
 
-prof_measurer_t* prof_measurer_allocations()
+prof_measurer_t* prof_measurer_allocations(bool trace_allocations)
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_allocations_via_tracing;
   measure->multiplier = 1;
+  measure->trace_allocations = trace_allocations;
+
+  if (trace_allocations)
+      measure->measure = measure_allocations_via_tracing;
+  else
+      measure->measure = measure_allocations_via_gc_stats;
+
   return measure;
 }
 

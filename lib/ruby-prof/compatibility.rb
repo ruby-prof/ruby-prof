@@ -2,39 +2,6 @@
 
 # These methods are here for backwards compatability with previous RubyProf releases
 module RubyProf
-  # Measurements
-  def self.cpu_frequency
-    Measure::CpuTime.frequency
-  end
-
-  def self.measure_allocations
-    Measure::Allocations.measure
-  end
-
-  def self.measure_cpu_time
-    Measure::CpuTime.measure
-  end
-
-  def self.measure_gc_runs
-    Measure::GcRuns.measure
-  end
-
-  def self.measure_gc_time
-    Measure::GcTime.measure
-  end
-
-  def self.measure_memory
-    Measure::Memory.measure
-  end
-
-  def self.measure_process_time
-    Measure::ProcessTime.measure
-  end
-
-  def self.measure_wall_time
-    Measure::WallTime.measure
-  end
-
   # call-seq:
   # measure_mode -> measure_mode
   #
@@ -142,7 +109,7 @@ module RubyProf
   def self.profile(options = {}, &block)
     ensure_not_running!
     gc_stat_was_enabled = enable_gc_stats_if_needed
-    options = { measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
+    options = {measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
     result = Profile.profile(options, &block)
   ensure
     disable_gc_stats_if_needed(gc_stat_was_enabled)

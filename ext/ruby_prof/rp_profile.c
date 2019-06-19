@@ -293,8 +293,11 @@ prof_install_hook(VALUE self)
                                                prof_event_hook, profile);
     rb_ary_push(profile->tracepoints, event_tracepoint);
     
-    VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
-    rb_ary_push(profile->tracepoints, allocation_tracepoint);
+    if (profile->measurer->trace_allocations)
+    {
+        VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
+        rb_ary_push(profile->tracepoints, allocation_tracepoint);
+    }
     
     for (int i = 0; i < RARRAY_LEN(profile->tracepoints); i++)
     {
@@ -447,8 +450,6 @@ prof_stop_threads(prof_profile_t* profile)
    exclude_threads::  Threads to exclude from the profiling results.
    include_threads::  Focus profiling on only the given threads. This will ignore
                       all other threads.
-   merge_fibers::     Whether to merge all fibers under a given thread. This should be
-                      used when profiling for a callgrind printer.
    allow_exceptions:: Whether to raise exceptions encountered during profiling,
                       or to suppress all exceptions during profiling
 */
@@ -461,7 +462,9 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE exclude_threads = Qnil;
     VALUE include_threads = Qnil;
     VALUE exclude_common = Qnil;
-    VALUE allow_exceptions = Qnil;
+    VALUE allow_exceptions = Qfalse;
+    VALUE trace_allocations = Qfalse;
+
     int i;
 
     switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads))
@@ -477,6 +480,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         {
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
+            trace_allocations = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("trace_allocations")));
             allow_exceptions = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("allow_exceptions")));
             exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
@@ -496,8 +500,8 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     {
         Check_Type(mode, T_FIXNUM);
     }
-    profile->measurer = prof_get_measurer(NUM2INT(mode));
-    profile->allow_exceptions = allow_exceptions != Qnil && allow_exceptions != Qfalse;
+    profile->measurer = prof_get_measurer(NUM2INT(mode), trace_allocations == Qtrue);
+    profile->allow_exceptions = (allow_exceptions == Qtrue);
 
     if (exclude_threads != Qnil)
     {
@@ -523,7 +527,8 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         }
     }
 
-    if (RTEST(exclude_common)) {
+    if (RTEST(exclude_common))
+    {
         prof_exclude_common_methods(self);
     }
 
@@ -806,6 +811,7 @@ void rp_init_profile(void)
     rb_define_method(cProfile, "threads", prof_threads, 0);
     rb_define_method(cProfile, "exclude_method!", prof_exclude_method, 2);
     rb_define_method(cProfile, "profile", prof_profile_object, 0);
+
     rb_define_method(cProfile, "_dump_data", prof_profile_dump, 0);
     rb_define_method(cProfile, "_load_data", prof_profile_load, 1);
 }

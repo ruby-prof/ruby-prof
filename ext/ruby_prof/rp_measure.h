@@ -14,6 +14,7 @@ typedef struct
 {
     get_measurement measure;
     double multiplier;
+    bool trace_allocations;
 } prof_measurer_t;
 
 typedef enum
@@ -34,7 +35,7 @@ typedef struct prof_measurement_t
     VALUE object;
 } prof_measurement_t;
 
-prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure);
+prof_measurer_t *prof_get_measurer(prof_measure_mode_t measure, bool trace_allocations);
 double prof_measure(prof_measurer_t *measurer, rb_trace_arg_t* trace_arg);
 
 prof_measurement_t *prof_measurement_create(void);

@@ -44,11 +44,12 @@ multiplier_wall_time(void)
 #endif
 }
 
-prof_measurer_t* prof_measurer_wall_time()
+prof_measurer_t* prof_measurer_wall_time(bool trace_allocations)
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->measure = measure_wall_time;
   measure->multiplier = multiplier_wall_time();
+  measure->trace_allocations = trace_allocations;
   return measure;
 }
 

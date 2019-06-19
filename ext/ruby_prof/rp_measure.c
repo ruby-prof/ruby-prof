@@ -29,9 +29,9 @@ prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure)
     }
 };
 
-double prof_measure(prof_measurer_t* measurer)
+double prof_measure(prof_measurer_t* measurer, rb_trace_arg_t* trace_arg)
 {
-    double measurement = measurer->measure();
+    double measurement = measurer->measure(trace_arg);
     return measurement * measurer->multiplier;
 }
 

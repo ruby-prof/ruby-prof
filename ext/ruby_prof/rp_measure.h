@@ -8,7 +8,7 @@
 
 extern VALUE mMeasure;
 
-typedef double (*get_measurement)(void);
+typedef double (*get_measurement)(rb_trace_arg_t *trace_arg);
 
 typedef struct
 {
@@ -34,7 +34,7 @@ typedef struct prof_measurement_t
 } prof_measurement_t;
 
 prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure);
-double prof_measure(prof_measurer_t *measurer);
+double prof_measure(prof_measurer_t *measurer, rb_trace_arg_t* trace_arg);
 
 prof_measurement_t *prof_measurement_create(void);
 VALUE prof_measurement_wrap(prof_measurement_t *measurement);

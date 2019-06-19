@@ -158,9 +158,6 @@ prof_event_hook(VALUE trace_point, void* data)
     rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     VALUE self = rb_tracearg_self(trace_arg);
     
-    /* Get current measurement */
-    measurement = prof_measure(profile->measurer);
-    
     if (trace_file != NULL)
     {
         prof_trace(profile, trace_arg, measurement);
@@ -206,7 +203,10 @@ prof_event_hook(VALUE trace_point, void* data)
             prof_frame_t* next_frame;
             prof_call_info_t* call_info;
             prof_method_t* method;
-            
+
+            /* Get current measurement */
+            measurement = prof_measure(profile->measurer, trace_arg);
+
             VALUE klass = rb_tracearg_defined_class(trace_arg);
             
             /* Special case - skip any methods from the mProf
@@ -262,11 +262,16 @@ prof_event_hook(VALUE trace_point, void* data)
         case RUBY_EVENT_RETURN:
         case RUBY_EVENT_C_RETURN:
         {
+            /* Get current measurement */
+            measurement = prof_measure(profile->measurer, trace_arg);
             prof_stack_pop(thread_data->stack, measurement);
             break;
         }
         case RUBY_INTERNAL_EVENT_NEWOBJ:
         {
+            /* Get current measurement */
+            measurement = prof_measure(profile->measurer, trace_arg);
+
             /* We want to assign the allocations lexically, not the execution context (otherwise all allocations will
              show up under Class#new */
             int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
@@ -434,7 +439,7 @@ pop_frames(VALUE key, st_data_t value, st_data_t data)
 {
     thread_data_t* thread_data = (thread_data_t*)value;
     prof_profile_t* profile = (prof_profile_t*)data;
-    double measurement = prof_measure(profile->measurer);
+    double measurement = prof_measure(profile->measurer, NULL);
 
     if (profile->last_thread_data->fiber != thread_data->fiber)
         switch_thread(profile, thread_data, measurement);
@@ -624,7 +629,7 @@ prof_pause(VALUE self)
     if (profile->paused == Qfalse)
     {
         profile->paused = Qtrue;
-        profile->measurement_at_pause_resume = prof_measure(profile->measurer);
+        profile->measurement_at_pause_resume = prof_measure(profile->measurer, NULL);
         st_foreach(profile->threads_tbl, pause_thread, (st_data_t) profile);
     }
 
@@ -648,7 +653,7 @@ prof_resume(VALUE self)
     if (profile->paused == Qtrue)
     {
         profile->paused = Qfalse;
-        profile->measurement_at_pause_resume = prof_measure(profile->measurer);
+        profile->measurement_at_pause_resume = prof_measure(profile->measurer, NULL);
         st_foreach(profile->threads_tbl, unpause_thread, (st_data_t) profile);
     }
 

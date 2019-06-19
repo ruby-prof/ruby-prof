@@ -7,7 +7,7 @@
 static VALUE cMeasureProcessTime;
 
 static double
-measure_process_time(void)
+measure_process_time(rb_trace_arg_t* trace_arg)
 {
 #if defined(_WIN32)
     FILETIME  createTime;
@@ -44,16 +44,6 @@ multiplier_process_time(void)
 #endif
 }
 
-/* call-seq:
-   measure_process_time -> float
-
-Returns the process time.*/
-static VALUE
-prof_measure_process_time(VALUE self)
-{
-    return rb_float_new(measure_process_time());
-}
-
 prof_measurer_t* prof_measurer_process_time()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
@@ -68,5 +58,4 @@ void rp_init_measure_process_time()
     rb_define_const(mProf, "PROCESS_TIME", INT2NUM(MEASURE_PROCESS_TIME));
 
     cMeasureProcessTime = rb_define_class_under(mMeasure, "ProcessTime", rb_cObject);
-    rb_define_singleton_method(cMeasureProcessTime, "measure", prof_measure_process_time, 0);
 }

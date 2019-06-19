@@ -13,7 +13,7 @@
 static VALUE cMeasureWallTime;
 
 static double
-measure_wall_time(void)
+measure_wall_time(rb_trace_arg_t* trace_arg)
 {
 #if defined(_WIN32)
     return GetTickCount();
@@ -52,21 +52,9 @@ prof_measurer_t* prof_measurer_wall_time()
   return measure;
 }
 
-/* Document-method: prof_measure_wall_time
-   call-seq:
-     measure_wall_time -> float
-
-Returns the wall time.*/
-static VALUE
-prof_measure_wall_time(VALUE self)
-{
-    return rb_float_new(measure_wall_time());
-}
-
 void rp_init_measure_wall_time()
 {
     rb_define_const(mProf, "WALL_TIME", INT2NUM(MEASURE_WALL_TIME));
 
     cMeasureWallTime = rb_define_class_under(mMeasure, "WallTime", rb_cObject);
-    rb_define_singleton_method(cMeasureWallTime, "measure", prof_measure_wall_time, 0);
 }

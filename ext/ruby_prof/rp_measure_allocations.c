@@ -9,15 +9,29 @@ static VALUE cMeasureAllocations;
 VALUE total_allocated_objects_key;
 
 static double
-measure_allocations(rb_trace_arg_t* trace_arg)
+measure_allocations_via_gc_stats(rb_trace_arg_t* trace_arg)
 {
     return rb_gc_stat(total_allocated_objects_key);
+}
+
+static double
+measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)
+{
+    static double count = 0;
+
+    if (trace_arg)
+    {
+        rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
+        if (event == RUBY_INTERNAL_EVENT_NEWOBJ)
+            count++;
+    }
+    return count;
 }
 
 prof_measurer_t* prof_measurer_allocations()
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->measure = measure_allocations;
+  measure->measure = measure_allocations_via_tracing;
   measure->multiplier = 1;
   return measure;
 }

@@ -60,13 +60,12 @@ prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
         allocation = prof_allocation_create();
         allocation->source_line = source_line;
         allocation->source_file = rb_tracearg_path(trace_arg);
-       // allocation->klass = klass;
-        allocation->klass = Qnil;
+        allocation->klass = klass;
         allocations_table_insert(method->allocations_table, key, allocation);
     }
 
     allocation->count++;
-    //allocation->memory += rb_obj_memsize_of(object);
+    allocation->memory += rb_obj_memsize_of(object);
 
     return allocation;
 }

@@ -152,9 +152,8 @@ prof_event_hook(VALUE trace_point, void* data)
     prof_profile_t* profile = (prof_profile_t*)data;
     thread_data_t* thread_data = NULL;
     prof_frame_t *frame = NULL;
-    double measurement;
-    
     rb_trace_arg_t* trace_arg = rb_tracearg_from_tracepoint(trace_point);
+    double measurement = prof_measure(profile->measurer, trace_arg);
     rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     VALUE self = rb_tracearg_self(trace_arg);
     
@@ -263,38 +262,20 @@ prof_event_hook(VALUE trace_point, void* data)
         case RUBY_EVENT_C_RETURN:
         {
             /* Get current measurement */
-            measurement = prof_measure(profile->measurer, trace_arg);
             prof_stack_pop(thread_data->stack, measurement);
             break;
         }
         case RUBY_INTERNAL_EVENT_NEWOBJ:
         {
-            /* Get current measurement */
-            measurement = prof_measure(profile->measurer, trace_arg);
-
             /* We want to assign the allocations lexically, not the execution context (otherwise all allocations will
              show up under Class#new */
             int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
             VALUE source_file = rb_tracearg_path(trace_arg);
-            
-            if (!frame)
-                return;
-            
-            for (int i = 0; i <= thread_data->stack->ptr - thread_data->stack->start - 1; i++)
-            {
-                prof_frame_t* a_frame = (thread_data->stack->ptr - i - 1);
-                if (!a_frame)
-                    return;
-                
-                if (!a_frame->call_info)
-                    return;
-                
-                if (rb_str_equal(source_file, a_frame->call_info->method->source_file) &&
-                    source_line >= a_frame->call_info->method->source_line)
-                {
-                    prof_allocate_increment(a_frame->call_info->method, trace_arg);
-                }
-            }
+
+            prof_method_t* method = prof_find_method(thread_data->stack, source_file, source_line);
+            if (method)
+                prof_allocate_increment(method, trace_arg);
+
             break;
         }
     }
@@ -312,8 +293,8 @@ prof_install_hook(VALUE self)
                                                prof_event_hook, profile);
     rb_ary_push(profile->tracepoints, event_tracepoint);
     
-    //VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
-    //rb_ary_push(profile->tracepoints, allocation_tracepoint);
+    VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
+    rb_ary_push(profile->tracepoints, allocation_tracepoint);
     
     for (int i = 0; i < RARRAY_LEN(profile->tracepoints); i++)
     {

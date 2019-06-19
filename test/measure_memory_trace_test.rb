@@ -4,7 +4,7 @@
 require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_allocations'
 
-class MeasureMemoryTest < TestCase
+class MeasureMemoryTraceTest < TestCase
   def setup
     RubyProf::measure_mode = RubyProf::MEMORY
   end

@@ -4,7 +4,7 @@
 require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_allocations'
 
-class MeasureAllocationsTest < TestCase
+class MeasureAllocationsTraceTest < TestCase
   def setup
     RubyProf::measure_mode = RubyProf::ALLOCATIONS
   end

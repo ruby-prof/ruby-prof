@@ -11,4 +11,8 @@
 
 extern VALUE mProf;
 
+#ifndef rb_obj_memsize_of
+extern size_t rb_obj_memsize_of(VALUE);
+#endif
+
 #endif //__RUBY_PROF_H__

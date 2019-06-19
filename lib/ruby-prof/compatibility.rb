@@ -93,14 +93,12 @@ module RubyProf
 
   def self.resume
     ensure_running!
-    enable_gc_stats_if_needed
     @profile.resume
   end
 
   def self.stop
     ensure_running!
     result = @profile.stop
-    disable_gc_stats_if_needed
     @profile = nil
     result
   end
@@ -108,38 +106,17 @@ module RubyProf
   # Profile a block
   def self.profile(options = {}, &block)
     ensure_not_running!
-    gc_stat_was_enabled = enable_gc_stats_if_needed
     options = {measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
-    result = Profile.profile(options, &block)
-  ensure
-    disable_gc_stats_if_needed(gc_stat_was_enabled)
-    result
+    Profile.new(options, &block)
   end
 
-
 private
+
   def self.ensure_running!
     raise(RuntimeError, "RubyProf.start was not yet called") unless running?
   end
 
   def self.ensure_not_running!
     raise(RuntimeError, "RubyProf is already running") if running?
-  end
-
-  # for GC.allocated_size to work GC statistics should be enabled
-  def self.enable_gc_stats_if_needed
-    if measure_mode_requires_gc_stats_enabled?
-      @gc_stat_was_enabled = GC.enable_stats
-    end
-  end
-
-  def self.disable_gc_stats_if_needed(was_enabled=nil)
-    was_enabled ||= defined?(@gc_stat_was_enabled) && @gc_stat_was_enabled
-    GC.disable_stats if measure_mode_requires_gc_stats_enabled? && !was_enabled
-  end
-
-  def self.measure_mode_requires_gc_stats_enabled?
-    GC.respond_to?(:enable_stats) &&
-      [RubyProf::MEMORY, RubyProf::GC_TIME, RubyProf::GC_RUNS].include?(measure_mode)
   end
 end

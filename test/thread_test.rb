@@ -76,7 +76,6 @@ class ThreadTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(1, method.children_time, 0.05)
     assert_equal(1, method.callers.length)
-    assert_equal(1, method.callees.length)
 
     method = methods[1]
     assert_equal('Kernel#sleep', method.full_name)

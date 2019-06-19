@@ -2,10 +2,11 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
+require_relative './measure_allocations'
 
 class MeasureAllocationsTest < TestCase
   def setup
-    RubyProf::measure_mode = RubyProf::WALL_TIME
+    RubyProf::measure_mode = RubyProf::ALLOCATIONS
   end
 
   # def test_allocations_mode
@@ -13,487 +14,377 @@ class MeasureAllocationsTest < TestCase
   #   assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
   # end
 
-  # def test_class_methods
-  #   result = RubyProf.profile do
-  #     RubyProf::C1.sleep_wait
-  #   end
-  #
-  #   thread = result.threads.first
-  #   assert_in_delta(6, thread.total_time, 1)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #   assert_equal("MeasureAllocationsTest#test_class_methods", root_methods[0].full_name)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(3, methods.length)
-  #
-  #   # Check the names
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_class_methods', method.full_name)
-  #   assert_in_delta(6, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_in_delta(4, method.children_time, 1)
-  #
-  #   method = methods[1]
-  #   assert_equal('<Class::RubyProf::C1>#sleep_wait', method.full_name)
-  #   assert_in_delta(4, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_in_delta(2, method.self_time, 1)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('Kernel#sleep', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  # end
-  #
-  # def test_class_methods_threaded
-  #   result = RubyProf.profile do
-  #     background_thread = Thread.new do
-  #       RubyProf::C1.sleep_wait
-  #     end
-  #     background_thread.join
-  #   end
-  #
-  #   assert_equal(2, result.threads.count)
-  #
-  #   thread = result.threads.first
-  #   assert_in_delta(25, thread.total_time, 1)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #   assert_equal("MeasureAllocationsTest#test_class_methods_threaded", root_methods[0].full_name)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(4, methods.length)
-  #
-  #   # Check times
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_class_methods_threaded', method.full_name)
-  #   assert_in_delta(25, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_in_delta(23, method.children_time, 1)
-  #
-  #   method = methods[1]
-  #   assert_equal('<Class::Thread>#new', method.full_name)
-  #   assert_equal(12, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(4, method.self_time)
-  #   assert_equal(8, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('Thread#join', method.full_name)
-  #   assert_equal(11, method.total_time)
-  #   assert_equal(9, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   method = methods[3]
-  #   assert_equal('Thread#initialize', method.full_name)
-  #   assert_equal(8, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(8, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   thread = result.threads.last
-  #   assert_equal(9, thread.total_time)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(4, methods.length)
-  #
-  #   methods = result.threads.last.methods.sort.reverse
-  #   assert_equal(3, methods.length)
-  #
-  #   # Check times
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_class_methods_threaded', method.full_name)
-  #   assert_equal(9, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(5, method.self_time)
-  #   assert_equal(4, method.children_time)
-  #
-  #   method = methods[1]
-  #   assert_equal('<Class::RubyProf::C1>#sleep_wait', method.full_name)
-  #   assert_equal(4, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('Kernel#sleep', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  # end
-  #
-  def a
-    2.times {|i| Hash.new}
-    #4.times {|i| Array.new}
-  end
-
-  def test_instance_methods
+  def test_allocations
     result = RubyProf.profile do
-    #  RubyProf::C1.new.sleep_wait
-      a
+      allocator = Allocator.new
+      allocator.run
     end
 
-    return
+    printer = RubyProf::GraphHtmlPrinter.new(result)
+    File.open('c:/temp/graph.html', 'wb') do |file|
+      printer.print(file)
+    end
 
     thread = result.threads.first
-    assert_in_delta(11, thread.total_time, 1)
+    assert_in_delta(20, thread.total_time, 1)
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
-    assert_equal("MeasureAllocationsTest#test_instance_methods", root_methods[0].full_name)
+    assert_equal("MeasureAllocationsTest#test_allocations", root_methods[0].full_name)
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(5, methods.length)
+    assert_equal(13, methods.length)
 
+    # Method 0
     method = methods[0]
-    assert_equal('MeasureAllocationsTest#test_instance_methods',  method.full_name)
-    assert_in_delta(11, method.total_time, 1)
+    assert_equal('MeasureAllocationsTest#test_allocations',  method.full_name)
+    assert_in_delta(20, method.total_time, 1)
     assert_equal(0, method.wait_time)
-    assert_equal(2, method.self_time)
-    assert_in_delta(9, method.children_time, 1)
+    assert_equal(0, method.self_time)
+    assert_in_delta(20, method.children_time, 1)
 
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_nil(call_info.parent)
+    assert_equal(20, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(20, call_info.children_time)
+
+    assert_equal(2, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('Class#new', call_info.target.full_name)
+    assert_equal(1, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callees[1]
+    assert_equal('Allocator#run', call_info.target.full_name)
+    assert_equal(19, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(19, call_info.children_time)
+
+    # Method 1
     method = methods[1]
+    assert_equal('Allocator#run',method.full_name)
+    assert_equal(19, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(0, method.self_time)
+    assert_equal(19, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('MeasureAllocationsTest#test_allocations', call_info.parent.full_name)
+    assert_equal(19, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(19, call_info.children_time)
+
+    assert_equal(1, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('Allocator#internal_run', call_info.target.full_name)
+    assert_equal(19, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(19, call_info.children_time)
+
+    # Method 2
+    method = methods[2]
+    assert_equal('Allocator#internal_run',  method.full_name)
+    assert_equal(19, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(0, method.self_time)
+    assert_equal(19, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Allocator#run', call_info.parent.full_name)
+    assert_equal(19, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(19, call_info.children_time)
+
+    assert_equal(3, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('Allocator#make_arrays', call_info.target.full_name)
+    assert_equal(10, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(10, call_info.children_time)
+
+    call_info = method.callees[1]
+    assert_equal('Allocator#make_hashes', call_info.target.full_name)
+    assert_equal(5, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(5, call_info.children_time)
+
+    call_info = method.callees[2]
+    assert_equal('Allocator#make_strings', call_info.target.full_name)
+    assert_equal(4, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(3, call_info.children_time)
+
+    # Method 3
+    method = methods[3]
     assert_equal('Class#new', method.full_name)
+    assert_equal(18, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(17, method.self_time)
+    assert_equal(1, method.children_time)
+
+    assert_equal(4, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('MeasureAllocationsTest#test_allocations', call_info.parent.full_name)
+    assert_equal(1, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callers[1]
+    assert_equal('Integer#times', call_info.parent.full_name)
+    assert_equal(10, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(10, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callers[2]
+    assert_equal('Allocator#make_hashes', call_info.parent.full_name)
+    assert_equal(5, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(5, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callers[3]
+    assert_equal('Allocator#make_strings', call_info.parent.full_name)
+    assert_equal(2, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(1, call_info.children_time)
+
+    assert_equal(4, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('BasicObject#initialize', call_info.target.full_name)
+    assert_equal(0, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callees[1]
+    assert_equal('Array#initialize', call_info.target.full_name)
+    assert_equal(0, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callees[2]
+    assert_equal('Hash#initialize', call_info.target.full_name)
+    assert_equal(0, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callees[3]
+    assert_equal('String#initialize', call_info.target.full_name)
+    assert_equal(1, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    # Method 4
+    method = methods[4]
+    assert_equal('Allocator#make_arrays', method.full_name)
+    assert_equal(10, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(0, method.self_time)
+    assert_equal(10, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Allocator#internal_run', call_info.parent.full_name)
+    assert_equal(10, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(10, call_info.children_time)
+
+    assert_equal(1, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('Integer#times', call_info.target.full_name)
+    assert_equal(10, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(10, call_info.children_time)
+
+    # Method 5
+    method = methods[5]
+    assert_equal('Integer#times', method.full_name)
+    assert_equal(10, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(0, method.self_time)
+    assert_equal(10, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Allocator#make_arrays', call_info.parent.full_name)
+    assert_equal(10, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(10, call_info.children_time)
+
+    assert_equal(1, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('Class#new', call_info.target.full_name)
+    assert_equal(10, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(10, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    # Method 6
+    method = methods[6]
+    assert_equal('Allocator#make_hashes', method.full_name)
     assert_equal(5, method.total_time)
     assert_equal(0, method.wait_time)
-    assert_equal(3, method.self_time)
-    assert_equal(2, method.children_time)
+    assert_equal(0, method.self_time)
+    assert_equal(5, method.children_time)
 
-    method = methods[2]
-    assert_equal('RubyProf::C1#sleep_wait',  method.full_name)
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Allocator#internal_run', call_info.parent.full_name)
+    assert_equal(5, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(5, call_info.children_time)
+
+    assert_equal(1, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('Class#new', call_info.target.full_name)
+    assert_equal(5, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(5, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    # Method 7
+    method = methods[7]
+    assert_equal('Allocator#make_strings', method.full_name)
     assert_equal(4, method.total_time)
     assert_equal(0, method.wait_time)
-    assert_equal(2, method.self_time)
-    assert_equal(2, method.children_time)
+    assert_equal(1, method.self_time)
+    assert_equal(3, method.children_time)
 
-    method = methods[3]
-    assert_equal('Kernel#sleep',  method.full_name)
-    assert_equal(2, method.total_time)
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Allocator#internal_run', call_info.parent.full_name)
+    assert_equal(4, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(3, call_info.children_time)
+
+    assert_equal(2, method.callees.length)
+    call_info = method.callees[0]
+    assert_equal('String#*', call_info.target.full_name)
+    assert_equal(1, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    call_info = method.callees[1]
+    assert_equal('Class#new', call_info.target.full_name)
+    assert_equal(2, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(1, call_info.children_time)
+
+    # Method 8
+    method = methods[8]
+    assert_equal('String#*', method.full_name)
+    assert_equal(1, method.total_time)
     assert_equal(0, method.wait_time)
-    assert_equal(2, method.self_time)
+    assert_equal(1, method.self_time)
     assert_equal(0, method.children_time)
 
-    method = methods[4]
-    assert_equal('BasicObject#initialize',  method.full_name)
-    assert_equal(2, method.total_time)
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Allocator#make_strings', call_info.parent.full_name)
+    assert_equal(1, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    assert_equal(0, method.callees.length)
+
+    # Method 9
+    method = methods[9]
+    assert_equal('String#initialize', method.full_name)
+    assert_equal(1, method.total_time)
     assert_equal(0, method.wait_time)
-    assert_equal(2, method.self_time)
+    assert_equal(1, method.self_time)
     assert_equal(0, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal(1, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(1, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    assert_equal(0, method.callees.length)
+
+    # Method 10
+    method = methods[10]
+    assert_equal('BasicObject#initialize', method.full_name)
+    assert_equal(0, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(0, method.self_time)
+    assert_equal(0, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal(0, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    assert_equal(0, method.callees.length)
+
+    # Method 11
+    method = methods[11]
+    assert_equal('Hash#initialize', method.full_name)
+    assert_equal(0, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(0, method.self_time)
+    assert_equal(0, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal(0, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    assert_equal(0, method.callees.length)
+
+    # Method 12
+    method = methods[12]
+    assert_equal('Array#initialize', method.full_name)
+    assert_equal(0, method.total_time)
+    assert_equal(0, method.wait_time)
+    assert_equal(0, method.self_time)
+    assert_equal(0, method.children_time)
+
+    assert_equal(1, method.callers.length)
+    call_info = method.callers[0]
+    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal(0, call_info.total_time)
+    assert_equal(0, call_info.wait_time)
+    assert_equal(0, call_info.self_time)
+    assert_equal(0, call_info.children_time)
+
+    assert_equal(0, method.callees.length)
   end
-  #
-  # def test_instance_methods_block
-  #   result = RubyProf.profile do
-  #     1.times { RubyProf::C1.new.sleep_wait }
-  #   end
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(6, methods.length)
-  #
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_instance_methods_block',  method.full_name)
-  #   assert_in_delta(13, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_in_delta(11, method.children_time, 1)
-  #
-  #   method = methods[1]
-  #   assert_equal('Integer#times', method.full_name)
-  #   assert_in_delta(12, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_in_delta(10, method.children_time, 1)
-  #
-  #   method = methods[2]
-  #   assert_equal('Class#new', method.full_name)
-  #   assert_equal(5, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(3, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[3]
-  #   assert_equal('RubyProf::C1#sleep_wait',  method.full_name)
-  #   assert_equal(4, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[4]
-  #   assert_equal('Kernel#sleep',  method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   method = methods[5]
-  #   assert_equal('BasicObject#initialize',  method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  # end
-  #
-  # def test_instance_methods_threaded
-  #   result = RubyProf.profile do
-  #     background_thread = Thread.new do
-  #       RubyProf::C1.new.sleep_wait
-  #     end
-  #     background_thread.join
-  #   end
-  #
-  #   assert_equal(2, result.threads.count)
-  #
-  #   thread = result.threads.first
-  #   assert_in_delta(30, thread.total_time, 1)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #   assert_equal("MeasureAllocationsTest#test_instance_methods_threaded", root_methods[0].full_name)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(4, methods.length)
-  #
-  #   # Check times
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_instance_methods_threaded', method.full_name)
-  #   assert_in_delta(30, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_in_delta(28, method.children_time, 1)
-  #
-  #   method = methods[1]
-  #   assert_equal('Thread#join', method.full_name)
-  #   assert_equal(16, method.total_time)
-  #   assert_equal(14, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('<Class::Thread>#new', method.full_name)
-  #   assert_equal(12, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(4, method.self_time)
-  #   assert_equal(8, method.children_time)
-  #
-  #   method = methods[3]
-  #   assert_equal('Thread#initialize', method.full_name)
-  #   assert_equal(8, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(8, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   thread = result.threads.last
-  #   assert_equal(14, thread.total_time)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #   assert_equal("MeasureAllocationsTest#test_instance_methods_threaded", root_methods[0].full_name)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(4, methods.length)
-  #
-  #   methods = result.threads.last.methods.sort.reverse
-  #   assert_equal(5, methods.length)
-  #
-  #   # Check times
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_instance_methods_threaded', method.full_name)
-  #   assert_equal(14, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(5, method.self_time)
-  #   assert_equal(9, method.children_time)
-  #
-  #   method = methods[1]
-  #   assert_equal('Class#new', method.full_name)
-  #   assert_equal(5, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(3, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('RubyProf::C1#sleep_wait', method.full_name)
-  #   assert_equal(4, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[3]
-  #   assert_equal('Kernel#sleep', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   method = methods[4]
-  #   assert_equal('BasicObject#initialize', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  # end
-  #
-  # def test_module_methods
-  #   result = RubyProf.profile do
-  #     RubyProf::C2.sleep_wait
-  #   end
-  #
-  #   thread = result.threads.first
-  #   assert_in_delta(7, thread.total_time, 1)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #   assert_equal("MeasureAllocationsTest#test_module_methods", root_methods[0].full_name)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(3, methods.length)
-  #
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_module_methods', method.full_name)
-  #   assert_in_delta(7, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_in_delta(3, method.self_time, 1)
-  #   assert_in_delta(4, method.children_time, 1)
-  #
-  #   method = methods[1]
-  #   assert_equal('RubyProf::M1#sleep_wait', method.full_name)
-  #   assert_in_delta(4, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_in_delta(3, method.self_time, 1)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('Kernel#sleep', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  # end
-  #
-  # def test_module_instance_methods
-  #   result = RubyProf.profile do
-  #     RubyProf::C2.new.sleep_wait
-  #   end
-  #
-  #   thread = result.threads.first
-  #   assert_in_delta(12, thread.total_time, 1)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #   assert_equal("MeasureAllocationsTest#test_module_instance_methods", root_methods[0].full_name)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(5, methods.length)
-  #
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_module_instance_methods', method.full_name)
-  #   assert_in_delta(12, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_in_delta(3, method.self_time, 1)
-  #   assert_in_delta(9, method.children_time, 1)
-  #
-  #   method = methods[1]
-  #   assert_equal('Class#new', method.full_name)
-  #   assert_equal(5, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(3, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('RubyProf::M1#sleep_wait', method.full_name)
-  #   assert_equal(4, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[3]
-  #   assert_equal('Kernel#sleep', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   method = methods[4]
-  #   assert_equal('BasicObject#initialize', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  # end
-  #
-  # def test_singleton_methods
-  #   result = RubyProf.profile do
-  #     RubyProf::C3.instance.sleep_wait
-  #   end
-  #
-  #   thread = result.threads.first
-  #   assert_in_delta(16, thread.total_time, 1)
-  #
-  #   root_methods = thread.root_methods
-  #   assert_equal(1, root_methods.count)
-  #   assert_equal("MeasureAllocationsTest#test_singleton_methods", root_methods[0].full_name)
-  #
-  #   methods = result.threads.first.methods.sort.reverse
-  #   assert_equal(7, methods.length)
-  #
-  #   method = methods[0]
-  #   assert_equal('MeasureAllocationsTest#test_singleton_methods', method.full_name)
-  #   assert_in_delta(15, method.total_time, 1)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(13, method.children_time)
-  #
-  #   method = methods[1]
-  #   assert_equal('<Class::RubyProf::C3>#instance', method.full_name)
-  #   assert_equal(9, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(7, method.children_time)
-  #
-  #   method = methods[2]
-  #   assert_equal('Thread::Mutex#synchronize', method.full_name)
-  #   assert_equal(7, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(5, method.children_time)
-  #
-  #   method = methods[3]
-  #   assert_equal('Class#new', method.full_name)
-  #   assert_equal(5, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(3, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[4]
-  #   assert_equal('RubyProf::C3#sleep_wait', method.full_name)
-  #   assert_equal(4, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(2, method.children_time)
-  #
-  #   method = methods[5]
-  #   assert_equal('Kernel#sleep', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  #
-  #   method = methods[6]
-  #   assert_equal('BasicObject#initialize', method.full_name)
-  #   assert_equal(2, method.total_time)
-  #   assert_equal(0, method.wait_time)
-  #   assert_equal(2, method.self_time)
-  #   assert_equal(0, method.children_time)
-  # end
 end

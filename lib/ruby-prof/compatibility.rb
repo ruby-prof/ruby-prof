@@ -107,7 +107,7 @@ module RubyProf
   def self.profile(options = {}, &block)
     ensure_not_running!
     options = {measure_mode: measure_mode, exclude_threads: exclude_threads }.merge!(options)
-    Profile.new(options, &block)
+    Profile.profile(options, &block)
   end
 
 private

@@ -728,6 +728,19 @@ prof_profile_object(VALUE self)
 
 }
 
+/* call-seq:
+   profile(&block) -> self
+   profile(options, &block) -> self
+
+Profiles the specified block and returns a RubyProf::Profile
+object. Arguments are passed to Profile initialize method.
+*/
+static VALUE
+prof_profile_class(int argc,  VALUE *argv, VALUE klass)
+{
+    return prof_profile_object(rb_class_new_instance(argc, argv, cProfile));
+}
+
 static VALUE
 prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
 {
@@ -787,6 +800,7 @@ void rp_init_profile(void)
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_alloc_func (cProfile, prof_allocate);
 
+    rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);

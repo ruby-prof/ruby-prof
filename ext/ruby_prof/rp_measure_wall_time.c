@@ -47,6 +47,7 @@ multiplier_wall_time(void)
 prof_measurer_t* prof_measurer_wall_time(bool trace_allocations)
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
+  measure->mode = MEASURE_WALL_TIME;
   measure->measure = measure_wall_time;
   measure->multiplier = multiplier_wall_time();
   measure->trace_allocations = trace_allocations;

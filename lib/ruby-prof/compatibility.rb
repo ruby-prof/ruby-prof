@@ -37,12 +37,10 @@ module RubyProf
 
   def self.measure_mode_string
     case measure_mode
-    when WALL_TIME    then "wall_time"
-    when PROCESS_TIME then "process_time_time"
-    when ALLOCATIONS  then "allocations"
-    when MEMORY       then "memory"
-    when GC_TIME      then "gc_time"
-    when GC_RUNS      then "gc_runs"
+      when WALL_TIME    then "wall_time"
+      when PROCESS_TIME then "process_time"
+      when ALLOCATIONS  then "allocations"
+      when MEMORY       then "memory"
     end
   end
 

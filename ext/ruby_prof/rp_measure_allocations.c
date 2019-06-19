@@ -31,6 +31,7 @@ measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)
 prof_measurer_t* prof_measurer_allocations(bool trace_allocations)
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
+  measure->mode = MEASURE_ALLOCATIONS;
   measure->multiplier = 1;
   measure->trace_allocations = trace_allocations;
 

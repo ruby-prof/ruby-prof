@@ -10,13 +10,6 @@ extern VALUE mMeasure;
 
 typedef double (*get_measurement)(rb_trace_arg_t *trace_arg);
 
-typedef struct
-{
-    get_measurement measure;
-    double multiplier;
-    bool trace_allocations;
-} prof_measurer_t;
-
 typedef enum
 {
     MEASURE_WALL_TIME,
@@ -24,6 +17,14 @@ typedef enum
     MEASURE_ALLOCATIONS,
     MEASURE_MEMORY
 } prof_measure_mode_t;
+
+typedef struct
+{
+    get_measurement measure;
+    prof_measure_mode_t mode;
+    double multiplier;
+    bool trace_allocations;
+} prof_measurer_t;
 
 /* Callers and callee information for a method. */
 typedef struct prof_measurement_t

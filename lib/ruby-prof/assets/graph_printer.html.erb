@@ -54,7 +54,7 @@
     </style>
 </head>
 <body>
-<h1>Profile Report: <%= RubyProf.measure_mode_string %></h1>
+<h1>Profile Report: <%= @result.measure_mode_string %></h1>
 <!-- Threads Table -->
 <table>
     <tr>
@@ -89,7 +89,9 @@ total_time = thread.total_time
         <th>Child</th>
         <th>Calls</th>
         <th class="method_name">Name</th>
+        <% if @result.trace_allocations? %>
         <th>Allocations</th>
+        <% end %>
         <th>Line</th>
     </tr>
     </thead>
@@ -115,7 +117,9 @@ total_time = thread.total_time
                 <td><%= sprintf("%.2f", caller.children_time) %></td>
                 <td><%= "#{caller.called}/#{method.called}" %></td>
                 <td class="method_name"><%= create_link(thread, total_time, caller.parent) %></td>
+                <% if @result.trace_allocations? %>
                 <td>-</td>
+                <% end %>
                 <td><%= if caller.parent.source_file
                         file_link(caller.parent.source_file, caller.line)
                       end %></td>
@@ -134,14 +138,20 @@ total_time = thread.total_time
                     <%= method.recursive? ? "*" : " "%><%= h method.full_name %>
                 </a>
             </td>
-           <td><%= method.allocations.reduce(0) do |size, allocation|
-                   size += allocation.count
-                end %>
-           </td>
+
+            <% if @result.trace_allocations? %>
+              <td><%= method.allocations.reduce(0) do |size, allocation|
+                      size += allocation.count
+                  end %>
+              </td>
+            <% end %>
+
             <td><%= if method.source_file
                       file_link(method.source_file, method.line)
                     end %></td>
          </tr>
+
+         <% if @result.trace_allocations? %>
          <tr>
             <td colspan="10">
                 <table>
@@ -162,12 +172,12 @@ total_time = thread.total_time
 
             </td>
          </tr>
+         <% end %>
 
          <!-- Children -->
-         <%
-         for callee in method.callees.sort_by(&:total_time).reverse
-           next if min_time && callee.total_time < min_time %>
-          <tr>
+         <% for callee in method.callees.sort_by(&:total_time).reverse
+            next if min_time && callee.total_time < min_time %>
+            <tr>
               <td>&nbsp;</td>
               <td>&nbsp;</td>
               <td><%= sprintf("%.2f", callee.total_time) %></td>
@@ -176,9 +186,11 @@ total_time = thread.total_time
               <td><%= sprintf("%.2f", callee.children_time) %></td>
               <td><%= "#{callee.called}/#{callee.target.called}" %></td>
               <td class="method_name"><%= create_link(thread, total_time, callee.target) %></td>
+              <% if @result.trace_allocations? %>
               <td>-</td>
+              <% end %>
               <td><%= file_link(callee.source_file, callee.line) %>
-          </tr>
+            </tr>
          <% end %>
 
          <!-- Create divider row -->

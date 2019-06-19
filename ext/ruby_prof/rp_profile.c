@@ -558,6 +558,28 @@ prof_running(VALUE self)
 }
 
 /* call-seq:
+   mode -> measure_mode
+
+   Returns the measure mode used in this profile.*/
+static VALUE
+prof_profile_measure_mode(VALUE self)
+{
+    prof_profile_t* profile = prof_get_profile(self);
+    return INT2NUM(profile->measurer->mode);
+}
+
+/* call-seq:
+   trace_allocations -> boolean
+
+   Returns if object allocations were tracked in this profile.*/
+static VALUE
+prof_profile_trace_allocations(VALUE self)
+{
+    prof_profile_t* profile = prof_get_profile(self);
+    return profile->measurer->trace_allocations ? Qtrue : Qfalse;
+}
+
+/* call-seq:
    start -> self
 
    Starts recording profile data.*/
@@ -811,6 +833,9 @@ void rp_init_profile(void)
     rb_define_method(cProfile, "threads", prof_threads, 0);
     rb_define_method(cProfile, "exclude_method!", prof_exclude_method, 2);
     rb_define_method(cProfile, "profile", prof_profile_object, 0);
+
+    rb_define_method(cProfile, "measure_mode", prof_profile_measure_mode, 0);
+    rb_define_method(cProfile, "trace_allocations?", prof_profile_trace_allocations, 0);
 
     rb_define_method(cProfile, "_dump_data", prof_profile_dump, 0);
     rb_define_method(cProfile, "_load_data", prof_profile_load, 1);

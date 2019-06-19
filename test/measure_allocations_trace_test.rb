@@ -15,7 +15,7 @@ class MeasureAllocationsTest < TestCase
   end
 
   def test_allocations
-    result = RubyProf.profile do
+    result = RubyProf.profile(:trace_allocations => true) do
       allocator = Allocator.new
       allocator.run
     end

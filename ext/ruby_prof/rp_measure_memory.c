@@ -27,6 +27,7 @@ measure_memory_via_tracing(rb_trace_arg_t* trace_arg)
 prof_measurer_t* prof_measurer_memory(bool trace_allocations)
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
+  measure->mode = MEASURE_MEMORY;
   measure->measure = measure_memory_via_tracing;
   measure->multiplier = 1;
   measure->trace_allocations = true;

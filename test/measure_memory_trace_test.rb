@@ -9,20 +9,15 @@ class MeasureMemoryTest < TestCase
     RubyProf::measure_mode = RubyProf::MEMORY
   end
 
-  # def test_memory_mode
-  #   RubyProf::measure_mode = RubyProf::MEMORY
-  #   assert_equal(RubyProf::MEMORY, RubyProf::measure_mode)
-  # end
+  def test_memory_mode
+    RubyProf::measure_mode = RubyProf::MEMORY
+    assert_equal(RubyProf::MEMORY, RubyProf::measure_mode)
+  end
 
   def test_memory
     result = RubyProf.profile do
       allocator = Allocator.new
       allocator.run
-    end
-
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
     end
 
     thread = result.threads.first

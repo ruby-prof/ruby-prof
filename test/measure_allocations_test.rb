@@ -9,20 +9,15 @@ class MeasureAllocationsTest < TestCase
     RubyProf::measure_mode = RubyProf::ALLOCATIONS
   end
 
-  # def test_allocations_mode
-  #   RubyProf::measure_mode = RubyProf::ALLOCATIONS
-  #   assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
-  # end
+  def test_allocations_mode
+    RubyProf::measure_mode = RubyProf::ALLOCATIONS
+    assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
+  end
 
   def test_allocations
     result = RubyProf.profile do
       allocator = Allocator.new
       allocator.run
-    end
-
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
     end
 
     thread = result.threads.first

@@ -25,12 +25,6 @@ class AliasTest < TestCase
       TestMe.new.some_method
     end
 
-
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('/Users/cfis/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     methods = result.threads.first.methods
     assert_equal(6, methods.count)
 

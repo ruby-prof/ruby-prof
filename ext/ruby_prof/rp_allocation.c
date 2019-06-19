@@ -37,10 +37,12 @@ prof_allocation_create(void)
     prof_allocation_t *result = ALLOC(prof_allocation_t);
     result->count = 0;
     result->klass = Qnil;
+    result->klass_name = Qnil;
     result->object = Qnil;
     result->memory = 0;
     result->source_line = 0;
     result->source_file = Qnil;
+    result->key = 0;
 
     return result;
 }
@@ -61,6 +63,7 @@ prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
         allocation->source_line = source_line;
         allocation->source_file = rb_tracearg_path(trace_arg);
         allocation->klass = klass;
+        allocation->key = key;
         allocations_table_insert(method->allocations_table, key, allocation);
     }
 
@@ -106,6 +109,9 @@ prof_allocation_mark(void *data)
     if (allocation->klass != Qnil)
         rb_gc_mark(allocation->klass);
     
+    if (allocation->klass_name != Qnil)
+        rb_gc_mark(allocation->klass_name);
+
     if (allocation->object != Qnil)
             rb_gc_mark(allocation->object);
 
@@ -144,7 +150,7 @@ prof_allocation_allocate(VALUE klass)
     return allocation->object;
 }
 
-static prof_allocation_t*
+prof_allocation_t*
 prof_allocation_get(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
@@ -161,10 +167,14 @@ prof_allocation_get(VALUE self)
 
 Returns the type of Class being allocated. */
 static VALUE
-prof_allocation_klass(VALUE self)
+prof_allocation_klass_name(VALUE self)
 {
     prof_allocation_t* allocation = prof_allocation_get(self);
-    return allocation->klass;
+
+    if (allocation->klass_name == Qnil)
+        allocation->klass_name = rb_class_name(allocation->klass);
+
+    return allocation->klass_name;
 }
 
 /* call-seq:
@@ -217,7 +227,10 @@ prof_allocation_dump(VALUE self)
     prof_allocation_t* allocation = DATA_PTR(self);
 
     VALUE result = rb_hash_new();
-    rb_hash_aset(result, ID2SYM(rb_intern("klass")), allocation->klass);
+
+    rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(allocation->key));
+    rb_hash_aset(result, ID2SYM(rb_intern("klass_name")), prof_allocation_klass_name(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("source_file")), allocation->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(allocation->source_line));
     rb_hash_aset(result, ID2SYM(rb_intern("count")), INT2FIX(allocation->count));
     rb_hash_aset(result, ID2SYM(rb_intern("memory")), LONG2FIX(allocation->memory));
@@ -231,7 +244,9 @@ prof_allocation_load(VALUE self, VALUE data)
     prof_allocation_t* allocation = DATA_PTR(self);
     allocation->object = self;
 
-    allocation->klass = rb_hash_aref(data, ID2SYM(rb_intern("klass")));
+    allocation->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
+    allocation->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));
+    allocation->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     allocation->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
     allocation->count = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("count"))));
     allocation->memory = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("memory"))));
@@ -245,7 +260,7 @@ void rp_init_allocation(void)
     rb_undef_method(CLASS_OF(cRpAllocation), "new");
     rb_define_alloc_func(cRpAllocation, prof_allocation_allocate);
 
-    rb_define_method(cRpAllocation, "klass", prof_allocation_klass, 0);
+    rb_define_method(cRpAllocation, "klass_name", prof_allocation_klass_name, 0);
     rb_define_method(cRpAllocation, "source_file", prof_allocation_source_file, 0);
     rb_define_method(cRpAllocation, "line", prof_allocation_source_line, 0);
     rb_define_method(cRpAllocation, "count", prof_allocation_count, 0);

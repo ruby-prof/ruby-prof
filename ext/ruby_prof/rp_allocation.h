@@ -9,7 +9,9 @@
 
 typedef struct
 {
+    st_data_t key;                    /* Key in hash table */
     VALUE klass;                      /* Klass that was created */
+    VALUE klass_name;                 /* Name of the class that was created */
     VALUE source_file;                /* Line number where allocation happens */
     int source_line;                  /* Line number where allocation happens */
     int count;                        /* Number of allocations */
@@ -21,6 +23,7 @@ void rp_init_allocation(void);
 void prof_allocation_free(prof_allocation_t* allocation);
 void prof_allocation_mark(void *data);
 VALUE prof_allocation_wrap(prof_allocation_t* allocation);
+prof_allocation_t* prof_allocation_get(VALUE self);
 prof_allocation_t* prof_allocate_increment(prof_method_t *method, rb_trace_arg_t *trace_arg);
 
 

@@ -554,6 +554,8 @@ prof_method_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("callers")), prof_method_callers(self));
     rb_hash_aset(result, ID2SYM(rb_intern("callees")), prof_method_callees(self));
 
+    rb_hash_aset(result, ID2SYM(rb_intern("allocations")), prof_method_allocations(self));
+
     return result;
 }
 
@@ -595,6 +597,15 @@ prof_method_load(VALUE self, VALUE data)
 
         st_data_t key = call_info_data->method ? call_info_data->method->key : method_key(Qnil, 0);
         call_info_table_insert(method_data->child_call_infos, key, call_info_data);
+    }
+
+    VALUE allocations = rb_hash_aref(data, ID2SYM(rb_intern("allocations")));
+    for (int i = 0; i < rb_array_len(allocations); i++)
+    {
+        VALUE allocation = rb_ary_entry(allocations, i);
+        prof_allocation_t* allocation_data = prof_allocation_get(allocation);
+
+        st_insert(method_data->allocations_table, allocation_data->key, (st_data_t)allocation_data);
     }
     return data;
 }

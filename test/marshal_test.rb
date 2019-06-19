@@ -43,6 +43,25 @@ class MarshalTest < TestCase
 
       verify_call_infos(method_1.callers, method_2.callers)
       verify_call_infos(method_1.callees, method_2.callees)
+
+      verify_allocations(method_1.allocations, method_2.allocations)
+    end
+  end
+
+  def verify_allocations(allocations_1, allocations_2)
+    assert_equal(allocations_1.count, allocations_2.count)
+
+    allocations_1.count.times do |i|
+      allocation_1 = allocations_1[i]
+      allocation_2 = allocations_2[i]
+
+      assert_equal(allocation_1.klass_name, allocation_2.klass_name)
+
+      assert_equal(allocation_1.count, allocation_2.count)
+      assert_equal(allocation_1.memory, allocation_2.memory)
+
+      assert_equal(allocation_1.source_file, allocation_2.source_file)
+      assert_equal(allocation_1.line, allocation_2.line)
     end
   end
 

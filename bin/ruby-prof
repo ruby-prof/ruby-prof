@@ -106,25 +106,17 @@ module RubyProf
                 '  process - Process time.',
                 '  cpu - CPU time (Pentium and PowerPCs only).',
                 '  allocations - Object allocations (requires patched Ruby interpreter).',
-                '  memory - Allocated memory in KB (requires patched Ruby interpreter).',
-                '  gc_runs - Number of garbage collections (requires patched Ruby interpreter).',
-                '  gc_time - Time spent in garbage collection (requires patched Ruby interpreter).') do |measure_mode|
+                '  memory - Allocated memory in KB (requires patched Ruby interpreter).') do |measure_mode|
 
           case measure_mode
           when :wall
             options.measure_mode = RubyProf::WALL_TIME
           when :process
             options.measure_mode = RubyProf::PROCESS_TIME
-          when :cpu
-            options.measure_mode = RubyProf::CPU_TIME
           when :allocations
             options.measure_mode = RubyProf::ALLOCATIONS
           when :memory
             options.measure_mode = RubyProf::MEMORY
-          when :gc_runs
-            options.measure_mode = RubyProf::GC_RUNS
-          when :gc_time
-            options.measure_mode = RubyProf::GC_TIME
           end
         end
 

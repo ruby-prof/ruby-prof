@@ -54,10 +54,6 @@ module RubyProf
       RubyProf.measure_mode = RubyProf::MEMORY
     when "process", "process_time"
       RubyProf.measure_mode = RubyProf::PROCESS_TIME
-    when "gc_time"
-      RubyProf.measure_mode = RubyProf::GC_TIME
-    when "gc_runs"
-      RubyProf.measure_mode = RubyProf::GC_RUNS
     else
       # the default is defined in the measure_mode reader
     end

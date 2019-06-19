@@ -25,14 +25,14 @@ class MeasureMemoryTraceTest < TestCase
 
     root_methods = thread.root_methods
     assert_equal(1, root_methods.count)
-    assert_equal("MeasureMemorytraceTest#test_memory", root_methods[0].full_name)
+    assert_equal("MeasureMemoryTraceTest#test_memory", root_methods[0].full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(13, methods.length)
 
     # Method 0
     method = methods[0]
-    assert_equal('MeasureMemorytraceTest#test_memory',  method.full_name)
+    assert_equal('MeasureMemoryTraceTest#test_memory',  method.full_name)
     assert_in_delta(1760, method.total_time, 1)
     assert_equal(0.0, method.wait_time)
     assert_equal(0.0, method.self_time)
@@ -71,7 +71,7 @@ class MeasureMemoryTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('MeasureMemorytraceTest#test_memory', call_info.parent.full_name)
+    assert_equal('MeasureMemoryTraceTest#test_memory', call_info.parent.full_name)
     assert_equal(1720.0, call_info.total_time)
     assert_equal(0.0, call_info.wait_time)
     assert_equal(0.0, call_info.self_time)
@@ -133,7 +133,7 @@ class MeasureMemoryTraceTest < TestCase
 
     assert_equal(4, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('MeasureMemorytraceTest#test_memory', call_info.parent.full_name)
+    assert_equal('MeasureMemoryTraceTest#test_memory', call_info.parent.full_name)
     assert_equal(40.0, call_info.total_time)
     assert_equal(0.0, call_info.wait_time)
     assert_equal(40.0, call_info.self_time)

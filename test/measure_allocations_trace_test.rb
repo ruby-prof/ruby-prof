@@ -15,9 +15,14 @@ class MeasureAllocationsTraceTest < TestCase
   end
 
   def test_allocations
-    result = RubyProf.profile(:trace_allocations => true) do
+    result = RubyProf.profile(:track_allocations => true) do
       allocator = Allocator.new
       allocator.run
+    end
+
+    printer = RubyProf::FlatPrinter.new(result)
+    File.open('c:/temp/graph.html', 'wb') do |file|
+      printer.print(file)
     end
 
     thread = result.threads.first

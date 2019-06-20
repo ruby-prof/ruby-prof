@@ -6,28 +6,28 @@
 VALUE mMeasure;
 VALUE cRpMeasurement;
 
-prof_measurer_t* prof_measurer_allocations(bool trace_allocations);
-prof_measurer_t* prof_measurer_memory(bool trace_allocations);
-prof_measurer_t* prof_measurer_process_time(bool trace_allocations);
-prof_measurer_t* prof_measurer_wall_time(bool trace_allocations);
+prof_measurer_t* prof_measurer_allocations(bool track_allocations);
+prof_measurer_t* prof_measurer_memory(bool track_allocations);
+prof_measurer_t* prof_measurer_process_time(bool track_allocations);
+prof_measurer_t* prof_measurer_wall_time(bool track_allocations);
 
 void rp_init_measure_allocations(void);
 void rp_init_measure_memory(void);
 void rp_init_measure_process_time(void);
 void rp_init_measure_wall_time(void);
 
-prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure, bool trace_allocations)
+prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure, bool track_allocations)
 {
     switch (measure)
     {
     case MEASURE_WALL_TIME:
-        return prof_measurer_wall_time(trace_allocations);
+        return prof_measurer_wall_time(track_allocations);
     case MEASURE_PROCESS_TIME:
-        return prof_measurer_process_time(trace_allocations);
+        return prof_measurer_process_time(track_allocations);
     case MEASURE_ALLOCATIONS:
-        return prof_measurer_allocations(trace_allocations);
+        return prof_measurer_allocations(track_allocations);
     case MEASURE_MEMORY:
-        return prof_measurer_memory(trace_allocations);
+        return prof_measurer_memory(track_allocations);
     default:
         rb_raise(rb_eArgError, "Unknown measure mode: %d", measure);
     }

@@ -10,6 +10,7 @@
 typedef struct
 {
     st_data_t key;                    /* Key in hash table */
+    unsigned int klass_flags;         /* Information about the type of class */
     VALUE klass;                      /* Klass that was created */
     VALUE klass_name;                 /* Name of the class that was created */
     VALUE source_file;                /* Line number where allocation happens */

@@ -302,7 +302,7 @@ prof_install_hook(VALUE self)
                                                prof_event_hook, profile);
     rb_ary_push(profile->tracepoints, event_tracepoint);
     
-    if (profile->measurer->trace_allocations)
+    if (profile->measurer->track_allocations)
     {
         VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
         rb_ary_push(profile->tracepoints, allocation_tracepoint);
@@ -472,7 +472,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     VALUE include_threads = Qnil;
     VALUE exclude_common = Qnil;
     VALUE allow_exceptions = Qfalse;
-    VALUE trace_allocations = Qfalse;
+    VALUE track_allocations = Qfalse;
 
     int i;
 
@@ -489,7 +489,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
         {
             Check_Type(mode_or_options, T_HASH);
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
-            trace_allocations = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("trace_allocations")));
+            track_allocations = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("track_allocations")));
             allow_exceptions = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("allow_exceptions")));
             exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
@@ -509,7 +509,7 @@ prof_initialize(int argc,  VALUE *argv, VALUE self)
     {
         Check_Type(mode, T_FIXNUM);
     }
-    profile->measurer = prof_get_measurer(NUM2INT(mode), trace_allocations == Qtrue);
+    profile->measurer = prof_get_measurer(NUM2INT(mode), track_allocations == Qtrue);
     profile->allow_exceptions = (allow_exceptions == Qtrue);
 
     if (exclude_threads != Qnil)
@@ -578,14 +578,14 @@ prof_profile_measure_mode(VALUE self)
 }
 
 /* call-seq:
-   trace_allocations -> boolean
+   track_allocations -> boolean
 
    Returns if object allocations were tracked in this profile.*/
 static VALUE
-prof_profile_trace_allocations(VALUE self)
+prof_profile_track_allocations(VALUE self)
 {
     prof_profile_t* profile = prof_get_profile(self);
-    return profile->measurer->trace_allocations ? Qtrue : Qfalse;
+    return profile->measurer->track_allocations ? Qtrue : Qfalse;
 }
 
 /* call-seq:
@@ -838,7 +838,7 @@ void rp_init_profile(void)
     rb_define_method(cProfile, "profile", prof_profile_object, 0);
 
     rb_define_method(cProfile, "measure_mode", prof_profile_measure_mode, 0);
-    rb_define_method(cProfile, "trace_allocations?", prof_profile_trace_allocations, 0);
+    rb_define_method(cProfile, "track_allocations?", prof_profile_track_allocations, 0);
 
     rb_define_method(cProfile, "_dump_data", prof_profile_dump, 0);
     rb_define_method(cProfile, "_load_data", prof_profile_load, 1);

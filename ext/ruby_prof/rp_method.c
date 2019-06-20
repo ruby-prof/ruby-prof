@@ -62,7 +62,7 @@ resolve_klass(VALUE klass, unsigned int *klass_flags)
     return result;
 }
 
-static VALUE
+VALUE
 resolve_klass_name(VALUE klass, unsigned int* klass_flags)
 {
     VALUE result = Qnil;

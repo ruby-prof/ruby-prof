@@ -29,6 +29,8 @@ class MarshalTest < TestCase
       method_2 = methods_2[i]
 
       assert_equal(method_1.klass_name, method_2.klass_name)
+      assert_equal(method_1.klass_flags, method_2.klass_flags)
+
       assert_equal(method_1.method_name, method_2.method_name)
       assert_equal(method_1.full_name, method_2.full_name)
 
@@ -56,6 +58,7 @@ class MarshalTest < TestCase
       allocation_2 = allocations_2[i]
 
       assert_equal(allocation_1.klass_name, allocation_2.klass_name)
+      assert_equal(allocation_1.klass_flags, allocation_2.klass_flags)
 
       assert_equal(allocation_1.count, allocation_2.count)
       assert_equal(allocation_1.memory, allocation_2.memory)

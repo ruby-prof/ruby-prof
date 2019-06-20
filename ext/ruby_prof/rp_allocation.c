@@ -51,6 +51,9 @@ prof_allocation_t*
 prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
 {
     VALUE object = rb_tracearg_object(trace_arg);
+    if (BUILTIN_TYPE(object) == T_IMEMO)
+        return NULL;
+
     VALUE klass = rb_obj_class(object);
 
     int source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
@@ -62,7 +65,9 @@ prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
         allocation = prof_allocation_create();
         allocation->source_line = source_line;
         allocation->source_file = rb_tracearg_path(trace_arg);
-        allocation->klass = klass;
+        allocation->klass_flags = 0;
+        allocation->klass = resolve_klass(klass, &allocation->klass_flags);
+
         allocation->key = key;
         allocations_table_insert(method->allocations_table, key, allocation);
     }
@@ -172,9 +177,21 @@ prof_allocation_klass_name(VALUE self)
     prof_allocation_t* allocation = prof_allocation_get(self);
 
     if (allocation->klass_name == Qnil)
-        allocation->klass_name = rb_class_name(allocation->klass);
+        allocation->klass_name = resolve_klass_name(allocation->klass, &allocation->klass_flags);
 
     return allocation->klass_name;
+}
+
+/* call-seq:
+   klass_flags -> integer
+
+Returns the klass flags */
+
+static VALUE
+prof_allocation_klass_flags(VALUE self)
+{
+    prof_allocation_t* allocation = prof_allocation_get(self);
+    return INT2FIX(allocation->klass_flags);
 }
 
 /* call-seq:
@@ -230,6 +247,7 @@ prof_allocation_dump(VALUE self)
 
     rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(allocation->key));
     rb_hash_aset(result, ID2SYM(rb_intern("klass_name")), prof_allocation_klass_name(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("klass_flags")), INT2FIX(allocation->klass_flags));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), allocation->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(allocation->source_line));
     rb_hash_aset(result, ID2SYM(rb_intern("count")), INT2FIX(allocation->count));
@@ -246,6 +264,7 @@ prof_allocation_load(VALUE self, VALUE data)
 
     allocation->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
     allocation->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));
+    allocation->klass_flags = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("klass_flags"))));
     allocation->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     allocation->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
     allocation->count = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("count"))));
@@ -261,6 +280,7 @@ void rp_init_allocation(void)
     rb_define_alloc_func(cRpAllocation, prof_allocation_allocate);
 
     rb_define_method(cRpAllocation, "klass_name", prof_allocation_klass_name, 0);
+    rb_define_method(cRpAllocation, "klass_flags", prof_allocation_klass_flags, 0);
     rb_define_method(cRpAllocation, "source_file", prof_allocation_source_file, 0);
     rb_define_method(cRpAllocation, "line", prof_allocation_source_line, 0);
     rb_define_method(cRpAllocation, "count", prof_allocation_count, 0);

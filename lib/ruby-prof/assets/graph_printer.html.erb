@@ -89,7 +89,7 @@ total_time = thread.total_time
         <th>Child</th>
         <th>Calls</th>
         <th class="method_name">Name</th>
-        <% if @result.trace_allocations? %>
+        <% if @result.track_allocations? %>
         <th>Allocations</th>
         <% end %>
         <th>Line</th>
@@ -117,7 +117,7 @@ total_time = thread.total_time
                 <td><%= sprintf("%.2f", caller.children_time) %></td>
                 <td><%= "#{caller.called}/#{method.called}" %></td>
                 <td class="method_name"><%= create_link(thread, total_time, caller.parent) %></td>
-                <% if @result.trace_allocations? %>
+                <% if @result.track_allocations? %>
                 <td>-</td>
                 <% end %>
                 <td><%= if caller.parent.source_file
@@ -139,7 +139,7 @@ total_time = thread.total_time
                 </a>
             </td>
 
-            <% if @result.trace_allocations? %>
+            <% if @result.track_allocations? %>
               <td><%= method.allocations.reduce(0) do |size, allocation|
                       size += allocation.count
                   end %>
@@ -151,7 +151,7 @@ total_time = thread.total_time
                     end %></td>
          </tr>
 
-         <% if @result.trace_allocations? %>
+         <% if @result.track_allocations? %>
          <tr>
             <td colspan="10">
                 <table>
@@ -186,7 +186,7 @@ total_time = thread.total_time
               <td><%= sprintf("%.2f", callee.children_time) %></td>
               <td><%= "#{callee.called}/#{callee.target.called}" %></td>
               <td class="method_name"><%= create_link(thread, total_time, callee.target) %></td>
-              <% if @result.trace_allocations? %>
+              <% if @result.track_allocations? %>
               <td>-</td>
               <% end %>
               <td><%= file_link(callee.source_file, callee.line) %>

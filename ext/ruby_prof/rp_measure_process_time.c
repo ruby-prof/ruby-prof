@@ -44,13 +44,13 @@ multiplier_process_time(void)
 #endif
 }
 
-prof_measurer_t* prof_measurer_process_time(bool trace_allocations)
+prof_measurer_t* prof_measurer_process_time(bool track_allocations)
 {
   prof_measurer_t* measure = ALLOC(prof_measurer_t);
   measure->mode = MEASURE_PROCESS_TIME;
   measure->measure = measure_process_time;
   measure->multiplier = multiplier_process_time();
-  measure->trace_allocations = trace_allocations;
+  measure->track_allocations = track_allocations;
   return measure;
 }
 

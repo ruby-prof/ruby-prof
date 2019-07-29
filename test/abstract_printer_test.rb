@@ -11,33 +11,6 @@ class AbstractPrinterTest < TestCase
     @printer.setup_options(@options)
   end
 
-  def test_editor_uri
-    env = {}
-
-    with_const_stubbed('ENV', env) do
-      @options[:editor_uri] = 'nvim'
-
-      env['RUBY_PROF_EDITOR_URI'] = 'atm'
-      assert_equal('atm', @printer.editor_uri)
-
-      env['RUBY_PROF_EDITOR_URI'] = nil
-      assert_equal(false, @printer.editor_uri)
-
-      env.delete('RUBY_PROF_EDITOR_URI')
-      assert_equal('nvim', @printer.editor_uri)
-
-      with_const_stubbed('RUBY_PLATFORM', 'x86_64-darwin18') do
-        assert_equal('nvim', @printer.editor_uri)
-
-        @options.delete(:editor_uri)
-        assert_equal('txmt', @printer.editor_uri)
-      end
-      with_const_stubbed('RUBY_PLATFORM', 'windows') do
-        assert_equal(false, @printer.editor_uri)
-      end
-    end
-  end
-
   private
 
   def with_const_stubbed(name, value)

@@ -1,7 +1,6 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-
 /* Document-class: RubyProf::Thread
 
 The Thread class contains profile results for a single fiber (note a Ruby thread can run multiple fibers).

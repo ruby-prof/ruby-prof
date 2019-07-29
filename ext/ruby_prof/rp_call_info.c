@@ -3,6 +3,13 @@
 
 #include "rp_call_info.h"
 
+/* Document-class: RubyProf::CallInfo
+
+The CallInfo class is used to track the relationships between methods. It is a helper class used by
+RubyProf::MethodInfo to keep track of which methods called a given method and which methods a given
+method called. Each CallInfo has a parent and target method. You cannot create a CallInfo object directly,
+they are generated while running a profile.*/
+
 #define INITIAL_CALL_INFOS_SIZE 2
 
 VALUE cRpCallnfo;
@@ -147,12 +154,6 @@ call_info_table_lookup(st_table *table, st_data_t key)
 }
 
 /* =======  RubyProf::CallInfo   ========*/
-
-/* Document-class: RubyProf::CallInfo
-RubyProf::CallInfo is a helper class used by RubyProf::MethodInfo
-to keep track of which child methods were called and how long
-they took to execute. */
-
 
 /* call-seq:
    parent -> call_info

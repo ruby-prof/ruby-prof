@@ -6,6 +6,12 @@ module RubyProf
   class MethodInfo
     include Comparable
 
+    # Returns the full name of a class. The interpretation of method names is:
+    #
+    # * MyObject#test - An method defined in a class
+    # * <Class:MyObject>#test - A method defined in a singleton class.
+    # * <Module:MyObject>#test - A method defined in a singleton module.
+    # * <Object:MyObject>#test - A method defined in a singleton object.
     def full_name
       decorated_class_name = case self.klass_flags
                              when 0x2
@@ -21,6 +27,37 @@ module RubyProf
       "#{decorated_class_name}##{method_name}"
     end
 
+    # The number of times this method was called
+    def called
+      self.measurement.called
+    end
+
+    # The total time this method took - includes self time + wait time + child time
+    def total_time
+      self.measurement.total_time
+    end
+
+    # The time this method took to execute
+    def self_time
+      self.measurement.self_time
+    end
+
+    # The time this method waited for other fibers/threads to execute
+    def wait_time
+      self.measurement.wait_time
+    end
+
+    # The time this method's children took to execute
+    def children_time
+      self.total_time - self.self_time - self.wait_time
+    end
+
+    # The min call depth of this method
+    def min_depth
+      @min_depth ||= callers.map(&:depth).min
+    end
+
+    # :enddoc:
     def <=>(other)
       if other == nil
         -1
@@ -39,35 +76,11 @@ module RubyProf
       end
     end
 
-    def called
-      self.measurement.called
-    end
-
-    def total_time
-      self.measurement.total_time
-    end
-
-    def self_time
-      self.measurement.self_time
-    end
-
-    def wait_time
-      self.measurement.wait_time
-    end
-
-    def children_time
-      self.total_time - self.self_time - self.wait_time
-    end
-
-    def min_depth
-      @min_depth ||= callers.map(&:depth).min
-    end
-
     def to_s
       "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, wt: #{wait_time}, ct: #{self.children_time})"
     end
 
-    # remove method from the call graph. should not be called directly.
+    # Remove method from the call graph. should not be called directly.
     def eliminate!
       # $stderr.puts "eliminating #{self}"
       callers.each{ |call_info| call_info.eliminate! }

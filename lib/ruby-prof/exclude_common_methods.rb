@@ -1,5 +1,6 @@
 require 'set'
 
+# :enddoc:
 module RubyProf
   module ExcludeCommonMethods
     ENUMERABLE_NAMES = Enumerable.instance_methods(false)

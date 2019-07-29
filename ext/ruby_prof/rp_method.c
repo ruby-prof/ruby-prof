@@ -1,11 +1,6 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-/* Document-class: RubyProf::MethodInfo
-
-The MethodInfo class is used to track information about each method that is profiled.
-You cannot create a MethodInfo object directly, they are generated while running a profile.*/
-
 #include "rp_allocation.h"
 #include "rp_call_info.h"
 #include "rp_method.h"

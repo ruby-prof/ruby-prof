@@ -1,6 +1,8 @@
 # encoding: utf-8
 
 module RubyProf
+  # The MethodInfo class is used to track information about each method that is profiled.
+  # You cannot create a MethodInfo object directly, they are generated while running a profile.
   class MethodInfo
     include Comparable
 

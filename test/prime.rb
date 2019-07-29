@@ -5,6 +5,7 @@
 # Source from http://people.cs.uchicago.edu/~bomb154/154/maclabs/profilers-lab/
 
 require File.expand_path('../test_helper', __FILE__)
+require 'fileutils'
 
 def make_random_array(length, maxnum)
   result = Array.new(length)
@@ -55,10 +56,11 @@ def run_primes(length=10, maxnum=1000)
   find_largest(primes)
 end
 
-# Generate example reports
+# Generate example reports - this assumes the ruby-prof.github.io project is checked out in parallel direcotry
 def generate_reports(result)
-  path = File.join('..', 'examples')
+  path = File.join('..', '..', 'ruby-prof.github.io', 'examples')
   path = File.expand_path(path)
+  FileUtils.makedirs(path)
   printer = RubyProf::MultiPrinter.new(result, [:flat, :flat_with_lines, :graph, :graph_html, :call_info, :tree, :stack, :dot])
   printer.print(:path => path, :profile => 'primes')
 end

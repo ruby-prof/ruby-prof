@@ -4,6 +4,7 @@ require 'ruby-prof/exclude_common_methods'
 
 module RubyProf
   class Profile
+    # :nodoc:
     def measure_mode_string
       case self.measure_mode
         when WALL_TIME    then "wall_time"

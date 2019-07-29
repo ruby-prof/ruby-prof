@@ -80,12 +80,9 @@ RDoc::Task.new("rdoc") do |rdoc|
   rdoc.options << '--main' << 'README.rdoc'
   rdoc.rdoc_files.include('bin/*',
                           'doc/*.rdoc',
-                          'examples/flat.txt',
-                          'examples/graph.txt',
-                          'examples/graph.html',
                           'lib/**/*.rb',
-                          'ext/ruby_prof/ruby_prof.c',
-                          'ext/ruby_prof/measure_*.h',
+                          'ext/ruby_prof/*.c',
+                          'ext/ruby_prof/*.h',
                           'README.rdoc',
                           'LICENSE')
 end

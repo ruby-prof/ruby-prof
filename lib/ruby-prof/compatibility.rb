@@ -1,20 +1,16 @@
 # encoding: utf-8
 
-# These methods are here for backwards compatability with previous RubyProf releases
+# These methods are deprecated and are available for backwards compatability.
 module RubyProf
   # call-seq:
   # measure_mode -> measure_mode
   #
   # Returns what ruby-prof is measuring.  Valid values include:
   #
-  # *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows.  This is default.
-  # *RubyProf::PROCESS_TIME - Measure process time.  It is implemented using the clock functions in the C Runtime library.
-  # *RubyProf::CPU_TIME - Measure time using the CPU clock counter.  This mode is only supported on Pentium or PowerPC platforms.
-  # *RubyProf::ALLOCATIONS - Measure object allocations.  This requires a patched Ruby interpreter.
-  # *RubyProf::MEMORY - Measure memory size.  This requires a patched Ruby interpreter.
-  # *RubyProf::GC_RUNS - Measure number of garbage collections.  This requires a patched Ruby interpreter.
-  # *RubyProf::GC_TIME - Measure time spent doing garbage collection.  This requires a patched Ruby interpreter.*/
-
+  # * RubyProf::WALL_TIME
+  # * RubyProf::PROCESS_TIME
+  # * RubyProf::ALLOCATIONS
+  # * RubyProf::MEMORY
   def self.measure_mode
     @measure_mode ||= RubyProf::WALL_TIME
   end
@@ -24,17 +20,68 @@ module RubyProf
   #
   # Specifies what ruby-prof should measure.  Valid values include:
   #
-  # *RubyProf::WALL_TIME - Measure wall time using gettimeofday on Linx and GetLocalTime on Windows.  This is default.
-  # *RubyProf::PROCESS_TIME - Measure process time.  It is implemented using the clock functions in the C Runtime library.
-  # *RubyProf::CPU_TIME - Measure time using the CPU clock counter.  This mode is only supported on Pentium or PowerPC platforms.
-  # *RubyProf::ALLOCATIONS - Measure object allocations.  This requires a patched Ruby interpreter.
-  # *RubyProf::MEMORY - Measure memory size.  This requires a patched Ruby interpreter.
-  # *RubyProf::GC_RUNS - Measure number of garbage collections.  This requires a patched Ruby interpreter.
-  # *RubyProf::GC_TIME - Measure time spent doing garbage collection.  This requires a patched Ruby interpreter.*/
+  # * RubyProf::WALL_TIME - Wall time measures the real-world time elapsed between any two moments. If there are other processes concurrently running on the system that use significant CPU or disk time during a profiling run then the reported results will be larger than expected. On Windows, wall time is measured using GetTickCount(), on MacOS by mach_absolute_time, on Linux by clock_gettime and otherwise by gettimeofday.
+  # * RubyProf::PROCESS_TIME - Process time measures the time used by a process between any two moments. It is unaffected by other processes concurrently running on the system. Remember with process time that calls to methods like sleep will not be included in profiling results. On Windows, process time is measured using GetProcessTimes and on other platforms by clock_gettime.
+  # * RubyProf::ALLOCATIONS - Object allocations measures show how many objects each method in a program allocates. Measurements are done via Ruby's GC.stat api.
+  # * RubyProf::MEMORY - Memory measures how much memory each method in a program uses. Measurements are done via Ruby's TracePoint api.
   def self.measure_mode=(value)
     @measure_mode = value
   end
 
+  # Returns the threads that ruby-prof should exclude from profiling
+  def self.exclude_threads
+    @exclude_threads ||= Array.new
+  end
+
+  # Specifies which threads ruby-prof should exclude from profiling
+  def self.exclude_threads=(value)
+    @exclude_threads = value
+  end
+
+  # Starts profiling
+  def self.start
+    ensure_not_running!
+    @profile = Profile.new(:measure_mode => measure_mode, :exclude_threads => exclude_threads)
+    @profile.start
+  end
+
+  # Pauses profiling
+  def self.pause
+    ensure_running!
+    @profile.pause
+  end
+
+  # Is a profile running?
+  def self.running?
+    if defined?(@profile) and @profile
+      @profile.running?
+    else
+      false
+    end
+  end
+
+  # Resume profiling
+  def self.resume
+    ensure_running!
+    @profile.resume
+  end
+
+  # Stops profiling
+  def self.stop
+    ensure_running!
+    result = @profile.stop
+    @profile = nil
+    result
+  end
+
+  # Profiles a block
+  def self.profile(options = {}, &block)
+    ensure_not_running!
+    options = {:measure_mode => measure_mode, :exclude_threads => exclude_threads }.merge!(options)
+    Profile.profile(options, &block)
+  end
+
+  # :nodoc:
   def self.measure_mode_string
     case measure_mode
       when WALL_TIME    then "wall_time"
@@ -44,69 +91,13 @@ module RubyProf
     end
   end
 
-  # call-seq:
-  # exclude_threads -> exclude_threads
-  #
-  # Returns threads ruby-prof should exclude from profiling
-
-  def self.exclude_threads
-    @exclude_threads ||= Array.new
-  end
-
-  # call-seq:
-  # exclude_threads= -> void
-  #
-  # Specifies what threads ruby-prof should exclude from profiling
-
-  def self.exclude_threads=(value)
-    @exclude_threads = value
-  end
-
-  # Profiling
+  # :nodoc:
   def self.start_script(script)
     start
     load script
   end
 
-  def self.start
-    ensure_not_running!
-    @profile = Profile.new(:measure_mode => measure_mode, :exclude_threads => exclude_threads)
-    @profile.start
-  end
-
-  def self.pause
-    ensure_running!
-    @profile.pause
-  end
-
-  def self.running?
-    if defined?(@profile) and @profile
-      @profile.running?
-    else
-      false
-    end
-  end
-
-  def self.resume
-    ensure_running!
-    @profile.resume
-  end
-
-  def self.stop
-    ensure_running!
-    result = @profile.stop
-    @profile = nil
-    result
-  end
-
-  # Profile a block
-  def self.profile(options = {}, &block)
-    ensure_not_running!
-    options = {:measure_mode => measure_mode, :exclude_threads => exclude_threads }.merge!(options)
-    Profile.profile(options, &block)
-  end
-
-private
+  private
 
   def self.ensure_running!
     raise(RuntimeError, "RubyProf.start was not yet called") unless running?

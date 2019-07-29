@@ -1,6 +1,22 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
+
+/* Document-class: RubyProf::Thread
+
+The Thread class contains profile results for a single fiber (note a Ruby thread can run multiple fibers).
+
+  profile = RubyProf::Profile.profile do
+              ...
+            end
+
+  profile.threads.each do |thread|
+    thread.root_methods.sort.each do |method|
+      puts method.total_time
+    end
+  end
+*/
+
 #include "rp_thread.h"
 #include "rp_profile.h"
 
@@ -239,7 +255,7 @@ collect_methods(st_data_t key, st_data_t value, st_data_t result)
 /* call-seq:
    id -> number
 
-Returns the id of this thread. */
+Returns the thread id of this thread. */
 static VALUE
 prof_thread_id(VALUE self)
 {
@@ -259,7 +275,7 @@ prof_fiber_id(VALUE self)
 }
 
 /* call-seq:
-   methods -> Array of MethodInfo
+   methods -> [RubyProf::MethodInfo]
 
 Returns an array of methods that were called from this
 thread during program execution. */
@@ -275,6 +291,7 @@ prof_thread_methods(VALUE self)
     return thread->methods;
 }
 
+/* :nodoc: */
 static VALUE
 prof_thread_dump(VALUE self)
 {
@@ -287,6 +304,7 @@ prof_thread_dump(VALUE self)
     return result;
 }
 
+/* :nodoc: */
 static VALUE
 prof_thread_load(VALUE self, VALUE data)
 {

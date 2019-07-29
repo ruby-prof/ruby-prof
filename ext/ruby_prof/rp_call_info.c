@@ -224,6 +224,7 @@ prof_call_info_line(VALUE self)
   return INT2FIX(result->source_line);
 }
 
+/* :nodoc: */
 static VALUE
 prof_call_info_dump(VALUE self)
 {
@@ -242,6 +243,7 @@ prof_call_info_dump(VALUE self)
     return result;
 }
 
+/* :nodoc: */
 static VALUE
 prof_call_info_load(VALUE self, VALUE data)
 {

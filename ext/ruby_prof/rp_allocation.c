@@ -238,6 +238,7 @@ prof_allocation_memory(VALUE self)
     return ULL2NUM(allocation->memory);
 }
 
+/* :nodoc: */
 static VALUE
 prof_allocation_dump(VALUE self)
 {
@@ -256,6 +257,7 @@ prof_allocation_dump(VALUE self)
     return result;
 }
 
+/* :nodoc: */
 static VALUE
 prof_allocation_load(VALUE self, VALUE data)
 {

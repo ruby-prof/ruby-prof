@@ -1,6 +1,24 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
+/* Document-class: RubyProf::Profile
+
+The Profile class represents a single profiling run and provides the main API for using ruby-prof.
+After creating a Profile instance, start profiling code by calling the Profile#start method. To finish profiling,
+call Profile#stop. Once profiling is completed, the Profile instance contains the results.
+
+  profile = RubyProf::Profile.new
+  profile.start
+  ...
+  result = profile.stop
+
+Alternatively, you can use the block syntax:
+
+  profile = RubyProf::Profile.profile do
+    ...
+  end
+*/
+
 #include <assert.h>
 
 #include "rp_allocation.h"
@@ -260,7 +278,7 @@ prof_event_hook(VALUE trace_point, void* data)
                     call_info_table_insert(frame->call_info->method->child_call_infos, method->key, call_info);
                 }
             }
-            
+
             /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
             next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
             next_frame->source_file = method->source_file;
@@ -720,8 +738,7 @@ prof_stop(VALUE self)
 /* call-seq:
    threads -> Array of RubyProf::Thread
 
-Returns an array of RubyProf::Thread instances that were executed
-while the the program was being run. */
+Returns an array of RubyProf::Thread instances that were profiled. */
 static VALUE
 prof_threads(VALUE self)
 {
@@ -731,10 +748,17 @@ prof_threads(VALUE self)
     return result;
 }
 
-/* call-seq:
-   profile {block} -> RubyProf::Result
+/* Document-method: RubyProf::Profile#Profile
+   call-seq:
+   profile(&block) -> self
 
-Profiles the specified block and returns a RubyProf::Result object. */
+   Profiles the specified block.
+
+     profile = RubyProf::Profile.new
+     profile.profile do
+       ..
+     end
+*/
 static VALUE
 prof_profile_object(VALUE self)
 {
@@ -759,12 +783,17 @@ prof_profile_object(VALUE self)
 
 }
 
-/* call-seq:
-   profile(&block) -> self
-   profile(options, &block) -> self
+/* Document-method: RubyProf::Profile::Profile
+   call-seq:
+   profile(&block) -> RubyProf::Profile
+   profile(options, &block) -> RubyProf::Profile
 
-Profiles the specified block and returns a RubyProf::Profile
-object. Arguments are passed to Profile initialize method.
+   Profiles the specified block and returns a RubyProf::Profile
+   object. Arguments are passed to Profile initialize method.
+
+     profile = RubyProf::Profile.profile do
+       ..
+     end
 */
 static VALUE
 prof_profile_class(int argc,  VALUE *argv, VALUE klass)
@@ -772,6 +801,11 @@ prof_profile_class(int argc,  VALUE *argv, VALUE klass)
     return prof_profile_object(rb_class_new_instance(argc, argv, cProfile));
 }
 
+/* call-seq:
+   exclude_method!(module, method_name) -> self
+
+   Excludes the method from profiling results.
+*/
 static VALUE
 prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
 {
@@ -796,6 +830,7 @@ prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
     return self;
 }
 
+/* :nodoc: */
 VALUE prof_profile_dump(VALUE self)
 {
     VALUE result = rb_hash_new();
@@ -803,6 +838,7 @@ VALUE prof_profile_dump(VALUE self)
     return result;
 }
 
+/* :nodoc: */
 VALUE prof_profile_load(VALUE self, VALUE data)
 {
     prof_profile_t* profile = prof_get_profile(self);

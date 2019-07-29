@@ -532,6 +532,7 @@ prof_method_excluded(VALUE self)
     return method->excluded ? Qtrue : Qfalse;
 }
 
+/* :nodoc: */
 static VALUE
 prof_method_dump(VALUE self)
 {
@@ -559,6 +560,7 @@ prof_method_dump(VALUE self)
     return result;
 }
 
+/* :nodoc: */
 static VALUE
 prof_method_load(VALUE self, VALUE data)
 {

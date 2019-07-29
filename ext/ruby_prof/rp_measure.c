@@ -183,6 +183,7 @@ prof_measurement_set_called(VALUE self, VALUE called)
     return called;
 }
 
+/* :nodoc: */
 static VALUE
 prof_measurement_dump(VALUE self)
 {
@@ -197,6 +198,7 @@ prof_measurement_dump(VALUE self)
     return result;
 }
 
+/* :nodoc: */
 static VALUE
 prof_measurement_load(VALUE self, VALUE data)
 {

@@ -42,6 +42,7 @@ module RubyProf
   autoload :GraphPrinter, 'ruby-prof/printers/graph_printer'
   autoload :MultiPrinter, 'ruby-prof/printers/multi_printer'
 
+  # :nodoc:
   # Checks if the user specified the clock mode via
   # the RUBY_PROF_MEASURE_MODE environment variable
   def self.figure_measure_mode

@@ -41,7 +41,7 @@ module RubyProf
       @output << sprintf("%#{TIME_WIDTH}s", "child")
       @output << sprintf("%#{CALL_WIDTH}s", "calls")
       @output << "     name"
-      @output << "                         location"
+      @output << "                          location"
       @output << "\n"
     end
 
@@ -70,7 +70,7 @@ module RubyProf
         @output << sprintf("%#{CALL_WIDTH}i", method.called)
         @output << sprintf("    %s",  method.recursive? ? "*" : " ")
         @output << sprintf("%-30s", method.full_name)
-        @output << sprintf("%s", method_location(method))
+        @output << sprintf(" %s", method_location(method))
         @output << "\n"
 
         print_children(method)

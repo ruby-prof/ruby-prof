@@ -4,6 +4,7 @@ require 'set'
 
 module RubyProf
   # Generates a graphviz graph in dot format.
+  #
   # To use the dot printer:
   #
   #   result = RubyProf.profile do

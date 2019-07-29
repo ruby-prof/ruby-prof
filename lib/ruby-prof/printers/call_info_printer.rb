@@ -4,7 +4,15 @@ module RubyProf
   # Prints out the call graph based on CallInfo instances. This
   # is mainly for debugging purposes as it provides access into
   # into RubyProf's internals.
-
+  #
+  # To use the printer:
+  #
+  #   result = RubyProf.profile do
+  #     [code to profile]
+  #   end
+  #
+  #   printer = RubyProf::CallInfoPrinter.new(result)
+  #   printer.print(STDOUT)
   class CallInfoPrinter < AbstractPrinter
     TIME_WIDTH = 0
 

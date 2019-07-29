@@ -6,8 +6,18 @@ require 'base64'
 require 'set'
 
 module RubyProf
-  # prints a HTML visualization of the call tree
-  class CallStackPrinter < AbstractPrinter
+  # Prints a HTML visualization of the call tree.
+  #
+  # To use the printer:
+  #
+  #   result = RubyProf.profile do
+  #     [code to profile]
+  #   end
+  #
+  #   printer = RubyProf::CallStackPrinter.new(result)
+  #   printer.print(STDOUT)
+
+class CallStackPrinter < AbstractPrinter
     include ERB::Util
 
     # Specify print options.

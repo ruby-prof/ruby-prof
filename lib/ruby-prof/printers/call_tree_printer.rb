@@ -5,7 +5,7 @@ require 'thread'
 require 'fileutils'
 
 module RubyProf
-  # Generate profiling information in callgrind format for use by
+  # Generates profiling information in callgrind format for use by
   # kcachegrind and similar tools.
 
   class CallTreePrinter < AbstractPrinter

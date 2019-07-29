@@ -56,7 +56,6 @@ module RubyProf
         opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack, :dot, :multi],
                 'Select a printer:',
                 '  flat - Prints a flat profile as text (default).',
-                '  flat_with_line_numbers - same as flat, with line numbers.',
                 '  graph - Prints a graph profile as text.',
                 '  graph_html - Prints a graph profile as html.',
                 '  call_tree - format for KCacheGrind',
@@ -64,7 +63,6 @@ module RubyProf
                 '  dot - Prints a graph profile as a dot file',
                 '  multi - Creates several reports in output directory'
         ) do |printer|
-
 
           case printer
           when :flat
@@ -98,11 +96,10 @@ module RubyProf
         end
 
         opts.on('--mode=measure_mode',
-                [:process, :wall, :cpu, :allocations, :memory, :gc_runs, :gc_time],
+                [:process, :wall, :allocations, :memory],
                 'Select what ruby-prof should measure:',
                 '  wall - Wall time (default).',
                 '  process - Process time.',
-                '  cpu - CPU time (Pentium and PowerPCs only).',
                 '  allocations - Object allocations (requires patched Ruby interpreter).',
                 '  memory - Allocated memory in KB (requires patched Ruby interpreter).') do |measure_mode|
 

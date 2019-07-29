@@ -1,7 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#include "rp_measure.h"
+#include "rp_measurement.h"
 
 VALUE mMeasure;
 VALUE cRpMeasurement;

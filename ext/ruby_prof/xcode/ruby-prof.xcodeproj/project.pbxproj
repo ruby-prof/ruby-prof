@@ -15,11 +15,11 @@
 		8B4E7E9022B85FD400D53342 /* rp_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8E22B85FD300D53342 /* rp_allocation.h */; };
 		8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2922A21EA800F36350 /* rp_call_info.c */; };
 		8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2B22A21EA800F36350 /* rp_call_info.h */; };
-		8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */; };
-		8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */; };
-		8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */; };
-		8B6DDFA922A22C8D00F36350 /* rp_measure.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF3022A21EA900F36350 /* rp_measure.c */; };
-		8B6DDFAA22A22C8D00F36350 /* rp_measure.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2122A21EA800F36350 /* rp_measure.h */; };
+		8B6DDFA222A22C8D00F36350 /* rp_measurement_allocations.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2522A21EA800F36350 /* rp_measurement_allocations.c */; };
+		8B6DDFA722A22C8D00F36350 /* rp_measurement_process_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2222A21EA800F36350 /* rp_measurement_process_time.c */; };
+		8B6DDFA822A22C8D00F36350 /* rp_measurement_wall_time.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2D22A21EA900F36350 /* rp_measurement_wall_time.c */; };
+		8B6DDFA922A22C8D00F36350 /* rp_measurement.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF3022A21EA900F36350 /* rp_measurement.c */; };
+		8B6DDFAA22A22C8D00F36350 /* rp_measurement.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2122A21EA800F36350 /* rp_measurement.h */; };
 		8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2822A21EA800F36350 /* rp_method.c */; };
 		8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2F22A21EA900F36350 /* rp_method.h */; };
 		8B6DDFAD22A22C8D00F36350 /* rp_stack.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2322A21EA800F36350 /* rp_stack.c */; };
@@ -49,19 +49,19 @@
 		8B4E7E8A22B85D9400D53342 /* rp_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_profile.h; path = ../rp_profile.h; sourceTree = "<group>"; };
 		8B4E7E8D22B85FD200D53342 /* rp_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_allocation.c; path = ../rp_allocation.c; sourceTree = "<group>"; };
 		8B4E7E8E22B85FD300D53342 /* rp_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_allocation.h; path = ../rp_allocation.h; sourceTree = "<group>"; };
-		8B6DDF2122A21EA800F36350 /* rp_measure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_measure.h; path = ../rp_measure.h; sourceTree = "<group>"; };
-		8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_process_time.c; path = ../rp_measure_process_time.c; sourceTree = "<group>"; };
+		8B6DDF2122A21EA800F36350 /* rp_measurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_measurement.h; path = ../rp_measurement.h; sourceTree = "<group>"; };
+		8B6DDF2222A21EA800F36350 /* rp_measurement_process_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measurement_process_time.c; path = ../rp_measurement_process_time.c; sourceTree = "<group>"; };
 		8B6DDF2322A21EA800F36350 /* rp_stack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_stack.c; path = ../rp_stack.c; sourceTree = "<group>"; };
 		8B6DDF2422A21EA800F36350 /* ruby_prof.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ruby_prof.h; path = ../ruby_prof.h; sourceTree = "<group>"; };
-		8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_allocations.c; path = ../rp_measure_allocations.c; sourceTree = "<group>"; };
+		8B6DDF2522A21EA800F36350 /* rp_measurement_allocations.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measurement_allocations.c; path = ../rp_measurement_allocations.c; sourceTree = "<group>"; };
 		8B6DDF2622A21EA800F36350 /* rp_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_thread.h; path = ../rp_thread.h; sourceTree = "<group>"; };
 		8B6DDF2722A21EA800F36350 /* rp_thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_thread.c; path = ../rp_thread.c; sourceTree = "<group>"; };
 		8B6DDF2822A21EA800F36350 /* rp_method.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_method.c; path = ../rp_method.c; sourceTree = "<group>"; };
 		8B6DDF2922A21EA800F36350 /* rp_call_info.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_call_info.c; path = ../rp_call_info.c; sourceTree = "<group>"; };
 		8B6DDF2B22A21EA800F36350 /* rp_call_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_call_info.h; path = ../rp_call_info.h; sourceTree = "<group>"; };
-		8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_wall_time.c; path = ../rp_measure_wall_time.c; sourceTree = "<group>"; };
+		8B6DDF2D22A21EA900F36350 /* rp_measurement_wall_time.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measurement_wall_time.c; path = ../rp_measurement_wall_time.c; sourceTree = "<group>"; };
 		8B6DDF2F22A21EA900F36350 /* rp_method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_method.h; path = ../rp_method.h; sourceTree = "<group>"; };
-		8B6DDF3022A21EA900F36350 /* rp_measure.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure.c; path = ../rp_measure.c; sourceTree = "<group>"; };
+		8B6DDF3022A21EA900F36350 /* rp_measurement.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measurement.c; path = ../rp_measurement.c; sourceTree = "<group>"; };
 		8B6DDF3122A21EA900F36350 /* ruby_prof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ruby_prof.c; path = ../ruby_prof.c; sourceTree = "<group>"; };
 		8B6DDF3222A21EA900F36350 /* rp_stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_stack.h; path = ../rp_stack.h; sourceTree = "<group>"; };
 		8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libruby.2.6.dylib; path = ../../../../../lib/libruby.2.6.dylib; sourceTree = "<group>"; };
@@ -90,11 +90,11 @@
 				8B4E7E8E22B85FD300D53342 /* rp_allocation.h */,
 				8B6DDF2922A21EA800F36350 /* rp_call_info.c */,
 				8B6DDF2B22A21EA800F36350 /* rp_call_info.h */,
-				8B6DDF2522A21EA800F36350 /* rp_measure_allocations.c */,
-				8B6DDF2222A21EA800F36350 /* rp_measure_process_time.c */,
-				8B6DDF2D22A21EA900F36350 /* rp_measure_wall_time.c */,
-				8B6DDF3022A21EA900F36350 /* rp_measure.c */,
-				8B6DDF2122A21EA800F36350 /* rp_measure.h */,
+				8B6DDF2522A21EA800F36350 /* rp_measurement_allocations.c */,
+				8B6DDF2222A21EA800F36350 /* rp_measurement_process_time.c */,
+				8B6DDF2D22A21EA900F36350 /* rp_measurement_wall_time.c */,
+				8B6DDF3022A21EA900F36350 /* rp_measurement.c */,
+				8B6DDF2122A21EA800F36350 /* rp_measurement.h */,
 				8B6DDF2822A21EA800F36350 /* rp_method.c */,
 				8B6DDF2F22A21EA900F36350 /* rp_method.h */,
 				8B4E7E8922B85D9400D53342 /* rp_profile.c */,
@@ -225,11 +225,11 @@
 			files = (
 				8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */,
 				8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */,
-				8B6DDFA222A22C8D00F36350 /* rp_measure_allocations.c in Sources */,
-				8B6DDFA722A22C8D00F36350 /* rp_measure_process_time.c in Sources */,
-				8B6DDFA822A22C8D00F36350 /* rp_measure_wall_time.c in Sources */,
-				8B6DDFA922A22C8D00F36350 /* rp_measure.c in Sources */,
-				8B6DDFAA22A22C8D00F36350 /* rp_measure.h in Sources */,
+				8B6DDFA222A22C8D00F36350 /* rp_measurement_allocations.c in Sources */,
+				8B6DDFA722A22C8D00F36350 /* rp_measurement_process_time.c in Sources */,
+				8B6DDFA822A22C8D00F36350 /* rp_measurement_wall_time.c in Sources */,
+				8B6DDFA922A22C8D00F36350 /* rp_measurement.c in Sources */,
+				8B6DDFAA22A22C8D00F36350 /* rp_measurement.h in Sources */,
 				8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */,
 				8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */,
 				8B4E7E8F22B85FD400D53342 /* rp_allocation.c in Sources */,

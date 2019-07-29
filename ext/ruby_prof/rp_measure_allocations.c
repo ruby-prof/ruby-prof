@@ -3,7 +3,7 @@
 
 /* :nodoc: */
 
-#include "rp_measure.h"
+#include "rp_measurement.h"
 
 static VALUE cMeasureAllocations;
 VALUE total_allocated_objects_key;

@@ -1,8 +1,8 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RP_MEASUREMENT_H__
-#define __RP_MEASUREMENT_H__
+#ifndef __rp_measurementMENT_H__
+#define __rp_measurementMENT_H__
 
 #include "ruby_prof.h"
 
@@ -46,4 +46,4 @@ void prof_measurement_mark(void *data);
 
 void rp_init_measure(void);
 
-#endif //__RP_MEASUREMENT_H__
+#endif //__rp_measurementMENT_H__

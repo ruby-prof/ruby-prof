@@ -5,7 +5,7 @@
 #define __RP_PROFILE_H__
 
 #include "ruby_prof.h"
-#include "rp_measure.h"
+#include "rp_measurement.h"
 #include "rp_thread.h"
 
 extern VALUE cProfile;

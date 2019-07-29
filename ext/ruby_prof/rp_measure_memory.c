@@ -3,7 +3,7 @@
 
 /* :nodoc: */
 
-#include "rp_measure.h"
+#include "rp_measurement.h"
 
 static VALUE cMeasureMemory;
 

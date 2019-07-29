@@ -115,7 +115,7 @@
   <ItemGroup>
     <ClInclude Include="..\rp_allocation.h" />
     <ClInclude Include="..\rp_call_info.h" />
-    <ClInclude Include="..\rp_measure.h" />
+    <ClInclude Include="..\rp_measurement.h" />
     <ClInclude Include="..\rp_method.h" />
     <ClInclude Include="..\rp_profile.h" />
     <ClInclude Include="..\rp_stack.h" />
@@ -126,11 +126,11 @@
   <ItemGroup>
     <ClCompile Include="..\rp_allocation.c" />
     <ClCompile Include="..\rp_call_info.c" />
-    <ClCompile Include="..\rp_measure.c" />
-    <ClCompile Include="..\rp_measure_allocations.c" />
-    <ClCompile Include="..\rp_measure_memory.c" />
-    <ClCompile Include="..\rp_measure_process_time.c" />
-    <ClCompile Include="..\rp_measure_wall_time.c" />
+    <ClCompile Include="..\rp_measurement.c" />
+    <ClCompile Include="..\rp_measurement_allocations.c" />
+    <ClCompile Include="..\rp_measurement_memory.c" />
+    <ClCompile Include="..\rp_measurement_process_time.c" />
+    <ClCompile Include="..\rp_measurement_wall_time.c" />
     <ClCompile Include="..\rp_method.c" />
     <ClCompile Include="..\rp_profile.c" />
     <ClCompile Include="..\rp_stack.c" />

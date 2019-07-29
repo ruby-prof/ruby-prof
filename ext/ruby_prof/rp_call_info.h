@@ -5,7 +5,7 @@
 #define __RP_CALL_INFO_H__
 
 #include "ruby_prof.h"
-#include "rp_measure.h"
+#include "rp_measurement.h"
 #include "rp_method.h"
 
 /* Callers and callee information for a method. */

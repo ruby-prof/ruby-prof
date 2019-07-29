@@ -26,7 +26,7 @@
 #include "ruby_prof.h"
 
 #include "rp_allocation.h"
-#include "rp_measure.h"
+#include "rp_measurement.h"
 #include "rp_method.h"
 #include "rp_call_info.h"
 #include "rp_profile.h"

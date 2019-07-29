@@ -41,6 +41,7 @@ module RubyProf
       @output << sprintf("%#{TIME_WIDTH}s", "child")
       @output << sprintf("%#{CALL_WIDTH}s", "calls")
       @output << "     name"
+      @output << "                         location"
       @output << "\n"
     end
 
@@ -56,7 +57,7 @@ module RubyProf
 
         self_percentage = (method.self_time/total_time) * 100
 
-        @output << "-" * 100 << "\n"
+        @output << "-" * 150 << "\n"
         print_parents(thread, method)
 
         # 1 is for % sign
@@ -68,8 +69,8 @@ module RubyProf
         @output << sprintf("%#{TIME_WIDTH}.3f", method.children_time)
         @output << sprintf("%#{CALL_WIDTH}i", method.called)
         @output << sprintf("    %s",  method.recursive? ? "*" : " ")
+        @output << sprintf("%-30s", method.full_name)
         @output << sprintf("%s", method_location(method))
-        @output << sprintf("  %s:%s", method.source_file, method.line)
         @output << "\n"
 
         print_children(method)

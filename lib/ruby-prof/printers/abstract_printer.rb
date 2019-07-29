@@ -76,7 +76,9 @@ module RubyProf
     end
 
     def method_location(method)
-      "#{method.source_file}:#{method.line}"
+      if method.source_file
+        "#{method.source_file}:#{method.line}"
+      end
     end
 
     def print_threads
@@ -111,13 +113,14 @@ module RubyProf
 
         Columns are:
 
-          %self - The percentage of time spent in this method, derived from self_time/total_time
-          total - The time spent in this method and its children.
-          self  - The time spent in this method.
-          wait  - amount of time this method waited for other threads
-          child - The time spent in this method's children.
-          calls - The number of times this method was called.
-          name  - The name of the method.
+          %self     - The percentage of time spent in this method, derived from self_time/total_time.
+          total     - The time spent in this method and its children.
+          self      - The time spent in this method.
+          wait      - The amount of time this method waited for other threads.
+          child     - The time spent in this method's children.
+          calls     - The number of times this method was called.
+          name      - The name of the method.
+          location  - The location of the method.
 
         The interpretation of method names is:
 

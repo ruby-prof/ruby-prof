@@ -23,8 +23,6 @@ require 'minitest/autorun'
 class TestCase < Minitest::Test
 end
 
-require File.expand_path('../prime', __FILE__)
-
 module PrinterTestHelper
   Metrics = Struct.new(:name, :total, :self_t, :wait, :child, :calls)
   class Metrics

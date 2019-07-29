@@ -42,6 +42,10 @@ module RubyProf
       @options[:print_file] || false
     end
 
+    def time_format
+      '%A, %B %-d at %l:%M:%S %p (%Z)'
+    end
+
     def sort_method
       @options[:sort_method]
     end
@@ -91,9 +95,38 @@ module RubyProf
     end
 
     def print_header(thread)
+      @output << "Measure Mode: %s\n" % RubyProf.measure_mode_string
+      @output << "Thread ID: %d\n" % thread.id
+      @output << "Fiber ID: %d\n" % thread.fiber_id unless thread.id == thread.fiber_id
+      @output << "Total: %0.6f\n" % thread.total_time
+      @output << "Sort by: #{sort_method}\n"
+      @output << "\n"
+      print_column_headers
+    end
+
+    def print_column_headers
     end
 
     def print_footer(thread)
+      @output << <<~EOT
+      
+        * recursively called methods
+
+        Columns are:
+
+          %self - The percentage of time spent in this method, derived from self_time/total_time
+          total - The time spent in this method and its children.
+          self  - The time spent in this method.
+          wait  - amount of time this method waited for other threads
+          child - The time spent in this method's children.
+          calls - The number of times this method was called.
+          name  - The name of the method.
+
+        The interpretation of method names is:
+
+          * MyObject#test - An instance method "test" of the class "MyObject"
+          * <Object:MyObject>#test - The <> characters indicate a method on a singleton class.
+      EOT
     end
 
     # whether this printer need a :path option pointing to a directory

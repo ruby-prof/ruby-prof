@@ -36,5 +36,8 @@ module RubyProf
         end
       end
     end
+
+    def print_footer(thread)
+    end
   end
 end

@@ -19,20 +19,7 @@ module RubyProf
 
     private
 
-    #def print_threads
-    #  @result.threads.each do |thread|
-    #    print_thread(thread)
-    #    @output << "\n" * 2
-    #  end
-    #end
-
-    def print_header(thread)
-      @output << "Measure Mode: %s\n" % RubyProf.measure_mode_string
-      @output << "Thread ID: %d\n" % thread.id
-      @output << "Fiber ID: %d\n" % thread.fiber_id unless thread.id == thread.fiber_id
-      @output << "Total: %0.6f\n" % thread.total_time
-      @output << "Sort by: #{sort_method}\n"
-      @output << "\n"
+    def print_column_headers
       @output << " %self      total      self      wait     child     calls  name\n"
     end
 
@@ -60,11 +47,6 @@ module RubyProf
                       method_name(method)                  # name
                   ]
       end
-    end
-
-    def print_footer(thread)
-      @output << "\n"
-      @output << "* indicates recursively called methods\n"
     end
   end
 end

@@ -30,5 +30,4 @@ end
 
 add_define("RUBY_PROF_RUBY_VERSION", RUBY_VERSION.split('.')[0..2].inject(0){|v,d| v*100+d.to_i})
 have_func('rb_tracearg_callee_id', ["ruby.h"])
-have_func('rb_obj_memsize_of', ["ruby.h"])
 create_makefile("ruby_prof")

@@ -159,10 +159,10 @@
   <div class="center">
     <div class="layout-left">
       <h6>Profile Report</h6>
-      <h1><%= @result.measure_mode_string %></h1>
+      <h1><%= @result.measure_mode_string.capitalize %></h1>
     </div>
     <div class="layout-right text-right">
-      <div class="timestamp"><%= Time.now.strftime('%A, %B %-d at %l:%M:%S %p (%Z)') %></div>
+      <div class="timestamp"><%= Time.now.strftime(self.time_format) %></div>
       <div class="logo"></div>
     </div>
   </div>
@@ -172,7 +172,7 @@
     <tr>
       <th>Thread ID</th>
       <th>Fiber ID</th>
-      <th>Total Time</th>
+      <th>Total</th>
     </tr>
     <% for thread in @result.threads %>
       <tr>
@@ -252,9 +252,15 @@
           </td>
 
           <% if @result.track_allocations? %>
-            <td><%= method.allocations.reduce(0) do |size, allocation|
-              size += allocation.count
-            end %>
+            <td>
+              <% count = method.allocations.reduce(0) do |size, allocation|
+                   size += allocation.count
+                  end %>
+              <% if count > 0 %>
+                <a class="allocations" href="#<%= method_href(thread, method) %>_allocations" %><%= count %></a>
+              <% else %>
+                0
+              <% end %>
             </td>
           <% end %>
 
@@ -266,7 +272,7 @@
         <% if @result.track_allocations? %>
           <tr>
             <td colspan="10">
-              <table>
+              <table id="<%= method_href(thread, method) %>_allocations" class="allocations" style="display: none">
                 <% for allocation in method.allocations %>
                   <tr>
                     <td>
@@ -319,5 +325,32 @@
     </table>
   <% end %>
 </div>
+
+<script type="application/javascript">
+  function toggleAllocations(element)
+  {
+    if (element.style.display == 'none')
+      element.style.display = 'block'
+    else
+      element.style.display = 'none'
+  }
+
+  function onClick(event)
+  {
+    if (event.target.tagName == 'A' && event.target.classList.contains('allocations'))
+    {
+      var url = new URL(event.target.href)
+      var element = document.querySelector(url.hash)
+      toggleAllocations(element)
+      event.preventDefault()
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', function(event)
+  {
+    document.addEventListener('click', onClick)
+  })
+
+</script>
 </body>
 </html>

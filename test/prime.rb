@@ -4,6 +4,8 @@
 #
 # Source from http://people.cs.uchicago.edu/~bomb154/154/maclabs/profilers-lab/
 
+require File.expand_path('../test_helper', __FILE__)
+
 def make_random_array(length, maxnum)
   result = Array.new(length)
   result.each_index do |i|
@@ -53,40 +55,21 @@ def run_primes(length=10, maxnum=1000)
   find_largest(primes)
 end
 
+# Generate example reports
+def generate_reports(result)
+  path = File.join('..', 'examples')
+  path = File.expand_path(path)
+  printer = RubyProf::MultiPrinter.new(result, [:flat, :flat_with_lines, :graph, :graph_html, :call_info, :tree, :stack, :dot])
+  printer.print(:path => path, :profile => 'primes')
+end
 
-def test_primes
+def run
   start = Process.times
   result = RubyProf.profile do
     run_primes(10000)
   end
-  finish = Process.times
 
-  total_time = (finish.utime - start.utime) + (finish.stime - start.stime)
-
-  thread = result.threads.first
-  assert_in_delta(total_time, thread.total_time, 0.03)
-
-  methods = result.threads.first.methods.sort.reverse
-
-  # puts methods.map(&:full_name).inspect
-  assert_equal(13, methods.length)
-
-  # Check times
-  assert_equal("MeasureWallTimeTest#test_primes", methods[0].full_name)
-  assert_in_delta(total_time, methods[0].total_time, 0.02)
-  assert_in_delta(0.0, methods[0].wait_time, 0.01)
-  assert_in_delta(0.0, methods[0].self_time, 0.01)
-
-  assert_equal("Object#run_primes", methods[1].full_name)
-  assert_in_delta(total_time, methods[1].total_time, 0.02)
-  assert_in_delta(0.0, methods[1].wait_time, 0.01)
-  assert_in_delta(0.0, methods[1].self_time, 0.01)
-
-  assert_equal("Object#find_primes", methods[2].full_name)
-  assert_equal("Integer#upto", methods[3].full_name)
-  assert_equal("Array#select", methods[4].full_name)
-  assert_equal("Object#is_prime", methods[5].full_name)
-  assert_equal("Object#make_random_array", methods[6].full_name)
-  assert_equal("Array#each_index", methods[7].full_name)
-  assert_equal("Object#find_largest", methods[8].full_name)
+  generate_reports(result)
 end
+
+run

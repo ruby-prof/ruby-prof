@@ -20,7 +20,7 @@ class MeasureAllocationsTraceTest < TestCase
       allocator.run
     end
 
-    printer = RubyProf::FlatPrinter.new(result)
+    printer = RubyProf::GraphHtmlPrinter.new(result)
     File.open('c:/temp/graph.html', 'wb') do |file|
       printer.print(file)
     end

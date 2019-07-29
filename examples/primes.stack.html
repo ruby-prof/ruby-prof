@@ -181,7 +181,7 @@
 
   function setThresholdLI(li, threshold) {
     var img = li.firstChild;
-    var text = img.nextSibling;
+    var text = img.nextSibling.firstChild;
     var ul = findUlChild(li);
 
     var visible = aboveThreshold(text.nodeValue, threshold) ? 1 : 0;
@@ -505,8 +505,8 @@
 </script>
 </head><body><div style="display: inline-block;">
 <div id="titlebar">
-Call tree for application <b>primes </b><br/>
-Generated on 2015-04-24 11:52:24 +0200 with options {:application=&gt;&quot;primes&quot;}<br/>
+Call tree for application <b>C:/msys64/usr/local/src/ruby-prof/test/prime.rb </b><br/>
+Generated on 2019-07-29 01:31:47 -0700 with options {}<br/>
 </div>
 <div id="commands">
 <span style="font-size: 11pt; font-weight: bold;">Threshold:</span>
@@ -529,19 +529,10 @@ Generated on 2015-04-24 11:52:24 +0200 with options {:application=&gt;&quot;prim
 &#8226; Use n and p to navigate between threads.<br>
 &#8226; Click on background to move focus to a subtree.<br>
 </div>
-<div class="thread">Thread: 70140045951280, Fiber: 70140054192180 (100.00% ~ 0.0029680728912353516)</div><ul name="thread"><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 100.00% (100.00%) <a href="txmt://open?url=file:///Users/stefan.kaes/src/ruby-prof/test/printers_test.rb&line=14">PrintersTest#setup</a> [1 calls, 1 total]</span>
-<ul><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 99.82% (99.82%) <a href="txmt://open?url=file:///Users/stefan.kaes/src/ruby-prof/test/prime.rb&line=45">Object#run_primes</a> [1 calls, 1 total]</span>
-<ul><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 92.62% (92.78%) <a href="txmt://open?url=file:///Users/stefan.kaes/src/ruby-prof/test/prime.rb&line=24">Object#find_primes</a> [1 calls, 1 total]</span>
-<ul><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 92.55% (99.93%) Array#select [1 calls, 1 total]</span>
-<ul><li class="color8" style="display:block"><a href="#" class="toggle minus" ></a><span> 89.73% (96.95%) <a href="txmt://open?url=file:///Users/stefan.kaes/src/ruby-prof/test/prime.rb&line=16">Object#is_prime</a> [200 calls, 200 total]</span>
-<ul><li class="color8" style="display:block"><a href="#" class="toggle empty" ></a><span> 86.63% (96.54%) Integer#upto [200 calls, 201 total]</span>
-</li></ul></li></ul></li></ul></li><li class="color05" style="display:block"><a href="#" class="toggle plus" ></a><span> 6.64% (6.65%) <a href="txmt://open?url=file:///Users/stefan.kaes/src/ruby-prof/test/prime.rb&line=7">Object#make_random_array</a> [1 calls, 1 total]</span>
-<ul style="display:none"><li class="color05" style="display:block"><a href="#" class="toggle plus" ></a><span> 6.33% (95.40%) Array#each_index [1 calls, 1 total]</span>
-<ul style="display:none"><li class="color01" style="display:block"><a href="#" class="toggle plus" ></a><span> 3.96% (62.56%) Kernel#rand [200 calls, 200 total]</span>
-<ul style="display:none"><li class="color01" style="display:block"><a href="#" class="toggle empty" ></a><span> 1.02% (25.76%) Kernel#respond_to_missing? [200 calls, 200 total]</span>
-</li></ul></li></ul></li><li class="color01" style="display:none"><a href="#" class="toggle empty" ></a><span> 0.20% (3.03%) Class#new [1 calls, 1 total]</span>
-<ul style="display:none"><li class="color01" style="display:none"><a href="#" class="toggle empty" ></a><span> 0.06% (32.00%) Array#initialize [1 calls, 1 total]</span>
-</li></ul></li></ul></li><li class="color01" style="display:none"><a href="#" class="toggle empty" ></a><span> 0.51% (0.51%) <a href="txmt://open?url=file:///Users/stefan.kaes/src/ruby-prof/test/prime.rb&line=31">Object#find_largest</a> [1 calls, 1 total]</span>
-<ul style="display:none"><li class="color01" style="display:none"><a href="#" class="toggle empty" ></a><span> 0.37% (73.02%) Integer#upto [1 calls, 201 total]</span>
-</li><li class="color01" style="display:none"><a href="#" class="toggle empty" ></a><span> 0.03% (6.35%) Array#first [1 calls, 1 total]</span>
-</li></ul></li></ul></li></ul></li></ul><div id="sentinel"></div></div></body></html>
+<div class="thread">Thread: 8614120, Fiber: 28029480 (100.00% ~ 0.15600000000267755)</div><ul name="thread"><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 100.00% (100.00%) <a href="file://C:/msys64/usr/local/src/ruby-prof/test/prime.rb#69">Object#run</a> [1 calls, <a href='primes.graph.html#Object_run_28029480'>1</a> total]</span>
+<ul><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 100.00% (100.00%) <a href="file://C:/msys64/usr/local/src/ruby-prof/test/prime.rb#47">Object#run_primes</a> [1 calls, <a href='primes.graph.html#Object_run_primes_28029480'>1</a> total]</span>
+<ul><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 100.00% (100.00%) <a href="file://C:/msys64/usr/local/src/ruby-prof/test/prime.rb#26">Object#find_primes</a> [1 calls, <a href='primes.graph.html#Object_find_primes_28029480'>1</a> total]</span>
+<ul><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 100.00% (100.00%) Array#select [1 calls, <a href='primes.graph.html#Array_select_28029480'>1</a> total]</span>
+<ul><li class="color9" style="display:block"><a href="#" class="toggle minus" ></a><span> 100.00% (100.00%) <a href="file://C:/msys64/usr/local/src/ruby-prof/test/prime.rb#18">Object#is_prime</a> [10000 calls, <a href='primes.graph.html#Object_is_prime_28029480'>10000</a> total]</span>
+<ul><li class="color9" style="display:block"><a href="#" class="toggle empty" ></a><span> 100.00% (100.00%) Integer#upto [10000 calls, <a href='primes.graph.html#Integer_upto_28029480'>10001</a> total]</span>
+</li></ul></li></ul></li></ul></li></ul></li></ul></li></ul><div id="sentinel"></div></div></body></html>

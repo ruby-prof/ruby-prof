@@ -63,7 +63,7 @@ prof_call_info_mark(void *data)
     if (call_info->source_file != Qnil)
         rb_gc_mark(call_info->source_file);
 
-	if (call_info->object != Qnil)
+    if (call_info->object != Qnil)
 		rb_gc_mark(call_info->object);
 
     if (call_info->method && call_info->method->object != Qnil)

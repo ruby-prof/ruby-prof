@@ -12,6 +12,10 @@ module RubyProf
   #   printer.print(STDOUT, {})
   #
   class FlatPrinterWithLineNumbers < FlatPrinter
+    def print_column_headers
+      @output << " %self      total      self      wait     child     calls  name                            location\n"
+    end
+
     def print_methods(thread)
       @editor = editor_uri
       total_time = thread.total_time
@@ -26,7 +30,7 @@ module RubyProf
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0
         #total_time_called = method.called > 0? method.total_time/method.called : 0
 
-        @output << "%6.2f  %9.3f %9.3f %9.3f %9.3f %8d  %s%s" % [
+        @output << "%6.2f  %9.3f %9.3f %9.3f %9.3f %8d  %s%-25s %s" % [
             method.self_time / total_time * 100, # %self
             method.total_time,                   # total
             method.self_time,                    # self
@@ -34,32 +38,9 @@ module RubyProf
             method.children_time,                # children
             method.called,                       # calls
             method.recursive? ? "*" : " ",       # cycle
-            method_name(method)                  # name
-        ]
-         if method.source_file == 'ruby_runtime'
-           @output << "\n"
-         else
-           @output << "\n    defined at:\n"
-           @output << defined_at_format % [File.expand_path(method.source_file ? method.source_file : ''), method.line]
-         end
-
-         callers = []
-         method.callers.each do |call_info|
-           if call_info.parent && call_info.parent.source_file != 'ruby_runtime'
-             callers << [method_name(call_info.parent),
-                         File.expand_path(call_info.parent.source_file ? call_info.parent.source_file : ''), call_info.parent.line]
-           end
-         end
-         # make sure callers are unique
-         callers.uniq!
-
-         unless callers.empty?
-           @output << "    called from:\n"
-           callers.each do |args|
-             @output << called_from_format % args
-           end
-         end
-         @output << "\n"
+            method_name(method),                 # name
+            defined_at_format % [File.expand_path(method.source_file ? method.source_file : ''), method.line] # Source
+            ]
       end
     end
 

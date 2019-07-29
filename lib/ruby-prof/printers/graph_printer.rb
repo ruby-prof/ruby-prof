@@ -20,6 +20,10 @@ module RubyProf
 
     private
 
+    def sort_method
+      @options[:sort_method] || :total_time
+    end
+
     def print_header(thread)
       @output << "Measure Mode: %s\n" % RubyProf.measure_mode_string
       @output << "Thread ID: #{thread.id}\n"
@@ -52,7 +56,7 @@ module RubyProf
 
         self_percentage = (method.self_time/total_time) * 100
 
-        @output << "-" * 80 << "\n"
+        @output << "-" * 100 << "\n"
         print_parents(thread, method)
 
         # 1 is for % sign
@@ -106,11 +110,6 @@ module RubyProf
         @output << sprintf("     %s", child.target.full_name)
         @output << "\n"
       end
-    end
-
-    def print_footer(thread)
-      @output << "\n"
-      @output << "* indicates recursively called methods\n"
     end
   end
 end

@@ -5,6 +5,7 @@
 /* Document-class: RubyProf::Thread
 
 The Thread class contains profile results for a single fiber (note a Ruby thread can run multiple fibers).
+You cannot create an instance of RubyProf::Thread, instead you access it from a RubyProf::Profile object.
 
   profile = RubyProf::Profile.profile do
               ...

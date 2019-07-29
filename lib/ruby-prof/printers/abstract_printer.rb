@@ -1,7 +1,14 @@
 # encoding: utf-8
 
 module RubyProf
+  # This is the base class for all Printers. It is never used directly.
   class AbstractPrinter
+    # :stopdoc:
+    def self.needs_dir?
+      false
+    end
+    # :startdoc:
+
     # Create a new printer.
     #
     # result should be the output generated from a profiling run
@@ -10,9 +17,44 @@ module RubyProf
       @output = nil
     end
 
-    # Specify print options.
+    # Returns the min_percent of total time a method must take to be included in a profiling report
+    def min_percent
+      @options[:min_percent] || 0
+    end
+
+    def print_file
+      @options[:print_file] || false
+    end
+
+
+    # Returns the time format used to show when a profile was run
+    def time_format
+      '%A, %B %-d at %l:%M:%S %p (%Z)'
+    end
+
+    # Returns how profile data should be sorted
+    def sort_method
+      @options[:sort_method]
+    end
+
+    def editor_uri
+      if ENV.key?('RUBY_PROF_EDITOR_URI')
+        ENV['RUBY_PROF_EDITOR_URI'] || false
+      elsif @options.key?(:editor_uri)
+        @options[:editor_uri]
+      else
+        RUBY_PLATFORM =~ /darwin/ ? 'txmt' : false
+      end
+    end
+
+    # Prints a report to the provided output.
     #
-    # options - Hash table
+    # output - Any IO object, including STDOUT or a file.
+    # The default value is STDOUT.
+    #
+    # options - Hash of print options. Note that each printer can
+    # define its own set of options.
+    #
     #   :min_percent - Number 0 to 100 that specifes the minimum
     #                  %self (the methods self time divided by the
     #                  overall total time) that a method must take
@@ -30,34 +72,15 @@ module RubyProf
     #                  e.g. :atm or :mvim. For OS X default is :txmt.
     #                  Pass false to print bare filenames.
     #                  Use RUBY_PROF_EDITOR_URI environment variable to override.
+    def print(output = STDOUT, options = {})
+      @output = output
+      setup_options(options)
+      print_threads
+    end
+
+    # :nodoc:
     def setup_options(options = {})
       @options = options
-    end
-
-    def min_percent
-      @options[:min_percent] || 0
-    end
-
-    def print_file
-      @options[:print_file] || false
-    end
-
-    def time_format
-      '%A, %B %-d at %l:%M:%S %p (%Z)'
-    end
-
-    def sort_method
-      @options[:sort_method]
-    end
-
-    def editor_uri
-      if ENV.key?('RUBY_PROF_EDITOR_URI')
-        ENV['RUBY_PROF_EDITOR_URI'] || false
-      elsif @options.key?(:editor_uri)
-        @options[:editor_uri]
-      else
-        RUBY_PLATFORM =~ /darwin/ ? 'txmt' : false
-      end
     end
 
     def method_name(method)
@@ -66,20 +89,6 @@ module RubyProf
         name += " (#{method.source_file}:#{method.line}}"
       end
       name
-    end
-
-    # Print a profiling report to the provided output.
-    #
-    # output - Any IO object, including STDOUT or a file.
-    # The default value is STDOUT.
-    #
-    # options - Hash of print options.  See #setup_options
-    # for more information.  Note that each printer can
-    # define its own set of options.
-    def print(output = STDOUT, options = {})
-      @output = output
-      setup_options(options)
-      print_threads
     end
 
     def print_threads
@@ -127,11 +136,6 @@ module RubyProf
           * MyObject#test - An instance method "test" of the class "MyObject"
           * <Object:MyObject>#test - The <> characters indicate a method on a singleton class.
       EOT
-    end
-
-    # whether this printer need a :path option pointing to a directory
-    def self.needs_dir?
-      false
     end
   end
 end

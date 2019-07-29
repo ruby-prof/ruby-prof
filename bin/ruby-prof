@@ -1,18 +1,5 @@
 #! /usr/bin/env ruby
 
-# == Synopsis
-#
-# Profiles a Ruby program.
-#
-# == Usage
-#
-# ruby_prof [options] <script.rb> [--] [script-options]"
-#
-# Various options:
-#        run "$ ruby-prof --help" to see them
-#
-# See also the readme "reports" section for the various outputs
-
 # First require ruby-prof
 require 'rubygems'
 require 'ruby-prof'
@@ -22,7 +9,68 @@ require 'ostruct'
 require 'optparse'
 
 module RubyProf
+  # == Synopsis
+  #
+  # Profiles a Ruby program.
+  #
+  # == Usage
+  #
+  # ruby_prof [options] <script.rb> [--] [script-options]
+  #
+  # Options:
+  #  -p, --printer=printer          Select a printer:
+  #                                   flat - Prints a flat profile as text (default).
+  #                                   graph - Prints a graph profile as text.
+  #                                   graph_html - Prints a graph profile as html.
+  #                                   call_tree - format for KCacheGrind
+  #                                   call_stack - prints a HTML visualization of the call tree
+  #                                   dot - Prints a graph profile as a dot file
+  #                                   multi - Creates several reports in output directory
+  #
+  #  -m, --min_percent=min_percent  The minimum percent a method must take before
+  #                                 being included in output reports. This option is not supported for call tree reports.
+  #
+  #  -f, --file=path                Output results to a file instead of standard out.
+  #
+  #  --mode=measure_mode            Select what ruby-prof should measure:
+  #                                   wall - Wall time (default)
+  #                                   process - Process time
+  #                                   allocations - Object allocations
+  #                                   memory - Allocated memory
+  #
+  #  -s, --sort=sort_mode           Select how ruby-prof results should be sorted:
+  #                                   total - Total time
+  #                                   self - Self time
+  #                                   wait - Wait time
+  #                                   child - Child time
+  #
+  #  --replace-progname             Replace $0 when loading the .rb files.
+  #
+  #  --specialized-instruction      Turn on specified instruction.
+  #
+  #  -v                             Show version, set $VERBOSE to true, profile script if option given
+  #
+  #  -d                             Set $DEBUG to true
+  #
+  #  -R, --require-noprof lib       Require a specific library (not profiled)
+  #
+  #  -E, --eval-noprof code         Execute the ruby statements (not profiled)
+  #
+  #  -x, --exclude regexp           Exclude methods by regexp (see method elimination)
+  #
+  #  -X, --exclude-file file        Exclude methods by regexp listed in file (see method elimination)
+  #
+  #  --exclude-common-cycles        Make common iterators like Integer#times appear inlined
+  #
+  #  --exclude-common-callbacks     Make common callbacks invocations like Integer#times appear inlined so you can see call origins in graph
+  #
+  #  -h, --help                     Show help message
+  #
+  #  --version                      Show version
+  #
+  #
   class Cmd
+    # :enddoc:
     attr_accessor :options
 
     def initialize
@@ -85,7 +133,7 @@ module RubyProf
         opts.on('-m min_percent', '--min_percent=min_percent', Float,
                 'The minimum percent a method must take before ',
                 '  being included in output reports.',
-                '  this option is not supported for call tree.') do |min_percent|
+                '  This option is not supported for call tree.') do |min_percent|
           options.min_percent = min_percent
         end
 
@@ -171,7 +219,7 @@ module RubyProf
           options.pre_execs << code
         end
 
-        opts.on('-x regexp', '--exclude regexp', 'exclude methods by regexp (see method elimination)') do|meth|
+        opts.on('-x regexp', '--exclude regexp', 'exclude methods by regexp (see method elimination)') do |meth|
           options.eliminate_methods ||= []
           options.eliminate_methods << Regexp.new(meth)
         end

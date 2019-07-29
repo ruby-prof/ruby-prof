@@ -5,13 +5,14 @@ require File.expand_path('../test_helper', __FILE__)
 require 'stringio'
 require 'fileutils'
 require 'tmpdir'
+require_relative 'prime'
 
 # --  Tests ----
 class PrinterCallTreeTest < TestCase
   def setup
     # WALL_TIME so we can use sleep in our test and get same measurements on linux and windows
     RubyProf::measure_mode = RubyProf::WALL_TIME
-    @result = RubyProf.profile do
+    @result = RubyProf.profile(:allow_exceptions => true) do
       run_primes(1000, 5000)
     end
   end

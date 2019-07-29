@@ -33,14 +33,9 @@ module RubyProf
     #
     #   :application - a String to overide the name of the application,
     #                  as it appears on the report.
-    #
-    #   :editor_uri  - Specifies editor uri scheme used for opening files
-    #                  e.g. :atm or :mvim. For OS X default is :txmt.
-    #                  Use RUBY_PROF_EDITOR_URI environment variable to overide.
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)
-      @editor = editor_uri
       if @graph_html = options.delete(:graph)
         @graph_html = "file://" + @graph_html if @graph_html[0]=="/"
       end
@@ -125,13 +120,7 @@ module RubyProf
         h(name(call_info))
       else
         file = File.expand_path(method.source_file)
-        if @editor
-          "<a href=\"#{@editor}://" \
-          "open?url=file://#{file}&line=#{method.line}\">" \
-          "#{h(name(call_info))}</a>"
-        else
-          "<a href=\"file://#{file}##{method.line}\">#{h(name(call_info))}</a>"
-        end
+       "<a href=\"file://#{file}##{method.line}\">#{h(name(call_info))}</a>"
       end
     end
 

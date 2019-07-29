@@ -32,16 +32,6 @@ module RubyProf
       @options[:sort_method]
     end
 
-    def editor_uri
-      if ENV.key?('RUBY_PROF_EDITOR_URI')
-        ENV['RUBY_PROF_EDITOR_URI'] || false
-      elsif @options.key?(:editor_uri)
-        @options[:editor_uri]
-      else
-        RUBY_PLATFORM =~ /darwin/ ? 'txmt' : false
-      end
-    end
-
     # Prints a report to the provided output.
     #
     # output - Any IO object, including STDOUT or a file.
@@ -60,10 +50,6 @@ module RubyProf
     #                  Available values are :total_time, :self_time,
     #                  :wait_time, :children_time
     #                  Default value is :total_time
-    #    :editor_uri - Specifies editor uri scheme used for opening files
-    #                  e.g. :atm or :mvim. For OS X default is :txmt.
-    #                  Pass false to print bare filenames.
-    #                  Use RUBY_PROF_EDITOR_URI environment variable to override.
     def print(output = STDOUT, options = {})
       @output = output
       setup_options(options)

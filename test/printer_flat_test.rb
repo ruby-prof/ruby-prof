@@ -29,7 +29,7 @@ class PrinterFlatTest < TestCase
 
   def test_flat_string
     output = helper_test_flat_string(RubyProf::FlatPrinter)
-    refute_match(/prime.rb/, output)
+    assert_match(/prime.rb/, output)
   end
 
   def helper_test_flat_string(klass)

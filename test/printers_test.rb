@@ -80,7 +80,7 @@ class PrintersTest < TestCase
 
   def test_flat_string
     output = helper_test_flat_string(RubyProf::FlatPrinter)
-    refute_match(/prime.rb/, output)
+    assert_match(/prime.rb/, output)
   end
 
   def helper_test_flat_string(klass)
@@ -102,7 +102,7 @@ class PrintersTest < TestCase
     printer.print(output)
 
     assert_match(/<!DOCTYPE html>/i, output)
-    assert_match( %r{<th>Total Time</th>}i, output)
+    assert_match( %r{<th>Total</th>}i, output)
     assert_match(/Object#run_primes/i, output)
   end
 

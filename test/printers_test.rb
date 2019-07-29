@@ -28,9 +28,6 @@ class PrintersTest < TestCase
     printer = RubyProf::FlatPrinter.new(@result)
     printer.print(output)
 
-    printer = RubyProf::FlatPrinterWithLineNumbers.new(@result)
-    printer.print(output)
-
     printer = RubyProf::GraphHtmlPrinter.new(@result)
     printer.print(output)
 
@@ -98,18 +95,6 @@ class PrintersTest < TestCase
     output
   end
 
-  def test_flat_string_with_numbers
-    output = helper_test_flat_string RubyProf::FlatPrinterWithLineNumbers
-    assert_match(/prime.rb/, output)
-    refute_match(/ruby_runtime:0/, output)
-    assert_match(/called from/, output)
-
-    # should combine common parents
-    # 1.9 inlines it's  Fixnum#- so we don't see as many
-    assert_equal(2, output.scan(/Object#is_prime/).length)
-    refute_match(/\.\/test\/prime.rb/, output) # don't use relative paths
-  end
-
   def test_graph_html_string
     output = ''
     printer = RubyProf::GraphHtmlPrinter.new(@result)
@@ -145,8 +130,7 @@ class PrintersTest < TestCase
 
     # RubyProf::CallTreePrinter doesn't "do" a min_percent
     # RubyProf::FlatPrinter only outputs if self time > percent...
-    # RubyProf::FlatPrinterWithLineNumbers same
-    for klass in [ RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
+    for klass in [RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
       printer = klass.new(result)
       out = ''
       printer.print(out, :min_percent => 0.00000001)

@@ -7,7 +7,6 @@ module RubyProf
   class MultiPrinter
     def initialize(result, printers = [:flat, :graph_html])
       @flat_printer = FlatPrinter.new(result) if printers.include?(:flat)
-      @flat_printer_with_lines = FlatPrinterWithLineNumbers.new(result) if printers.include?(:flat_with_lines)
 
       @graph_printer = GraphPrinter.new(result) if printers.include?(:graph)
       @graph_html_printer = GraphHtmlPrinter.new(result) if printers.include?(:graph_html)
@@ -33,7 +32,6 @@ module RubyProf
       @directory = options.delete(:path) || File.expand_path(".")
 
       print_to_flat(options) if @flat_printer
-      print_to_flat_with_lines(options) if @flat_printer_with_lines
 
       print_to_graph(options) if @graph_printer
       print_to_graph_html(options) if @graph_html_printer
@@ -47,11 +45,6 @@ module RubyProf
     # the name of the flat profile file
     def flat_report
       "#{@directory}/#{@profile}.flat.txt"
-    end
-
-    # the name of the flat profile file
-    def flat_report_with_lines
-      "#{@directory}/#{@profile}.flat_with_lines.txt"
     end
 
     # the name of the graph profile file
@@ -86,12 +79,6 @@ module RubyProf
     def print_to_flat(options)
       File.open(flat_report, "wb") do |file|
         @flat_printer.print(file, options)
-      end
-    end
-
-    def print_to_flat_with_lines(options)
-      File.open(flat_report_with_lines, "wb") do |file|
-        @flat_printer_with_lines.print(file, options)
       end
     end
 

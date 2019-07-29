@@ -19,9 +19,6 @@ module RubyProf
     #                  for it to be printed out in the report.
     #                  Default value is 0.
     #
-    #   :print_file  - True or false. Specifies if a method's source
-    #                  file should be printed.  Default value if false.
-    #
     #   :threshold   - a float from 0 to 100 that sets the threshold of
     #                  results displayed.
     #                  Default value is 1.0

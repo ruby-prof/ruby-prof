@@ -84,7 +84,7 @@ module RubyProf
         total_percentage = (method.total_time/total_time) * 100
 
         next if total_percentage < min_percent
-        name = method_name(method).split("#").last
+        name = method.full_name.split("#").last
         puts "#{dot_id(method)} [label=\"#{name}\\n(#{total_percentage.round}%)\"];"
         @seen_methods << method
         print_edges(total_time, method)

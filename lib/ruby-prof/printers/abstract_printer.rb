@@ -22,11 +22,6 @@ module RubyProf
       @options[:min_percent] || 0
     end
 
-    def print_file
-      @options[:print_file] || false
-    end
-
-
     # Returns the time format used to show when a profile was run
     def time_format
       '%A, %B %-d at %l:%M:%S %p (%Z)'
@@ -61,9 +56,6 @@ module RubyProf
     #                  for it to be printed out in the report.
     #                  Default value is 0.
     #
-    #   :print_file  - True or false. Specifies if a method's source
-    #                  file should be printed.  Default value if false.
-    #
     #   :sort_method - Specifies method used for sorting method infos.
     #                  Available values are :total_time, :self_time,
     #                  :wait_time, :children_time
@@ -83,12 +75,8 @@ module RubyProf
       @options = options
     end
 
-    def method_name(method)
-      name = method.full_name
-      if print_file
-        name += " (#{method.source_file}:#{method.line}}"
-      end
-      name
+    def method_location(method)
+      "#{method.source_file}:#{method.line}"
     end
 
     def print_threads

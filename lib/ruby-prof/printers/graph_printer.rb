@@ -68,10 +68,8 @@ module RubyProf
         @output << sprintf("%#{TIME_WIDTH}.3f", method.children_time)
         @output << sprintf("%#{CALL_WIDTH}i", method.called)
         @output << sprintf("    %s",  method.recursive? ? "*" : " ")
-        @output << sprintf("%s", method_name(method))
-        if print_file
-          @output << sprintf("  %s:%s", method.source_file, method.line)
-        end
+        @output << sprintf("%s", method_location(method))
+        @output << sprintf("  %s:%s", method.source_file, method.line)
         @output << "\n"
 
         print_children(method)

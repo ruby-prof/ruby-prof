@@ -69,8 +69,6 @@ module RubyProf
           case printer
           when :flat
             options.printer = RubyProf::FlatPrinter
-          when :flat_with_line_numbers
-            options.printer = RubyProf::FlatPrinterWithLineNumbers
           when :graph
             options.printer = RubyProf::GraphPrinter
           when :graph_html

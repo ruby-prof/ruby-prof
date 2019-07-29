@@ -37,7 +37,6 @@ module RubyProf
   autoload :CallTreePrinter, 'ruby-prof/printers/call_tree_printer'
   autoload :DotPrinter, 'ruby-prof/printers/dot_printer'
   autoload :FlatPrinter, 'ruby-prof/printers/flat_printer'
-  autoload :FlatPrinterWithLineNumbers, 'ruby-prof/printers/flat_printer_with_line_numbers'
   autoload :GraphHtmlPrinter, 'ruby-prof/printers/graph_html_printer'
   autoload :GraphPrinter, 'ruby-prof/printers/graph_printer'
   autoload :MultiPrinter, 'ruby-prof/printers/multi_printer'

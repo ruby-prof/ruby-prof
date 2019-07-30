@@ -102,12 +102,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby263vc\include\ruby-2.6.0\x64-mswin64_140;C:\msys64\usr\local\ruby263vc\include\ruby-2.6.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby-2.6.3vc\include\ruby-2.6.0\x64-mswin64_140;C:\msys64\usr\local\ruby-2.6.3vc\include\ruby-2.6.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>HAVE_RB_TRACEARG_CALLEE_ID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby263vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby-2.6.3vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>x64-vcruntime140-ruby260.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>ruby_prof.def</ModuleDefinitionFile>
     </Link>
@@ -127,10 +127,10 @@
     <ClCompile Include="..\rp_allocation.c" />
     <ClCompile Include="..\rp_call_info.c" />
     <ClCompile Include="..\rp_measurement.c" />
-    <ClCompile Include="..\rp_measurement_allocations.c" />
-    <ClCompile Include="..\rp_measurement_memory.c" />
-    <ClCompile Include="..\rp_measurement_process_time.c" />
-    <ClCompile Include="..\rp_measurement_wall_time.c" />
+    <ClCompile Include="..\rp_measure_allocations.c" />
+    <ClCompile Include="..\rp_measure_memory.c" />
+    <ClCompile Include="..\rp_measure_process_time.c" />
+    <ClCompile Include="..\rp_measure_wall_time.c" />
     <ClCompile Include="..\rp_method.c" />
     <ClCompile Include="..\rp_profile.c" />
     <ClCompile Include="..\rp_stack.c" />

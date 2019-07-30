@@ -29,5 +29,8 @@ def windows?
 end
 
 add_define("RUBY_PROF_RUBY_VERSION", RUBY_VERSION.split('.')[0..2].inject(0){|v,d| v*100+d.to_i})
+
+# This function was added in Ruby 2.5, so once Ruby 2.4 is no longer supported this can be removed
 have_func('rb_tracearg_callee_id', ["ruby.h"])
+
 create_makefile("ruby_prof")

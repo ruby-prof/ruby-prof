@@ -5,7 +5,7 @@ if RUBY_ENGINE != "ruby"
   exit(1)
 end
 
-if RUBY_VERSION < "2.4.0"
+if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.4.0')
   STDERR.puts("\n\n***** Ruby version #{RUBY_VERSION} is no longer supported. Please upgrade to 2.3 or higher. *****\n\n")
   exit(1)
 end

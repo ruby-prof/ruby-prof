@@ -1,14 +1,25 @@
-0.19.0 (2019-06-04)
+1.0.0 (2019-07-29)
 =====================
-* Greatly improved performance (Charlie Savage)
-* Support for marshaling profile results so they can be analyzed later (Charlie Savage)
-* Remove code supporting Ruby versions older than 2.3
-* Code cleanup
+ruby-prof's development stretches all the way back to 2005. Fourteen years later, it seems time for version 1.0!
+Version 1.0 is a significant update that greatly improves the internals of ruby-prof and adds a number of improvements.
 
-Incompatibilities
----------------
-* Remove merge fiber support which was used just for the call_tree printer
-* Remove support for Ruby versions older than 2.3
+Changes (Charlie Savage):
+
+* Profiling is significantly faster - 5x in some cases
+* Recursive profiles are finally handled correctly.  Yeah!!!
+* The ability to measure allocations and memory usage using a standard (unpatched) version of ruby
+* The ability to save and reload profiling results for later analysis
+* The ability track object allocations
+
+At the same time, it was also time to remove old code and deprecated methods. These changes include (Charlie Savage):
+
+* Drop support for old versions of ruby. Currently 2.4 and up are required.
+* Remove support for method elimination (instead use method exclusion).
+* Remove the CPU_TIME measurement mode since it duplicates the PROCESS_TIME mode and required inline assembly code
+* Remove the GC_TIME and GC_RUNS measurement modes since they required patched ruby versions. In modern ruby it is possible to reimplement this functionality, but it does not seem of that much value (shout out if you want it back).
+* Merge the RubyProf::FlatPrinterWithLineNumbers printer into RubyProf::FlatPrinter.
+* Removed support for RUBY_PROF_EDITOR_URI environment variable that specified the link scheme. This features was more confusing then helpful.
+
 
 0.18.0 (2019-05-27)
 =====================

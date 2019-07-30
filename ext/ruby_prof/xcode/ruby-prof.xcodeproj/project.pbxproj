@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		8B08734F22AF9C2900840594 /* libruby.2.5.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */; };
-		8B2A0D4522A22D0000F67C5D /* ruby_prof.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */; };
+		8B2A0D4522A22D0000F67C5D /* ruby_prof.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.bundle */; };
 		8B4E7E8B22B85D9400D53342 /* rp_profile.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8922B85D9400D53342 /* rp_profile.c */; };
 		8B4E7E8C22B85D9400D53342 /* rp_profile.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8A22B85D9400D53342 /* rp_profile.h */; };
 		8B4E7E8F22B85FD400D53342 /* rp_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8D22B85FD200D53342 /* rp_allocation.c */; };
@@ -38,7 +38,7 @@
 			dstPath = "/opt/local/src/ruby-prof/ext/ruby_prof";
 			dstSubfolderSpec = 0;
 			files = (
-				8B2A0D4522A22D0000F67C5D /* ruby_prof.dylib in CopyFiles */,
+				8B2A0D4522A22D0000F67C5D /* ruby_prof.bundle in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -64,7 +64,7 @@
 		8B6DDF5122A2291D00F36350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B6DDF5E22A22AB600F36350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8B6DDF7D22A22BC000F36350 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ruby_prof.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B6DDF9C22A22C8100F36350 /* ruby_prof.bundle */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = ruby_prof.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		8BF8C17822EFFDEB000751A9 /* rp_measurement.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measurement.c; path = ../rp_measurement.c; sourceTree = "<group>"; };
 		8BF8C17922EFFDEB000751A9 /* rp_measurement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_measurement.h; path = ../rp_measurement.h; sourceTree = "<group>"; };
 		8BF8C17A22EFFDEB000751A9 /* rp_measure_allocations.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_measure_allocations.c; path = ../rp_measure_allocations.c; sourceTree = "<group>"; };
@@ -119,7 +119,7 @@
 		8B6DDF1A22A21E8200F36350 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */,
+				8B6DDF9C22A22C8100F36350 /* ruby_prof.bundle */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -188,7 +188,7 @@
 			);
 			name = ruby_prof;
 			productName = ruby_prof;
-			productReference = 8B6DDF9C22A22C8100F36350 /* ruby_prof.dylib */;
+			productReference = 8B6DDF9C22A22C8100F36350 /* ruby_prof.bundle */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 /* End PBXNativeTarget section */
@@ -354,6 +354,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"%(inherited)",
+					HAVE_RB_TRACEARG_CALLEE_ID,
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -378,6 +382,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_EXTENSION = bundle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -389,6 +394,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_EXTENSION = bundle;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};

@@ -7,6 +7,8 @@ Changes (Charlie Savage):
 
 * Profiling is significantly faster - 5x in some cases
 * Recursive profiles are finally handled correctly.  Yeah!!!
+* Redesigned reports (Chirs Whitefield)
+* New documentation website (https://ruby-prof.github.io)
 * The ability to measure allocations and memory usage using a standard (unpatched) version of ruby
 * The ability to save and reload profiling results for later analysis
 * The ability track object allocations

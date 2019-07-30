@@ -40,7 +40,7 @@ Rake::ExtensionTask.new do |ext|
   ext.ext_dir = "ext/#{SO_NAME}"
   ext.lib_dir = "lib/#{RUBY_VERSION}"
   ext.cross_compile = true
-  ext.cross_platform = ['x86-mswin32-60', 'x86-mingw32-60']
+  ext.cross_platform = ['x86-mingw32', 'x64-mingw32']
 end
 
 # Rake task to build the default package

@@ -15,17 +15,21 @@ measure_process_time(rb_trace_arg_t* trace_arg)
     FILETIME  sysTime;
     FILETIME  userTime;
 
-	ULARGE_INTEGER sysTimeInt;
-	ULARGE_INTEGER userTimeInt;
+    ULARGE_INTEGER sysTimeInt;
+    ULARGE_INTEGER userTimeInt;
 
-	GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &userTime); 
+    GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &userTime);
 
-	sysTimeInt.LowPart = sysTime.dwLowDateTime;
-	sysTimeInt.HighPart = sysTime.dwHighDateTime;
+    sysTimeInt.LowPart = sysTime.dwLowDateTime;
+    sysTimeInt.HighPart = sysTime.dwHighDateTime;
     userTimeInt.LowPart = userTime.dwLowDateTime;
     userTimeInt.HighPart = userTime.dwHighDateTime;
 
-	return sysTimeInt.QuadPart + userTimeInt.QuadPart;
+    return sysTimeInt.QuadPart + userTimeInt.QuadPart;
+#elif !defined(CLOCK_PROCESS_CPUTIME_ID)
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    return usage.ru_stime.tv_sec + usage.ru_utime.tv_sec + ((usage.ru_stime.tv_usec + usage.ru_utime.tv_usec)/1000000.0);
 #else
     struct timespec clock;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);

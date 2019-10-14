@@ -18,7 +18,6 @@ require 'ruby-prof/rack'
 require 'ruby-prof/thread'
 
 module RubyProf
-  autoload :AggregateCallInfo, 'ruby-prof/aggregate_call_info'
   autoload :CallInfoVisitor, 'ruby-prof/call_info_visitor'
 
   autoload :AbstractPrinter, 'ruby-prof/printers/abstract_printer'

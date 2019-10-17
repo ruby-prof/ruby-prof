@@ -57,8 +57,7 @@ module RubyProf
     end
 
     def template
-      path = File.expand_path(File.join(__FILE__, '..', '..', 'assets', 'graph_printer.html.erb'))
-      File.read(path, :mode => 'rb')
+      open_asset('graph_printer.html.erb')
     end
   end
 end

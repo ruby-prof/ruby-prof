@@ -67,6 +67,15 @@ module RubyProf
       end
     end
 
+    def method_href(thread, method)
+      h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + thread.fiber_id.to_s)
+    end
+
+    def open_asset(file)
+      path = File.join(File.expand_path('../../assets', __FILE__), file)
+      File.open(path, 'rb').read
+    end
+
     def print_threads
       @result.threads.each do |thread|
         print_thread(thread)

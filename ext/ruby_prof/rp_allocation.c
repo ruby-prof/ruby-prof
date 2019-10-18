@@ -83,15 +83,15 @@ prof_allocation_ruby_gc_free(void *data)
 {
     prof_allocation_t* allocation = (prof_allocation_t*)data;
 
-    /* Has this thread object been accessed by Ruby?  If
+    /* Has this allocation object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (allocation->object != Qnil)
     {
         RDATA(allocation->object)->data = NULL;
         RDATA(allocation->object)->dfree = NULL;
         RDATA(allocation->object)->dmark = NULL;
+        allocation->object = Qnil;
     }
-    allocation->object = Qnil;
 }
 
 void

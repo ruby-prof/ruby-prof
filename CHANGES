@@ -1,3 +1,9 @@
+1.1.0 (2019-10-17)
+=====================
+Changes
+
+* Reimplement merge_fibers (Charlie Savage)
+
 1.0.0 (2019-07-29)
 =====================
 ruby-prof's development stretches all the way back to 2005. Fourteen years later, it seems time for version 1.0!

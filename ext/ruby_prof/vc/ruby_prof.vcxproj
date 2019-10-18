@@ -102,12 +102,12 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby-2.6.3vc\include\ruby-2.6.0\x64-mswin64_140;C:\msys64\usr\local\ruby-2.6.3vc\include\ruby-2.6.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby-2.6.5vc\include\ruby-2.6.0\x64-mswin64_140;C:\msys64\usr\local\ruby-2.6.5vc\include\ruby-2.6.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>HAVE_RB_TRACEARG_CALLEE_ID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby-2.6.3vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby-2.6.5vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>x64-vcruntime140-ruby260.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>ruby_prof.def</ModuleDefinitionFile>
     </Link>

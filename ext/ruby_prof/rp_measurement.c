@@ -56,15 +56,22 @@ prof_measurement_ruby_gc_free(void *data)
 {
     prof_measurement_t* measurement = (prof_measurement_t*)data;
 
-    /* Has this thread object been accessed by Ruby?  If
+    /* Has this measurement object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (measurement->object != Qnil)
     {
         RDATA(measurement->object)->data = NULL;
         RDATA(measurement->object)->dfree = NULL;
         RDATA(measurement->object)->dmark = NULL;
+        measurement->object = Qnil;
     }
-    measurement->object = Qnil;
+}
+
+void
+prof_measurement_free(prof_measurement_t* measurement)
+{
+    prof_measurement_ruby_gc_free(measurement);
+    xfree(measurement);
 }
 
 size_t

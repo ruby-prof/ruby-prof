@@ -237,15 +237,15 @@ prof_method_ruby_gc_free(void *data)
 {
     prof_method_t* method = (prof_method_t*)data;
 
-    /* Has this thread object been accessed by Ruby?  If
+    /* Has this method object been accessed by Ruby?  If
 	   yes clean it up so to avoid a segmentation fault. */
 	if (method->object != Qnil)
 	{
 		RDATA(method->object)->data = NULL;
 		RDATA(method->object)->dfree = NULL;
 		RDATA(method->object)->dmark = NULL;
-	}
-	method->object = Qnil;
+        method->object = Qnil;
+    }
     method->klass_name = Qnil;
     method->method_name = Qnil;
 }
@@ -261,6 +261,7 @@ prof_method_free(prof_method_t* method)
     call_info_table_free(method->parent_call_infos);
     xfree(method->child_call_infos);
 
+    prof_measurement_free(method->measurement);
     xfree(method);
 }
 

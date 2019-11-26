@@ -1,8 +1,9 @@
-1.1.0 (2019-10-17)
+1.1.0 (2019-11-25)
 =====================
 Changes
 
 * Reimplement merge_fibers (Charlie Savage)
+* Fix crash caused by threads being freed when profiles are freed (Charlie Savage)
 
 1.0.0 (2019-07-29)
 =====================

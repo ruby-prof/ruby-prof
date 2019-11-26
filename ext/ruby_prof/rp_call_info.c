@@ -31,7 +31,7 @@ prof_call_info_ruby_gc_free(void *data)
 {
     prof_call_info_t *call_info = (prof_call_info_t*)data;
 
-    /* Has this thread object been accessed by Ruby?  If
+    /* Has this call info object been accessed by Ruby?  If
 	   yes clean it up so to avoid a segmentation fault. */
 	if (call_info->object != Qnil)
 	{

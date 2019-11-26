@@ -114,13 +114,13 @@ class CallStackPrinter < AbstractPrinter
 
     def graph_link(call_info)
       total_calls = call_info.target.called
-      href = "#{@graph_html}##{method_href(call_info.target)}"
-      totals = @graph_html ? "<a href='#{href}'>#{total_calls}</a>" : total_calls.to_s
+      href = "#{method_href(call_info.target)}"
+      totals = total_calls.to_s
       "[#{call_info.called} calls, #{totals} total]"
     end
 
     def method_href(method)
-      h(method.full_name.gsub(/[><#\.\?=:]/,"_") + "_" + @current_thread_id.to_s)
+      h(method.full_name.gsub(/[><#\.\?=:]/,"_"))
     end
 
     def total_time(call_infos)

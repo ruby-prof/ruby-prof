@@ -17,7 +17,7 @@ module RubyProf
   #   printer = RubyProf::CallStackPrinter.new(result)
   #   printer.print(STDOUT)
 
-class CallStackPrinter < AbstractPrinter
+  class CallStackPrinter < AbstractPrinter
     include ERB::Util
 
     # Specify print options.

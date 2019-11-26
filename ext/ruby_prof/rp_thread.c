@@ -45,8 +45,8 @@ prof_thread_free(thread_data_t* thread_data)
        yes then set its data to nil to avoid a segmentation fault on the next mark and sweep. */
     if (thread_data->object != Qnil)
     {
-        struct RTypedData* data = RTYPEDDATA(thread_data->object);
-        data->data = NULL;
+        RDATA(thread_data->object)->dmark = NULL;
+        RDATA(thread_data->object)->data = NULL;
         thread_data->object = Qnil;
     }
     

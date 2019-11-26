@@ -87,8 +87,8 @@ prof_allocation_ruby_gc_free(void *data)
        yes clean it up so to avoid a segmentation fault. */
     if (allocation->object != Qnil)
     {
-        struct RTypedData* data = RTYPEDDATA(allocation->object);
-        data->data = NULL;
+        RDATA(allocation->object)->dmark = NULL;
+        RDATA(allocation->object)->data = NULL;
         allocation->object = Qnil;
     }
 }

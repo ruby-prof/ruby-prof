@@ -241,8 +241,8 @@ prof_method_ruby_gc_free(void *data)
 	   yes clean it up so to avoid a segmentation fault. */
 	if (method->object != Qnil)
 	{
-        struct RTypedData* data = RTYPEDDATA(method->object);
-        data->data = NULL;
+        RDATA(method->object)->dmark = NULL;
+        RDATA(method->object)->data = NULL;
         method->object = Qnil;
     }
     method->klass_name = Qnil;

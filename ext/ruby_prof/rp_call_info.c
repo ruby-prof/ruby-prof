@@ -35,8 +35,8 @@ prof_call_info_ruby_gc_free(void *data)
 	   yes clean it up so to avoid a segmentation fault. */
 	if (call_info->object != Qnil)
 	{
-        struct RTypedData* data = RTYPEDDATA(call_info->object);
-        data->data = NULL;
+        RDATA(call_info->object)->dmark = NULL;
+        RDATA(call_info->object)->data = NULL;
         call_info->object = Qnil;
     }
 }

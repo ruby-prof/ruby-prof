@@ -41,8 +41,18 @@ thread_data_create(void)
 static void
 prof_thread_free(thread_data_t* thread_data)
 {
+    /* Has this method object been accessed by Ruby?  If
+       yes then set its data to nil to avoid a segmentation fault on the next mark and sweep. */
+    if (thread_data->object != Qnil)
+    {
+        struct RTypedData* data = RTYPEDDATA(thread_data->object);
+        data->data = NULL;
+        thread_data->object = Qnil;
+    }
+    
     method_table_free(thread_data->method_table);
     prof_stack_free(thread_data->stack);
+
 
     xfree(thread_data);
 }

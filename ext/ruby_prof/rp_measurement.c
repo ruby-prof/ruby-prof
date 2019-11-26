@@ -60,9 +60,8 @@ prof_measurement_ruby_gc_free(void *data)
        yes clean it up so to avoid a segmentation fault. */
     if (measurement->object != Qnil)
     {
-        RDATA(measurement->object)->data = NULL;
-        RDATA(measurement->object)->dfree = NULL;
-        RDATA(measurement->object)->dmark = NULL;
+        struct RTypedData* data = RTYPEDDATA(measurement->object);
+        data->data = NULL;
         measurement->object = Qnil;
     }
 }

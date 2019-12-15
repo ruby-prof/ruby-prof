@@ -88,6 +88,7 @@ prof_allocation_ruby_gc_free(void *data)
     if (allocation->object != Qnil)
     {
         RDATA(allocation->object)->dmark = NULL;
+        RDATA(allocation->object)->dfree = NULL;
         RDATA(allocation->object)->data = NULL;
         allocation->object = Qnil;
     }

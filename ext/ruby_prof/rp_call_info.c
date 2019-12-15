@@ -36,6 +36,7 @@ prof_call_info_ruby_gc_free(void *data)
 	if (call_info->object != Qnil)
 	{
         RDATA(call_info->object)->dmark = NULL;
+        RDATA(call_info->object)->dfree = NULL;
         RDATA(call_info->object)->data = NULL;
         call_info->object = Qnil;
     }

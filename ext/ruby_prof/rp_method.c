@@ -242,6 +242,7 @@ prof_method_ruby_gc_free(void *data)
 	if (method->object != Qnil)
 	{
         RDATA(method->object)->dmark = NULL;
+        RDATA(method->object)->dfree = NULL;
         RDATA(method->object)->data = NULL;
         method->object = Qnil;
     }

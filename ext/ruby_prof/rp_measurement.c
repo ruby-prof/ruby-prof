@@ -61,6 +61,7 @@ prof_measurement_ruby_gc_free(void *data)
     if (measurement->object != Qnil)
     {
         RDATA(measurement->object)->dmark = NULL;
+        RDATA(measurement->object)->dfree = NULL;
         RDATA(measurement->object)->data = NULL;
         measurement->object = Qnil;
     }

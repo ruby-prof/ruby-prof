@@ -46,6 +46,7 @@ prof_thread_free(thread_data_t* thread_data)
     if (thread_data->object != Qnil)
     {
         RDATA(thread_data->object)->dmark = NULL;
+        RDATA(thread_data->object)->dfree = NULL;
         RDATA(thread_data->object)->data = NULL;
         thread_data->object = Qnil;
     }

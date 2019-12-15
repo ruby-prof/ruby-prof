@@ -92,25 +92,13 @@ prof_thread_mark(void *data)
     st_foreach(thread->method_table, mark_methods, 0);
 }
 
-static const rb_data_type_t thread_type =
-{
-    .wrap_struct_name = "ThreadInfo",
-    .function =
-    {
-        .dmark = prof_thread_mark,
-        .dfree = NULL, /* The profile class frees its thread table which frees each underlying thread_data instance */
-        .dsize = prof_thread_size,
-    },
-    .data = NULL,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY
-};
 
 VALUE
 prof_thread_wrap(thread_data_t *thread)
 {
     if (thread->object == Qnil)
     {
-        thread->object = TypedData_Wrap_Struct(cRpThread, &thread_type, thread);
+        thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, NULL, thread);
     }
     return thread->object;
 }

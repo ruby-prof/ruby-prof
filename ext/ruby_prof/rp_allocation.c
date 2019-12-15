@@ -124,25 +124,12 @@ prof_allocation_mark(void *data)
         rb_gc_mark(allocation->source_file);
 }
 
-static const rb_data_type_t allocation_type =
-{
-    .wrap_struct_name = "Allocation",
-    .function =
-    {
-        .dmark = prof_allocation_mark,
-        .dfree = prof_allocation_ruby_gc_free,
-        .dsize = prof_allocation_size,
-    },
-    .data = NULL,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY
-};
-
 VALUE
 prof_allocation_wrap(prof_allocation_t *allocation)
 {
     if (allocation->object == Qnil)
     {
-        allocation->object = TypedData_Wrap_Struct(cRpAllocation, &allocation_type, allocation);
+        allocation->object = Data_Wrap_Struct(cRpAllocation, prof_allocation_mark , prof_allocation_ruby_gc_free, allocation);
     }
     return allocation->object;
 }

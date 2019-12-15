@@ -291,19 +291,6 @@ prof_method_mark(void *data)
     st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
 }
 
-static const rb_data_type_t method_info_type =
-{
-    .wrap_struct_name = "MethodInfo",
-    .function =
-    {
-        .dmark = prof_method_mark,
-        .dfree = prof_method_ruby_gc_free,
-        .dsize = prof_method_size,
-    },
-    .data = NULL,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY
-};
-
 static VALUE
 prof_method_allocate(VALUE klass)
 {
@@ -317,7 +304,7 @@ prof_method_wrap(prof_method_t *method)
 {
   if (method->object == Qnil)
   {
-      method->object = TypedData_Wrap_Struct(cRpMethodInfo, &method_info_type, method);
+      method->object = Data_Wrap_Struct(cRpMethodInfo, prof_method_mark, prof_method_ruby_gc_free, method);
   }
   return method->object;
 }

@@ -88,25 +88,12 @@ prof_measurement_mark(void *data)
         rb_gc_mark(measurement->object);
 }
 
-static const rb_data_type_t measurement_type =
-{
-    .wrap_struct_name = "Measurement",
-    .function =
-    {
-        .dmark = prof_measurement_mark,
-        .dfree = prof_measurement_ruby_gc_free,
-        .dsize = prof_measurement_size,
-    },
-    .data = NULL,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY
-};
-
 VALUE
 prof_measurement_wrap(prof_measurement_t* measurement)
 {
     if (measurement->object == Qnil)
     {
-        measurement->object = TypedData_Wrap_Struct(cRpMeasurement, &measurement_type, measurement);
+        measurement->object = Data_Wrap_Struct(cRpMeasurement, prof_measurement_mark, prof_measurement_ruby_gc_free, measurement);
     }
     return measurement->object;
 }

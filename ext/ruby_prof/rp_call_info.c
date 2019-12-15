@@ -76,25 +76,12 @@ prof_call_info_mark(void *data)
     prof_measurement_mark(call_info->measurement);
 }
 
-static const rb_data_type_t call_info_type =
-{
-    .wrap_struct_name = "CallInfo",
-    .function =
-    {
-        .dmark = prof_call_info_mark,
-        .dfree = prof_call_info_ruby_gc_free,
-        .dsize = prof_call_info_size,
-    },
-    .data = NULL,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY
-};
-
 VALUE
 prof_call_info_wrap(prof_call_info_t *call_info)
 {
     if (call_info->object == Qnil)
     {
-        call_info->object =  TypedData_Wrap_Struct(cRpCallnfo, &call_info_type, call_info);
+        call_info->object =  Data_Wrap_Struct(cRpCallnfo, prof_call_info_mark, prof_call_info_ruby_gc_free, call_info);
     }
     return call_info->object;
 }

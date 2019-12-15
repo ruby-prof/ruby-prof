@@ -15,7 +15,7 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_thread
-    threads = 100.times.reduce(Array.new) do |array, i|
+    threads = 1000.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads)
       GC.start
       array
@@ -31,7 +31,7 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_method
-    methods = 100.times.reduce(Array.new) do |array, i|
+    methods = 1000.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads.map(&:methods).flatten)
       GC.start
       array
@@ -47,7 +47,7 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_parent_callers
-    call_infos = 100.times.reduce(Array.new) do |array, i|
+    call_infos = 1000.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads.map(&:methods).flatten.map(&:callers).flatten)
       GC.start
       array
@@ -63,7 +63,7 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_parent_callees
-    call_infos = 100.times.reduce(Array.new) do |array, i|
+    call_infos = 1000.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads.map(&:methods).flatten.map(&:callees).flatten)
       GC.start
       array
@@ -79,7 +79,7 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_measurements
-    measurements = 100.times.reduce(Array.new) do |array, i|
+    measurements = 1000.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads.map(&:methods).flatten.map(&:callers).flatten.map(&:measurement))
       GC.start
       array

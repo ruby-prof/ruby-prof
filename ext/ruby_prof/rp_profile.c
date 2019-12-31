@@ -870,8 +870,6 @@ VALUE prof_profile_load(VALUE self, VALUE data)
 
 void rp_init_profile(void)
 {
-    mProf = rb_define_module("RubyProf");
-
     cProfile = rb_define_class_under(mProf, "Profile", rb_cObject);
     rb_define_alloc_func(cProfile, prof_allocate);
 

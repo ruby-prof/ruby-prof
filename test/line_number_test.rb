@@ -37,7 +37,18 @@ class LineNumbersTest < TestCase
       numbers.method_1
     end
 
+    printer = RubyProf::GraphHtmlPrinter.new(result)
+    File.open('c:/temp/graph3.html', 'wb') do |file|
+      printer.print(file)
+    end
+
+
+
     methods = result.threads.first.methods.sort.reverse
+    methods.each do |method|
+      puts method.full_name
+    end
+
     assert_equal(7, methods.length)
 
     # Method 0
@@ -62,7 +73,7 @@ class LineNumbersTest < TestCase
 
     assert_equal(1, method.callers.count)
     call_info = method.callers[0]
-    assert_equal('LineNumbersTest#test_function_line_no', call_info.parent.full_name)
+    assert_equal('LineNumbersTest#test_function_line_no', call_info.parent.target.full_name)
     assert_equal(37, call_info.line)
 
     assert_equal(2, method.callees.count)
@@ -81,11 +92,11 @@ class LineNumbersTest < TestCase
 
     assert_equal(2, method.callers.count)
     call_info = method.callers[0]
-    assert_equal('Integer#times', call_info.parent.full_name)
+    assert_equal('Integer#times', call_info.parent.target.full_name)
     assert_equal(17, call_info.line)
 
     call_info = method.callers[1]
-    assert_equal('LineNumbers#method_1', call_info.parent.full_name)
+    assert_equal('LineNumbers#method_1', call_info.parent.target.full_name)
     assert_equal(10, call_info.line)
 
     assert_equal(2, method.callees.count)
@@ -104,11 +115,11 @@ class LineNumbersTest < TestCase
 
     assert_equal(2, method.callers.count)
     call_info = method.callers[0]
-    assert_equal('LineNumbers#method_3', call_info.parent.full_name)
+    assert_equal('LineNumbers#method_3', call_info.parent.target.full_name)
     assert_equal(22, call_info.line)
 
     call_info = method.callers[1]
-    assert_equal('LineNumbers#method_4', call_info.parent.full_name)
+    assert_equal('LineNumbers#method_4', call_info.parent.target.full_name)
     assert_equal(27, call_info.line)
 
     assert_equal(0, method.callees.count)
@@ -120,7 +131,7 @@ class LineNumbersTest < TestCase
 
     assert_equal(1, method.callers.count)
     call_info = method.callers[0]
-    assert_equal('LineNumbers#method_3', call_info.parent.full_name)
+    assert_equal('LineNumbers#method_3', call_info.parent.target.full_name)
     assert_equal(23, call_info.line)
 
     assert_equal(1, method.callees.count)
@@ -135,7 +146,7 @@ class LineNumbersTest < TestCase
 
     assert_equal(1, method.callers.count)
     call_info = method.callers[0]
-    assert_equal('LineNumbers#method_1', call_info.parent.full_name)
+    assert_equal('LineNumbers#method_1', call_info.parent.target.full_name)
     assert_equal(8, call_info.line)
 
     assert_equal(1, method.callees.count)
@@ -150,7 +161,7 @@ class LineNumbersTest < TestCase
 
     assert_equal(1, method.callers.count)
     call_info = method.callers[0]
-    assert_equal('LineNumbers#method_2', call_info.parent.full_name)
+    assert_equal('LineNumbers#method_2', call_info.parent.target.full_name)
     assert_equal(15, call_info.line)
 
     assert_equal(1, method.callees.count)

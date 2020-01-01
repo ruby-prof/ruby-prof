@@ -228,12 +228,12 @@
             <td><%= sprintf("%.2f", caller.wait_time) %></td>
             <td><%= sprintf("%.2f", caller.children_time) %></td>
             <td><%= "#{caller.called}/#{method.called}" %></td>
-            <td class="method_name"><%= create_link(thread, total_time, caller.parent) %></td>
+            <td class="method_name"><%= create_link(thread, total_time, caller.parent.target) %></td>
             <% if @result.track_allocations? %>
               <td>-</td>
             <% end %>
-            <td><%= if caller.parent.source_file
-                      file_link(caller.parent.source_file, caller.line)
+            <td><%= if caller.parent.target.source_file
+                      file_link(caller.parent.target.source_file, caller.line)
                     end %></td>
           </tr>
         <% end %>

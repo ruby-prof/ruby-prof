@@ -22,6 +22,7 @@ Alternatively, you can use the block syntax:
 #include <assert.h>
 
 #include "rp_allocation.h"
+#include "rp_call_infos.h"
 #include "rp_call_info.h"
 #include "rp_profile.h"
 #include "rp_method.h"
@@ -270,19 +271,19 @@ prof_event_hook(VALUE trace_point, void* data)
             {
                 method->root = true;
                 call_info = prof_call_info_create(method, NULL, method->source_file, method->source_line);
-                st_insert(method->parent_call_infos, (st_data_t)&key, (st_data_t)call_info);
+                prof_add_call_info(method->call_infos, call_info); 
             }
             else
             {
-                call_info = call_info_table_lookup(method->parent_call_infos, frame->call_info->method->key);
+                call_info = call_info_table_lookup(frame->call_info->children, method->key);
                 
                 if (!call_info)
                 {
                     /* This call info does not yet exist.  So create it, then add
                      it to previous callinfo's children and to the current method .*/
-                    call_info = prof_call_info_create(method, frame->call_info->method, frame->source_file, frame->source_line);
-                    call_info_table_insert(method->parent_call_infos, frame->call_info->method->key, call_info);
-                    call_info_table_insert(frame->call_info->method->child_call_infos, method->key, call_info);
+                    call_info = prof_call_info_create(method, frame->call_info, frame->source_file, frame->source_line);
+                    call_info_table_insert(frame->call_info->children, method->key, call_info);
+                    prof_add_call_info(method->call_infos, call_info);
                 }
             }
 
@@ -641,7 +642,8 @@ prof_start(VALUE self)
     profile->last_thread_data = threads_table_insert(profile, get_fiber(profile));
 
     /* open trace file if environment wants it */
-    trace_file_name = getenv("RUBY_PROF_TRACE");
+    //trace_file_name = getenv("RUBY_PROF_TRACE");
+    trace_file_name = "c:\\temp\\trace.txt";
     if (trace_file_name != NULL) 
     {
       if (strcmp(trace_file_name, "stdout") == 0) 

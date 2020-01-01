@@ -71,7 +71,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('MeasureAllocationsTraceTest#test_allocations', call_info.parent.full_name)
+    assert_equal('MeasureAllocationsTraceTest#test_allocations', call_info.parent.target.full_name)
     assert_equal(19, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)
@@ -95,7 +95,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Allocator#run', call_info.parent.full_name)
+    assert_equal('Allocator#run', call_info.parent.target.full_name)
     assert_equal(19, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)
@@ -133,28 +133,28 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(4, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('MeasureAllocationsTraceTest#test_allocations', call_info.parent.full_name)
+    assert_equal('MeasureAllocationsTraceTest#test_allocations', call_info.parent.target.full_name)
     assert_equal(1, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(1, call_info.self_time)
     assert_equal(0, call_info.children_time)
 
     call_info = method.callers[1]
-    assert_equal('Integer#times', call_info.parent.full_name)
+    assert_equal('Integer#times', call_info.parent.target.full_name)
     assert_equal(10, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(10, call_info.self_time)
     assert_equal(0, call_info.children_time)
 
     call_info = method.callers[2]
-    assert_equal('Allocator#make_hashes', call_info.parent.full_name)
+    assert_equal('Allocator#make_hashes', call_info.parent.target.full_name)
     assert_equal(5, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(5, call_info.self_time)
     assert_equal(0, call_info.children_time)
 
     call_info = method.callers[3]
-    assert_equal('Allocator#make_strings', call_info.parent.full_name)
+    assert_equal('Allocator#make_strings', call_info.parent.target.full_name)
     assert_equal(2, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(1, call_info.self_time)
@@ -199,7 +199,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Allocator#internal_run', call_info.parent.full_name)
+    assert_equal('Allocator#internal_run', call_info.parent.target.full_name)
     assert_equal(10, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)
@@ -223,7 +223,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Allocator#make_arrays', call_info.parent.full_name)
+    assert_equal('Allocator#make_arrays', call_info.parent.target.full_name)
     assert_equal(10, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)
@@ -247,7 +247,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Allocator#internal_run', call_info.parent.full_name)
+    assert_equal('Allocator#internal_run', call_info.parent.target.full_name)
     assert_equal(5, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)
@@ -271,7 +271,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Allocator#internal_run', call_info.parent.full_name)
+    assert_equal('Allocator#internal_run', call_info.parent.target.full_name)
     assert_equal(4, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(1, call_info.self_time)
@@ -302,7 +302,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Allocator#make_strings', call_info.parent.full_name)
+    assert_equal('Allocator#make_strings', call_info.parent.target.full_name)
     assert_equal(1, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(1, call_info.self_time)
@@ -320,7 +320,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal('Class#new', call_info.parent.target.full_name)
     assert_equal(1, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(1, call_info.self_time)
@@ -338,7 +338,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal('Class#new', call_info.parent.target.full_name)
     assert_equal(0, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)
@@ -356,7 +356,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal('Class#new', call_info.parent.target.full_name)
     assert_equal(0, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)
@@ -374,7 +374,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Class#new', call_info.parent.full_name)
+    assert_equal('Class#new', call_info.parent.target.full_name)
     assert_equal(0, call_info.total_time)
     assert_equal(0, call_info.wait_time)
     assert_equal(0, call_info.self_time)

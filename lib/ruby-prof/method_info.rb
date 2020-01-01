@@ -76,6 +76,10 @@ module RubyProf
       end
     end
 
+    def callees
+      @callees ||= self.callers.map(&:children).flatten
+    end
+
     def to_s
       "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, wt: #{wait_time}, ct: #{self.children_time})"
     end

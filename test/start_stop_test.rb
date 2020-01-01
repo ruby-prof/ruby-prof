@@ -70,7 +70,7 @@ class StartStopTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('StartStopTest#method1', call_info.parent.full_name)
+    assert_equal('StartStopTest#method1', call_info.parent.target.full_name)
 
     assert_equal(1, method.callees.length)
     call_info = method.callees[0]
@@ -86,7 +86,7 @@ class StartStopTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('StartStopTest#method2', call_info.parent.full_name)
+    assert_equal('StartStopTest#method2', call_info.parent.target.full_name)
 
     assert_equal(1, method.callees.length)
     call_info = method.callees[0]
@@ -102,7 +102,7 @@ class StartStopTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('StartStopTest#method3', call_info.parent.full_name)
+    assert_equal('StartStopTest#method3', call_info.parent.target.full_name)
 
     assert_equal(0, method.callees.length)
   end

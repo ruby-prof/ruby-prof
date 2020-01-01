@@ -59,7 +59,7 @@ class AliasTest < TestCase
 
       assert_equal(1, method.callers.count)
       call_info = method.callers[0]
-      assert_equal('AliasTest#test_alias', call_info.parent.full_name)
+      assert_equal('AliasTest#test_alias', call_info.parent.target.full_name)
       assert_equal(28, call_info.line)
 
       assert_equal(1, method.callees.count)
@@ -75,7 +75,7 @@ class AliasTest < TestCase
 
       assert_equal(1, method.callers.count)
       call_info = method.callers[0]
-      assert_equal('Class#new', call_info.parent.full_name)
+      assert_equal('Class#new', call_info.parent.target.full_name)
       assert_equal(0, call_info.line)
 
       assert_equal(0, method.callees.count)
@@ -88,7 +88,7 @@ class AliasTest < TestCase
 
       assert_equal(1, method.callers.count)
       call_info = method.callers[0]
-      assert_equal('AliasTest#test_alias', call_info.parent.full_name)
+      assert_equal('AliasTest#test_alias', call_info.parent.target.full_name)
       assert_equal(28, call_info.line)
 
       assert_equal(1, method.callees.count)
@@ -104,7 +104,7 @@ class AliasTest < TestCase
 
       assert_equal(1, method.callers.count)
       call_info = method.callers[0]
-      assert_equal('AliasTest::TestMe#some_method', call_info.parent.full_name)
+      assert_equal('AliasTest::TestMe#some_method', call_info.parent.target.full_name)
       assert_equal(14, call_info.line)
 
       assert_equal(1, method.callees.count)
@@ -120,7 +120,7 @@ class AliasTest < TestCase
 
       assert_equal(1, method.callers.count)
       call_info = method.callers[0]
-      assert_equal('AliasTest::TestMe#some_method_original', call_info.parent.full_name)
+      assert_equal('AliasTest::TestMe#some_method_original', call_info.parent.target.full_name)
       assert_equal(9, call_info.line)
 
       assert_equal(0, method.callees.count)

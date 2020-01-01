@@ -115,6 +115,7 @@
   <ItemGroup>
     <ClInclude Include="..\rp_allocation.h" />
     <ClInclude Include="..\rp_call_info.h" />
+    <ClInclude Include="..\rp_call_infos.h" />
     <ClInclude Include="..\rp_measurement.h" />
     <ClInclude Include="..\rp_method.h" />
     <ClInclude Include="..\rp_profile.h" />
@@ -126,6 +127,7 @@
   <ItemGroup>
     <ClCompile Include="..\rp_allocation.c" />
     <ClCompile Include="..\rp_call_info.c" />
+    <ClCompile Include="..\rp_call_infos.c" />
     <ClCompile Include="..\rp_measurement.c" />
     <ClCompile Include="..\rp_measure_allocations.c" />
     <ClCompile Include="..\rp_measure_memory.c" />

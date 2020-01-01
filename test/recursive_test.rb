@@ -78,10 +78,10 @@ class RecursiveTest < TestCase
 
     assert_equal(2, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('RecursiveTest#test_simple', call_info.parent.full_name)
+    assert_equal('RecursiveTest#test_simple', call_info.parent.target.full_name)
 
     call_info = method.callers[1]
-    assert_equal('SimpleRecursion#simple', call_info.parent.full_name)
+    assert_equal('SimpleRecursion#simple', call_info.parent.target.full_name)
 
     assert_equal(2, method.callees.length)
     call_info = method.callees[0]
@@ -102,7 +102,7 @@ class RecursiveTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('SimpleRecursion#simple', call_info.parent.full_name)
+    assert_equal('SimpleRecursion#simple', call_info.parent.target.full_name)
     assert_equal(0, method.callees.length)
 
     assert_equal(0, method.callees.length)
@@ -144,7 +144,7 @@ class RecursiveTest < TestCase
 
     assert_equal(1, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('RecursiveTest#test_cycle', call_info.parent.full_name)
+    assert_equal('RecursiveTest#test_cycle', call_info.parent.target.full_name)
 
     assert_equal(1, method.callees.length)
     call_info = method.callees[0]
@@ -161,10 +161,10 @@ class RecursiveTest < TestCase
 
     assert_equal(2, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('SimpleRecursion#render', call_info.parent.full_name)
+    assert_equal('SimpleRecursion#render', call_info.parent.target.full_name)
 
     call_info = method.callers[1]
-    assert_equal('SimpleRecursion#render_partial', call_info.parent.full_name)
+    assert_equal('SimpleRecursion#render_partial', call_info.parent.target.full_name)
 
     assert_equal(1, method.callees.length)
     call_info = method.callees[0]
@@ -181,10 +181,10 @@ class RecursiveTest < TestCase
 
     assert_equal(2, method.callers.length)
     call_info = method.callers[0]
-    assert_equal('Integer#times', call_info.parent.full_name)
+    assert_equal('Integer#times', call_info.parent.target.full_name)
 
     call_info = method.callers[1]
-    assert_equal('SimpleRecursion#render_partial', call_info.parent.full_name)
+    assert_equal('SimpleRecursion#render_partial', call_info.parent.target.full_name)
 
     assert_equal(3, method.callees.length)
     call_info = method.callees[0]

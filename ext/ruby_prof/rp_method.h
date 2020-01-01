@@ -18,9 +18,6 @@ enum {
     kOtherSingleton = 0x10                    /* Singleton of unkown object */
 };
 
-/* Forward declaration, see rp_call_info.h */
-struct prof_call_infos_t;
-
 /* Profiling information for each method. */
 /* Excluded methods have no call_infos, source_klass, or source_file. */
 typedef struct
@@ -30,8 +27,7 @@ typedef struct
     int visits;                             /* Current visits on the stack */
     bool excluded;                          /* Exclude from profile? */
 
-    st_table* parent_call_infos;            /* Call infos that call this method */
-    st_table* child_call_infos;             /* Call infos that this method calls */
+    struct prof_call_infos_t* call_infos;          /* Call infos that call this method */
     st_table* allocations_table;            /* Tracks object allocations */
 
     unsigned int klass_flags;               /* Information about the type of class */

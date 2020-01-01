@@ -2,7 +2,7 @@
    Please see the LICENSE file for copyright and distribution information */
 
 #include "rp_allocation.h"
-#include "rp_call_info.h"
+#include "rp_call_infos.h"
 #include "rp_method.h"
 
 VALUE cRpMethodInfo;
@@ -172,8 +172,7 @@ prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line)
     result->root = false;
     result->excluded = false;
 
-    result->parent_call_infos = method_table_create();
-    result->child_call_infos = method_table_create();
+    result->call_infos = prof_call_infos_create();
     result->allocations_table = allocations_table_create();
     
     result->visits = 0;
@@ -205,10 +204,10 @@ prof_method_collect_call_infos(st_data_t key, st_data_t value, st_data_t result)
 }
 
 static int
-prof_method_mark_call_infos(st_data_t key, st_data_t value, st_data_t data)
+prof_method_collect_callees(st_data_t key, st_data_t value, st_data_t result)
 {
     prof_call_info_t* call_info = (prof_call_info_t*)value;
-    prof_call_info_mark(call_info);
+    st_foreach(call_info->children, prof_method_collect_call_infos, result);
     return ST_CONTINUE;
 }
 
@@ -256,11 +255,6 @@ prof_method_free(prof_method_t* method)
 	prof_method_ruby_gc_free(method);
     allocations_table_free(method->allocations_table);
 
-    /* Remember call infos are referenced by their parent method and child method, so we only want
-       to iterate over one of them to avoid a double freeing */
-    call_info_table_free(method->parent_call_infos);
-    xfree(method->child_call_infos);
-
     prof_measurement_free(method->measurement);
     xfree(method);
 }
@@ -285,9 +279,8 @@ prof_method_mark(void *data)
 		rb_gc_mark(method->object);
 
     prof_measurement_mark(method->measurement);
-    
-    st_foreach(method->parent_call_infos, prof_method_mark_call_infos, 0);
-    st_foreach(method->child_call_infos, prof_method_mark_call_infos, 0);
+
+    prof_call_infos_mark(method->call_infos);
     st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
 }
 
@@ -375,29 +368,18 @@ the RubyProf::Profile object.
 */
 
 /* call-seq:
-   callers -> array
+   call_infos -> Array of call_info
 
-Returns an array of call info objects that called this method  (ie, parents).*/
+Returns an array of call info objects that contain profiling information
+about the current method.*/
 static VALUE
-prof_method_callers(VALUE self)
+prof_method_call_infos(VALUE self)
 {
     prof_method_t* method = prof_get_method(self);
-    VALUE result = rb_ary_new();
-    st_foreach(method->parent_call_infos, prof_method_collect_call_infos, result);
-    return result;
-}
-
-/* call-seq:
-   callees -> array
-
-Returns an array of call info objects that this method called (ie, children).*/
-static VALUE
-prof_method_callees(VALUE self)
-{
-    prof_method_t* method = prof_get_method(self);
-    VALUE result = rb_ary_new();
-    st_foreach(method->child_call_infos, prof_method_collect_call_infos, result);
-    return result;
+    if (method->call_infos->object == Qnil) {
+        method->call_infos->object = prof_call_infos_wrap(method->call_infos);
+    }
+    return method->call_infos->object;
 }
 
 /* call-seq:
@@ -540,8 +522,7 @@ prof_method_dump(VALUE self)
 
     rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(method_data->measurement));
 
-    rb_hash_aset(result, ID2SYM(rb_intern("callers")), prof_method_callers(self));
-    rb_hash_aset(result, ID2SYM(rb_intern("callees")), prof_method_callees(self));
+    //rb_hash_aset(result, ID2SYM(rb_intern("callers")), prof_method_callers(self));
 
     rb_hash_aset(result, ID2SYM(rb_intern("allocations")), prof_method_allocations(self));
 
@@ -570,24 +551,14 @@ prof_method_load(VALUE self, VALUE data)
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     method_data->measurement = prof_get_measurement(measurement);
 
-    VALUE callers = rb_hash_aref(data, ID2SYM(rb_intern("callers")));
+    /*VALUE callers = rb_hash_aref(data, ID2SYM(rb_intern("callers")));
     for (int i = 0; i < rb_array_len(callers); i++)
     {
         VALUE call_info = rb_ary_entry(callers, i);
         prof_call_info_t *call_info_data = prof_get_call_info(call_info);
-        st_data_t key = call_info_data->parent ? call_info_data->parent->key : method_key(Qnil, 0);
-        call_info_table_insert(method_data->parent_call_infos, key, call_info_data);
-    }
-
-    VALUE callees = rb_hash_aref(data, ID2SYM(rb_intern("callees")));
-    for (int i = 0; i < rb_array_len(callees); i++)
-    {
-        VALUE call_info = rb_ary_entry(callees, i);
-        prof_call_info_t *call_info_data = prof_get_call_info(call_info);
-
-        st_data_t key = call_info_data->method ? call_info_data->method->key : method_key(Qnil, 0);
-        call_info_table_insert(method_data->child_call_infos, key, call_info_data);
-    }
+        st_data_t key = call_info_data->parent ? call_info_data->parent->method->key : method_key(Qnil, 0);
+        call_info_table_insert(method_data->call_infos, key, call_info_data);
+    }*/
 
     VALUE allocations = rb_hash_aref(data, ID2SYM(rb_intern("allocations")));
     for (int i = 0; i < rb_array_len(allocations); i++)
@@ -612,8 +583,8 @@ void rp_init_method_info()
 
     rb_define_method(cRpMethodInfo, "method_name", prof_method_name, 0);
  
-    rb_define_method(cRpMethodInfo, "callers", prof_method_callers, 0);
-    rb_define_method(cRpMethodInfo, "callees", prof_method_callees, 0);
+    rb_define_method(cRpMethodInfo, "callers", prof_method_call_infos, 0);
+
     rb_define_method(cRpMethodInfo, "allocations", prof_method_allocations, 0);
 
     rb_define_method(cRpMethodInfo, "measurement", prof_method_measurement, 0);

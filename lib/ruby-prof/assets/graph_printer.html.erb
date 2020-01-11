@@ -217,8 +217,7 @@
            self_percentage = (method.self_time/total_time) * 100  %>
 
         <!-- Parents -->
-        <% for caller in method.callers.sort
-             next if method.root?
+        <% for caller in method.call_infos.callers.sort
              next if min_time && caller.total_time < min_time %>
           <tr>
             <td>&nbsp;</td>
@@ -293,7 +292,7 @@
         <% end %>
 
         <!-- Children -->
-        <% for callee in method.callees.sort_by(&:total_time).reverse
+        <% for callee in method.call_infos.callees.sort_by(&:total_time).reverse
              next if min_time && callee.total_time < min_time %>
           <tr>
             <td>&nbsp;</td>

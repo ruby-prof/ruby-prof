@@ -697,13 +697,10 @@
         <div class="thread">
           <span>Thread: <%= thread.id %>, Fiber: <%= thread.fiber_id %> (<%= thread_info %>)</span>
           <ul name="thread">
-            <% call_infos = thread.root_methods.map(&:callers).flatten %>
-            <% call_infos.each do |call_info| %>
-              <% visited = Set.new
-                 output = StringIO.new('')
-                 print_stack(output, visited, call_info, call_info.total_time) %>
-              <%= output.string %>
-            <% end %>
+            <% visited = Set.new
+               output = StringIO.new('')
+               print_stack(output, visited, thread.call_info, thread.call_info.total_time) %>
+            <%= output.string %>
           </ul>
         </div>
       <% end %>

@@ -27,24 +27,15 @@ end
 
 # --  Tests ----
 class UniqueCallPathTest < TestCase
-  def test_root_method
+  def test_root
     unique_call_path = UniqueCallPath.new
 
     result = RubyProf.profile do
       unique_call_path.method_a(1)
     end
 
-    root_methods = Array.new
-    result.threads.each do |thread|
-      thread.methods.each do | m |
-        if m.root?
-          root_methods.push(m)
-        end
-      end
-    end
-
-    assert_equal(1, root_methods.length)
-    assert_equal("UniqueCallPathTest#test_root_method", root_methods[0].full_name)
+    root_call_info = result.threads.first.call_info
+    assert_equal("UniqueCallPathTest#test_root", root_call_info.target.full_name)
   end
 
   def test_root_children
@@ -55,25 +46,8 @@ class UniqueCallPathTest < TestCase
       unique_call_path.method_k(2)
     end
 
-    root_methods = Array.new
-    result.threads.each do |thread|
-      thread.methods.each do | m |
-        if m.root?
-          root_methods.push(m)
-        end
-      end
-    end
-
-    assert_equal(1, root_methods.length)
-
-    root_children = Array.new
-    root_methods[0].callees.each do | c |
-      if c.parent.eql?(root_methods[0])
-        root_children.push(c)
-      end
-    end
-
-    children = root_children.sort do |c1, c2|
+    root_call_info = result.threads.first.call_info
+    children = root_call_info.children.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
 
@@ -90,60 +64,23 @@ class UniqueCallPathTest < TestCase
       unique_call_path.method_k(2)
     end
 
-    root_methods = Array.new
-    result.threads.each do |thread|
-      thread.methods.each do | m |
-        if m.root?
-          root_methods.push(m)
-        end
-      end
-    end
+    root_call_info = result.threads.first.call_info
+    assert_equal("UniqueCallPathTest#test_children_of", root_call_info.target.full_name)
 
-    assert_equal(1, root_methods.length)
-    method = root_methods[0]
-    assert_equal('UniqueCallPathTest#test_children_of', method.full_name)
-
-    call_info_a = root_methods[0].callees.detect do |call_info|
+    call_info_a = root_call_info.children.detect do |call_info|
       call_info.target.full_name == "UniqueCallPath#method_a"
     end
     refute_nil(call_info_a)
 
-    children_of_a = Array.new
-
-    call_info_a.target.callees.each do | c |
+    children_of_a = call_info_a.children.inject(Array.new) do |array, c|
       if c.parent.eql?(call_info_a)
-        children_of_a.push(c)
+        array << c
       end
+      array
     end
 
-    assert_equal(2, call_info_a.target.callees.length)
-
-    children_of_a = children_of_a.sort do |c1, c2|
-      c1.target.full_name <=> c2.target.full_name
-    end
-
-    assert_equal(0, children_of_a.length)
-  end
-
-  def test_id2ref
-    unique_call_path = UniqueCallPath.new
-
-    result = RubyProf.profile do
-      unique_call_path.method_a(1)
-    end
-
-    root_methods = Array.new
-    result.threads.each do |thread|
-      thread.methods.each do | m |
-        if m.root?
-          root_methods.push(m)
-        end
-      end
-    end
-
-    child = root_methods[0].callees[0]
-    refute_equal(0, child.object_id)
-    #assert_equal(RubyProf::CallInfo.id2ref(child.id).target.full_name, child.target.full_name)
+    assert_equal(1, call_info_a.children.length)
+    assert_equal("UniqueCallPath#method_b", call_info_a.children.first.target.full_name)
   end
 
   def test_unique_path
@@ -154,37 +91,30 @@ class UniqueCallPathTest < TestCase
       unique_call_path.method_k(1)
     end
 
-    root_methods = Array.new
-    result.threads.each do |thread|
-      thread.methods.each do | m |
-        if m.root?
-          root_methods.push(m)
-        end
-      end
-    end
+    root_call_info = result.threads.first.call_info
+    assert_equal("UniqueCallPathTest#test_unique_path", root_call_info.target.full_name)
 
-    assert_equal(1, root_methods.length)
-
-    call_info_a = root_methods[0].callees.detect do |call_info|
+    call_info_a = root_call_info.children.detect do |call_info|
       call_info.target.full_name == "UniqueCallPath#method_a"
     end
     refute_nil(call_info_a)
 
-    children_of_a = Array.new
-    call_info_a.target.callees.each do |c|
-      if c.parent.eql?(call_info_a.target)
-        children_of_a.push(c)
+    children_of_a = call_info_a.children.reduce(Array.new) do |array, c|
+      if c.parent.eql?(call_info_a)
+        array << c
       end
+      array
     end
 
-    assert_equal(1, call_info_a.target.callees.length)
+    assert_equal(1, call_info_a.children.length)
+    assert_equal(1, children_of_a.length)
 
     children_of_a = children_of_a.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
 
     assert_equal(1, children_of_a.length)
-    assert_equal(2, children_of_a[0].called)
+    assert_equal(1, children_of_a[0].called)
     assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
   end
 end

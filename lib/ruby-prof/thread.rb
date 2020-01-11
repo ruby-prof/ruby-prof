@@ -1,23 +1,8 @@
 module RubyProf
   class Thread
-    # Returns the root methods (ie, methods that were not called by other methods) that were profiled while
-    # this thread was executing. Generally there is only one root method (multiple root methods can occur
-    # when Profile#pause is used). By starting with the root methods, you can descend down the profile
-    # call tree.
-    def root_methods
-      self.methods.select do |method_info|
-        method_info.root?
-      end
-    end
-
     # Returns the total time this thread was executed.
     def total_time
-      self.root_methods.inject(0) do |sum, method_info|
-        method_info.callers.each do |call_info|
-          sum += call_info.total_time
-        end
-        sum
-      end
+      self.call_info.total_time
     end
 
     # Returns the amount of time this thread waited while other thread executed.

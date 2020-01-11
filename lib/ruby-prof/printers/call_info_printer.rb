@@ -27,7 +27,7 @@ module RubyProf
     end
 
     def print_methods(thread)
-      visitor = CallInfoVisitor.new(thread.root_methods)
+      visitor = CallInfoVisitor.new(thread.call_info)
 
       visitor.visit do |call_info, event|
         if event == :enter

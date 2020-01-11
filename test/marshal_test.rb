@@ -35,17 +35,13 @@ class MarshalTest < TestCase
       assert_equal(method_1.full_name, method_2.full_name)
 
       assert_equal(method_1.recursive?, method_2.recursive?)
-      assert_equal(method_1.root?, method_2.root?)
       assert_equal(method_1.excluded?, method_2.excluded?)
 
       assert_equal(method_1.source_file, method_2.source_file)
       assert_equal(method_1.line, method_2.line)
 
       verify_measurement(method_1.measurement, method_2.measurement)
-
-      verify_call_infos(method_1.callers, method_2.callers)
-      verify_call_infos(method_1.callees, method_2.callees)
-
+      verify_call_infos(method_1.call_infos, method_2.call_infos)
       verify_allocations(method_1.allocations, method_2.allocations)
     end
   end
@@ -69,17 +65,17 @@ class MarshalTest < TestCase
   end
 
   def verify_call_infos(call_infos_1, call_infos_2)
-    assert_equal(call_infos_1.count, call_infos_2.count)
-    call_infos_1.count.times do |i|
-      call_info_1 = call_infos_1[i]
-      call_info_2 = call_infos_2[i]
+    assert_equal(call_infos_1.call_infos.count, call_infos_2.call_infos.count)
+    call_infos_1.call_infos.count.times do |i|
+      call_info_1 = call_infos_1.call_infos[i]
+      call_info_2 = call_infos_2.call_infos[i]
       verify_call_info(call_info_1, call_info_2)
     end
   end
 
   def verify_call_info(call_info_1, call_info_2)
-    assert_equal(call_info_1.parent, call_info_2.parent)
     assert_equal(call_info_1.target, call_info_2.target)
+    assert_equal(call_info_1.parent&.target, call_info_2.parent&.target)
 
     assert_equal(call_info_1.depth, call_info_2.depth)
     assert_equal(call_info_1.source_file, call_info_2.source_file)

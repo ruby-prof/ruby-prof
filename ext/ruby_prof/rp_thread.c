@@ -274,6 +274,17 @@ prof_fiber_id(VALUE self)
 }
 
 /* call-seq:
+   call_info -> CallInfo
+
+Returns the root of the call tree. */
+static VALUE
+prof_call_info(VALUE self)
+{
+    thread_data_t* thread = prof_get_thread(self);
+    return prof_call_info_wrap(thread->call_info);
+}
+
+/* call-seq:
    methods -> [RubyProf::MethodInfo]
 
 Returns an array of methods that were called from this
@@ -330,6 +341,7 @@ void rp_init_thread(void)
     rb_define_alloc_func(cRpThread, prof_thread_allocate);
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
+    rb_define_method(cRpThread, "call_info", prof_call_info, 0);
     rb_define_method(cRpThread, "fiber_id", prof_fiber_id, 0);
     rb_define_method(cRpThread, "methods", prof_thread_methods, 0);
     rb_define_method(cRpThread, "_dump_data", prof_thread_dump, 0);

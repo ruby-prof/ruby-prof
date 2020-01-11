@@ -25,6 +25,8 @@ typedef struct prof_call_info_t
 } prof_call_info_t;
 
 prof_call_info_t *prof_call_info_create(prof_method_t* method, prof_call_info_t* parent, VALUE source_file, int source_line);
+prof_call_info_t* prof_call_info_copy(prof_call_info_t* other);
+void prof_call_info_merge(prof_call_info_t* result, prof_call_info_t* other);
 void prof_call_info_mark(void *data);
 prof_call_info_t *call_info_table_lookup(st_table* table, st_data_t key);
 size_t call_info_table_insert(st_table *table, st_data_t key, prof_call_info_t *val);

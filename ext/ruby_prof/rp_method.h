@@ -27,7 +27,7 @@ typedef struct
     int visits;                             /* Current visits on the stack */
     bool excluded;                          /* Exclude from profile? */
 
-    struct prof_call_infos_t* call_infos;          /* Call infos that call this method */
+    struct prof_call_infos_t* call_infos;   /* Call infos that call this method */
     st_table* allocations_table;            /* Tracks object allocations */
 
     unsigned int klass_flags;               /* Information about the type of class */
@@ -37,7 +37,6 @@ typedef struct
 
     VALUE object;                           /* Cached ruby object */
 
-    bool root;                               /* Is this a root method */
     bool recursive;
     VALUE source_file;                       /* Source file */
     int source_line;                         /* Line number */

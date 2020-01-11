@@ -47,11 +47,11 @@ module RubyProf
 
     # :nodoc:
     def to_s
-      "#{parent ? parent.full_name : '<nil>'} - #{target.full_name}"
+      "<#{self.class.name} - #{self.target.full_name}>"
     end
 
     def inspect
-      super + "(#{self.to_s})"
+      self.to_s
     end
   end
 end

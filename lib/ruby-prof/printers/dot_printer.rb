@@ -114,7 +114,7 @@ module RubyProf
     end
 
     def print_edges(total_time, method)
-      method.callers.sort_by(&:total_time).reverse.each do |call_info|
+      method.call_infos.callers.sort_by(&:total_time).reverse.each do |call_info|
         target_percentage = (call_info.target.total_time / total_time) * 100.0
         next if target_percentage < min_percent
 

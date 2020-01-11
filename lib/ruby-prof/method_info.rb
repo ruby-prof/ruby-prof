@@ -54,7 +54,11 @@ module RubyProf
 
     # The min call depth of this method
     def min_depth
-      @min_depth ||= callers.map(&:depth).min
+      @min_depth ||= if self.call_infos.callers.empty?
+                       0
+                     else
+                       self.call_infos.callers.map(&:depth).min
+                     end
     end
 
     # :enddoc:
@@ -74,10 +78,6 @@ module RubyProf
       else
         self.full_name <=> other.full_name
       end
-    end
-
-    def callees
-      @callees ||= self.callers.map(&:children).flatten
     end
 
     def to_s

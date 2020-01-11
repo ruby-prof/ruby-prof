@@ -37,17 +37,14 @@ class AliasTest < TestCase
       assert_equal(28, method.line)
       refute(method.recursive?)
 
-      assert_equal(1, method.callers.count)
-      call_info = method.callers[0]
-      assert_nil(call_info.parent)
-      assert_equal(28, call_info.line)
+      assert_equal(0, method.call_infos.callers.count)
 
-      assert_equal(2, method.callees.count)
-      call_info = method.callees[0]
+      assert_equal(2, method.call_infos.callees.count)
+      call_info = method.call_infos.callees[0]
       assert_equal('Class#new', call_info.target.full_name)
       assert_equal(28, call_info.line)
 
-      call_info = method.callees[1]
+      call_info = method.call_infos.callees[1]
       assert_equal('AliasTest::TestMe#some_method', call_info.target.full_name)
       assert_equal(28, call_info.line)
 
@@ -57,13 +54,13 @@ class AliasTest < TestCase
       assert_equal(0, method.line)
       refute(method.recursive?)
 
-      assert_equal(1, method.callers.count)
-      call_info = method.callers[0]
+      assert_equal(1, method.call_infos.callers.count)
+      call_info = method.call_infos.callers[0]
       assert_equal('AliasTest#test_alias', call_info.parent.target.full_name)
       assert_equal(28, call_info.line)
 
-      assert_equal(1, method.callees.count)
-      call_info = method.callees[0]
+      assert_equal(1, method.call_infos.callees.count)
+      call_info = method.call_infos.callees[0]
       assert_equal('BasicObject#initialize', call_info.target.full_name)
       assert_equal(0, call_info.line)
 
@@ -73,12 +70,12 @@ class AliasTest < TestCase
       assert_equal(0, method.line)
       refute(method.recursive?)
 
-      assert_equal(1, method.callers.count)
-      call_info = method.callers[0]
+      assert_equal(1, method.call_infos.callers.count)
+      call_info = method.call_infos.callers[0]
       assert_equal('Class#new', call_info.parent.target.full_name)
       assert_equal(0, call_info.line)
 
-      assert_equal(0, method.callees.count)
+      assert_equal(0, method.call_infos.callees.count)
 
       # Method 3
       method = methods[3]
@@ -86,13 +83,13 @@ class AliasTest < TestCase
       assert_equal(13, method.line)
       refute(method.recursive?)
 
-      assert_equal(1, method.callers.count)
-      call_info = method.callers[0]
+      assert_equal(1, method.call_infos.callers.count)
+      call_info = method.call_infos.callers[0]
       assert_equal('AliasTest#test_alias', call_info.parent.target.full_name)
       assert_equal(28, call_info.line)
 
-      assert_equal(1, method.callees.count)
-      call_info = method.callees[0]
+      assert_equal(1, method.call_infos.callees.count)
+      call_info = method.call_infos.callees[0]
       assert_equal('AliasTest::TestMe#some_method_original', call_info.target.full_name)
       assert_equal(14, call_info.line)
 
@@ -102,13 +99,13 @@ class AliasTest < TestCase
       assert_equal(8, method.line)
       refute(method.recursive?)
 
-      assert_equal(1, method.callers.count)
-      call_info = method.callers[0]
+      assert_equal(1, method.call_infos.callers.count)
+      call_info = method.call_infos.callers[0]
       assert_equal('AliasTest::TestMe#some_method', call_info.parent.target.full_name)
       assert_equal(14, call_info.line)
 
-      assert_equal(1, method.callees.count)
-      call_info = method.callees[0]
+      assert_equal(1, method.call_infos.callees.count)
+      call_info = method.call_infos.callees[0]
       assert_equal('Kernel#sleep', call_info.target.full_name)
       assert_equal(9, call_info.line)
 
@@ -118,12 +115,12 @@ class AliasTest < TestCase
       assert_equal(0, method.line)
       refute(method.recursive?)
 
-      assert_equal(1, method.callers.count)
-      call_info = method.callers[0]
+      assert_equal(1, method.call_infos.callers.count)
+      call_info = method.call_infos.callers[0]
       assert_equal('AliasTest::TestMe#some_method_original', call_info.parent.target.full_name)
       assert_equal(9, call_info.line)
 
-      assert_equal(0, method.callees.count)
+      assert_equal(0, method.call_infos.callees.count)
     end
   end
 end

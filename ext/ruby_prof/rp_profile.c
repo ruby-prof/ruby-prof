@@ -269,9 +269,10 @@ prof_event_hook(VALUE trace_point, void* data)
             
             if (!frame->call_info)
             {
-                method->root = true;
                 call_info = prof_call_info_create(method, NULL, method->source_file, method->source_line);
-                prof_add_call_info(method->call_infos, call_info); 
+                thread_data->call_info = call_info;
+                //prof_add_parent_call_info(method->call_infos, call_info, key);
+                prof_add_call_info(method->call_infos, call_info);
             }
             else
             {
@@ -282,7 +283,10 @@ prof_event_hook(VALUE trace_point, void* data)
                     /* This call info does not yet exist.  So create it, then add
                      it to previous callinfo's children and to the current method .*/
                     call_info = prof_call_info_create(method, frame->call_info, frame->source_file, frame->source_line);
+
                     call_info_table_insert(frame->call_info->children, method->key, call_info);
+                    //prof_add_child_call_info(frame->call_info->method->call_infos, call_info, method->key);
+                    //prof_add_parent_call_info(method->call_infos, call_info, frame->call_info->method->key);
                     prof_add_call_info(method->call_infos, call_info);
                 }
             }

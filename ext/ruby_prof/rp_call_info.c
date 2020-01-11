@@ -27,6 +27,39 @@ prof_call_info_create(prof_method_t *method, prof_call_info_t* parent, VALUE sou
     return result;
 }
 
+prof_call_info_t*
+prof_call_info_copy(prof_call_info_t* other)
+{
+    prof_call_info_t* result = ALLOC(prof_call_info_t);
+    result->children = method_table_create();
+    result->object = Qnil;
+    result->visits = 0;
+
+    result->method = other->method;
+    result->parent = other->parent;
+    result->depth = other->depth;
+    result->source_line = other->source_line;
+    result->source_file = other->source_file;
+
+    result->measurement = prof_measurement_create();
+    result->measurement->called = other->measurement->called;
+    result->measurement->total_time = other->measurement->total_time;
+    result->measurement->self_time = other->measurement->self_time;
+    result->measurement->wait_time = other->measurement->wait_time;
+    result->measurement->object = Qnil;
+
+    return result;
+}
+
+void
+prof_call_info_merge(prof_call_info_t* result, prof_call_info_t* other)
+{
+    result->measurement->called += other->measurement->called;
+    result->measurement->total_time += other->measurement->total_time;
+    result->measurement->self_time += other->measurement->self_time;
+    result->measurement->wait_time += other->measurement->wait_time;
+}
+
 static int
 prof_call_info_collect_call_infos(st_data_t key, st_data_t value, st_data_t result)
 {

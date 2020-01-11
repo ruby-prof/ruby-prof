@@ -23,10 +23,6 @@ class MeasureProcessTimeTest < TestCase
     thread = result.threads.first
     assert_in_delta(0.0, thread.total_time, 0.05)
 
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_class_methods_sleep", root_methods.first.full_name)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 
@@ -66,10 +62,6 @@ class MeasureProcessTimeTest < TestCase
     thread = result.threads.first
     assert_in_delta(0.0, thread.total_time, 0.05)
 
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_class_methods_sleep_threaded", root_methods.first.full_name)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
 
@@ -104,10 +96,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.last
     assert_in_delta(0.0, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_class_methods_sleep_threaded", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
@@ -145,10 +133,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.first
     assert_in_delta(0.08, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_class_methods_busy", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
@@ -189,10 +173,6 @@ class MeasureProcessTimeTest < TestCase
     thread = result.threads.first
     assert_in_delta(0.1, thread.total_time, 0.05)
 
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_class_methods_busy_threaded", root_methods.first.full_name)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
 
@@ -227,10 +207,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.last
     assert_in_delta(0.1, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_class_methods_busy_threaded", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
@@ -268,10 +244,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.first
     assert_in_delta(0.0, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_instance_methods_sleep", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)
@@ -378,10 +350,6 @@ class MeasureProcessTimeTest < TestCase
     thread = result.threads.first
     assert_in_delta(0.0, thread.total_time, 0.05)
 
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_instance_methods_sleep_threaded", root_methods.first.full_name)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
 
@@ -416,10 +384,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.last
     assert_in_delta(0.0, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_instance_methods_sleep_threaded", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
@@ -471,10 +435,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.first
     assert_in_delta(0.2, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_instance_methods_busy", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)
@@ -581,10 +541,6 @@ class MeasureProcessTimeTest < TestCase
     thread = result.threads.first
     assert_in_delta(0.2, thread.total_time, 0.05)
 
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_instance_methods_busy_threaded", root_methods.first.full_name)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
 
@@ -619,10 +575,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.last
     assert_in_delta(0.2, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_instance_methods_busy_threaded", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(4, methods.length)
@@ -675,10 +627,6 @@ class MeasureProcessTimeTest < TestCase
     thread = result.threads.first
     assert_in_delta(0.0, thread.total_time, 0.05)
 
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_module_methods_sleep", root_methods.first.full_name)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 
@@ -713,10 +661,6 @@ class MeasureProcessTimeTest < TestCase
     thread = result.threads.first
     assert_in_delta(0.3, thread.total_time, 0.05)
 
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_module_methods_busy", root_methods.first.full_name)
-
     methods = result.threads.first.methods.sort.reverse
     assert_equal(3, methods.length)
 
@@ -750,10 +694,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.first
     assert_in_delta(0.0, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_module_instance_methods_sleep", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)
@@ -802,10 +742,6 @@ class MeasureProcessTimeTest < TestCase
 
     thread = result.threads.first
     assert_in_delta(0.3, thread.total_time, 0.05)
-
-    root_methods = thread.root_methods
-    assert_equal(1, root_methods.count)
-    assert_equal("MeasureProcessTimeTest#test_module_instance_methods_busy", root_methods.first.full_name)
 
     methods = result.threads.first.methods.sort.reverse
     assert_equal(5, methods.length)

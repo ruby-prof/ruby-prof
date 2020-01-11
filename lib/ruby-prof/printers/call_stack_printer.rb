@@ -61,7 +61,6 @@ module RubyProf
       percent_total = (total_time/@overall_time)*100
       return unless percent_total > min_percent
       color = self.color(percent_total)
-      kids = call_info.target.callees
       visible = percent_total >= threshold
       expanded = percent_total >= expansion
       display = visible ? "block" : "none"
@@ -74,19 +73,19 @@ module RubyProf
       else
         visited << call_info
 
-        if kids.empty?
+        if call_info.children.empty?
           output << "<a href=\"#\" class=\"toggle empty\" ></a>" << "\n"
         else
-          visible_children = kids.any?{|ci| (ci.total_time/@overall_time)*100 >= threshold}
+          visible_children = call_info.children.any?{|ci| (ci.total_time/@overall_time)*100 >= threshold}
           image = visible_children ? (expanded ? "minus" : "plus") : "empty"
           output << "<a href=\"#\" class=\"toggle #{image}\" ></a>" << "\n"
         end
         output << "<span>%4.2f%% (%4.2f%%) %s %s</span>" % [percent_total, percent_parent,
                                                             link(call_info.target, false), graph_link(call_info)] << "\n"
 
-        unless kids.empty?
+        unless call_info.children.empty?
           output <<  (expanded ? '<ul>' : '<ul style="display:none">')  << "\n"
-          kids.sort_by{|c| -c.total_time}.each do |child_call_info|
+          call_info.children.sort_by{|c| -c.total_time}.each do |child_call_info|
             print_stack(output, visited, child_call_info, total_time)
           end
           output << '</ul>' << "\n"

@@ -75,7 +75,7 @@ class ThreadTest < TestCase
     assert_in_delta(0, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(1, method.children_time, 0.05)
-    assert_equal(1, method.callers.length)
+    assert_equal(1, method.call_infos.callers.length)
 
     method = methods[1]
     assert_equal('Kernel#sleep', method.full_name)
@@ -85,8 +85,8 @@ class ThreadTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    assert_equal(1, method.callers.length)
-    assert_equal(0, method.callees.length)
+    assert_equal(1, method.call_infos.callers.length)
+    assert_equal(0, method.call_infos.callees.length)
 
     # Check foreground thread
     rp_thread = result.threads.detect {|athread| athread.id == Thread.current.object_id}
@@ -105,8 +105,8 @@ class ThreadTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(1, method.children_time, 0.05)
 
-    assert_equal(1, method.callers.length)
-    assert_equal(2, method.callees.length)
+    assert_equal(1, method.call_infos.callers.length)
+    assert_equal(2, method.call_infos.callees.length)
 
     method = methods[1]
     assert_equal('Thread#join', method.full_name)
@@ -116,8 +116,8 @@ class ThreadTest < TestCase
     assert_in_delta(1.0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    assert_equal(1, method.callers.length)
-    assert_equal(0, method.callees.length)
+    assert_equal(1, method.call_infos.callers.length)
+    assert_equal(0, method.call_infos.callees.length)
 
     method = methods[2]
     assert_equal('<Class::Thread>#new', method.full_name)
@@ -127,8 +127,8 @@ class ThreadTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    assert_equal(1, method.callers.length)
-    assert_equal(1, method.callees.length)
+    assert_equal(1, method.call_infos.callers.length)
+    assert_equal(1, method.call_infos.callees.length)
 
     method = methods[3]
     assert_equal('Thread#initialize', method.full_name)
@@ -138,7 +138,7 @@ class ThreadTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    assert_equal(1, method.callers.length)
-    assert_equal(0, method.callees.length)
+    assert_equal(1, method.call_infos.callers.length)
+    assert_equal(0, method.call_infos.callees.length)
   end
 end

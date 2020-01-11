@@ -16,6 +16,7 @@ class MarshalTest < TestCase
       thread_2 = threads_2[i]
       assert_nil(thread_2.id)
       assert_equal(thread_1.fiber_id, thread_2.fiber_id)
+      verify_call_info(thread_1.call_tree, thread_2.call_tree)
 
       verify_methods(thread_1.methods, thread_2.methods)
     end
@@ -102,14 +103,14 @@ class MarshalTest < TestCase
     verify_profile(profile_1, profile_2)
   end
 
-  #def test_singleton
-  #  profile_1 = RubyProf.profile do
-  #    SingletonTest.instance.busy_wait
-  #  end
-  #
-  #  data = Marshal.dump(profile_1)
-  #  profile_2 = Marshal.load(data)
-  #
-  #  verify_profile(profile_1, profile_2)
-  #end
+  def test_singleton
+    profile_1 = RubyProf.profile do
+      SingletonTest.instance.busy_wait
+    end
+
+    data = Marshal.dump(profile_1)
+    profile_2 = Marshal.load(data)
+
+    verify_profile(profile_1, profile_2)
+  end
 end

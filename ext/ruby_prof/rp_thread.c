@@ -28,6 +28,7 @@ thread_data_t* thread_data_create(void)
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = prof_stack_create();
     result->method_table = method_table_create();
+    result->call_tree = NULL;
     result->object = Qnil;
     result->methods = Qnil;
     result->fiber_id = Qnil;
@@ -286,6 +287,7 @@ static VALUE prof_thread_dump(VALUE self)
     VALUE result = rb_hash_new();
     rb_hash_aset(result, ID2SYM(rb_intern("fiber_id")), thread_data->fiber_id);
     rb_hash_aset(result, ID2SYM(rb_intern("methods")), prof_thread_methods(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("call_tree")), prof_call_tree(self));
 
     return result;
 }
@@ -295,6 +297,9 @@ static VALUE prof_thread_load(VALUE self, VALUE data)
 {
     thread_data_t* thread_data = DATA_PTR(self);
     thread_data->object = self;
+
+    VALUE call_tree = rb_hash_aref(data, ID2SYM(rb_intern("call_tree")));
+    thread_data->call_tree = prof_get_call_tree(call_tree);
 
     thread_data->fiber_id = rb_hash_aref(data, ID2SYM(rb_intern("fiber_id")));
     VALUE methods = rb_hash_aref(data, ID2SYM(rb_intern("methods")));

@@ -8,7 +8,9 @@
 #include "rp_measurement.h"
 #include "rp_method.h"
 
-   /* Callers and callee information for a method. */
+extern VALUE cRpCallnfo;
+
+/* Callers and callee information for a method. */
 typedef struct prof_call_info_t
 {
     prof_method_t* method;

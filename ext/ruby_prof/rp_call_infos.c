@@ -1,6 +1,7 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
+#include "rp_aggregate_call_info.h"
 #include "rp_call_infos.h"
 #include "rp_measurement.h"
 
@@ -70,8 +71,8 @@ static int prof_call_infos_collect_values(st_data_t key, st_data_t value, st_dat
 {
     VALUE result = (VALUE)data;
     prof_call_info_t* call_info_data = (prof_call_info_t*)value;
-    VALUE call_info = prof_call_info_wrap(call_info_data);
-    rb_ary_push(result, call_info);
+    VALUE aggregate_call_info = prof_aggregate_call_info_wrap(call_info_data);
+    rb_ary_push(result, aggregate_call_info);
 
     return ST_CONTINUE;
 }
@@ -126,9 +127,7 @@ One instance of the RubyProf::MethodInfo class is created per method
 called per thread.  Thus, if a method is called in two different
 thread then there will be two RubyProf::MethodInfo objects
 created.  RubyProf::MethodInfo objects can be accessed via
-the RubyProf::Profile object.
-*/
-
+the RubyProf::Profile object. */
 VALUE prof_call_infos_allocate(VALUE klass)
 {
     prof_call_infos_t* call_infos_data = prof_call_infos_create();

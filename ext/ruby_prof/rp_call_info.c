@@ -76,20 +76,21 @@ void prof_call_info_mark(void* data)
 {
     prof_call_info_t* call_info = (prof_call_info_t*)data;
 
+    prof_measurement_mark(call_info->measurement);
+
     if (call_info->source_file != Qnil)
         rb_gc_mark(call_info->source_file);
 
     if (call_info->object != Qnil)
         rb_gc_mark(call_info->object);
 
-    if (call_info->method && call_info->method->object != Qnil)
+  /*  if (call_info->method && call_info->method->object != Qnil)
         rb_gc_mark(call_info->method->object);
 
     if (call_info->parent && call_info->parent->object != Qnil)
         rb_gc_mark(call_info->parent->object);
 
-    st_foreach(call_info->children, prof_call_info_mark_children, 0);
-    prof_measurement_mark(call_info->measurement);
+    st_foreach(call_info->children, prof_call_info_mark_children, 0);*/
 }
 
 static void prof_call_info_ruby_gc_free(void* data)

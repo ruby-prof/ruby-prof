@@ -54,10 +54,10 @@ module RubyProf
 
     # The min call depth of this method
     def min_depth
-      @min_depth ||= if self.call_infos.callers.empty?
+      @min_depth ||= if self.call_trees.callers.empty?
                        0
                      else
-                       self.call_infos.callers.map(&:depth).min
+                       self.call_trees.callers.map(&:depth).min
                      end
     end
 
@@ -87,7 +87,7 @@ module RubyProf
     # Remove method from the call graph. should not be called directly.
     def eliminate!
       # $stderr.puts "eliminating #{self}"
-      callers.each{ |call_info| call_info.eliminate! }
+      callers.each{ |call_tree| call_tree.eliminate! }
       callers.clear
     end
   end

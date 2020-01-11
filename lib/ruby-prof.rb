@@ -9,7 +9,7 @@ rescue LoadError
 end
 
 require 'ruby-prof/version'
-require 'ruby-prof/call_info'
+require 'ruby-prof/call_tree'
 require 'ruby-prof/compatibility'
 require 'ruby-prof/measurement'
 require 'ruby-prof/method_info'
@@ -18,8 +18,7 @@ require 'ruby-prof/rack'
 require 'ruby-prof/thread'
 
 module RubyProf
-  autoload :CallInfoVisitor, 'ruby-prof/call_info_visitor'
-
+  autoload :CallTreeVisitor, 'ruby-prof/call_tree_visitor'
   autoload :AbstractPrinter, 'ruby-prof/printers/abstract_printer'
   autoload :CallInfoPrinter, 'ruby-prof/printers/call_info_printer'
   autoload :CallStackPrinter, 'ruby-prof/printers/call_stack_printer'

@@ -15,7 +15,7 @@ typedef struct
     VALUE fiber;                      /* Fiber */
     prof_stack_t* stack;              /* Stack of frames */
     bool trace;                       /* Are we tracking this thread */
-    prof_call_info_t* call_info;      /* The root of the call tree*/
+    prof_call_tree_t* call_tree;      /* The root of the call tree*/
     VALUE thread_id;                  /* Thread id */
     VALUE fiber_id;                   /* Fiber id */
     VALUE methods;                    /* Array of RubyProf::MethodInfo */

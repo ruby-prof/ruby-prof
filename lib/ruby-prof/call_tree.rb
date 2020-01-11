@@ -1,11 +1,11 @@
 # encoding: utf-8
 
 module RubyProf
-  # The CallInfo class is used to track the relationships between methods. It is a helper class used by
+  # The CallTree class is used to track the relationships between methods. It is a helper class used by
   # RubyProf::MethodInfo to keep track of which methods called a given method and which methods a given
-  # method called. Each CallInfo has a parent and target method. You cannot create a CallInfo object directly,
+  # method called. Each CallTree has a parent and target method. You cannot create a CallTree object directly,
   # they are generated while running a profile.
-  class CallInfo
+  class CallTree
     # The number of times the parent method called the target method
     def called
       self.measurement.called
@@ -31,7 +31,7 @@ module RubyProf
       self.total_time - self.self_time - self.wait_time
     end
 
-    # Compares two CallInfo instances. The comparison is based on the CallInfo#parent, CallInfo#target,
+    # Compares two CallTree instances. The comparison is based on the CallTree#parent, CallTree#target,
     # and total time.
     def <=>(other)
       if self.target == other.target && self.parent == other.parent

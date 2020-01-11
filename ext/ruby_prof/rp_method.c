@@ -2,7 +2,7 @@
    Please see the LICENSE file for copyright and distribution information */
 
 #include "rp_allocation.h"
-#include "rp_call_infos.h"
+#include "rp_call_trees.h"
 #include "rp_method.h"
 
 VALUE cRpMethodInfo;
@@ -161,7 +161,7 @@ prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, in
 
     result->excluded = false;
 
-    result->call_infos = prof_call_infos_create();
+    result->call_trees = prof_call_trees_create();
     result->allocations_table = allocations_table_create();
 
     result->visits = 0;
@@ -206,7 +206,7 @@ static void prof_method_free(prof_method_t* method)
     }
 
     allocations_table_free(method->allocations_table);
-    prof_call_infos_free(method->call_infos);
+    prof_call_trees_free(method->call_trees);
     prof_measurement_free(method->measurement);
     xfree(method);
 }
@@ -407,13 +407,13 @@ static VALUE prof_method_excluded(VALUE self)
 }
 
 /* call-seq:
-   call_infos -> CallInfos
+   call_trees -> CallTrees
 
-Returns the CallInfos associated with this method. */
-static VALUE prof_method_call_infos(VALUE self)
+Returns the CallTrees associated with this method. */
+static VALUE prof_method_call_trees(VALUE self)
 {
     prof_method_t* method = prof_get_method(self);
-    return prof_call_infos_wrap(method->call_infos);
+    return prof_call_trees_wrap(method->call_trees);
 }
 
 /* :nodoc: */
@@ -432,7 +432,7 @@ static VALUE prof_method_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(method_data->source_line));
 
-    rb_hash_aset(result, ID2SYM(rb_intern("call_infos")), prof_call_infos_wrap(method_data->call_infos));
+    rb_hash_aset(result, ID2SYM(rb_intern("call_trees")), prof_call_trees_wrap(method_data->call_trees));
     rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(method_data->measurement));
     rb_hash_aset(result, ID2SYM(rb_intern("allocations")), prof_method_allocations(self));
 
@@ -456,8 +456,8 @@ static VALUE prof_method_load(VALUE self, VALUE data)
     method_data->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     method_data->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
 
-    VALUE call_infos = rb_hash_aref(data, ID2SYM(rb_intern("call_infos")));
-    method_data->call_infos = prof_get_call_infos(call_infos);
+    VALUE call_trees = rb_hash_aref(data, ID2SYM(rb_intern("call_trees")));
+    method_data->call_trees = prof_get_call_trees(call_trees);
 
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     method_data->measurement = prof_get_measurement(measurement);
@@ -484,7 +484,7 @@ void rp_init_method_info()
     rb_define_method(cRpMethodInfo, "klass_flags", prof_method_klass_flags, 0);
     rb_define_method(cRpMethodInfo, "method_name", prof_method_name, 0);
 
-    rb_define_method(cRpMethodInfo, "call_infos", prof_method_call_infos, 0);
+    rb_define_method(cRpMethodInfo, "call_trees", prof_method_call_trees, 0);
 
     rb_define_method(cRpMethodInfo, "allocations", prof_method_allocations, 0);
     rb_define_method(cRpMethodInfo, "measurement", prof_method_measurement, 0);

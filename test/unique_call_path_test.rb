@@ -34,7 +34,7 @@ class UniqueCallPathTest < TestCase
       unique_call_path.method_a(1)
     end
 
-    root_call_info = result.threads.first.call_info
+    root_call_info = result.threads.first.call_tree
     assert_equal("UniqueCallPathTest#test_root", root_call_info.target.full_name)
   end
 
@@ -46,7 +46,7 @@ class UniqueCallPathTest < TestCase
       unique_call_path.method_k(2)
     end
 
-    root_call_info = result.threads.first.call_info
+    root_call_info = result.threads.first.call_tree
     children = root_call_info.children.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
@@ -64,11 +64,11 @@ class UniqueCallPathTest < TestCase
       unique_call_path.method_k(2)
     end
 
-    root_call_info = result.threads.first.call_info
+    root_call_info = result.threads.first.call_tree
     assert_equal("UniqueCallPathTest#test_children_of", root_call_info.target.full_name)
 
-    call_info_a = root_call_info.children.detect do |call_info|
-      call_info.target.full_name == "UniqueCallPath#method_a"
+    call_info_a = root_call_info.children.detect do |call_tree|
+      call_tree.target.full_name == "UniqueCallPath#method_a"
     end
     refute_nil(call_info_a)
 
@@ -91,11 +91,11 @@ class UniqueCallPathTest < TestCase
       unique_call_path.method_k(1)
     end
 
-    root_call_info = result.threads.first.call_info
+    root_call_info = result.threads.first.call_tree
     assert_equal("UniqueCallPathTest#test_unique_path", root_call_info.target.full_name)
 
-    call_info_a = root_call_info.children.detect do |call_info|
-      call_info.target.full_name == "UniqueCallPath#method_a"
+    call_info_a = root_call_info.children.detect do |call_tree|
+      call_tree.target.full_name == "UniqueCallPath#method_a"
     end
     refute_nil(call_info_a)
 

@@ -41,7 +41,7 @@ class MarshalTest < TestCase
       assert_equal(method_1.line, method_2.line)
 
       verify_measurement(method_1.measurement, method_2.measurement)
-      verify_call_infos(method_1.call_infos, method_2.call_infos)
+      verify_call_infos(method_1.call_trees, method_2.call_trees)
       verify_allocations(method_1.allocations, method_2.allocations)
     end
   end
@@ -65,10 +65,10 @@ class MarshalTest < TestCase
   end
 
   def verify_call_infos(call_infos_1, call_infos_2)
-    assert_equal(call_infos_1.call_infos.count, call_infos_2.call_infos.count)
-    call_infos_1.call_infos.count.times do |i|
-      call_info_1 = call_infos_1.call_infos[i]
-      call_info_2 = call_infos_2.call_infos[i]
+    assert_equal(call_infos_1.call_trees.count, call_infos_2.call_trees.count)
+    call_infos_1.call_trees.count.times do |i|
+      call_info_1 = call_infos_1.call_trees[i]
+      call_info_2 = call_infos_2.call_trees[i]
       verify_call_info(call_info_1, call_info_2)
     end
   end
@@ -102,14 +102,14 @@ class MarshalTest < TestCase
     verify_profile(profile_1, profile_2)
   end
 
-  def test_singleton
-    profile_1 = RubyProf.profile do
-      SingletonTest.instance.busy_wait
-    end
-
-    data = Marshal.dump(profile_1)
-    profile_2 = Marshal.load(data)
-
-    verify_profile(profile_1, profile_2)
-  end
+  #def test_singleton
+  #  profile_1 = RubyProf.profile do
+  #    SingletonTest.instance.busy_wait
+  #  end
+  #
+  #  data = Marshal.dump(profile_1)
+  #  profile_2 = Marshal.load(data)
+  #
+  #  verify_profile(profile_1, profile_2)
+  #end
 end

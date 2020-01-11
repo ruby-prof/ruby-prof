@@ -1,7 +1,7 @@
 # encoding: utf-8
 
 module RubyProf
-  # Prints out the call graph based on CallInfo instances. This
+  # Prints out the call graph based on CallTree instances. This
   # is mainly for debugging purposes as it provides access into
   # into RubyProf's internals.
   #
@@ -27,18 +27,18 @@ module RubyProf
     end
 
     def print_methods(thread)
-      visitor = CallInfoVisitor.new(thread.call_info)
+      visitor = CallTreeVisitor.new(thread.call_tree)
 
-      visitor.visit do |call_info, event|
+      visitor.visit do |call_tree, event|
         if event == :enter
-          @output << "  " * call_info.depth
-          @output << call_info.target.full_name
+          @output << "  " * call_tree.depth
+          @output << call_tree.target.full_name
           @output << " ("
-          @output << "tt:#{sprintf("%#{TIME_WIDTH}.2f", call_info.total_time)}, "
-          @output << "st:#{sprintf("%#{TIME_WIDTH}.2f", call_info.self_time)}, "
-          @output << "wt:#{sprintf("%#{TIME_WIDTH}.2f", call_info.wait_time)}, "
-          @output << "ct:#{sprintf("%#{TIME_WIDTH}.2f", call_info.children_time)}, "
-          @output << "call:#{call_info.called}, "
+          @output << "tt:#{sprintf("%#{TIME_WIDTH}.2f", call_tree.total_time)}, "
+          @output << "st:#{sprintf("%#{TIME_WIDTH}.2f", call_tree.self_time)}, "
+          @output << "wt:#{sprintf("%#{TIME_WIDTH}.2f", call_tree.wait_time)}, "
+          @output << "ct:#{sprintf("%#{TIME_WIDTH}.2f", call_tree.children_time)}, "
+          @output << "call:#{call_tree.called}, "
           @output << ")"
           @output << "\n"
         end

@@ -14,12 +14,12 @@ class CallInfoVisitorTest < TestCase
       RubyProf::C1.sleep_wait
     end
 
-    visitor = RubyProf::CallInfoVisitor.new(result.threads.first.call_info)
+    visitor = RubyProf::CallTreeVisitor.new(result.threads.first.call_tree)
 
     method_names = Array.new
 
-    visitor.visit do |call_info, event|
-      method_names << call_info.target.full_name if event == :enter
+    visitor.visit do |call_tree, event|
+      method_names << call_tree.target.full_name if event == :enter
     end
 
     assert_equal(3, method_names.length)

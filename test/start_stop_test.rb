@@ -56,9 +56,9 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.05)
 
-    assert_equal(1, method.call_infos.callees.length)
-    call_info = method.call_infos.callees[0]
-    assert_equal('StartStopTest#method2', call_info.target.full_name)
+    assert_equal(1, method.call_trees.callees.length)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('StartStopTest#method2', call_tree.target.full_name)
 
     method = methods[1]
     assert_equal('StartStopTest#method2', method.full_name)
@@ -68,13 +68,13 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.05)
 
-    assert_equal(1, method.call_infos.callers.length)
-    call_info = method.call_infos.callers[0]
-    assert_equal('StartStopTest#method1', call_info.parent.target.full_name)
+    assert_equal(1, method.call_trees.callers.length)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('StartStopTest#method1', call_tree.parent.target.full_name)
 
-    assert_equal(1, method.call_infos.callees.length)
-    call_info = method.call_infos.callees[0]
-    assert_equal('StartStopTest#method3', call_info.target.full_name)
+    assert_equal(1, method.call_trees.callees.length)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('StartStopTest#method3', call_tree.target.full_name)
 
     method = methods[2]
     assert_equal('StartStopTest#method3', method.full_name)
@@ -84,13 +84,13 @@ class StartStopTest < TestCase
     assert_in_delta(0, method.self_time, 0.02)
     assert_in_delta(2, method.children_time, 0.02)
 
-    assert_equal(1, method.call_infos.callers.length)
-    call_info = method.call_infos.callers[0]
-    assert_equal('StartStopTest#method2', call_info.parent.target.full_name)
+    assert_equal(1, method.call_trees.callers.length)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('StartStopTest#method2', call_tree.parent.target.full_name)
 
-    assert_equal(1, method.call_infos.callees.length)
-    call_info = method.call_infos.callees[0]
-    assert_equal('Kernel#sleep', call_info.target.full_name)
+    assert_equal(1, method.call_trees.callees.length)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('Kernel#sleep', call_tree.target.full_name)
 
     method = methods[3]
     assert_equal('Kernel#sleep', method.full_name)
@@ -100,10 +100,10 @@ class StartStopTest < TestCase
     assert_in_delta(2, method.self_time, 0.02)
     assert_in_delta(0, method.children_time, 0.02)
 
-    assert_equal(1, method.call_infos.callers.length)
-    call_info = method.call_infos.callers[0]
-    assert_equal('StartStopTest#method3', call_info.parent.target.full_name)
+    assert_equal(1, method.call_trees.callers.length)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('StartStopTest#method3', call_tree.parent.target.full_name)
 
-    assert_equal(0, method.call_infos.callees.length)
+    assert_equal(0, method.call_trees.callees.length)
   end
 end

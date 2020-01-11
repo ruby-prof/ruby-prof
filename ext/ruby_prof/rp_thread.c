@@ -49,7 +49,7 @@ static void prof_thread_free(thread_data_t* thread_data)
     }
 
     method_table_free(thread_data->method_table);
-    prof_call_info_free(thread_data->call_info);
+    prof_call_tree_free(thread_data->call_tree);
     prof_stack_free(thread_data->stack);
 
     xfree(thread_data);
@@ -64,7 +64,7 @@ static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
 
 size_t prof_thread_size(const void* data)
 {
-    return sizeof(prof_call_info_t);
+    return sizeof(prof_call_tree_t);
 }
 
 void prof_thread_mark(void* data)
@@ -253,13 +253,13 @@ static VALUE prof_fiber_id(VALUE self)
 }
 
 /* call-seq:
-   call_info -> CallInfo
+   call_tree -> CallTree
 
 Returns the root of the call tree. */
-static VALUE prof_call_info(VALUE self)
+static VALUE prof_call_tree(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
-    return prof_call_info_wrap(thread->call_info);
+    return prof_call_tree_wrap(thread->call_tree);
 }
 
 /* call-seq:
@@ -316,7 +316,7 @@ void rp_init_thread(void)
     rb_define_alloc_func(cRpThread, prof_thread_allocate);
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
-    rb_define_method(cRpThread, "call_info", prof_call_info, 0);
+    rb_define_method(cRpThread, "call_tree", prof_call_tree, 0);
     rb_define_method(cRpThread, "fiber_id", prof_fiber_id, 0);
     rb_define_method(cRpThread, "methods", prof_thread_methods, 0);
     rb_define_method(cRpThread, "_dump_data", prof_thread_dump, 0);

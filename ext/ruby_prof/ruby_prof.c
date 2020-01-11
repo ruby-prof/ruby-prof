@@ -8,14 +8,14 @@
         thread_data_t     - Stores data about a single thread.
         prof_stack_t      - The method call stack in a particular thread
         prof_method_t     - Profiling information about each method
-        prof_call_info_t  - Keeps track a method's callers and callees.
+        prof_call_tree_t  - Keeps track a method's callers and callees.
 
      The final result is an instance of a profile object which has a hash table of
      thread_data_t, keyed on the thread id.  Each thread in turn has a hash table
      of prof_method_t, keyed on the method id.  A hash table is used for quick
      look up when doing a profile.  However, it is exposed to Ruby as an array.
 
-     Each prof_method_t has two hash tables, parent and children, of prof_call_info_t.
+     Each prof_method_t has two hash tables, parent and children, of prof_call_tree_t.
      These objects keep track of a method's callers (who called the method) and its
      callees (who the method called).  These are keyed the method id, but once again,
      are exposed to Ruby as arrays.  Each prof_call_into_t maintains a pointer to the
@@ -28,9 +28,9 @@
 #include "rp_allocation.h"
 #include "rp_measurement.h"
 #include "rp_method.h"
-#include "rp_call_info.h"
-#include "rp_aggregate_call_info.h"
-#include "rp_call_infos.h"
+#include "rp_call_tree.h"
+#include "rp_aggregate_call_tree.h"
+#include "rp_call_trees.h"
 #include "rp_profile.h"
 #include "rp_stack.h"
 #include "rp_thread.h"
@@ -42,9 +42,9 @@ void Init_ruby_prof()
     mProf = rb_define_module("RubyProf");
 
     rp_init_allocation();
-    rp_init_call_info();
-    rp_init_aggregate_call_info();
-    rp_init_call_infos();
+    rp_init_call_tree();
+    rp_init_aggregate_call_tree();
+    rp_init_call_trees();
     rp_init_measure();
     rp_init_method_info();
     rp_init_profile();

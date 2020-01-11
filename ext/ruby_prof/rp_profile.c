@@ -22,8 +22,8 @@
 #include <assert.h>
 
 #include "rp_allocation.h"
-#include "rp_call_infos.h"
-#include "rp_call_info.h"
+#include "rp_call_trees.h"
+#include "rp_call_tree.h"
 #include "rp_profile.h"
 #include "rp_method.h"
 
@@ -207,7 +207,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
         /* Keep track of the current line number in this method.  When
          a new method is called, we know what line number it was
          called from. */
-        if (frame->call_info)
+        if (frame->call_tree)
         {
             if (prof_frame_is_real(frame))
             {
@@ -225,7 +225,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
     case RUBY_EVENT_C_CALL:
     {
         prof_frame_t* next_frame;
-        prof_call_info_t* call_info;
+        prof_call_tree_t* call_tree;
         prof_method_t* method;
 
         /* Get current measurement */
@@ -262,32 +262,29 @@ static void prof_event_hook(VALUE trace_point, void* data)
             break;
         }
 
-        if (!frame->call_info)
+        if (!frame->call_tree)
         {
-            call_info = prof_call_info_create(method, NULL, method->source_file, method->source_line);
-            thread_data->call_info = call_info;
-            //prof_add_parent_call_info(method->call_infos, call_info, key);
-            prof_add_call_info(method->call_infos, call_info);
+            call_tree = prof_call_tree_create(method, NULL, method->source_file, method->source_line);
+            thread_data->call_tree = call_tree;
+            prof_add_call_tree(method->call_trees, call_tree);
         }
         else
         {
-            call_info = call_info_table_lookup(frame->call_info->children, method->key);
+            call_tree = call_tree_table_lookup(frame->call_tree->children, method->key);
 
-            if (!call_info)
+            if (!call_tree)
             {
                 /* This call info does not yet exist.  So create it, then add
                  it to previous callinfo's children and to the current method .*/
-                call_info = prof_call_info_create(method, frame->call_info, frame->source_file, frame->source_line);
+                call_tree = prof_call_tree_create(method, frame->call_tree, frame->source_file, frame->source_line);
 
-                call_info_table_insert(frame->call_info->children, method->key, call_info);
-                //prof_add_child_call_info(frame->call_info->method->call_infos, call_info, method->key);
-                //prof_add_parent_call_info(method->call_infos, call_info, frame->call_info->method->key);
-                prof_add_call_info(method->call_infos, call_info);
+                call_tree_table_insert(frame->call_tree->children, method->key, call_tree);
+                prof_add_call_tree(method->call_trees, call_tree);
             }
         }
 
         /* Push a new frame onto the stack for a new c-call or ruby call (into a method) */
-        next_frame = prof_stack_push(thread_data->stack, call_info, measurement, RTEST(profile->paused));
+        next_frame = prof_stack_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));
         next_frame->source_file = method->source_file;
         next_frame->source_line = method->source_line;
         break;

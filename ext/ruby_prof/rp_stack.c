@@ -38,7 +38,7 @@ void prof_stack_free(prof_stack_t* stack)
     xfree(stack);
 }
 
-prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_info_t* call_info, double measurement, int paused)
+prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused)
 {
     prof_frame_t* result;
     prof_frame_t* parent_frame;
@@ -60,8 +60,8 @@ prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_info_t* call_info, 
     stack->ptr++;
 
     result = stack->ptr;
-    result->call_info = call_info;
-    result->call_info->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
+    result->call_tree = call_tree;
+    result->call_tree->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
     result->passes = 0;
 
     result->start_time = measurement;
@@ -73,15 +73,15 @@ prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_info_t* call_info, 
     result->source_file = Qnil;
     result->source_line = 0;
 
-    call_info->measurement->called++;
-    call_info->visits++;
+    call_tree->measurement->called++;
+    call_tree->visits++;
 
-    if (call_info->method->visits > 0)
+    if (call_tree->method->visits > 0)
     {
-        call_info->method->recursive = true;
+        call_tree->method->recursive = true;
     }
-    call_info->method->measurement->called++;
-    call_info->method->visits++;
+    call_tree->method->measurement->called++;
+    call_tree->method->visits++;
 
     // Unpause the parent frame, if it exists.
     // If currently paused then:
@@ -102,7 +102,7 @@ prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement)
 {
     prof_frame_t* frame;
     prof_frame_t* parent_frame;
-    prof_call_info_t* call_info;
+    prof_call_tree_t* call_tree;
 
     double total_time;
     double self_time;
@@ -132,23 +132,23 @@ prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement)
     self_time = total_time - frame->child_time - frame->wait_time;
 
     /* Update information about the current method */
-    call_info = frame->call_info;
+    call_tree = frame->call_tree;
 
     // Update method measurement
-    call_info->method->measurement->self_time += self_time;
-    call_info->method->measurement->wait_time += frame->wait_time;
-    if (call_info->method->visits == 1)
-        call_info->method->measurement->total_time += total_time;
+    call_tree->method->measurement->self_time += self_time;
+    call_tree->method->measurement->wait_time += frame->wait_time;
+    if (call_tree->method->visits == 1)
+        call_tree->method->measurement->total_time += total_time;
 
-    call_info->method->visits--;
+    call_tree->method->visits--;
 
     // Update method measurement
-    call_info->measurement->self_time += self_time;
-    call_info->measurement->wait_time += frame->wait_time;
-    if (call_info->visits == 1)
-        call_info->measurement->total_time += total_time;
+    call_tree->measurement->self_time += self_time;
+    call_tree->measurement->wait_time += frame->wait_time;
+    if (call_tree->visits == 1)
+        call_tree->measurement->total_time += total_time;
 
-    call_info->visits--;
+    call_tree->visits--;
 
     if (parent_frame)
     {
@@ -174,13 +174,13 @@ prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int sour
     prof_frame_t* frame = stack->ptr;
     while (frame >= stack->start)
     {
-        if (!frame->call_info)
+        if (!frame->call_tree)
             return NULL;
 
-        if (rb_str_equal(source_file, frame->call_info->method->source_file) &&
-            source_line >= frame->call_info->method->source_line)
+        if (rb_str_equal(source_file, frame->call_tree->method->source_file) &&
+            source_line >= frame->call_tree->method->source_line)
         {
-            return frame->call_info->method;
+            return frame->call_tree->method;
         }
         frame--;
     }

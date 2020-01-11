@@ -137,7 +137,7 @@ module RubyProf
       output << "#{method.line} #{convert(method.self_time)}\n"
 
       # Now print out all the children methods
-      method.call_infos.callees.each do |callee|
+      method.call_trees.callees.each do |callee|
         output << "cfl=#{file(callee.target)}\n"
         output << "cfn=#{self.calltree_name(callee.target)}\n"
         output << "calls=#{callee.called} #{callee.line}\n"

@@ -31,15 +31,15 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_root_call_info
-    call_infos = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:call_info))
+    call_trees = 1000.times.reduce(Array.new) do |array, i|
+      array.concat(run_profile.threads.map(&:call_tree))
       GC.start
       array
     end
 
-    call_infos.each do |call_info|
+    call_trees.each do |call_tree|
       error = assert_raises(RuntimeError) do
-        call_info.source_file
+        call_tree.source_file
       end
       assert_match(/has already been freed/, error.message)
     end
@@ -64,14 +64,14 @@ class GcTest < TestCase
 
   def test_hold_onto_call_infos
     method_call_infos = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:methods).flatten.map(&:call_infos).flatten)
+      array.concat(run_profile.threads.map(&:methods).flatten.map(&:call_trees).flatten)
       GC.start
       array
     end
 
-    method_call_infos.each do |call_infos|
+    method_call_infos.each do |call_trees|
       error = assert_raises(RuntimeError) do
-        call_infos.call_infos
+        call_trees.call_trees
       end
       assert_match(/has already been freed/, error.message)
     end

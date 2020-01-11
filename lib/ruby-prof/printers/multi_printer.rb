@@ -12,7 +12,7 @@ module RubyProf
       @graph_html_printer = GraphHtmlPrinter.new(result) if printers.include?(:graph_html)
 
       @tree_printer = CallTreePrinter.new(result) if printers.include?(:tree)
-      @call_info_printer = CallInfoPrinter.new(result) if printers.include?(:call_info)
+      @call_info_printer = CallInfoPrinter.new(result) if printers.include?(:call_tree)
 
       @stack_printer = CallStackPrinter.new(result) if printers.include?(:stack)
       @dot_printer = DotPrinter.new(result) if printers.include?(:dot)
@@ -58,7 +58,7 @@ module RubyProf
 
     # the name of the callinfo profile file
     def call_info_report
-      "#{@directory}/#{@profile}.call_info.txt"
+      "#{@directory}/#{@profile}.call_tree.txt"
     end
 
     # the name of the callgrind profile file

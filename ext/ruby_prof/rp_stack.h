@@ -5,7 +5,7 @@
 #define __RP_STACK__
 
 #include "ruby_prof.h"
-#include "rp_call_info.h"
+#include "rp_call_tree.h"
 
    /* Temporary object that maintains profiling information
       for active methods.  They are created and destroyed
@@ -14,7 +14,7 @@ typedef struct
 {
     /* Caching prof_method_t values significantly
        increases performance. */
-    prof_call_info_t* call_info;
+    prof_call_tree_t* call_tree;
 
     VALUE source_file;
     unsigned int source_line;
@@ -48,7 +48,7 @@ typedef struct
 prof_stack_t* prof_stack_create(void);
 void prof_stack_free(prof_stack_t* stack);
 
-prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_info_t* call_info, double measurement, int paused);
+prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused);
 prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement);
 prof_frame_t* prof_stack_pass(prof_stack_t* stack);
 prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line);

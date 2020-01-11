@@ -19,7 +19,7 @@ enum {
 };
 
 /* Profiling information for each method. */
-/* Excluded methods have no call_infos, source_klass, or source_file. */
+/* Excluded methods have no call_trees, source_klass, or source_file. */
 typedef struct
 {
     st_data_t key;                          /* Table key */
@@ -27,7 +27,7 @@ typedef struct
     int visits;                             /* Current visits on the stack */
     bool excluded;                          /* Exclude from profile? */
 
-    struct prof_call_infos_t* call_infos;   /* Call infos that call this method */
+    struct prof_call_trees_t* call_trees;   /* Call infos that call this method */
     st_table* allocations_table;            /* Tracks object allocations */
 
     unsigned int klass_flags;               /* Information about the type of class */

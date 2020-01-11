@@ -342,7 +342,7 @@ Fixes
 
 0.7.1 (2008-11-28)
 ========================
-* Added new AggregateCallInfo class for printers to
+* Added new AggregateCallTree class for printers to
   make results easier to read.  Take this call sequence
   for example:
 

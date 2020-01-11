@@ -133,7 +133,7 @@ class ExcludeMethodsTest < TestCase
   def assert_method_has_been_eliminated(result, eliminated_method)
     result.threads.each do |thread|
       thread.methods.each do |method|
-        method.call_infos.each do |ci|
+        method.call_trees.each do |ci|
           assert(ci.target != eliminated_method, "broken self")
           assert(ci.parent.target != eliminated_method, "broken parent") if ci.parent
           ci.children.each do |callee|

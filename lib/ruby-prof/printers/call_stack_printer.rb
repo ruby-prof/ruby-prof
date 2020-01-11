@@ -55,8 +55,8 @@ module RubyProf
       @erb = ERB.new(self.template)
     end
 
-    def print_stack(output, visited, call_info, parent_time)
-      total_time = call_info.total_time
+    def print_stack(output, visited, call_tree, parent_time)
+      total_time = call_tree.total_time
       percent_parent = (total_time/parent_time)*100
       percent_total = (total_time/@overall_time)*100
       return unless percent_total > min_percent
@@ -67,37 +67,37 @@ module RubyProf
 
       output << "<li class=\"color#{color}\" style=\"display:#{display}\">" << "\n"
 
-      if visited.include?(call_info)
+      if visited.include?(call_tree)
         output << "<a href=\"#\" class=\"toggle empty\" ></a>" << "\n"
-        output << "<span>%s %s</span>" % [link(call_info.target, true), graph_link(call_info)] << "\n"
+        output << "<span>%s %s</span>" % [link(call_tree.target, true), graph_link(call_tree)] << "\n"
       else
-        visited << call_info
+        visited << call_tree
 
-        if call_info.children.empty?
+        if call_tree.children.empty?
           output << "<a href=\"#\" class=\"toggle empty\" ></a>" << "\n"
         else
-          visible_children = call_info.children.any?{|ci| (ci.total_time/@overall_time)*100 >= threshold}
+          visible_children = call_tree.children.any?{|ci| (ci.total_time/@overall_time)*100 >= threshold}
           image = visible_children ? (expanded ? "minus" : "plus") : "empty"
           output << "<a href=\"#\" class=\"toggle #{image}\" ></a>" << "\n"
         end
         output << "<span>%4.2f%% (%4.2f%%) %s %s</span>" % [percent_total, percent_parent,
-                                                            link(call_info.target, false), graph_link(call_info)] << "\n"
+                                                            link(call_tree.target, false), graph_link(call_tree)] << "\n"
 
-        unless call_info.children.empty?
+        unless call_tree.children.empty?
           output <<  (expanded ? '<ul>' : '<ul style="display:none">')  << "\n"
-          call_info.children.sort_by{|c| -c.total_time}.each do |child_call_info|
+          call_tree.children.sort_by{|c| -c.total_time}.each do |child_call_info|
             print_stack(output, visited, child_call_info, total_time)
           end
           output << '</ul>' << "\n"
         end
 
-        visited.delete(call_info)
+        visited.delete(call_tree)
       end
       output << '</li>' << "\n"
     end
 
-    def name(call_info)
-      method = call_info.target
+    def name(call_tree)
+      method = call_tree.target
       method.full_name
     end
 
@@ -111,19 +111,19 @@ module RubyProf
       end
     end
 
-    def graph_link(call_info)
-      total_calls = call_info.target.called
-      href = "#{method_href(call_info.target)}"
+    def graph_link(call_tree)
+      total_calls = call_tree.target.called
+      href = "#{method_href(call_tree.target)}"
       totals = total_calls.to_s
-      "[#{call_info.called} calls, #{totals} total]"
+      "[#{call_tree.called} calls, #{totals} total]"
     end
 
     def method_href(method)
       h(method.full_name.gsub(/[><#\.\?=:]/,"_"))
     end
 
-    def total_time(call_infos)
-      sum(call_infos.map{|ci| ci.total_time})
+    def total_time(call_trees)
+      sum(call_trees.map{|ci| ci.total_time})
     end
 
     def sum(a)

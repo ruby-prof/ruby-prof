@@ -89,7 +89,7 @@ static int prof_call_infos_collect_children(st_data_t key, st_data_t value, st_d
     }
     else
     {
-        prof_call_info_t* p_aggregate_call_info = prof_call_info_copy(call_info_data);
+        aggregate_call_info_data = prof_call_info_copy(call_info_data);
         st_insert(callers, call_info_data->method->key, aggregate_call_info_data);
     }
 
@@ -176,7 +176,7 @@ VALUE prof_call_infos_callers(VALUE self)
         }
         else
         {
-            prof_call_info_t* p_aggregate_call_info = prof_call_info_copy(*p_call_info);
+            aggregate_call_info_data = prof_call_info_copy(*p_call_info);
             st_insert(callers, parent->method->key, aggregate_call_info_data);
         }
     }

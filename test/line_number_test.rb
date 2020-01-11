@@ -37,16 +37,7 @@ class LineNumbersTest < TestCase
       numbers.method_1
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     methods = result.threads.first.methods.sort.reverse
-    methods.each do |method|
-      puts method.full_name
-    end
-
     assert_equal(7, methods.length)
 
     # Method 0

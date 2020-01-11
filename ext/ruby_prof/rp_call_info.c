@@ -72,37 +72,6 @@ static int prof_call_info_mark_children(st_data_t key, st_data_t value, st_data_
     return ST_CONTINUE;
 }
 
-static void prof_call_info_ruby_gc_free(void* data)
-{
-    prof_call_info_t* call_info = (prof_call_info_t*)data;
-
-    /* Has this call info object been accessed by Ruby?  If
-       yes clean it up so to avoid a segmentation fault. */
-    if (call_info->object != Qnil)
-    {
-        RDATA(call_info->object)->dmark = NULL;
-        RDATA(call_info->object)->dfree = NULL;
-        RDATA(call_info->object)->data = NULL;
-        call_info->object = Qnil;
-    }
-}
-
-void prof_call_info_free(prof_call_info_t* call_info)
-{
-    prof_measurement_free(call_info->measurement);
-    prof_call_info_ruby_gc_free(call_info);
-
-    /* Note we do not free our parent or children. Its up to prof_method_t objects to call free on the
-       call infos they manage. */
-    st_free_table(call_info->children);
-    xfree(call_info);
-}
-
-size_t prof_call_info_size(const void* data)
-{
-    return sizeof(prof_call_info_t);
-}
-
 void prof_call_info_mark(void* data)
 {
     prof_call_info_t* call_info = (prof_call_info_t*)data;
@@ -123,8 +92,51 @@ void prof_call_info_mark(void* data)
     prof_measurement_mark(call_info->measurement);
 }
 
-VALUE
-prof_call_info_wrap(prof_call_info_t* call_info)
+static void prof_call_info_ruby_gc_free(void* data)
+{
+    prof_call_info_t* call_info = (prof_call_info_t*)data;
+    call_info->object = Qnil;
+
+    // If this is the top-level call_info then free its full tree
+    if (!call_info->parent)
+        prof_call_info_free(call_info);
+}
+
+static int prof_call_info_free_children(st_data_t key, st_data_t value, st_data_t data)
+{
+    prof_call_info_t* call_info = (prof_call_info_t*)value;
+    prof_call_info_free(call_info);
+    return ST_CONTINUE;
+}
+
+void prof_call_info_free(prof_call_info_t* call_info)
+{
+    /* Has this call info object been accessed by Ruby?  If
+       yes clean it up so to avoid a segmentation fault. */
+    if (call_info->object != Qnil)
+    {
+        RDATA(call_info->object)->dmark = NULL;
+        RDATA(call_info->object)->dfree = NULL;
+        RDATA(call_info->object)->data = NULL;
+    }
+
+    // Free children
+    st_foreach(call_info->children, prof_call_info_free_children, 0);
+    st_free_table(call_info->children);
+
+    // Free measurement
+    prof_measurement_free(call_info->measurement);
+
+    // Finally free self
+    xfree(call_info);
+}
+
+size_t prof_call_info_size(const void* data)
+{
+    return sizeof(prof_call_info_t);
+}
+
+VALUE prof_call_info_wrap(prof_call_info_t* call_info)
 {
     if (call_info->object == Qnil)
     {

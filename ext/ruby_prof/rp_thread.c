@@ -46,12 +46,11 @@ static void prof_thread_free(thread_data_t* thread_data)
         RDATA(thread_data->object)->dmark = NULL;
         RDATA(thread_data->object)->dfree = NULL;
         RDATA(thread_data->object)->data = NULL;
-        thread_data->object = Qnil;
     }
 
     method_table_free(thread_data->method_table);
+    prof_call_info_free(thread_data->call_info);
     prof_stack_free(thread_data->stack);
-
 
     xfree(thread_data);
 }
@@ -71,9 +70,6 @@ size_t prof_thread_size(const void* data)
 void prof_thread_mark(void* data)
 {
     thread_data_t* thread = (thread_data_t*)data;
-
-    if (thread->object != Qnil)
-        rb_gc_mark(thread->object);
 
     if (thread->methods != Qnil)
         rb_gc_mark(thread->methods);

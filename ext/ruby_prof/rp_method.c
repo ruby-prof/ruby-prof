@@ -191,7 +191,11 @@ prof_method_t* prof_method_create_excluded(VALUE klass, VALUE msym)
 static void prof_method_ruby_gc_free(void* data)
 {
     prof_method_t* method = (prof_method_t*)data;
+    method->object = Qnil;
+}
 
+static void prof_method_free(prof_method_t* method)
+{
     /* Has this method object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (method->object != Qnil)
@@ -199,15 +203,8 @@ static void prof_method_ruby_gc_free(void* data)
         RDATA(method->object)->dmark = NULL;
         RDATA(method->object)->dfree = NULL;
         RDATA(method->object)->data = NULL;
-        method->object = Qnil;
     }
-    method->klass_name = Qnil;
-    method->method_name = Qnil;
-}
 
-static void prof_method_free(prof_method_t* method)
-{
-    prof_method_ruby_gc_free(method);
     allocations_table_free(method->allocations_table);
     prof_call_infos_free(method->call_infos);
     prof_measurement_free(method->measurement);
@@ -227,9 +224,6 @@ void prof_method_mark(void* data)
 
     if (method->klass != Qnil)
         rb_gc_mark(method->klass);
-
-    if (method->object != Qnil)
-        rb_gc_mark(method->object);
 
     prof_measurement_mark(method->measurement);
 

@@ -34,9 +34,6 @@ prof_call_infos_t* prof_call_infos_create()
 
 void prof_call_infos_mark(prof_call_infos_t* call_infos)
 {
-    if (call_infos->object)
-        rb_gc_mark(call_infos->object);
-
     prof_call_info_t** call_info;
     for (call_info = call_infos->start; call_info < call_infos->ptr; call_info++)
     {
@@ -53,7 +50,6 @@ void prof_call_infos_free(prof_call_infos_t* call_infos)
         RDATA(call_infos->object)->dmark = NULL;
         RDATA(call_infos->object)->dfree = NULL;
         RDATA(call_infos->object)->data = NULL;
-        call_infos->object = Qnil;
     }
 
     // Note we do not free our call_info structures - since they have no parents they will free themselves

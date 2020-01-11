@@ -375,8 +375,7 @@ static int mark_threads(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
-static int
-mark_methods(st_data_t key, st_data_t value, st_data_t result)
+static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
 {
     prof_method_t* method = (prof_method_t*)value;
     prof_method_mark(method);

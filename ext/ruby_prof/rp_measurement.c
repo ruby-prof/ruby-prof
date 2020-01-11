@@ -51,10 +51,20 @@ prof_measurement_t* prof_measurement_create(void)
     return result;
 }
 
+void prof_measurement_mark(void* data)
+{
+    // nothing to do
+}
+
 static void prof_measurement_ruby_gc_free(void* data)
 {
+    // Measurements are freed by their owning object (call info or method)
     prof_measurement_t* measurement = (prof_measurement_t*)data;
+    measurement->object = Qnil;
+}
 
+void prof_measurement_free(prof_measurement_t* measurement)
+{
     /* Has this measurement object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (measurement->object != Qnil)
@@ -62,13 +72,8 @@ static void prof_measurement_ruby_gc_free(void* data)
         RDATA(measurement->object)->dmark = NULL;
         RDATA(measurement->object)->dfree = NULL;
         RDATA(measurement->object)->data = NULL;
-        measurement->object = Qnil;
     }
-}
 
-void prof_measurement_free(prof_measurement_t* measurement)
-{
-    prof_measurement_ruby_gc_free(measurement);
     xfree(measurement);
 }
 
@@ -77,18 +82,11 @@ size_t prof_measurement_size(const void* data)
     return sizeof(prof_measurement_t);
 }
 
-void prof_measurement_mark(void* data)
-{
-    prof_measurement_t* measurement = (prof_measurement_t*)data;
-    if (measurement->object != Qnil)
-        rb_gc_mark(measurement->object);
-}
-
 VALUE prof_measurement_wrap(prof_measurement_t* measurement)
 {
     if (measurement->object == Qnil)
     {
-        measurement->object = Data_Wrap_Struct(cRpMeasurement, prof_measurement_mark, prof_measurement_ruby_gc_free, measurement);
+        measurement->object = Data_Wrap_Struct(cRpMeasurement, NULL, prof_measurement_ruby_gc_free, measurement);
     }
     return measurement->object;
 }

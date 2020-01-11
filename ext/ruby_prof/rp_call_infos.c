@@ -43,34 +43,8 @@ void prof_call_infos_mark(prof_call_infos_t* call_infos)
     }
 }
 
-static int prof_call_infos_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
-{
-    //  prof_call_info_free((prof_call_info_t*)value);
-    return ST_CONTINUE;
-}
-
-void prof_call_infos_table_free(st_table* table)
-{
-    st_foreach(table, prof_call_infos_free_iterator, 0);
-    st_free_table(table);
-}
-
 void prof_call_infos_free(prof_call_infos_t* call_infos)
 {
-    prof_call_info_t** call_info;
-
-    for (call_info = call_infos->start; call_info < call_infos->ptr; call_info++)
-    {
-        //       prof_call_info_free(*call_info);
-    }
-
-    xfree(call_infos);
-}
-
-void prof_call_infos_ruby_gc_free(void* data)
-{
-    prof_call_infos_t* call_infos = (prof_call_infos_t*)data;
-
     /* Has this method object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (call_infos->object != Qnil)
@@ -80,25 +54,43 @@ void prof_call_infos_ruby_gc_free(void* data)
         RDATA(call_infos->object)->data = NULL;
         call_infos->object = Qnil;
     }
+
+    // Note we do not free our call_info structures - since they have no parents they will free themselves
+    xfree(call_infos);
+}
+
+void prof_call_infos_ruby_gc_free(void* data)
+{
+    // This object gets freed by its owning method
+    prof_call_infos_t* call_infos = (prof_call_infos_t*)data;
+    call_infos->object = Qnil;
+}
+
+static int prof_call_infos_collect_values(st_data_t key, st_data_t value, st_data_t data)
+{
+    VALUE result = (VALUE)data;
+    prof_call_info_t* call_info_data = (prof_call_info_t*)value;
+    VALUE call_info = prof_call_info_wrap(call_info_data);
+    rb_ary_push(result, call_info);
+
+    return ST_CONTINUE;
 }
 
 static int prof_call_infos_collect_children(st_data_t key, st_data_t value, st_data_t hash)
 {
     st_table* callers = (st_table*)hash;
-
     prof_call_info_t* call_info_data = (prof_call_info_t*)value;
+
     prof_call_info_t* aggregate_call_info_data = NULL;
 
-    VALUE aggregate_call_info = Qnil;
-
-    if (st_lookup(callers, call_info_data->method->key, &aggregate_call_info))
+    if (st_lookup(callers, call_info_data->method->key, &aggregate_call_info_data))
     {
-        prof_call_info_merge(prof_get_call_info(aggregate_call_info), call_info_data);
+        prof_call_info_merge(aggregate_call_info_data, call_info_data);
     }
     else
     {
         prof_call_info_t* p_aggregate_call_info = prof_call_info_copy(call_info_data);
-        st_insert(callers, call_info_data->method->key, prof_call_info_wrap(p_aggregate_call_info));
+        st_insert(callers, call_info_data->method->key, aggregate_call_info_data);
     }
 
     return ST_CONTINUE;
@@ -176,32 +168,23 @@ VALUE prof_call_infos_callers(VALUE self)
         if (parent == NULL)
             continue;
 
-        VALUE aggregate_call_info = Qnil;
+        prof_call_info_t* aggregate_call_info_data = NULL;
 
-        if (st_lookup(callers, parent->method->key, &aggregate_call_info))
+        if (st_lookup(callers, parent->method->key, &aggregate_call_info_data))
         {
-            prof_call_info_merge(prof_get_call_info(aggregate_call_info), *p_call_info);
+            prof_call_info_merge(aggregate_call_info_data, *p_call_info);
         }
         else
         {
             prof_call_info_t* p_aggregate_call_info = prof_call_info_copy(*p_call_info);
-            st_insert(callers, parent->method->key, prof_call_info_wrap(p_aggregate_call_info));
+            st_insert(callers, parent->method->key, aggregate_call_info_data);
         }
     }
 
-    st_index_t size = callers->num_entries;
-    VALUE values = rb_ary_new_capa(size);
-    rb_gc_writebarrier_remember(values);
-    RARRAY_PTR_USE_TRANSIENT(values, ptr,
-                             {
-                                 size = st_values(callers, ptr, size);
-                             });
-
-    rb_ary_set_len(values, size);
-
+    VALUE result = rb_ary_new_capa(callers->num_entries);
+    st_foreach(callers, prof_call_infos_collect_values, result);
     st_free_table(callers);
-
-    return values;
+    return result;
 }
 
 /* call-seq:
@@ -213,26 +196,15 @@ VALUE prof_call_infos_callees(VALUE self)
     st_table* callees = st_init_numtable();
 
     prof_call_infos_t* call_infos = prof_get_call_infos(self);
-
-    prof_measurement_t* measurement = NULL;
-
     for (prof_call_info_t** call_info = call_infos->start; call_info < call_infos->ptr; call_info++)
     {
         st_foreach((*call_info)->children, prof_call_infos_collect_children, (st_data_t)callees);
     }
 
-    st_index_t size = callees->num_entries;
-    VALUE values = rb_ary_new_capa(size);
-    rb_gc_writebarrier_remember(values);
-    RARRAY_PTR_USE_TRANSIENT(values, ptr,
-                             {
-                                 size = st_values(callees, ptr, size);
-                             });
-
-    rb_ary_set_len(values, size);
-
+    VALUE result = rb_ary_new_capa(callees->num_entries);
+    st_foreach(callees, prof_call_infos_collect_values, result);
     st_free_table(callees);
-    return values;
+    return result;
 }
 
 /* :nodoc: */

@@ -4,7 +4,7 @@
 require File.expand_path('../test_helper', __FILE__)
 
 # --  Tests ----
-class CallInfosTest < TestCase
+class CallTreesTest < TestCase
   def some_method_1
     some_method_2
   end

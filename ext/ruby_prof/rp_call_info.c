@@ -98,8 +98,8 @@ static void prof_call_info_ruby_gc_free(void* data)
     call_info->object = Qnil;
 
     // If this is the top-level call_info then free its full tree
-    if (!call_info->parent)
-        prof_call_info_free(call_info);
+    //if (!call_info->parent)
+      //  prof_call_info_free(call_info);
 }
 
 static int prof_call_info_free_children(st_data_t key, st_data_t value, st_data_t data)

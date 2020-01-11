@@ -83,14 +83,14 @@ static int prof_call_infos_collect_children(st_data_t key, st_data_t value, st_d
 
     prof_call_info_t* aggregate_call_info_data = NULL;
 
-    if (st_lookup(callers, call_info_data->method->key, &aggregate_call_info_data))
+    if (st_lookup(callers, call_info_data->method->key, (st_data_t*)&aggregate_call_info_data))
     {
         prof_call_info_merge(aggregate_call_info_data, call_info_data);
     }
     else
     {
         aggregate_call_info_data = prof_call_info_copy(call_info_data);
-        st_insert(callers, call_info_data->method->key, aggregate_call_info_data);
+        st_insert(callers, call_info_data->method->key, (st_data_t)aggregate_call_info_data);
     }
 
     return ST_CONTINUE;
@@ -170,14 +170,14 @@ VALUE prof_call_infos_callers(VALUE self)
 
         prof_call_info_t* aggregate_call_info_data = NULL;
 
-        if (st_lookup(callers, parent->method->key, &aggregate_call_info_data))
+        if (st_lookup(callers, parent->method->key, (st_data_t*)&aggregate_call_info_data))
         {
             prof_call_info_merge(aggregate_call_info_data, *p_call_info);
         }
         else
         {
             aggregate_call_info_data = prof_call_info_copy(*p_call_info);
-            st_insert(callers, parent->method->key, aggregate_call_info_data);
+            st_insert(callers, parent->method->key, (st_data_t)aggregate_call_info_data);
         }
     }
 

@@ -34,13 +34,7 @@ class MeasureAllocationsTest < TestCase
     assert_equal(0, method.self_time)
     assert_in_delta(20, method.children_time, 1)
 
-    assert_equal(1, method.call_infos.callers.length)
-    call_info = method.call_infos.callers[0]
-    assert_nil(call_info.parent)
-    assert_equal(20, call_info.total_time)
-    assert_equal(0, call_info.wait_time)
-    assert_equal(0, call_info.self_time)
-    assert_equal(20, call_info.children_time)
+    assert_equal(0, method.call_infos.callers.length)
 
     assert_equal(2, method.call_infos.callees.length)
     call_info = method.call_infos.callees[0]

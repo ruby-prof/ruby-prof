@@ -30,6 +30,22 @@ class GcTest < TestCase
     assert(true)
   end
 
+  def test_hold_onto_root_call_info
+    call_infos = 1000.times.reduce(Array.new) do |array, i|
+      array.concat(run_profile.threads.map(&:call_info))
+      GC.start
+      array
+    end
+
+    call_infos.each do |call_info|
+      error = assert_raises(RuntimeError) do
+        call_info.source_file
+      end
+      assert_match(/has already been freed/, error.message)
+    end
+    assert(true)
+  end
+
   def test_hold_onto_method
     methods = 1000.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads.map(&:methods).flatten)
@@ -46,32 +62,16 @@ class GcTest < TestCase
     assert(true)
   end
 
-  def test_hold_onto_parent_callers
-    call_infos = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:methods).flatten.map(&:callers).flatten)
+  def test_hold_onto_call_infos
+    method_call_infos = 1000.times.reduce(Array.new) do |array, i|
+      array.concat(run_profile.threads.map(&:methods).flatten.map(&:call_infos).flatten)
       GC.start
       array
     end
 
-    call_infos.each do |call_info|
+    method_call_infos.each do |call_infos|
       error = assert_raises(RuntimeError) do
-        call_info.source_file
-      end
-      assert_match(/has already been freed/, error.message)
-    end
-    assert(true)
-  end
-
-  def test_hold_onto_parent_callees
-    call_infos = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:methods).flatten.map(&:callees).flatten)
-      GC.start
-      array
-    end
-
-    call_infos.each do |call_info|
-      error = assert_raises(RuntimeError) do
-        call_info.source_file
+        call_infos.call_infos
       end
       assert_match(/has already been freed/, error.message)
     end
@@ -80,7 +80,7 @@ class GcTest < TestCase
 
   def test_hold_onto_measurements
     measurements = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:methods).flatten.map(&:callers).flatten.map(&:measurement))
+      array.concat(run_profile.threads.map(&:methods).flatten.map(&:measurement))
       GC.start
       array
     end

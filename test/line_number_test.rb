@@ -42,14 +42,6 @@ class LineNumbersTest < TestCase
       printer.print(file)
     end
 
-    printer = RubyProf::CallStackPrinter.new(result)
-    File.open('c:/temp/call_stack.html', 'wb') do |file|
-      printer.print(file)
-    end
-
-
-
-
     methods = result.threads.first.methods.sort.reverse
     methods.each do |method|
       puts method.full_name

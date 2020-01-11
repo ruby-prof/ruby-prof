@@ -7,7 +7,7 @@
 #include "ruby_prof.h"
 #include "rp_stack.h"
 
-   /* Profiling information for a thread. */
+/* Profiling information for a thread. */
 typedef struct
 {
     // Runtime

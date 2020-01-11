@@ -209,9 +209,7 @@ static void prof_method_free(prof_method_t* method)
 {
     prof_method_ruby_gc_free(method);
     allocations_table_free(method->allocations_table);
-
     prof_call_infos_free(method->call_infos);
-
     prof_measurement_free(method->measurement);
     xfree(method);
 }

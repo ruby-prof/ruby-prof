@@ -7,14 +7,14 @@
 #include "ruby_prof.h"
 #include "rp_call_info.h"
 
-/* Temporary object that maintains profiling information
-   for active methods.  They are created and destroyed
-   as the program moves up and down its stack. */
+   /* Temporary object that maintains profiling information
+      for active methods.  They are created and destroyed
+      as the program moves up and down its stack. */
 typedef struct
 {
     /* Caching prof_method_t values significantly
        increases performance. */
-    prof_call_info_t *call_info;
+    prof_call_info_t* call_info;
 
     VALUE source_file;
     unsigned int source_line;
@@ -40,17 +40,17 @@ void prof_frame_unpause(prof_frame_t*, double current_measurement);
 /* Current stack of active methods.*/
 typedef struct
 {
-    prof_frame_t *start;
-    prof_frame_t *end;
-    prof_frame_t *ptr;
+    prof_frame_t* start;
+    prof_frame_t* end;
+    prof_frame_t* ptr;
 } prof_stack_t;
 
-prof_stack_t *prof_stack_create(void);
-void prof_stack_free(prof_stack_t *stack);
+prof_stack_t* prof_stack_create(void);
+void prof_stack_free(prof_stack_t* stack);
 
-prof_frame_t *prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int paused);
-prof_frame_t *prof_stack_pop(prof_stack_t *stack, double measurement);
-prof_frame_t *prof_stack_pass(prof_stack_t *stack);
-prof_method_t *prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line);
+prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_info_t* call_info, double measurement, int paused);
+prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement);
+prof_frame_t* prof_stack_pass(prof_stack_t* stack);
+prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line);
 
 #endif //__RP_STACK__

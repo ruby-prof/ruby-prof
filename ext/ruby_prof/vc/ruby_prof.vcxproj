@@ -122,7 +122,6 @@
     <ClInclude Include="..\rp_stack.h" />
     <ClInclude Include="..\rp_thread.h" />
     <ClInclude Include="..\ruby_prof.h" />
-    <ClInclude Include="..\version.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\rp_allocation.c" />

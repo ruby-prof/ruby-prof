@@ -5,8 +5,7 @@
 
 VALUE cRpAllocation;
 
-prof_allocation_t*
-allocations_table_lookup(st_table *table, st_data_t key)
+prof_allocation_t* allocations_table_lookup(st_table* table, st_data_t key)
 {
     prof_allocation_t* result = NULL;
     st_data_t value;
@@ -18,23 +17,20 @@ allocations_table_lookup(st_table *table, st_data_t key)
     return result;
 }
 
-void
-allocations_table_insert(st_table *table, st_data_t key, prof_allocation_t * allocation)
+void allocations_table_insert(st_table* table, st_data_t key, prof_allocation_t* allocation)
 {
     st_insert(table, (st_data_t)key, (st_data_t)allocation);
 }
 
-st_data_t
-allocations_key(VALUE klass, int source_line)
+st_data_t allocations_key(VALUE klass, int source_line)
 {
     return (klass << 4) + source_line;
 }
 
 /* ======   prof_allocation_t  ====== */
-prof_allocation_t*
-prof_allocation_create(void)
+prof_allocation_t* prof_allocation_create(void)
 {
-    prof_allocation_t *result = ALLOC(prof_allocation_t);
+    prof_allocation_t* result = ALLOC(prof_allocation_t);
     result->count = 0;
     result->klass = Qnil;
     result->klass_name = Qnil;
@@ -47,8 +43,7 @@ prof_allocation_create(void)
     return result;
 }
 
-prof_allocation_t*
-prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
+prof_allocation_t* prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
 {
     VALUE object = rb_tracearg_object(trace_arg);
     if (BUILTIN_TYPE(object) == T_IMEMO)
@@ -78,8 +73,7 @@ prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
     return allocation;
 }
 
-static void
-prof_allocation_ruby_gc_free(void *data)
+static void prof_allocation_ruby_gc_free(void* data)
 {
     prof_allocation_t* allocation = (prof_allocation_t*)data;
 
@@ -94,56 +88,50 @@ prof_allocation_ruby_gc_free(void *data)
     }
 }
 
-void
-prof_allocation_free(prof_allocation_t* allocation)
+void prof_allocation_free(prof_allocation_t* allocation)
 {
     prof_allocation_ruby_gc_free(allocation);
     xfree(allocation);
 }
 
-size_t
-prof_allocation_size(const void* data)
+size_t prof_allocation_size(const void* data)
 {
     return sizeof(prof_allocation_t);
 }
 
-void
-prof_allocation_mark(void *data)
+void prof_allocation_mark(void* data)
 {
     prof_allocation_t* allocation = (prof_allocation_t*)data;
     if (allocation->klass != Qnil)
         rb_gc_mark(allocation->klass);
-    
+
     if (allocation->klass_name != Qnil)
         rb_gc_mark(allocation->klass_name);
 
     if (allocation->object != Qnil)
-            rb_gc_mark(allocation->object);
+        rb_gc_mark(allocation->object);
 
     if (allocation->source_file != Qnil)
         rb_gc_mark(allocation->source_file);
 }
 
-VALUE
-prof_allocation_wrap(prof_allocation_t *allocation)
+VALUE prof_allocation_wrap(prof_allocation_t* allocation)
 {
     if (allocation->object == Qnil)
     {
-        allocation->object = Data_Wrap_Struct(cRpAllocation, prof_allocation_mark , prof_allocation_ruby_gc_free, allocation);
+        allocation->object = Data_Wrap_Struct(cRpAllocation, prof_allocation_mark, prof_allocation_ruby_gc_free, allocation);
     }
     return allocation->object;
 }
 
-static VALUE
-prof_allocation_allocate(VALUE klass)
+static VALUE prof_allocation_allocate(VALUE klass)
 {
     prof_allocation_t* allocation = prof_allocation_create();
     allocation->object = prof_allocation_wrap(allocation);
     return allocation->object;
 }
 
-prof_allocation_t*
-prof_allocation_get(VALUE self)
+prof_allocation_t* prof_allocation_get(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
@@ -158,8 +146,7 @@ prof_allocation_get(VALUE self)
    klass -> Class
 
 Returns the type of Class being allocated. */
-static VALUE
-prof_allocation_klass_name(VALUE self)
+static VALUE prof_allocation_klass_name(VALUE self)
 {
     prof_allocation_t* allocation = prof_allocation_get(self);
 
@@ -174,8 +161,7 @@ prof_allocation_klass_name(VALUE self)
 
 Returns the klass flags */
 
-static VALUE
-prof_allocation_klass_flags(VALUE self)
+static VALUE prof_allocation_klass_flags(VALUE self)
 {
     prof_allocation_t* allocation = prof_allocation_get(self);
     return INT2FIX(allocation->klass_flags);
@@ -185,8 +171,7 @@ prof_allocation_klass_flags(VALUE self)
    source_file -> string
 
 Returns the the line number where objects were allocated. */
-static VALUE
-prof_allocation_source_file(VALUE self)
+static VALUE prof_allocation_source_file(VALUE self)
 {
     prof_allocation_t* allocation = prof_allocation_get(self);
     return allocation->source_file;
@@ -196,8 +181,7 @@ prof_allocation_source_file(VALUE self)
    line -> number
 
 Returns the the line number where objects were allocated. */
-static VALUE
-prof_allocation_source_line(VALUE self)
+static VALUE prof_allocation_source_line(VALUE self)
 {
     prof_allocation_t* allocation = prof_allocation_get(self);
     return INT2FIX(allocation->source_line);
@@ -207,8 +191,7 @@ prof_allocation_source_line(VALUE self)
    count -> number
 
 Returns the number of times this class has been allocated. */
-static VALUE
-prof_allocation_count(VALUE self)
+static VALUE prof_allocation_count(VALUE self)
 {
     prof_allocation_t* allocation = prof_allocation_get(self);
     return INT2FIX(allocation->count);
@@ -218,16 +201,14 @@ prof_allocation_count(VALUE self)
    memory -> number
 
 Returns the amount of memory allocated. */
-static VALUE
-prof_allocation_memory(VALUE self)
+static VALUE prof_allocation_memory(VALUE self)
 {
     prof_allocation_t* allocation = prof_allocation_get(self);
     return ULL2NUM(allocation->memory);
 }
 
 /* :nodoc: */
-static VALUE
-prof_allocation_dump(VALUE self)
+static VALUE prof_allocation_dump(VALUE self)
 {
     prof_allocation_t* allocation = DATA_PTR(self);
 
@@ -245,8 +226,7 @@ prof_allocation_dump(VALUE self)
 }
 
 /* :nodoc: */
-static VALUE
-prof_allocation_load(VALUE self, VALUE data)
+static VALUE prof_allocation_load(VALUE self, VALUE data)
 {
     prof_allocation_t* allocation = DATA_PTR(self);
     allocation->object = self;

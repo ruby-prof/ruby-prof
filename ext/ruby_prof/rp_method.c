@@ -8,8 +8,7 @@
 VALUE cRpMethodInfo;
 
 /* ================  Helper Functions  =================*/
-VALUE
-resolve_klass(VALUE klass, unsigned int *klass_flags)
+VALUE resolve_klass(VALUE klass, unsigned int* klass_flags)
 {
     VALUE result = klass;
 
@@ -62,8 +61,7 @@ resolve_klass(VALUE klass, unsigned int *klass_flags)
     return result;
 }
 
-VALUE
-resolve_klass_name(VALUE klass, unsigned int* klass_flags)
+VALUE resolve_klass_name(VALUE klass, unsigned int* klass_flags)
 {
     VALUE result = Qnil;
 
@@ -83,8 +81,7 @@ resolve_klass_name(VALUE klass, unsigned int* klass_flags)
     return result;
 }
 
-st_data_t
-method_key(VALUE klass, VALUE msym)
+st_data_t method_key(VALUE klass, VALUE msym)
 {
     VALUE resolved_klass = klass;
 
@@ -104,21 +101,18 @@ method_key(VALUE klass, VALUE msym)
 }
 
 /* ======   Allocation Table  ====== */
-st_table*
-allocations_table_create()
+st_table* allocations_table_create()
 {
     return st_init_numtable();
 }
 
-static int
-allocations_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
-{ 
+static int allocations_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
+{
     prof_allocation_free((prof_allocation_t*)value);
     return ST_CONTINUE;
 }
 
-static int
-prof_method_collect_allocations(st_data_t key, st_data_t value, st_data_t result)
+static int prof_method_collect_allocations(st_data_t key, st_data_t value, st_data_t result)
 {
     prof_allocation_t* allocation = (prof_allocation_t*)value;
     VALUE arr = (VALUE)result;
@@ -126,24 +120,21 @@ prof_method_collect_allocations(st_data_t key, st_data_t value, st_data_t result
     return ST_CONTINUE;
 }
 
-static int
-prof_method_mark_allocations(st_data_t key, st_data_t value, st_data_t data)
+static int prof_method_mark_allocations(st_data_t key, st_data_t value, st_data_t data)
 {
     prof_allocation_t* allocation = (prof_allocation_t*)value;
     prof_allocation_mark(allocation);
     return ST_CONTINUE;
 }
 
-void
-allocations_table_free(st_table* table)
+void allocations_table_free(st_table* table)
 {
     st_foreach(table, allocations_table_free_iterator, 0);
     st_free_table(table);
 }
 
 /* ================  prof_method_t   =================*/
-static prof_method_t*
-prof_get_method(VALUE self)
+static prof_method_t* prof_get_method(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
@@ -155,14 +146,13 @@ prof_get_method(VALUE self)
     return result;
 }
 
-prof_method_t*
-prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line)
+prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
-    prof_method_t *result = ALLOC(prof_method_t);
+    prof_method_t* result = ALLOC(prof_method_t);
     result->key = method_key(klass, msym);
     result->klass_flags = 0;
 
-    /* Note we do not call resolve_klass_name now because that causes an object allocation that shows up 
+    /* Note we do not call resolve_klass_name now because that causes an object allocation that shows up
        in the allocation results so we want to avoid it until after the profile run is complete. */
     result->klass = resolve_klass(klass, &result->klass_flags);
     result->klass_name = Qnil;
@@ -173,7 +163,7 @@ prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line)
 
     result->call_infos = prof_call_infos_create();
     result->allocations_table = allocations_table_create();
-    
+
     result->visits = 0;
     result->recursive = false;
 
@@ -185,8 +175,7 @@ prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line)
     return result;
 }
 
-prof_method_t*
-prof_method_create_excluded(VALUE klass, VALUE msym)
+prof_method_t* prof_method_create_excluded(VALUE klass, VALUE msym)
 {
     prof_method_t* result = prof_method_create(klass, msym, Qnil, 0);
     result->excluded = 1;
@@ -199,15 +188,14 @@ prof_method_create_excluded(VALUE klass, VALUE msym)
    be freed before the parent profile.  Thus we add in a free function
    for the garbage collector so that if it does get called will nil
    out our Ruby object reference.*/
-static void
-prof_method_ruby_gc_free(void *data)
+static void prof_method_ruby_gc_free(void* data)
 {
     prof_method_t* method = (prof_method_t*)data;
 
     /* Has this method object been accessed by Ruby?  If
-	   yes clean it up so to avoid a segmentation fault. */
-	if (method->object != Qnil)
-	{
+       yes clean it up so to avoid a segmentation fault. */
+    if (method->object != Qnil)
+    {
         RDATA(method->object)->dmark = NULL;
         RDATA(method->object)->dfree = NULL;
         RDATA(method->object)->data = NULL;
@@ -217,10 +205,9 @@ prof_method_ruby_gc_free(void *data)
     method->method_name = Qnil;
 }
 
-static void
-prof_method_free(prof_method_t* method)
+static void prof_method_free(prof_method_t* method)
 {
-	prof_method_ruby_gc_free(method);
+    prof_method_ruby_gc_free(method);
     allocations_table_free(method->allocations_table);
 
     prof_call_infos_free(method->call_infos);
@@ -229,100 +216,90 @@ prof_method_free(prof_method_t* method)
     xfree(method);
 }
 
-size_t
-prof_method_size(const void *data)
+size_t prof_method_size(const void* data)
 {
     return sizeof(prof_method_t);
 }
 
-void
-prof_method_mark(void *data)
+void prof_method_mark(void* data)
 {
     prof_method_t* method = (prof_method_t*)data;
     rb_gc_mark(method->klass_name);
     rb_gc_mark(method->method_name);
-    
+
     if (method->klass != Qnil)
         rb_gc_mark(method->klass);
 
     if (method->object != Qnil)
-		rb_gc_mark(method->object);
+        rb_gc_mark(method->object);
 
     prof_measurement_mark(method->measurement);
-    
+
     st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
 }
 
-static VALUE
-prof_method_allocate(VALUE klass)
+static VALUE prof_method_allocate(VALUE klass)
 {
     prof_method_t* method_data = prof_method_create(Qnil, Qnil, Qnil, 0);
     method_data->object = prof_method_wrap(method_data);
     return method_data->object;
 }
 
-VALUE
-prof_method_wrap(prof_method_t *method)
+VALUE prof_method_wrap(prof_method_t* method)
 {
-  if (method->object == Qnil)
-  {
-      method->object = Data_Wrap_Struct(cRpMethodInfo, prof_method_mark, prof_method_ruby_gc_free, method);
-  }
-  return method->object;
+    if (method->object == Qnil)
+    {
+        method->object = Data_Wrap_Struct(cRpMethodInfo, prof_method_mark, prof_method_ruby_gc_free, method);
+    }
+    return method->object;
 }
 
-prof_method_t *
-prof_method_get(VALUE self)
+prof_method_t* prof_method_get(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-	prof_method_t* result = DATA_PTR(self);
+    prof_method_t* result = DATA_PTR(self);
 
-	if (!result)
+    if (!result)
     {
-	    rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
-	}
+        rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
+    }
 
-   return result;
+    return result;
 }
 
-st_table *
-method_table_create()
+st_table* method_table_create()
 {
     return st_init_numtable();
 }
 
-static int
-method_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
+static int method_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
-    prof_method_free((prof_method_t *)value);
+    prof_method_free((prof_method_t*)value);
     return ST_CONTINUE;
 }
 
-void
-method_table_free(st_table *table)
+void method_table_free(st_table* table)
 {
     st_foreach(table, method_table_free_iterator, 0);
     st_free_table(table);
 }
 
-size_t
-method_table_insert(st_table *table, st_data_t key, prof_method_t *val)
+size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val)
 {
-    return st_insert(table, (st_data_t) key, (st_data_t) val);
+    return st_insert(table, (st_data_t)key, (st_data_t)val);
 }
 
-prof_method_t *
-method_table_lookup(st_table *table, st_data_t key)
+prof_method_t* method_table_lookup(st_table* table, st_data_t key)
 {
     st_data_t val;
     if (st_lookup(table, (st_data_t)key, &val))
     {
-      return (prof_method_t *) val;
+        return (prof_method_t*)val;
     }
     else
     {
-      return NULL;
+        return NULL;
     }
 }
 
@@ -340,8 +317,7 @@ the RubyProf::Profile object.
    allocations -> array
 
 Returns an array of allocation information.*/
-static VALUE
-prof_method_allocations(VALUE self)
+static VALUE prof_method_allocations(VALUE self)
 {
     prof_method_t* method = prof_get_method(self);
     VALUE result = rb_ary_new();
@@ -353,8 +329,7 @@ prof_method_allocations(VALUE self)
    called -> Measurement
 
 Returns the measurement associated with this method. */
-static VALUE
-prof_method_measurement(VALUE self)
+static VALUE prof_method_measurement(VALUE self)
 {
     prof_method_t* method = prof_get_method(self);
     return prof_measurement_wrap(method->measurement);
@@ -375,8 +350,7 @@ static VALUE prof_method_source_file(VALUE self)
    line_no -> int
 
    returns the line number of the method */
-static VALUE
-prof_method_line(VALUE self)
+static VALUE prof_method_line(VALUE self)
 {
     prof_method_t* method = prof_method_get(self);
     return INT2FIX(method->source_line);
@@ -388,10 +362,9 @@ prof_method_line(VALUE self)
 Returns the name of this method's class.  Singleton classes
 will have the form <Object::Object>. */
 
-static VALUE
-prof_method_klass_name(VALUE self)
+static VALUE prof_method_klass_name(VALUE self)
 {
-    prof_method_t *method = prof_method_get(self);
+    prof_method_t* method = prof_method_get(self);
     if (method->klass_name == Qnil)
         method->klass_name = resolve_klass_name(method->klass, &method->klass_flags);
 
@@ -403,8 +376,7 @@ prof_method_klass_name(VALUE self)
 
 Returns the klass flags */
 
-static VALUE
-prof_method_klass_flags(VALUE self)
+static VALUE prof_method_klass_flags(VALUE self)
 {
     prof_method_t* method = prof_method_get(self);
     return INT2FIX(method->klass_flags);
@@ -416,10 +388,9 @@ prof_method_klass_flags(VALUE self)
 Returns the name of this method in the format Object#method.  Singletons
 methods will be returned in the format <Object::Object>#method.*/
 
-static VALUE
-prof_method_name(VALUE self)
+static VALUE prof_method_name(VALUE self)
 {
-    prof_method_t *method = prof_method_get(self);
+    prof_method_t* method = prof_method_get(self);
     return method->method_name;
 }
 
@@ -427,8 +398,7 @@ prof_method_name(VALUE self)
    recursive? -> boolean
 
    Returns the true if this method is recursively invoked */
-static VALUE
-prof_method_recursive(VALUE self)
+static VALUE prof_method_recursive(VALUE self)
 {
     prof_method_t* method = prof_method_get(self);
     return method->recursive ? Qtrue : Qfalse;
@@ -438,8 +408,7 @@ prof_method_recursive(VALUE self)
    excluded? -> boolean
 
    Returns the true if this method was excluded */
-static VALUE
-prof_method_excluded(VALUE self)
+static VALUE prof_method_excluded(VALUE self)
 {
     prof_method_t* method = prof_method_get(self);
     return method->excluded ? Qtrue : Qfalse;
@@ -449,16 +418,14 @@ prof_method_excluded(VALUE self)
    call_infos -> CallInfos
 
 Returns the CallInfos associated with this method. */
-static VALUE
-prof_method_call_infos(VALUE self)
+static VALUE prof_method_call_infos(VALUE self)
 {
     prof_method_t* method = prof_get_method(self);
     return prof_call_infos_wrap(method->call_infos);
 }
 
 /* :nodoc: */
-static VALUE
-prof_method_dump(VALUE self)
+static VALUE prof_method_dump(VALUE self)
 {
     prof_method_t* method_data = DATA_PTR(self);
     VALUE result = rb_hash_new();
@@ -481,8 +448,7 @@ prof_method_dump(VALUE self)
 }
 
 /* :nodoc: */
-static VALUE
-prof_method_load(VALUE self, VALUE data)
+static VALUE prof_method_load(VALUE self, VALUE data)
 {
     prof_method_t* method_data = RDATA(self)->data;
     method_data->object = self;
@@ -530,7 +496,7 @@ void rp_init_method_info()
 
     rb_define_method(cRpMethodInfo, "allocations", prof_method_allocations, 0);
     rb_define_method(cRpMethodInfo, "measurement", prof_method_measurement, 0);
-        
+
     rb_define_method(cRpMethodInfo, "source_file", prof_method_source_file, 0);
     rb_define_method(cRpMethodInfo, "line", prof_method_line, 0);
 

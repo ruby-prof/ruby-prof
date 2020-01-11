@@ -41,25 +41,25 @@ typedef struct
     VALUE source_file;                       /* Source file */
     int source_line;                         /* Line number */
 
-    prof_measurement_t *measurement;
+    prof_measurement_t* measurement;
 } prof_method_t;
 
 void rp_init_method_info(void);
 
 st_data_t method_key(VALUE klass, VALUE msym);
 
-st_table *method_table_create(void);
+st_table* method_table_create(void);
 prof_method_t* prof_method_create_excluded(VALUE klass, VALUE msym);
-prof_method_t *method_table_lookup(st_table *table, st_data_t key);
-size_t method_table_insert(st_table *table, st_data_t key, prof_method_t *val);
-void method_table_free(st_table *table);
-prof_method_t *prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line);
-prof_method_t *prof_method_get(VALUE self);
+prof_method_t* method_table_lookup(st_table* table, st_data_t key);
+size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val);
+void method_table_free(st_table* table);
+prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line);
+prof_method_t* prof_method_get(VALUE self);
 
-VALUE prof_method_wrap(prof_method_t *result);
-void prof_method_mark(void *data);
+VALUE prof_method_wrap(prof_method_t* result);
+void prof_method_mark(void* data);
 
-VALUE resolve_klass(VALUE klass, unsigned int *klass_flags);
+VALUE resolve_klass(VALUE klass, unsigned int* klass_flags);
 VALUE resolve_klass_name(VALUE klass, unsigned int* klass_flags);
 
 #endif //__RP_METHOD_INFO__

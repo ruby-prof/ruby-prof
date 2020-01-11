@@ -22,10 +22,10 @@ typedef struct
 
 void rp_init_allocation(void);
 void prof_allocation_free(prof_allocation_t* allocation);
-void prof_allocation_mark(void *data);
+void prof_allocation_mark(void* data);
 VALUE prof_allocation_wrap(prof_allocation_t* allocation);
 prof_allocation_t* prof_allocation_get(VALUE self);
-prof_allocation_t* prof_allocate_increment(prof_method_t *method, rb_trace_arg_t *trace_arg);
+prof_allocation_t* prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg);
 
 
 #endif //_RP_ALLOCATION_

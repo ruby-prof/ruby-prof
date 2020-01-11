@@ -5,15 +5,13 @@
 
 #define INITIAL_STACK_SIZE 32
 
-void
-prof_frame_pause(prof_frame_t *frame, double current_measurement)
+void prof_frame_pause(prof_frame_t* frame, double current_measurement)
 {
     if (frame && prof_frame_is_unpaused(frame))
         frame->pause_time = current_measurement;
 }
 
-void
-prof_frame_unpause(prof_frame_t *frame, double current_measurement)
+void prof_frame_unpause(prof_frame_t* frame, double current_measurement)
 {
     if (frame && prof_frame_is_paused(frame))
     {
@@ -24,10 +22,9 @@ prof_frame_unpause(prof_frame_t *frame, double current_measurement)
 
 /* Creates a stack of prof_frame_t to keep track
    of timings for active methods. */
-prof_stack_t *
-prof_stack_create()
+prof_stack_t* prof_stack_create()
 {
-    prof_stack_t *stack = ALLOC(prof_stack_t);
+    prof_stack_t* stack = ALLOC(prof_stack_t);
     stack->start = ZALLOC_N(prof_frame_t, INITIAL_STACK_SIZE);
     stack->ptr = stack->start;
     stack->end = stack->start + INITIAL_STACK_SIZE;
@@ -35,17 +32,15 @@ prof_stack_create()
     return stack;
 }
 
-void
-prof_stack_free(prof_stack_t *stack)
+void prof_stack_free(prof_stack_t* stack)
 {
     xfree(stack->start);
     xfree(stack);
 }
 
-prof_frame_t *
-prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measurement, int paused)
+prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_info_t* call_info, double measurement, int paused)
 {
-    prof_frame_t *result;
+    prof_frame_t* result;
     prof_frame_t* parent_frame;
 
     /* Is there space on the stack?  If not, double
@@ -103,70 +98,68 @@ prof_stack_push(prof_stack_t *stack, prof_call_info_t *call_info, double measure
     return result;
 }
 
-prof_frame_t *
-prof_stack_pop(prof_stack_t *stack, double measurement)
+prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement)
 {
-  prof_frame_t *frame;
-  prof_frame_t *parent_frame;
-  prof_call_info_t *call_info;
+    prof_frame_t* frame;
+    prof_frame_t* parent_frame;
+    prof_call_info_t* call_info;
 
-  double total_time;
-  double self_time;
+    double total_time;
+    double self_time;
 
-  if (stack->ptr == stack->start)
-      return NULL;
+    if (stack->ptr == stack->start)
+        return NULL;
 
-  frame = stack->ptr;
+    frame = stack->ptr;
 
-  /* Match passes until we reach the frame itself. */
-  if (prof_frame_is_pass(frame))
-  {
-    frame->passes--;
-    /* Additional frames can be consumed. See pop_frames(). */
+    /* Match passes until we reach the frame itself. */
+    if (prof_frame_is_pass(frame))
+    {
+        frame->passes--;
+        /* Additional frames can be consumed. See pop_frames(). */
+        return frame;
+    }
+
+    /* Consume this frame. */
+    stack->ptr--;
+
+    parent_frame = stack->ptr;
+
+    /* Calculate the total time this method took */
+    prof_frame_unpause(frame, measurement);
+
+    total_time = measurement - frame->start_time - frame->dead_time;
+    self_time = total_time - frame->child_time - frame->wait_time;
+
+    /* Update information about the current method */
+    call_info = frame->call_info;
+
+    // Update method measurement
+    call_info->method->measurement->self_time += self_time;
+    call_info->method->measurement->wait_time += frame->wait_time;
+    if (call_info->method->visits == 1)
+        call_info->method->measurement->total_time += total_time;
+
+    call_info->method->visits--;
+
+    // Update method measurement
+    call_info->measurement->self_time += self_time;
+    call_info->measurement->wait_time += frame->wait_time;
+    if (call_info->visits == 1)
+        call_info->measurement->total_time += total_time;
+
+    call_info->visits--;
+
+    if (parent_frame)
+    {
+        parent_frame->child_time += total_time;
+        parent_frame->dead_time += frame->dead_time;
+    }
+
     return frame;
-  }
-
-  /* Consume this frame. */
-  stack->ptr--;
-
-  parent_frame = stack->ptr;
-
-  /* Calculate the total time this method took */
-  prof_frame_unpause(frame, measurement);
-  
-  total_time = measurement - frame->start_time - frame->dead_time;
-  self_time = total_time - frame->child_time - frame->wait_time;
-
-  /* Update information about the current method */
-  call_info = frame->call_info;
-
-  // Update method measurement
-  call_info->method->measurement->self_time += self_time;
-  call_info->method->measurement->wait_time += frame->wait_time;
-  if (call_info->method->visits == 1)
-    call_info->method->measurement->total_time += total_time;
-
-  call_info->method->visits--;
-
-  // Update method measurement
-  call_info->measurement->self_time += self_time;
-  call_info->measurement->wait_time += frame->wait_time;
-  if (call_info->visits == 1)
-      call_info->measurement->total_time += total_time;
-
-  call_info->visits--;
-
-  if (parent_frame)
-  {
-      parent_frame->child_time += total_time;
-      parent_frame->dead_time += frame->dead_time;
-  }
-
-  return frame;
 }
 
-prof_frame_t *
-prof_stack_pass(prof_stack_t *stack)
+prof_frame_t* prof_stack_pass(prof_stack_t* stack)
 {
     prof_frame_t* frame = stack->ptr;
     if (frame)
@@ -176,8 +169,7 @@ prof_stack_pass(prof_stack_t *stack)
     return frame;
 }
 
-prof_method_t*
-prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line)
+prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line)
 {
     prof_frame_t* frame = stack->ptr;
     while (frame >= stack->start)

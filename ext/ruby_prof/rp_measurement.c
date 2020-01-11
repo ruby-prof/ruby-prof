@@ -40,7 +40,7 @@ double prof_measure(prof_measurer_t* measurer, rb_trace_arg_t* trace_arg)
 }
 
 /* =======  prof_measurement_t   ========*/
-prof_measurement_t *prof_measurement_create(void)
+prof_measurement_t* prof_measurement_create(void)
 {
     prof_measurement_t* result = ALLOC(prof_measurement_t);
     result->total_time = 0;
@@ -51,8 +51,7 @@ prof_measurement_t *prof_measurement_create(void)
     return result;
 }
 
-static void
-prof_measurement_ruby_gc_free(void *data)
+static void prof_measurement_ruby_gc_free(void* data)
 {
     prof_measurement_t* measurement = (prof_measurement_t*)data;
 
@@ -67,29 +66,25 @@ prof_measurement_ruby_gc_free(void *data)
     }
 }
 
-void
-prof_measurement_free(prof_measurement_t* measurement)
+void prof_measurement_free(prof_measurement_t* measurement)
 {
     prof_measurement_ruby_gc_free(measurement);
     xfree(measurement);
 }
 
-size_t
-prof_measurement_size(const void *data)
+size_t prof_measurement_size(const void* data)
 {
     return sizeof(prof_measurement_t);
 }
 
-void
-prof_measurement_mark(void *data)
+void prof_measurement_mark(void* data)
 {
     prof_measurement_t* measurement = (prof_measurement_t*)data;
     if (measurement->object != Qnil)
         rb_gc_mark(measurement->object);
 }
 
-VALUE
-prof_measurement_wrap(prof_measurement_t* measurement)
+VALUE prof_measurement_wrap(prof_measurement_t* measurement)
 {
     if (measurement->object == Qnil)
     {
@@ -98,16 +93,14 @@ prof_measurement_wrap(prof_measurement_t* measurement)
     return measurement->object;
 }
 
-static VALUE
-prof_measurement_allocate(VALUE klass)
+static VALUE prof_measurement_allocate(VALUE klass)
 {
-    prof_measurement_t *measurement = prof_measurement_create();
+    prof_measurement_t* measurement = prof_measurement_create();
     measurement->object = prof_measurement_wrap(measurement);
     return measurement->object;
 }
 
-prof_measurement_t*
-prof_get_measurement(VALUE self)
+prof_measurement_t* prof_get_measurement(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
@@ -123,8 +116,7 @@ prof_get_measurement(VALUE self)
    total_time -> float
 
 Returns the total amount of time spent in this method and its children. */
-static VALUE
-prof_measurement_total_time(VALUE self)
+static VALUE prof_measurement_total_time(VALUE self)
 {
     prof_measurement_t* result = prof_get_measurement(self);
     return rb_float_new(result->total_time);
@@ -146,8 +138,7 @@ prof_measurement_self_time(VALUE self)
    wait_time -> float
 
 Returns the total amount of time this method waited for other threads. */
-static VALUE
-prof_measurement_wait_time(VALUE self)
+static VALUE prof_measurement_wait_time(VALUE self)
 {
     prof_measurement_t* result = prof_get_measurement(self);
 
@@ -158,10 +149,9 @@ prof_measurement_wait_time(VALUE self)
    called -> int
 
 Returns the total amount of times this method was called. */
-static VALUE
-prof_measurement_called(VALUE self)
+static VALUE prof_measurement_called(VALUE self)
 {
-    prof_measurement_t *result = prof_get_measurement(self);
+    prof_measurement_t* result = prof_get_measurement(self);
     return INT2NUM(result->called);
 }
 
@@ -169,10 +159,9 @@ prof_measurement_called(VALUE self)
    called=n -> n
 
 Sets the call count to n. */
-static VALUE
-prof_measurement_set_called(VALUE self, VALUE called)
+static VALUE prof_measurement_set_called(VALUE self, VALUE called)
 {
-    prof_measurement_t *result = prof_get_measurement(self);
+    prof_measurement_t* result = prof_get_measurement(self);
     result->called = NUM2INT(called);
     return called;
 }

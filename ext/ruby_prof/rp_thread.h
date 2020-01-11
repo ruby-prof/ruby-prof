@@ -7,7 +7,7 @@
 #include "ruby_prof.h"
 #include "rp_stack.h"
 
-/* Profiling information for a thread. */
+   /* Profiling information for a thread. */
 typedef struct
 {
     // Runtime
@@ -23,13 +23,13 @@ typedef struct
 } thread_data_t;
 
 void rp_init_thread(void);
-st_table * threads_table_create(void);
-thread_data_t *threads_table_lookup(void *profile, VALUE fiber);
-thread_data_t* threads_table_insert(void *profile, VALUE fiber);
-void switch_thread(void *profile, thread_data_t *thread_data, double measurement);
-void threads_table_free(st_table *table);
-VALUE prof_thread_wrap(thread_data_t *thread);
-void prof_thread_mark(void *data);
+st_table* threads_table_create(void);
+thread_data_t* threads_table_lookup(void* profile, VALUE fiber);
+thread_data_t* threads_table_insert(void* profile, VALUE fiber);
+void switch_thread(void* profile, thread_data_t* thread_data, double measurement);
+void threads_table_free(st_table* table);
+VALUE prof_thread_wrap(thread_data_t* thread);
+void prof_thread_mark(void* data);
 int pause_thread(st_data_t key, st_data_t value, st_data_t data);
 int unpause_thread(st_data_t key, st_data_t value, st_data_t data);
 

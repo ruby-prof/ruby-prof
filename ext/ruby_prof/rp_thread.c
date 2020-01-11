@@ -1,21 +1,21 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-/* Document-class: RubyProf::Thread
+   /* Document-class: RubyProf::Thread
 
-The Thread class contains profile results for a single fiber (note a Ruby thread can run multiple fibers).
-You cannot create an instance of RubyProf::Thread, instead you access it from a RubyProf::Profile object.
+   The Thread class contains profile results for a single fiber (note a Ruby thread can run multiple fibers).
+   You cannot create an instance of RubyProf::Thread, instead you access it from a RubyProf::Profile object.
 
-  profile = RubyProf::Profile.profile do
-              ...
-            end
+     profile = RubyProf::Profile.profile do
+                 ...
+               end
 
-  profile.threads.each do |thread|
-    thread.root_methods.sort.each do |method|
-      puts method.total_time
-    end
-  end
-*/
+     profile.threads.each do |thread|
+       thread.root_methods.sort.each do |method|
+         puts method.total_time
+       end
+     end
+   */
 
 #include "rp_thread.h"
 #include "rp_profile.h"
@@ -23,8 +23,7 @@ You cannot create an instance of RubyProf::Thread, instead you access it from a 
 VALUE cRpThread;
 
 /* ======   thread_data_t  ====== */
-thread_data_t*
-thread_data_create(void)
+thread_data_t* thread_data_create(void)
 {
     thread_data_t* result = ALLOC(thread_data_t);
     result->stack = prof_stack_create();
@@ -38,8 +37,7 @@ thread_data_create(void)
     return result;
 }
 
-static void
-prof_thread_free(thread_data_t* thread_data)
+static void prof_thread_free(thread_data_t* thread_data)
 {
     /* Has this method object been accessed by Ruby?  If
        yes then set its data to nil to avoid a segmentation fault on the next mark and sweep. */
@@ -50,7 +48,7 @@ prof_thread_free(thread_data_t* thread_data)
         RDATA(thread_data->object)->data = NULL;
         thread_data->object = Qnil;
     }
-    
+
     method_table_free(thread_data->method_table);
     prof_stack_free(thread_data->stack);
 
@@ -58,43 +56,39 @@ prof_thread_free(thread_data_t* thread_data)
     xfree(thread_data);
 }
 
-static int
-mark_methods(st_data_t key, st_data_t value, st_data_t result)
+static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
 {
-    prof_method_t *method = (prof_method_t *) value;
+    prof_method_t* method = (prof_method_t*)value;
     prof_method_mark(method);
     return ST_CONTINUE;
 }
 
-size_t
-prof_thread_size(const void *data)
+size_t prof_thread_size(const void* data)
 {
     return sizeof(prof_call_info_t);
 }
 
-void
-prof_thread_mark(void *data)
+void prof_thread_mark(void* data)
 {
-    thread_data_t *thread = (thread_data_t*)data;
-    
+    thread_data_t* thread = (thread_data_t*)data;
+
     if (thread->object != Qnil)
         rb_gc_mark(thread->object);
-    
+
     if (thread->methods != Qnil)
         rb_gc_mark(thread->methods);
-    
+
     if (thread->fiber_id != Qnil)
         rb_gc_mark(thread->fiber_id);
-    
+
     if (thread->thread_id != Qnil)
         rb_gc_mark(thread->thread_id);
-    
+
     st_foreach(thread->method_table, mark_methods, 0);
 }
 
 
-VALUE
-prof_thread_wrap(thread_data_t *thread)
+VALUE prof_thread_wrap(thread_data_t* thread)
 {
     if (thread->object == Qnil)
     {
@@ -103,16 +97,14 @@ prof_thread_wrap(thread_data_t *thread)
     return thread->object;
 }
 
-static VALUE
-prof_thread_allocate(VALUE klass)
+static VALUE prof_thread_allocate(VALUE klass)
 {
     thread_data_t* thread_data = thread_data_create();
     thread_data->object = prof_thread_wrap(thread_data);
     return thread_data->object;
 }
 
-static thread_data_t*
-prof_get_thread(VALUE self)
+static thread_data_t* prof_get_thread(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
@@ -127,30 +119,26 @@ prof_get_thread(VALUE self)
 /* The thread table is hash keyed on ruby thread_id that stores instances
    of thread_data_t. */
 
-st_table *
-threads_table_create()
+st_table* threads_table_create()
 {
     return st_init_numtable();
 }
 
-static int
-thread_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
+static int thread_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
     prof_thread_free((thread_data_t*)value);
     return ST_CONTINUE;
 }
 
-void
-threads_table_free(st_table *table)
+void threads_table_free(st_table* table)
 {
     st_foreach(table, thread_table_free_iterator, 0);
     st_free_table(table);
 }
 
-thread_data_t *
-threads_table_lookup(void *prof, VALUE fiber)
+thread_data_t* threads_table_lookup(void* prof, VALUE fiber)
 {
-    prof_profile_t *profile = prof;
+    prof_profile_t* profile = prof;
     thread_data_t* result = NULL;
     st_data_t val;
 
@@ -162,11 +150,10 @@ threads_table_lookup(void *prof, VALUE fiber)
     return result;
 }
 
-thread_data_t*
-threads_table_insert(void *prof, VALUE fiber)
+thread_data_t* threads_table_insert(void* prof, VALUE fiber)
 {
-    prof_profile_t *profile = prof;
-    thread_data_t *result = thread_data_create();
+    prof_profile_t* profile = prof;
+    thread_data_t* result = thread_data_create();
     VALUE thread = rb_thread_current();
 
     result->fiber = fiber;
@@ -177,7 +164,7 @@ threads_table_insert(void *prof, VALUE fiber)
     // Are we tracing this thread?
     if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, thread, 0))
     {
-        result->trace= false;
+        result->trace = false;
     }
     else if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, thread, 0))
     {
@@ -187,20 +174,19 @@ threads_table_insert(void *prof, VALUE fiber)
     {
         result->trace = true;
     }
-    
+
     return result;
 }
 
-void
-switch_thread(void *prof, thread_data_t *thread_data, double measurement)
+void switch_thread(void* prof, thread_data_t* thread_data, double measurement)
 {
-    prof_profile_t *profile = prof;
+    prof_profile_t* profile = prof;
 
     /* Get current frame for this thread */
     prof_frame_t* frame = thread_data->stack->ptr;
     frame->wait_time += measurement - frame->switch_time;
     frame->switch_time = measurement;
- 
+
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
     if (profile->last_thread_data)
@@ -215,7 +201,7 @@ switch_thread(void *prof, thread_data_t *thread_data, double measurement)
 
 int pause_thread(st_data_t key, st_data_t value, st_data_t data)
 {
-    thread_data_t* thread_data = (thread_data_t *) value;
+    thread_data_t* thread_data = (thread_data_t*)value;
     prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = thread_data->stack->ptr;
@@ -226,7 +212,7 @@ int pause_thread(st_data_t key, st_data_t value, st_data_t data)
 
 int unpause_thread(st_data_t key, st_data_t value, st_data_t data)
 {
-    thread_data_t* thread_data = (thread_data_t *) value;
+    thread_data_t* thread_data = (thread_data_t*)value;
     prof_profile_t* profile = (prof_profile_t*)data;
 
     prof_frame_t* frame = thread_data->stack->ptr;
@@ -235,17 +221,16 @@ int unpause_thread(st_data_t key, st_data_t value, st_data_t data)
     return ST_CONTINUE;
 }
 
-static int
-collect_methods(st_data_t key, st_data_t value, st_data_t result)
+static int collect_methods(st_data_t key, st_data_t value, st_data_t result)
 {
     /* Called for each method stored in a thread's method table.
        We want to store the method info information into an array.*/
-    VALUE methods = (VALUE) result;
-    prof_method_t *method = (prof_method_t *) value;
+    VALUE methods = (VALUE)result;
+    prof_method_t* method = (prof_method_t*)value;
 
     if (!method->excluded)
     {
-      rb_ary_push(methods, prof_method_wrap(method));
+        rb_ary_push(methods, prof_method_wrap(method));
     }
 
     return ST_CONTINUE;
@@ -255,8 +240,7 @@ collect_methods(st_data_t key, st_data_t value, st_data_t result)
    id -> number
 
 Returns the thread id of this thread. */
-static VALUE
-prof_thread_id(VALUE self)
+static VALUE prof_thread_id(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
     return thread->thread_id;
@@ -266,8 +250,7 @@ prof_thread_id(VALUE self)
    fiber_id -> number
 
 Returns the fiber id of this thread. */
-static VALUE
-prof_fiber_id(VALUE self)
+static VALUE prof_fiber_id(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
     return thread->fiber_id;
@@ -277,8 +260,7 @@ prof_fiber_id(VALUE self)
    call_info -> CallInfo
 
 Returns the root of the call tree. */
-static VALUE
-prof_call_info(VALUE self)
+static VALUE prof_call_info(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
     return prof_call_info_wrap(thread->call_info);
@@ -289,8 +271,7 @@ prof_call_info(VALUE self)
 
 Returns an array of methods that were called from this
 thread during program execution. */
-static VALUE
-prof_thread_methods(VALUE self)
+static VALUE prof_thread_methods(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
     if (thread->methods == Qnil)
@@ -302,8 +283,7 @@ prof_thread_methods(VALUE self)
 }
 
 /* :nodoc: */
-static VALUE
-prof_thread_dump(VALUE self)
+static VALUE prof_thread_dump(VALUE self)
 {
     thread_data_t* thread_data = DATA_PTR(self);
 
@@ -315,8 +295,7 @@ prof_thread_dump(VALUE self)
 }
 
 /* :nodoc: */
-static VALUE
-prof_thread_load(VALUE self, VALUE data)
+static VALUE prof_thread_load(VALUE self, VALUE data)
 {
     thread_data_t* thread_data = DATA_PTR(self);
     thread_data->object = self;
@@ -327,7 +306,7 @@ prof_thread_load(VALUE self, VALUE data)
     for (int i = 0; i < rb_array_len(methods); i++)
     {
         VALUE method = rb_ary_entry(methods, i);
-        prof_method_t *method_data = DATA_PTR(method);
+        prof_method_t* method_data = DATA_PTR(method);
         method_table_insert(thread_data->method_table, method_data->key, method_data);
     }
 

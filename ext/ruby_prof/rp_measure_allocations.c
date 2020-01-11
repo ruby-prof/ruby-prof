@@ -8,14 +8,12 @@
 static VALUE cMeasureAllocations;
 VALUE total_allocated_objects_key;
 
-static double
-measure_allocations_via_gc_stats(rb_trace_arg_t* trace_arg)
+static double measure_allocations_via_gc_stats(rb_trace_arg_t* trace_arg)
 {
     return rb_gc_stat(total_allocated_objects_key);
 }
 
-static double
-measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)
+static double measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)
 {
     static double result = 0;
 
@@ -30,17 +28,17 @@ measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)
 
 prof_measurer_t* prof_measurer_allocations(bool track_allocations)
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->mode = MEASURE_ALLOCATIONS;
-  measure->multiplier = 1;
-  measure->track_allocations = track_allocations;
+    prof_measurer_t* measure = ALLOC(prof_measurer_t);
+    measure->mode = MEASURE_ALLOCATIONS;
+    measure->multiplier = 1;
+    measure->track_allocations = track_allocations;
 
-  if (track_allocations)
-      measure->measure = measure_allocations_via_tracing;
-  else
-      measure->measure = measure_allocations_via_gc_stats;
+    if (track_allocations)
+        measure->measure = measure_allocations_via_tracing;
+    else
+        measure->measure = measure_allocations_via_gc_stats;
 
-  return measure;
+    return measure;
 }
 
 void rp_init_measure_allocations()

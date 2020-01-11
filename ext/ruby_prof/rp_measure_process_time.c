@@ -6,8 +6,7 @@
 
 static VALUE cMeasureProcessTime;
 
-static double
-measure_process_time(rb_trace_arg_t* trace_arg)
+static double measure_process_time(rb_trace_arg_t* trace_arg)
 {
 #if defined(_WIN32)
     FILETIME  createTime;
@@ -29,16 +28,15 @@ measure_process_time(rb_trace_arg_t* trace_arg)
 #elif !defined(CLOCK_PROCESS_CPUTIME_ID)
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);
-    return usage.ru_stime.tv_sec + usage.ru_utime.tv_sec + ((usage.ru_stime.tv_usec + usage.ru_utime.tv_usec)/1000000.0);
+    return usage.ru_stime.tv_sec + usage.ru_utime.tv_sec + ((usage.ru_stime.tv_usec + usage.ru_utime.tv_usec) / 1000000.0);
 #else
     struct timespec clock;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID , &clock);
-    return clock.tv_sec + (clock.tv_nsec/1000000000.0);
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &clock);
+    return clock.tv_sec + (clock.tv_nsec / 1000000000.0);
 #endif
 }
 
-static double
-multiplier_process_time(void)
+static double multiplier_process_time(void)
 {
 #if defined(_WIN32)
     // Times are in 100-nanosecond time units.  So instead of 10-9 use 10-7
@@ -50,12 +48,12 @@ multiplier_process_time(void)
 
 prof_measurer_t* prof_measurer_process_time(bool track_allocations)
 {
-  prof_measurer_t* measure = ALLOC(prof_measurer_t);
-  measure->mode = MEASURE_PROCESS_TIME;
-  measure->measure = measure_process_time;
-  measure->multiplier = multiplier_process_time();
-  measure->track_allocations = track_allocations;
-  return measure;
+    prof_measurer_t* measure = ALLOC(prof_measurer_t);
+    measure->mode = MEASURE_PROCESS_TIME;
+    measure->measure = measure_process_time;
+    measure->multiplier = multiplier_process_time();
+    measure->track_allocations = track_allocations;
+    return measure;
 }
 
 void rp_init_measure_process_time()

@@ -23,15 +23,15 @@ prof_call_infos_t* prof_get_call_infos(VALUE self)
 
 prof_call_infos_t* prof_call_infos_create()
 {
-   prof_call_infos_t *result = ALLOC(prof_call_infos_t);
-   result->start = ALLOC_N(prof_call_info_t*, INITIAL_CALL_INFOS_SIZE);
-   result->end = result->start + INITIAL_CALL_INFOS_SIZE;
-   result->ptr = result->start;
-   result->object = Qnil;
-   return result;
+    prof_call_infos_t* result = ALLOC(prof_call_infos_t);
+    result->start = ALLOC_N(prof_call_info_t*, INITIAL_CALL_INFOS_SIZE);
+    result->end = result->start + INITIAL_CALL_INFOS_SIZE;
+    result->ptr = result->start;
+    result->object = Qnil;
+    return result;
 }
 
-void prof_call_infos_mark(prof_call_infos_t *call_infos)
+void prof_call_infos_mark(prof_call_infos_t* call_infos)
 {
     if (call_infos->object)
         rb_gc_mark(call_infos->object);
@@ -45,7 +45,7 @@ void prof_call_infos_mark(prof_call_infos_t *call_infos)
 
 static int prof_call_infos_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
 {
-  //  prof_call_info_free((prof_call_info_t*)value);
+    //  prof_call_info_free((prof_call_info_t*)value);
     return ST_CONTINUE;
 }
 
@@ -55,7 +55,7 @@ void prof_call_infos_table_free(st_table* table)
     st_free_table(table);
 }
 
-void prof_call_infos_free(prof_call_infos_t *call_infos)
+void prof_call_infos_free(prof_call_infos_t* call_infos)
 {
     prof_call_info_t** call_info;
 
@@ -196,7 +196,7 @@ VALUE prof_call_infos_callers(VALUE self)
                              {
                                  size = st_values(callers, ptr, size);
                              });
-        
+
     rb_ary_set_len(values, size);
 
     st_free_table(callers);

@@ -20,7 +20,7 @@ class PrintersTest < TestCase
   def test_printers
     output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new('')
 
-    printer = RubyProf::CallInfoPrinter.new(@result)
+    printer = RubyProf::CallTreePrinter.new(@result)
     printer.print(output)
 
     printer = RubyProf::CallTreePrinter.new(@result)

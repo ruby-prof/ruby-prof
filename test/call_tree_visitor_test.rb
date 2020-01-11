@@ -2,6 +2,7 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
+require_relative './measure_times'
 
 class CallTreeVisitorTest < TestCase
   def setup
@@ -23,7 +24,7 @@ class CallTreeVisitorTest < TestCase
     end
 
     assert_equal(3, method_names.length)
-    assert_equal("CallInfoVisitorTest#test_visit", method_names[0])
+    assert_equal("CallTreeVisitorTest#test_visit", method_names[0])
     assert_equal("<Class::RubyProf::C1>#sleep_wait", method_names[1])
     assert_equal("Kernel#sleep", method_names[2])
   end

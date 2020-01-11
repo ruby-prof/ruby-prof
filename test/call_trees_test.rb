@@ -21,32 +21,32 @@ class CallTreesTest < TestCase
     assert_equal(3, thread.methods.length)
 
     method = thread.methods[0]
-    assert_equal('CallInfosTest#test_call_infos', method.full_name)
+    assert_equal('CallTreesTest#test_call_infos', method.full_name)
 
     call_trees = method.call_trees
     assert_empty(call_trees.callers)
     assert_equal(1, call_trees.callees.length)
     assert_kind_of(RubyProf::AggregateCallTree, call_trees.callees[0])
-    assert_equal('CallInfosTest#some_method_1', call_trees.callees[0].target.full_name)
+    assert_equal('CallTreesTest#some_method_1', call_trees.callees[0].target.full_name)
 
     method = thread.methods[1]
-    assert_equal('CallInfosTest#some_method_1', method.full_name)
+    assert_equal('CallTreesTest#some_method_1', method.full_name)
 
     call_trees = method.call_trees
     assert_equal(1, call_trees.callers.length)
     assert_kind_of(RubyProf::AggregateCallTree, call_trees.callers[0])
-    assert_equal('CallInfosTest#test_call_infos', call_trees.callers[0].parent.target.full_name)
+    assert_equal('CallTreesTest#test_call_infos', call_trees.callers[0].parent.target.full_name)
     assert_equal(1, call_trees.callees.length)
     assert_kind_of(RubyProf::AggregateCallTree, call_trees.callees[0])
-    assert_equal('CallInfosTest#some_method_2', call_trees.callees[0].target.full_name)
+    assert_equal('CallTreesTest#some_method_2', call_trees.callees[0].target.full_name)
 
     method = thread.methods[2]
-    assert_equal('CallInfosTest#some_method_2', method.full_name)
+    assert_equal('CallTreesTest#some_method_2', method.full_name)
 
     call_trees = method.call_trees
     assert_equal(1, call_trees.callers.length)
     assert_kind_of(RubyProf::AggregateCallTree, call_trees.callers[0])
-    assert_equal('CallInfosTest#some_method_1', call_trees.callers[0].parent.target.full_name)
+    assert_equal('CallTreesTest#some_method_1', call_trees.callers[0].parent.target.full_name)
     assert_empty(call_trees.callees)
   end
 

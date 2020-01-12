@@ -384,8 +384,12 @@ static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
 static void prof_mark(prof_profile_t* profile)
 {
     rb_gc_mark(profile->tracepoints);
-    st_foreach(profile->threads_tbl, mark_threads, 0);
-    st_foreach(profile->exclude_methods_tbl, mark_methods, 0);
+
+    if (profile->threads_tbl)
+        st_foreach(profile->threads_tbl, mark_threads, 0);
+
+    if (profile->exclude_methods_tbl)
+        st_foreach(profile->exclude_methods_tbl, mark_methods, 0);
 }
 
 /* Freeing the profile creates a cascade of freeing.
@@ -625,6 +629,7 @@ static VALUE prof_start(VALUE self)
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
+    trace_file_name = "c:\\temp\\trace.txt";
 
     if (trace_file_name != NULL)
     {

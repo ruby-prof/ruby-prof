@@ -3,7 +3,7 @@
 
 #include "rp_stack.h"
 
-#define INITIAL_STACK_SIZE 32
+#define INITIAL_STACK_SIZE 16
 
 void prof_frame_pause(prof_frame_t* frame, double current_measurement)
 {

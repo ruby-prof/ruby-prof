@@ -65,13 +65,6 @@ static int prof_call_tree_collect_call_trees(st_data_t key, st_data_t value, st_
     return ST_CONTINUE;
 }
 
-static int prof_call_tree_mark_children(st_data_t key, st_data_t value, st_data_t data)
-{
-    prof_call_tree_t* call_tree = (prof_call_tree_t*)value;
-    prof_call_tree_mark(call_tree);
-    return ST_CONTINUE;
-}
-
 void prof_call_tree_mark(void* data)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;

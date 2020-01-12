@@ -7,7 +7,7 @@
 #include "ruby_prof.h"
 #include "rp_call_tree.h"
 
-void rp_init_aggregate_tree_info(void);
+void rp_init_aggregate_call_tree(void);
 VALUE prof_aggregate_call_tree_wrap(prof_call_tree_t* call_tree);
 
 #endif //__RP_AGGREGATE_CALL_TREE_H__

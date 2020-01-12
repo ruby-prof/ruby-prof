@@ -131,6 +131,25 @@ VALUE prof_call_trees_allocate(VALUE klass)
     return call_trees_data->object;
 }
 
+
+/* call-seq:
+   min_depth -> Integer
+
+Returns the minimum depth of this method in any call tree */
+VALUE prof_call_trees_min_depth(VALUE self)
+{
+    unsigned int depth = INT_MAX;
+
+    prof_call_trees_t* call_trees = prof_get_call_trees(self);
+    for (prof_call_tree_t** p_call_tree = call_trees->start; p_call_tree < call_trees->ptr; p_call_tree++)
+    {
+        if ((*p_call_tree)->depth < depth)
+            depth = (*p_call_tree)->depth;
+    }
+
+    return UINT2NUM(depth);
+}
+
 /* call-seq:
    callers -> array
 
@@ -233,6 +252,8 @@ void rp_init_call_trees()
     cRpCallTrees = rb_define_class_under(mProf, "CallTrees", rb_cData);
     rb_undef_method(CLASS_OF(cRpCallTrees), "new");
     rb_define_alloc_func(cRpCallTrees, prof_call_trees_allocate);
+
+    rb_define_method(cRpCallTrees, "min_depth", prof_call_trees_min_depth, 0);
 
     rb_define_method(cRpCallTrees, "call_trees", prof_call_trees_call_trees, 0);
     rb_define_method(cRpCallTrees, "callers", prof_call_trees_callers, 0);

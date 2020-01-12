@@ -52,15 +52,6 @@ module RubyProf
       self.total_time - self.self_time - self.wait_time
     end
 
-    # The min call depth of this method
-    def min_depth
-      @min_depth ||= if self.call_trees.callers.empty?
-                       0
-                     else
-                       self.call_trees.callers.map(&:depth).min
-                     end
-    end
-
     # :enddoc:
     def <=>(other)
       if other == nil
@@ -71,9 +62,9 @@ module RubyProf
         -1
       elsif self.total_time > other.total_time
         1
-      elsif self.min_depth < other.min_depth
+      elsif self.call_trees.min_depth < other.call_trees.min_depth
         1
-      elsif self.min_depth > other.min_depth
+      elsif self.call_trees.min_depth > other.call_trees.min_depth
         -1
       else
         self.full_name <=> other.full_name

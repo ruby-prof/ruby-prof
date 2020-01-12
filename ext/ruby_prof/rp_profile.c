@@ -384,9 +384,10 @@ static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
 static void prof_mark(prof_profile_t* profile)
 {
     rb_gc_mark(profile->tracepoints);
-
-    if (profile->threads_tbl)
-        st_foreach(profile->threads_tbl, mark_threads, 0);
+    rb_gc_mark(profile->running);
+    rb_gc_mark(profile->paused);
+    rb_gc_mark(profile->tracepoints);
+    st_foreach(profile->threads_tbl, mark_threads, 0);
 
     if (profile->exclude_methods_tbl)
         st_foreach(profile->exclude_methods_tbl, mark_methods, 0);

@@ -16,7 +16,6 @@ typedef struct
     VALUE paused;
 
     prof_measurer_t* measurer;
-    VALUE threads;
 
     VALUE tracepoints;
 

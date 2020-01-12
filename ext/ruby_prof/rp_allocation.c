@@ -76,7 +76,11 @@ prof_allocation_t* prof_allocate_increment(prof_method_t* method, rb_trace_arg_t
 static void prof_allocation_ruby_gc_free(void* data)
 {
     prof_allocation_t* allocation = (prof_allocation_t*)data;
+    allocation->object = Qnil;
+}
 
+void prof_allocation_free(prof_allocation_t* allocation)
+{
     /* Has this allocation object been accessed by Ruby?  If
        yes clean it up so to avoid a segmentation fault. */
     if (allocation->object != Qnil)
@@ -86,11 +90,7 @@ static void prof_allocation_ruby_gc_free(void* data)
         RDATA(allocation->object)->data = NULL;
         allocation->object = Qnil;
     }
-}
 
-void prof_allocation_free(prof_allocation_t* allocation)
-{
-    prof_allocation_ruby_gc_free(allocation);
     xfree(allocation);
 }
 
@@ -107,9 +107,6 @@ void prof_allocation_mark(void* data)
 
     if (allocation->klass_name != Qnil)
         rb_gc_mark(allocation->klass_name);
-
-    if (allocation->object != Qnil)
-        rb_gc_mark(allocation->object);
 
     if (allocation->source_file != Qnil)
         rb_gc_mark(allocation->source_file);

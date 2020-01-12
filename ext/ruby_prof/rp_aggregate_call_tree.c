@@ -11,6 +11,8 @@ void prof_aggregate_call_tree_mark(void* data)
 
     if (call_tree->source_file != Qnil)
         rb_gc_mark(call_tree->source_file);
+
+    prof_measurement_mark(call_tree->measurement);
 }
 
 static void prof_aggregate_call_tree_ruby_gc_free(void* data)

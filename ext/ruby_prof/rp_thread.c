@@ -1,28 +1,27 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-   /* Document-class: RubyProf::Thread
+/* Document-class: RubyProf::Thread
 
-   The Thread class contains profile results for a single fiber (note a Ruby thread can run multiple fibers).
-   You cannot create an instance of RubyProf::Thread, instead you access it from a RubyProf::Profile object.
+The Thread class contains profile results for a single fiber (note a Ruby thread can run multiple fibers).
+You cannot create an instance of RubyProf::Thread, instead you access it from a RubyProf::Profile object.
 
-     profile = RubyProf::Profile.profile do
-                 ...
-               end
+  profile = RubyProf::Profile.profile do
+              ...
+            end
 
-     profile.threads.each do |thread|
-       thread.root_methods.sort.each do |method|
-         puts method.total_time
-       end
-     end
-   */
+  profile.threads.each do |thread|
+    thread.root_methods.sort.each do |method|
+      puts method.total_time
+    end
+  end */
 
 #include "rp_thread.h"
 #include "rp_profile.h"
 
 VALUE cRpThread;
 
-/* ======   thread_data_t  ====== */
+// ======   thread_data_t  ====== 
 thread_data_t* thread_data_create(void)
 {
     thread_data_t* result = ALLOC(thread_data_t);
@@ -36,24 +35,6 @@ thread_data_t* thread_data_create(void)
     result->trace = true;
     result->fiber = Qnil;
     return result;
-}
-
-static void prof_thread_free(thread_data_t* thread_data)
-{
-    /* Has this method object been accessed by Ruby?  If
-       yes then set its data to nil to avoid a segmentation fault on the next mark and sweep. */
-    if (thread_data->object != Qnil)
-    {
-        RDATA(thread_data->object)->dmark = NULL;
-        RDATA(thread_data->object)->dfree = NULL;
-        RDATA(thread_data->object)->data = NULL;
-    }
-
-    method_table_free(thread_data->method_table);
-    prof_call_tree_free(thread_data->call_tree);
-    prof_stack_free(thread_data->stack);
-
-    xfree(thread_data);
 }
 
 static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
@@ -84,12 +65,35 @@ void prof_thread_mark(void* data)
     st_foreach(thread->method_table, mark_methods, 0);
 }
 
+void prof_thread_ruby_gc_free(void* data)
+{
+    thread_data_t* thread_data = (thread_data_t*)data;
+    thread_data->object = Qnil;
+}
+
+static void prof_thread_free(thread_data_t* thread_data)
+{
+    /* Has this method object been accessed by Ruby?  If
+       yes then set its data to nil to avoid a segmentation fault on the next mark and sweep. */
+    if (thread_data->object != Qnil)
+    {
+        RDATA(thread_data->object)->dmark = NULL;
+        RDATA(thread_data->object)->dfree = NULL;
+        RDATA(thread_data->object)->data = NULL;
+    }
+
+    method_table_free(thread_data->method_table);
+    prof_call_tree_free(thread_data->call_tree);
+    prof_stack_free(thread_data->stack);
+
+    xfree(thread_data);
+}
 
 VALUE prof_thread_wrap(thread_data_t* thread)
 {
     if (thread->object == Qnil)
     {
-        thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, NULL, thread);
+        thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, prof_thread_ruby_gc_free, thread);
     }
     return thread->object;
 }

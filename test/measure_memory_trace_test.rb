@@ -35,14 +35,8 @@ class MeasureMemoryTraceTest < TestCase
       assert_equal(0.0, method.self_time)
       assert_in_delta(800, method.children_time, 1)
 
-      assert_equal(1, method.call_trees.callers.length)
-      call_tree = method.call_trees.callers[0]
-      assert_nil(call_tree.parent)
-      assert_equal(800, call_tree.total_time)
-      assert_equal(0.0, call_tree.wait_time)
-      assert_equal(0.0, call_tree.self_time)
-      assert_equal(800, call_tree.children_time)
-
+      assert_equal(0, method.call_trees.callers.length)
+  
       assert_equal(2, method.call_trees.callees.length)
       call_tree = method.call_trees.callees[0]
       assert_equal('Class#new', call_tree.target.full_name)

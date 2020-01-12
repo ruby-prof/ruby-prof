@@ -112,7 +112,6 @@ module RubyProf
 
     def graph_link(call_tree)
       total_calls = call_tree.target.called
-      href = "#{method_href(call_tree.target)}"
       totals = total_calls.to_s
       "[#{call_tree.called} calls, #{totals} total]"
     end

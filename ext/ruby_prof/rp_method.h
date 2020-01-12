@@ -54,7 +54,7 @@ prof_method_t* method_table_lookup(st_table* table, st_data_t key);
 size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val);
 void method_table_free(st_table* table);
 prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line);
-prof_method_t* prof_method_get(VALUE self);
+prof_method_t* prof_get_method(VALUE self);
 
 VALUE prof_method_wrap(prof_method_t* result);
 void prof_method_mark(void* data);

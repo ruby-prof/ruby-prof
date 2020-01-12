@@ -289,7 +289,7 @@ static VALUE prof_call_tree_load(VALUE self, VALUE data)
     }
 
     target = rb_hash_aref(data, ID2SYM(rb_intern("target")));
-    call_tree->method = prof_method_get(target);
+    call_tree->method = prof_get_method(target);
 
     return data;
 }

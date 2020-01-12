@@ -134,7 +134,7 @@ void allocations_table_free(st_table* table)
 }
 
 /* ================  prof_method_t   =================*/
-static prof_method_t* prof_get_method(VALUE self)
+prof_method_t* prof_get_method(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
@@ -246,20 +246,6 @@ VALUE prof_method_wrap(prof_method_t* method)
     return method->object;
 }
 
-prof_method_t* prof_method_get(VALUE self)
-{
-    /* Can't use Data_Get_Struct because that triggers the event hook
-       ending up in endless recursion. */
-    prof_method_t* result = DATA_PTR(self);
-
-    if (!result)
-    {
-        rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
-    }
-
-    return result;
-}
-
 st_table* method_table_create()
 {
     return st_init_numtable();
@@ -334,7 +320,7 @@ return the source file of the method
 */
 static VALUE prof_method_source_file(VALUE self)
 {
-    prof_method_t* method = prof_method_get(self);
+    prof_method_t* method = prof_get_method(self);
     return method->source_file;
 }
 
@@ -344,7 +330,7 @@ static VALUE prof_method_source_file(VALUE self)
    returns the line number of the method */
 static VALUE prof_method_line(VALUE self)
 {
-    prof_method_t* method = prof_method_get(self);
+    prof_method_t* method = prof_get_method(self);
     return INT2FIX(method->source_line);
 }
 
@@ -356,7 +342,7 @@ will have the form <Object::Object>. */
 
 static VALUE prof_method_klass_name(VALUE self)
 {
-    prof_method_t* method = prof_method_get(self);
+    prof_method_t* method = prof_get_method(self);
     if (method->klass_name == Qnil)
         method->klass_name = resolve_klass_name(method->klass, &method->klass_flags);
 
@@ -370,7 +356,7 @@ Returns the klass flags */
 
 static VALUE prof_method_klass_flags(VALUE self)
 {
-    prof_method_t* method = prof_method_get(self);
+    prof_method_t* method = prof_get_method(self);
     return INT2FIX(method->klass_flags);
 }
 
@@ -382,7 +368,7 @@ methods will be returned in the format <Object::Object>#method.*/
 
 static VALUE prof_method_name(VALUE self)
 {
-    prof_method_t* method = prof_method_get(self);
+    prof_method_t* method = prof_get_method(self);
     return method->method_name;
 }
 
@@ -392,7 +378,7 @@ static VALUE prof_method_name(VALUE self)
    Returns the true if this method is recursively invoked */
 static VALUE prof_method_recursive(VALUE self)
 {
-    prof_method_t* method = prof_method_get(self);
+    prof_method_t* method = prof_get_method(self);
     return method->recursive ? Qtrue : Qfalse;
 }
 
@@ -402,7 +388,7 @@ static VALUE prof_method_recursive(VALUE self)
    Returns the true if this method was excluded */
 static VALUE prof_method_excluded(VALUE self)
 {
-    prof_method_t* method = prof_method_get(self);
+    prof_method_t* method = prof_get_method(self);
     return method->excluded ? Qtrue : Qfalse;
 }
 

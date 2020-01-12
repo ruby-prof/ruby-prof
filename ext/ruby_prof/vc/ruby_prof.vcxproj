@@ -110,6 +110,7 @@
       <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby-2.6.5vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>x64-vcruntime140-ruby260.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>ruby_prof.def</ModuleDefinitionFile>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

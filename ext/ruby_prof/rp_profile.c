@@ -265,8 +265,10 @@ static void prof_event_hook(VALUE trace_point, void* data)
         if (!frame->call_tree)
         {
             call_tree = prof_call_tree_create(method, NULL, method->source_file, method->source_line);
-            thread_data->call_tree = call_tree;
             prof_add_call_tree(method->call_trees, call_tree);
+
+            if (!thread_data->call_tree)
+                thread_data->call_tree = call_tree;
         }
         else
         {
@@ -623,6 +625,7 @@ static VALUE prof_start(VALUE self)
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
+
     if (trace_file_name != NULL)
     {
         if (strcmp(trace_file_name, "stdout") == 0)
@@ -770,7 +773,6 @@ static VALUE prof_profile_object(VALUE self)
     }
 
     return self;
-
 }
 
 /* Document-method: RubyProf::Profile::Profile

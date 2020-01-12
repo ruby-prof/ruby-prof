@@ -4,6 +4,14 @@
 require File.expand_path('../test_helper', __FILE__)
 
 class GcTest < TestCase
+  def setup
+    GC.stress = true
+  end
+
+  def teardown
+    GC.stress = false
+  end
+
   def some_method
     Array.new(3 * 4)
   end
@@ -15,9 +23,9 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_thread
-    threads = 1000.times.reduce(Array.new) do |array, i|
+    GC.stress = true
+    threads = 5.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads)
-      GC.start
       array
     end
 
@@ -31,9 +39,8 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_root_call_info
-    call_trees = 1000.times.reduce(Array.new) do |array, i|
+    call_trees = 5.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads.map(&:call_tree))
-      GC.start
       array
     end
 
@@ -47,9 +54,10 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_method
-    methods = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:methods).flatten)
-      GC.start
+    methods = 5.times.reduce(Array.new) do |array, i|
+      profile = run_profile
+      methods_2 = profile.threads.map(&:methods).flatten
+      array.concat(methods_2)
       array
     end
 
@@ -62,10 +70,11 @@ class GcTest < TestCase
     assert(true)
   end
 
-  def test_hold_onto_call_infos
-    method_call_infos = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:methods).flatten.map(&:call_trees).flatten)
-      GC.start
+  def test_hold_onto_call_trees
+    method_call_infos = 5.times.reduce(Array.new) do |array, i|
+      profile = run_profile
+      call_trees = profile.threads.map(&:methods).flatten.map(&:call_trees).flatten
+      array.concat(call_trees)
       array
     end
 
@@ -79,9 +88,10 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_measurements
-    measurements = 1000.times.reduce(Array.new) do |array, i|
-      array.concat(run_profile.threads.map(&:methods).flatten.map(&:measurement))
-      GC.start
+    measurements = 5.times.reduce(Array.new) do |array, i|
+      profile = run_profile
+      measurements = profile.threads.map(&:methods).flatten.map(&:measurement)
+      array.concat(measurements)
       array
     end
 

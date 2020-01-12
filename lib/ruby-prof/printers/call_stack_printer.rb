@@ -46,7 +46,6 @@ module RubyProf
     def print(output = STDOUT, options = {})
       setup_options(options)
       output << @erb.result(binding)
-      a = 1
     end
 
     # :enddoc:

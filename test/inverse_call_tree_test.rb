@@ -38,21 +38,6 @@ class InverseCallTree < TestCase
       printer.print(file)
     end
 
-    printer = RubyProf::CallStackPrinter.new(profile)
-    File.open('c:/temp/call_stack.html', 'wb') do |file|
-      printer.print(file)
-    end
-
-    printer = RubyProf::GraphHtmlPrinter.new(profile)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
-    printer = RubyProf::GraphPrinter.new(profile)
-    File.open('c:/temp/graph.txt', 'wb') do |file|
-      printer.print(file)
-    end
-
     assert_equal(1, profile.threads.count)
 
     thread = profile.threads.first

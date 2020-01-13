@@ -2,11 +2,7 @@ module RubyProf
   class Thread
     # Returns the total time this thread was executed.
     def total_time
-      # TODO - this is what we should really do but have to fix the climbing out of call tree issue first
-      # self.call_tree.total_time
-      self.methods.reduce(0) do |total, method|
-        total += method.measurement.total_time
-      end
+      self.call_tree.total_time
     end
 
     # Returns the amount of time this thread waited while other thread executed.

@@ -53,6 +53,10 @@ void prof_thread_mark(void* data)
 {
     thread_data_t* thread = (thread_data_t*)data;
 
+    if (thread->object != Qnil)
+        rb_gc_mark(thread->object);
+
+    rb_gc_mark(thread->fiber);
     rb_gc_mark(thread->fiber);
 
     if (thread->methods != Qnil)
@@ -302,14 +306,13 @@ static VALUE prof_thread_dump(VALUE self)
 static VALUE prof_thread_load(VALUE self, VALUE data)
 {
     thread_data_t* thread_data = DATA_PTR(self);
-    thread_data->object = self;
 
     VALUE call_tree = rb_hash_aref(data, ID2SYM(rb_intern("call_tree")));
     thread_data->call_tree = prof_get_call_tree(call_tree);
 
     thread_data->fiber_id = rb_hash_aref(data, ID2SYM(rb_intern("fiber_id")));
-    VALUE methods = rb_hash_aref(data, ID2SYM(rb_intern("methods")));
 
+    VALUE methods = rb_hash_aref(data, ID2SYM(rb_intern("methods")));
     for (int i = 0; i < rb_array_len(methods); i++)
     {
         VALUE method = rb_ary_entry(methods, i);

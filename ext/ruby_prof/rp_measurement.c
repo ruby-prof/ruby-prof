@@ -53,7 +53,10 @@ prof_measurement_t* prof_measurement_create(void)
 
 void prof_measurement_mark(void* data)
 {
-    // nothing to do
+    prof_measurement_t* measurement_data = (prof_measurement_t*)data;
+
+    if (measurement_data->object != Qnil)
+        rb_gc_mark(measurement_data->object);
 }
 
 static void prof_measurement_ruby_gc_free(void* data)

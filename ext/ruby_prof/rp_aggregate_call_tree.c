@@ -9,6 +9,9 @@ void prof_aggregate_call_tree_mark(void* data)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
 
+    if (call_tree->object != Qnil)
+        rb_gc_mark(call_tree->object);
+
     if (call_tree->source_file != Qnil)
         rb_gc_mark(call_tree->source_file);
 

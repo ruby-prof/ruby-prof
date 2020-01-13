@@ -219,6 +219,10 @@ size_t prof_method_size(const void* data)
 void prof_method_mark(void* data)
 {
     prof_method_t* method = (prof_method_t*)data;
+
+    if (method->object != Qnil)
+        rb_gc_mark(method->object);
+
     rb_gc_mark(method->klass_name);
     rb_gc_mark(method->method_name);
     rb_gc_mark(method->source_file);

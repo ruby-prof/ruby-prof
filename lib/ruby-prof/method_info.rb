@@ -74,12 +74,5 @@ module RubyProf
     def to_s
       "#{self.full_name} (c: #{self.called}, tt: #{self.total_time}, st: #{self.self_time}, wt: #{wait_time}, ct: #{self.children_time})"
     end
-
-    # Remove method from the call graph. should not be called directly.
-    def eliminate!
-      # $stderr.puts "eliminating #{self}"
-      callers.each{ |call_tree| call_tree.eliminate! }
-      callers.clear
-    end
   end
 end

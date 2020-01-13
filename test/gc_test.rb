@@ -23,7 +23,6 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_thread
-    GC.stress = true
     threads = 5.times.reduce(Array.new) do |array, i|
       array.concat(run_profile.threads)
       array

@@ -476,8 +476,8 @@ prof_stop_threads(prof_profile_t* profile)
    merge_fibers:      Whether profiling data for a given thread's fibers should all be
                       subsumed under a single entry. Basically only useful to produce
                       callgrind profiles.
-   track_allocations: Whether to track object allocations while profiling
-   exclude_common:    Exclude common methods from the profile
+   track_allocations: Whether to track object allocations while profiling. True or false.
+   exclude_common:    Exclude common methods from the profile. True or false.
    exclude_threads:   Threads to exclude from the profiling results.
    include_threads:   Focus profiling on only the given threads. This will ignore
                       all other threads. */

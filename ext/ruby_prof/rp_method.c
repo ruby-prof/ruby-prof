@@ -175,13 +175,6 @@ prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, in
     return result;
 }
 
-prof_method_t* prof_method_create_excluded(VALUE klass, VALUE msym)
-{
-    prof_method_t* result = prof_method_create(klass, msym, Qnil, 0);
-    result->excluded = 1;
-    return result;
-}
-
 /* The underlying c structures are freed when the parent profile is freed.
    However, on shutdown the Ruby GC frees objects in any will-nilly order.
    That means the ruby thread object wrapping the c thread struct may

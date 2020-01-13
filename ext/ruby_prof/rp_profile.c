@@ -44,19 +44,11 @@ static int excludes_method(st_data_t key, prof_profile_t* profile)
 
 static prof_method_t* create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
-    prof_method_t* result = NULL;
+    prof_method_t* result = prof_method_create(klass, msym, source_file, source_line);
 
     if (excludes_method(key, profile))
     {
-        /* We found a exclusion sentinel so propagate it into the thread's local hash table. */
-        /* TODO(nelgau): Is there a way to avoid this allocation completely so that all these
-         tables share the same exclusion method struct? The first attempt failed due to my
-         ignorance of the whims of the GC. */
-        result = prof_method_create_excluded(klass, msym);
-    }
-    else
-    {
-        result = prof_method_create(klass, msym, source_file, source_line);
+        result->excluded = true;
     }
 
     /* Insert the newly created method, or the exlcusion sentinel. */
@@ -477,17 +469,18 @@ prof_stop_threads(prof_profile_t* profile)
 
    Returns a new profiler. Possible options for the options hash are:
 
-   measure_mode::     Measure mode. Specifies the profile measure mode.
+   measure_mode:      Measure mode. Specifies the profile measure mode.
                       If not specified, defaults to RubyProf::WALL_TIME.
-   exclude_threads::  Threads to exclude from the profiling results.
-   include_threads::  Focus profiling on only the given threads. This will ignore
-                      all other threads.
-   allow_exceptions:: Whether to raise exceptions encountered during profiling,
+   allow_exceptions:  Whether to raise exceptions encountered during profiling,
                       or to suppress all exceptions during profiling
-   merge_fibers::     Whether profiling data for a given thread's fibers should all be
+   merge_fibers:      Whether profiling data for a given thread's fibers should all be
                       subsumed under a single entry. Basically only useful to produce
                       callgrind profiles.
-*/
+   track_allocations: Whether to track object allocations while profiling
+   exclude_common:    Exclude common methods from the profile
+   exclude_threads:   Threads to exclude from the profiling results.
+   include_threads:   Focus profiling on only the given threads. This will ignore
+                      all other threads. */
 static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
 {
     prof_profile_t* profile = prof_get_profile(self);
@@ -810,19 +803,17 @@ static VALUE prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
 {
     prof_profile_t* profile = prof_get_profile(self);
 
-    st_data_t key = method_key(klass, msym);
-    prof_method_t* method;
-
     if (profile->running == Qtrue)
     {
         rb_raise(rb_eRuntimeError, "RubyProf.start was already called");
     }
 
-    method = method_table_lookup(profile->exclude_methods_tbl, key);
+    st_data_t key = method_key(klass, msym);
+    prof_method_t* method = method_table_lookup(profile->exclude_methods_tbl, key);
 
     if (!method)
     {
-        method = prof_method_create_excluded(klass, msym);
+        method = prof_method_create(klass, msym, Qnil, 0);
         method_table_insert(profile->exclude_methods_tbl, method->key, method);
     }
 

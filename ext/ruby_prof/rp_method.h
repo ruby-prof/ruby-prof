@@ -49,7 +49,6 @@ void rp_init_method_info(void);
 st_data_t method_key(VALUE klass, VALUE msym);
 
 st_table* method_table_create(void);
-prof_method_t* prof_method_create_excluded(VALUE klass, VALUE msym);
 prof_method_t* method_table_lookup(st_table* table, st_data_t key);
 size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val);
 void method_table_free(st_table* table);

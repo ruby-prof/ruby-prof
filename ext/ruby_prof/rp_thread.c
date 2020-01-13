@@ -89,7 +89,10 @@ static void prof_thread_free(thread_data_t* thread_data)
     }
 
     method_table_free(thread_data->method_table);
-    prof_call_tree_free(thread_data->call_tree);
+
+    if (thread_data->call_tree)
+        prof_call_tree_free(thread_data->call_tree);
+
     prof_stack_free(thread_data->stack);
 
     xfree(thread_data);

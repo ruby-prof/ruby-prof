@@ -4,8 +4,6 @@
 #
 # Source from http://people.cs.uchicago.edu/~bomb154/154/maclabs/profilers-lab/
 
-require File.expand_path('../test_helper', __FILE__)
-
 def make_random_array(length, maxnum)
   result = Array.new(length)
   result.each_index do |i|
@@ -44,7 +42,7 @@ def find_largest(primes)
   largest
 end
 
-def run_primes(length=10, maxnum=1000)
+def run_primes(length=10, maxnum=1_000)
   # Create random numbers
   random_array = make_random_array(length, maxnum)
 

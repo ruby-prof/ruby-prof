@@ -21,7 +21,7 @@ module RubyProf
     end
 
     def exclude_methods!(mod, *method_or_methods)
-      [method_or_methods].flatten.each do |name|
+      Array(method_or_methods).each do |name|
         exclude_method!(mod, name)
       end
     end

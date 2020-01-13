@@ -84,8 +84,8 @@ module RubyProf
 
         unless call_tree.children.empty?
           output <<  (expanded ? '<ul>' : '<ul style="display:none">')  << "\n"
-          call_tree.children.sort_by{|c| -c.total_time}.each do |child_call_info|
-            print_stack(output, visited, child_call_info, total_time)
+          call_tree.children.sort_by{|c| -c.total_time}.each do |child_call_tree|
+            print_stack(output, visited, child_call_tree, total_time)
           end
           output << '</ul>' << "\n"
         end

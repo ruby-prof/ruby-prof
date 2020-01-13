@@ -5,7 +5,7 @@ module RubyProf
   # parameters, the event and the call_tree instance. Event will be
   # either :enter or :exit.
   #
-  #   visitor = RubyProf::CallInfoVisitor.new(result.threads.first.call_tree)
+  #   visitor = RubyProf::CallTreeVisitor.new(result.threads.first.call_tree)
   #
   #   method_names = Array.new
   #
@@ -20,15 +20,15 @@ module RubyProf
     end
 
     def visit(&block)
-      visit_call_info(@call_tree, &block)
+      visit_call_tree(@call_tree, &block)
     end
 
     private
 
-    def visit_call_info(call_tree, &block)
+    def visit_call_tree(call_tree, &block)
       yield call_tree, :enter
       call_tree.children.each do |child|
-        visit_call_info(child, &block)
+        visit_call_tree(child, &block)
       end
       yield call_tree, :exit
     end

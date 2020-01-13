@@ -1,4 +1,6 @@
 # Some classes used in measurement tests
+require 'singleton'
+
 module RubyProf
   class C1
     def C1.sleep_wait

@@ -3,7 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class InverseCallTree < TestCase
+class InverseCallTreeTest < TestCase
   INVERSE_DEPTH = 5
 
   def setup

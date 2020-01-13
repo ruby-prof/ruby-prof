@@ -43,13 +43,12 @@ class ExcludeMethodsTest < TestCase
     obj = ExcludeMethodsClass.new
     prf = RubyProf::Profile.new
 
-    result = prf.profile { 5.times {obj.a} }
+    result = prf.profile {obj.a}
     methods = result.threads.first.methods.sort.reverse
-
     assert_equal(10, methods.count)
     assert_equal('ExcludeMethodsTest#test_methods_can_be_profiled', methods[0].full_name)
-    assert_equal('Integer#times', methods[1].full_name)
-    assert_equal('ExcludeMethodsClass#a', methods[2].full_name)
+    assert_equal('ExcludeMethodsClass#a', methods[1].full_name)
+    assert_equal('Integer#times', methods[2].full_name)
     assert_equal('ExcludeMethodsClass#b', methods[3].full_name)
     assert_equal('<Class::ExcludeMethodsClass>#e', methods[4].full_name)
     assert_equal('<Class::ExcludeMethodsClass>#f', methods[5].full_name)
@@ -65,7 +64,7 @@ class ExcludeMethodsTest < TestCase
 
     prf.exclude_methods!(Integer, :times)
 
-    result = prf.profile { 5.times {obj.a} }
+    result = prf.profile {obj.a}
     methods = result.threads.first.methods.sort.reverse
 
     assert_equal(9, methods.count)
@@ -88,7 +87,7 @@ class ExcludeMethodsTest < TestCase
     prf.exclude_methods!(ExcludeMethodsClass.singleton_class, :f)
     prf.exclude_methods!(ExcludeMethodsModule.singleton_class, :d)
 
-    result = prf.profile { 5.times {obj.a} }
+    result = prf.profile {obj.a}
     methods = result.threads.first.methods.sort.reverse
 
     assert_equal(7, methods.count)
@@ -107,13 +106,19 @@ class ExcludeMethodsTest < TestCase
 
     prf.exclude_common_methods!
 
-    result = prf.profile { 5.times {obj.a} }
+    result = prf.profile {obj.a}
     methods = result.threads.first.methods.sort.reverse
 
     assert_equal(9, methods.count)
     assert_equal('ExcludeMethodsTest#test_exclude_common_methods1', methods[0].full_name)
     assert_equal('ExcludeMethodsClass#a', methods[1].full_name)
     assert_equal('ExcludeMethodsClass#b', methods[2].full_name)
+    assert_equal('<Class::ExcludeMethodsClass>#e', methods[3].full_name)
+    assert_equal('<Class::ExcludeMethodsClass>#f', methods[4].full_name)
+    assert_equal('Kernel#sleep', methods[5].full_name)
+    assert_equal('ExcludeMethodsModule#c', methods[6].full_name)
+    assert_equal('<Module::ExcludeMethodsModule>#d', methods[7].full_name)
+    assert_equal('Kernel#class', methods[8].full_name)
   end
 
   def test_exclude_common_methods2

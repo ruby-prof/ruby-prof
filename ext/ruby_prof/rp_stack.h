@@ -48,9 +48,10 @@ typedef struct
 prof_stack_t* prof_stack_create(void);
 void prof_stack_free(prof_stack_t* stack);
 
-prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused);
-prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement);
-prof_frame_t* prof_stack_pass(prof_stack_t* stack);
+prof_frame_t* prof_frame_current(prof_stack_t* stack);
+prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused);
+prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement);
+prof_frame_t* prof_frame_pass(prof_stack_t* stack);
 prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line);
 
 #endif //__RP_STACK__

@@ -19,6 +19,7 @@ module RubyProf
     private
 
     def print_header(thread)
+      @output << "----------------------------------------------------\n"
       @output << "Thread ID: #{thread.id}\n"
       @output << "Fiber ID: #{thread.fiber_id}\n"
       @output << "Total Time: #{thread.total_time}\n"
@@ -46,6 +47,7 @@ module RubyProf
     end
 
     def print_footer(thread)
+      @output << "\n" << "\n"
     end
   end
 end

@@ -5,23 +5,7 @@
 
 #define INITIAL_STACK_SIZE 16
 
-void prof_frame_pause(prof_frame_t* frame, double current_measurement)
-{
-    if (frame && prof_frame_is_unpaused(frame))
-        frame->pause_time = current_measurement;
-}
-
-void prof_frame_unpause(prof_frame_t* frame, double current_measurement)
-{
-    if (frame && prof_frame_is_paused(frame))
-    {
-        frame->dead_time += (current_measurement - frame->pause_time);
-        frame->pause_time = -1;
-    }
-}
-
-/* Creates a stack of prof_frame_t to keep track
-   of timings for active methods. */
+// Creates a stack of prof_frame_t to keep track of timings for active methods.
 prof_stack_t* prof_stack_create()
 {
     prof_stack_t* stack = ALLOC(prof_stack_t);
@@ -38,14 +22,18 @@ void prof_stack_free(prof_stack_t* stack)
     xfree(stack);
 }
 
-prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused)
+prof_frame_t* prof_stack_last(prof_stack_t* stack)
 {
-    prof_frame_t* result;
-    prof_frame_t* parent_frame;
+    if (stack->ptr == stack->start)
+        return NULL;
+    else
+        return stack->ptr - 1;
+}
 
-    /* Is there space on the stack?  If not, double
-     its size. */
-    if (stack->ptr == stack->end - 1)
+prof_frame_t* prof_stack_verify_size(prof_stack_t* stack)
+{
+    // Is there space on the stack?  If not, double its size.
+    if (stack->ptr == stack->end)
     {
         size_t len = stack->ptr - stack->start;
         size_t new_capacity = (stack->end - stack->start) * 2;
@@ -55,13 +43,53 @@ prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_tree_t* call_tree, 
         stack->ptr = stack->start + len;
         stack->end = stack->start + new_capacity;
     }
+}
 
-    parent_frame = stack->ptr;
+prof_frame_t* prof_stack_push(prof_stack_t* stack)
+{
+    prof_stack_verify_size(stack);
+
+    prof_frame_t* result = stack->ptr;
     stack->ptr++;
+    return result;
+}
 
-    result = stack->ptr;
+prof_frame_t* prof_stack_pop(prof_stack_t* stack)
+{
+    prof_frame_t* result = prof_stack_last(stack);
+    if (result)
+        stack->ptr--;
+
+    return result;
+}
+
+// ----------------  Frame Methods  ----------------------------
+void prof_frame_pause(prof_frame_t* frame, double current_measurement)
+{
+    if (frame && prof_frame_is_unpaused(frame))
+        frame->pause_time = current_measurement;
+}
+
+void prof_frame_unpause(prof_frame_t* frame, double current_measurement)
+{
+    if (prof_frame_is_paused(frame))
+    {
+        frame->dead_time += (current_measurement - frame->pause_time);
+        frame->pause_time = -1;
+    }
+}
+
+prof_frame_t* prof_frame_current(prof_stack_t* stack)
+{
+    return prof_stack_last(stack);
+}
+
+prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused)
+{
+    prof_frame_t* parent_frame = prof_stack_last(stack);
+    prof_frame_t* result = prof_stack_push(stack);
+
     result->call_tree = call_tree;
-    result->call_tree->depth = (int)(stack->ptr - stack->start); // shortening of 64 bit into 32;
     result->passes = 0;
 
     result->start_time = measurement;
@@ -87,7 +115,8 @@ prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_tree_t* call_tree, 
     // If currently paused then:
     //   1) The child frame will begin paused.
     //   2) The parent will inherit the child's dead time.
-    prof_frame_unpause(parent_frame, measurement);
+    if (parent_frame)
+        prof_frame_unpause(parent_frame, measurement);
 
     if (paused)
     {
@@ -98,19 +127,12 @@ prof_frame_t* prof_stack_push(prof_stack_t* stack, prof_call_tree_t* call_tree, 
     return result;
 }
 
-prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement)
+prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement)
 {
-    prof_frame_t* frame;
-    prof_frame_t* parent_frame;
-    prof_call_tree_t* call_tree;
+    prof_frame_t* frame = prof_stack_pop(stack);
 
-    double total_time;
-    double self_time;
-
-    if (stack->ptr == stack->start)
+    if (!frame)
         return NULL;
-
-    frame = stack->ptr;
 
     /* Match passes until we reach the frame itself. */
     if (prof_frame_is_pass(frame))
@@ -120,19 +142,14 @@ prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement)
         return frame;
     }
 
-    /* Consume this frame. */
-    stack->ptr--;
-
-    parent_frame = stack->ptr;
-
     /* Calculate the total time this method took */
     prof_frame_unpause(frame, measurement);
 
-    total_time = measurement - frame->start_time - frame->dead_time;
-    self_time = total_time - frame->child_time - frame->wait_time;
+    double total_time = measurement - frame->start_time - frame->dead_time;
+    double self_time = total_time - frame->child_time - frame->wait_time;
 
     /* Update information about the current method */
-    call_tree = frame->call_tree;
+    prof_call_tree_t* call_tree = frame->call_tree;
 
     // Update method measurement
     call_tree->method->measurement->self_time += self_time;
@@ -149,7 +166,8 @@ prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement)
         call_tree->measurement->total_time += total_time;
 
     call_tree->visits--;
-
+    
+    prof_frame_t* parent_frame = prof_stack_last(stack);
     if (parent_frame)
     {
         parent_frame->child_time += total_time;
@@ -159,7 +177,7 @@ prof_frame_t* prof_stack_pop(prof_stack_t* stack, double measurement)
     return frame;
 }
 
-prof_frame_t* prof_stack_pass(prof_stack_t* stack)
+prof_frame_t* prof_frame_pass(prof_stack_t* stack)
 {
     prof_frame_t* frame = stack->ptr;
     if (frame)

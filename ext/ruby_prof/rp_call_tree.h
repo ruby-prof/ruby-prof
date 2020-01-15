@@ -21,7 +21,6 @@ typedef struct prof_call_tree_t
 
     int visits;                             /* Current visits on the stack */
 
-    unsigned int depth;
     unsigned int source_line;
     VALUE source_file;
 } prof_call_tree_t;
@@ -32,6 +31,7 @@ void prof_call_tree_merge(prof_call_tree_t* result, prof_call_tree_t* other);
 void prof_call_tree_mark(void* data);
 prof_call_tree_t* call_tree_table_lookup(st_table* table, st_data_t key);
 size_t call_tree_table_insert(st_table* table, st_data_t key, prof_call_tree_t* val);
+uint32_t prof_call_figure_depth(prof_call_tree_t* call_tree_data);
 prof_call_tree_t* prof_get_call_tree(VALUE self);
 VALUE prof_call_tree_wrap(prof_call_tree_t* call_tree);
 void prof_call_tree_free(prof_call_tree_t* call_tree);

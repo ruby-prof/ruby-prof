@@ -19,7 +19,6 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
 
     result->visits = 0;
 
-    result->depth = 0;
     result->source_line = source_line;
     result->source_file = source_file;
 
@@ -35,7 +34,6 @@ prof_call_tree_t* prof_call_tree_copy(prof_call_tree_t* other)
 
     result->method = other->method;
     result->parent = other->parent;
-    result->depth = other->depth;
     result->source_line = other->source_line;
     result->source_file = other->source_file;
 
@@ -165,6 +163,19 @@ prof_call_tree_t* call_tree_table_lookup(st_table* table, st_data_t key)
     }
 }
 
+uint32_t prof_call_figure_depth(prof_call_tree_t* call_tree_data)
+{
+    uint32_t result = 0;
+
+    while (call_tree_data->parent)
+    {
+        result++;
+        call_tree_data = call_tree_data->parent;
+    }
+
+    return result;
+}
+
 /* =======  RubyProf::CallTree   ========*/
 
 /* call-seq:
@@ -218,8 +229,9 @@ static VALUE prof_call_tree_measurement(VALUE self)
    returns the depth of this call info in the call graph */
 static VALUE prof_call_tree_depth(VALUE self)
 {
-    prof_call_tree_t* result = prof_get_call_tree(self);
-    return rb_int_new(result->depth);
+    prof_call_tree_t* call_tree_data = prof_get_call_tree(self);
+    uint32_t depth = prof_call_figure_depth(call_tree_data);
+    return rb_int_new(depth);
 }
 
 /* call-seq:
@@ -251,7 +263,6 @@ static VALUE prof_call_tree_dump(VALUE self)
 
     rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(call_tree_data->measurement));
 
-    rb_hash_aset(result, ID2SYM(rb_intern("depth")), INT2FIX(call_tree_data->depth));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), call_tree_data->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(call_tree_data->source_line));
 
@@ -273,7 +284,6 @@ static VALUE prof_call_tree_load(VALUE self, VALUE data)
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     call_tree->measurement = prof_get_measurement(measurement);
 
-    call_tree->depth = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("depth"))));
     call_tree->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     call_tree->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
 

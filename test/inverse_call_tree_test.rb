@@ -31,7 +31,27 @@ class InverseCallTreeTest < TestCase
   def test_inverse
     method_name = "method_#{INVERSE_DEPTH - 1}"
     self.send(method_name.to_sym)
-    profile = RubyProf.stop
+    result = profile = RubyProf.stop
+
+    printer = RubyProf::CallInfoPrinter.new(result)
+    File.open('c:/temp/call_tree.txt', 'wb') do |file|
+      printer.print(file)
+    end
+
+    printer = RubyProf::GraphHtmlPrinter.new(result)
+    File.open('c:/temp/graph.html', 'wb') do |file|
+      printer.print(file)
+    end
+
+    printer = RubyProf::GraphPrinter.new(result)
+    File.open('c:/temp/graph.txt', 'wb') do |file|
+      printer.print(file)
+    end
+
+    printer = RubyProf::CallStackPrinter.new(result)
+    File.open('c:/temp/call_stack.html', 'wb') do |file|
+      printer.print(file)
+    end
 
     assert_equal(1, profile.threads.count)
 

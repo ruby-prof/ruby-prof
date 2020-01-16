@@ -192,15 +192,18 @@ void switch_thread(void* prof, thread_data_t* thread_data, double measurement)
     prof_profile_t* profile = prof;
 
     /* Get current frame for this thread */
-    prof_frame_t* frame = thread_data->stack->ptr;
-    frame->wait_time += measurement - frame->switch_time;
-    frame->switch_time = measurement;
+    prof_frame_t* frame = prof_frame_current(thread_data->stack);
+    if (frame)
+    {
+        frame->wait_time += measurement - frame->switch_time;
+        frame->switch_time = 0;
+    }
 
     /* Save on the last thread the time of the context switch
        and reset this thread's last context switch to 0.*/
     if (profile->last_thread_data)
     {
-        prof_frame_t* last_frame = profile->last_thread_data->stack->ptr;
+        prof_frame_t* last_frame = prof_frame_current(profile->last_thread_data->stack);
         if (last_frame)
             last_frame->switch_time = measurement;
     }
@@ -213,7 +216,7 @@ int pause_thread(st_data_t key, st_data_t value, st_data_t data)
     thread_data_t* thread_data = (thread_data_t*)value;
     prof_profile_t* profile = (prof_profile_t*)data;
 
-    prof_frame_t* frame = thread_data->stack->ptr;
+    prof_frame_t* frame = prof_frame_current(thread_data->stack);
     prof_frame_pause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;
@@ -224,7 +227,7 @@ int unpause_thread(st_data_t key, st_data_t value, st_data_t data)
     thread_data_t* thread_data = (thread_data_t*)value;
     prof_profile_t* profile = (prof_profile_t*)data;
 
-    prof_frame_t* frame = thread_data->stack->ptr;
+    prof_frame_t* frame = prof_frame_current(thread_data->stack);
     prof_frame_unpause(frame, profile->measurement_at_pause_resume);
 
     return ST_CONTINUE;

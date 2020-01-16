@@ -33,38 +33,148 @@ class InverseCallTreeTest < TestCase
     self.send(method_name.to_sym)
     result = profile = RubyProf.stop
 
+    printer = RubyProf::CallInfoPrinter.new(result)
+    File.open('c:/temp/call_tree.txt', 'wb') do |file|
+      printer.print(file)
+    end
+
     assert_equal(1, profile.threads.count)
 
     thread = profile.threads.first
-    assert_in_delta(0.25, thread.total_time, 0.015)
+    assert_in_delta(0.79, thread.total_time, 0.05)
 
-    top_methods = thread.top_methods.sort
-    assert_equal(2, top_methods.count)
-    assert_equal("BasicTest#start", top_methods[0].full_name)
-    assert_equal("BasicTest#test_leave_method", top_methods[1].full_name)
+    assert_equal(7, thread.methods.length)
+    methods = thread.methods.sort.reverse
 
-    assert_equal(4, thread.methods.length)
-    methods = profile.threads.first.methods.sort
+    # InverseCallTreeTest#test_inverse
+    method = methods[0]
+    assert_equal('InverseCallTreeTest#test_inverse', method.full_name)
+    assert_equal(34, method.line)
 
-    # Check times
-    assert_equal("<Class::RubyProf::C1>#hello", methods[0].full_name)
-    assert_in_delta(0.1, methods[0].total_time, 0.015)
-    assert_in_delta(0.0,  methods[0].wait_time, 0.015)
-    assert_in_delta(0.0,  methods[0].self_time, 0.015)
+    assert_equal(0, method.call_trees.callers.count)
 
-    assert_equal("BasicTest#start", methods[1].full_name)
-    assert_in_delta(0.1, methods[1].total_time, 0.015)
-    assert_in_delta(0.0, methods[1].wait_time, 0.015)
-    assert_in_delta(0.0, methods[1].self_time, 0.015)
+    assert_equal(1, method.call_trees.callees.count)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('InverseCallTreeTest#method_4', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
 
-    assert_equal("BasicTest#test_leave_method", methods[2].full_name)
-    assert_in_delta(0.15, methods[2].total_time, 0.015)
-    assert_in_delta(0.0, methods[2].wait_time, 0.015)
-    assert_in_delta(0.0, methods[2].self_time, 0.015)
+    # InverseCallTreeTest#method_4
+    method = methods[1]
+    assert_equal('InverseCallTreeTest#method_4', method.full_name)
+    assert_equal(26, method.line)
 
-    assert_equal("Kernel#sleep", methods[3].full_name)
-    assert_in_delta(0.25, methods[3].total_time, 0.015)
-    assert_in_delta(0.0, methods[3].wait_time, 0.015)
-    assert_in_delta(0.25, methods[3].self_time, 0.015)
+    assert_equal(1, method.call_trees.callers.count)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('InverseCallTreeTest#test_inverse', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    assert_equal(2, method.call_trees.callees.count)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('InverseCallTreeTest#method_3', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    # Kernel#sleep
+    method = methods[2]
+    assert_equal('Kernel#sleep', method.full_name)
+    assert_equal(0, method.line)
+
+    assert_equal(5, method.call_trees.callers.count)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('InverseCallTreeTest#method_0', call_tree.parent.target.full_name)
+    assert_equal(19, call_tree.line)
+
+    call_tree = method.call_trees.callers[1]
+    assert_equal('InverseCallTreeTest#method_1', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    call_tree = method.call_trees.callers[2]
+    assert_equal('InverseCallTreeTest#method_2', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+    call_tree = method.call_trees.callers[3]
+
+    assert_equal('InverseCallTreeTest#method_3', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    call_tree = method.call_trees.callers[4]
+    assert_equal('InverseCallTreeTest#method_4', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    assert_equal(0, method.call_trees.callees.count)
+
+    # InverseCallTreeTest#method_3
+    method = methods[3]
+    assert_equal('InverseCallTreeTest#method_3', method.full_name)
+    assert_equal(26, method.line)
+
+    assert_equal(1, method.call_trees.callers.count)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('InverseCallTreeTest#method_4', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    assert_equal(2, method.call_trees.callees.count)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('InverseCallTreeTest#method_2', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    call_tree = method.call_trees.callees[1]
+    assert_equal('Kernel#sleep', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    # InverseCallTreeTest#method_2
+    method = methods[4]
+    assert_equal('InverseCallTreeTest#method_2', method.full_name)
+    assert_equal(26, method.line)
+
+    assert_equal(1, method.call_trees.callers.count)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('InverseCallTreeTest#method_3', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    assert_equal(2, method.call_trees.callees.count)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('InverseCallTreeTest#method_1', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    call_tree = method.call_trees.callees[1]
+    assert_equal('Kernel#sleep', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    call_tree = method.call_trees.callees[1]
+    assert_equal('Kernel#sleep', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    # InverseCallTreeTest#method_1
+    method = methods[5]
+    assert_equal('InverseCallTreeTest#method_1', method.full_name)
+    assert_equal(26, method.line)
+
+    assert_equal(1, method.call_trees.callers.count)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('InverseCallTreeTest#method_2', call_tree.parent.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    assert_equal(2, method.call_trees.callees.count)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('InverseCallTreeTest#method_0', call_tree.target.full_name)
+    assert_equal(19, call_tree.line)
+
+    call_tree = method.call_trees.callees[1]
+    assert_equal('Kernel#sleep', call_tree.target.full_name)
+    assert_equal(26, call_tree.line)
+
+    # InverseCallTreeTest#method_0
+    method = methods[6]
+    assert_equal('InverseCallTreeTest#method_0', method.full_name)
+    assert_equal(19, method.line)
+
+    assert_equal(1, method.call_trees.callers.count)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('InverseCallTreeTest#method_1', call_tree.parent.target.full_name)
+    assert_equal(19, call_tree.line)
+
+    assert_equal(1, method.call_trees.callees.count)
+    call_tree = method.call_trees.callees[0]
+    assert_equal('Kernel#sleep', call_tree.target.full_name)
+    assert_equal(19, call_tree.line)
   end
 end

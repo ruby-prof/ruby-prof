@@ -156,14 +156,8 @@ prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, 
 
 void prof_thread_set_call_tree(thread_data_t* thread_data, prof_method_t* method, prof_call_tree_t* parent_call_tree, double measurement)
 {
-    if (!thread_data->call_tree)
+    if (thread_data->call_tree)
     {
-        thread_data->call_tree = parent_call_tree;
-        return NULL;
-    }
-    else
-    {
-       // prof_call_tree_t* parent_call_tree = prof_call_tree_create(method, NULL, Qnil, 0);
         parent_call_tree->measurement->total_time = thread_data->call_tree->measurement->total_time;
         parent_call_tree->measurement->self_time = 0;
         parent_call_tree->measurement->wait_time = thread_data->call_tree->measurement->wait_time;
@@ -174,9 +168,8 @@ void prof_thread_set_call_tree(thread_data_t* thread_data, prof_method_t* method
 
         thread_data->call_tree->parent = parent_call_tree;
         call_tree_table_insert(parent_call_tree->children, thread_data->call_tree->method->key, thread_data->call_tree);
-
-        thread_data->call_tree = parent_call_tree;
     }
+    thread_data->call_tree = parent_call_tree;
 }
 
 static void prof_trace(prof_profile_t* profile, rb_trace_arg_t* trace_arg, double measurement)

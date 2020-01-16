@@ -231,7 +231,6 @@ static void prof_event_hook(VALUE trace_point, void* data)
     if (!thread_data->trace)
         return;
 
-
     switch (event)
     {
         case RUBY_EVENT_LINE:

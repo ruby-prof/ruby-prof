@@ -36,7 +36,6 @@ class MarshalTest < TestCase
       assert_equal(method_1.full_name, method_2.full_name)
 
       assert_equal(method_1.recursive?, method_2.recursive?)
-      assert_equal(method_1.excluded?, method_2.excluded?)
 
       assert_equal(method_1.source_file, method_2.source_file)
       assert_equal(method_1.line, method_2.line)

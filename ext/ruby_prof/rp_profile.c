@@ -132,7 +132,7 @@ prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, 
      module or cProfile class since they clutter
      the results but aren't important to them results. */
     if (klass == cProfile)
-        return;
+        return NULL;
 
 #ifdef HAVE_RB_TRACEARG_CALLEE_ID
     VALUE msym = rb_tracearg_callee_id(trace_arg);
@@ -154,11 +154,12 @@ prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, 
     return result;
 }
 
-prof_method_t* prof_thread_set_call_tree(prof_profile_t* profile, thread_data_t* thread_data, prof_call_tree_t* call_tree_data, double measurement)
+prof_frame_t* prof_thread_set_call_tree(prof_profile_t* profile, thread_data_t* thread_data, prof_call_tree_t* call_tree_data, double measurement)
 {
     if (!thread_data->call_tree)
     {
         thread_data->call_tree = call_tree_data;
+        return NULL;
     }
     else
     {
@@ -166,7 +167,6 @@ prof_method_t* prof_thread_set_call_tree(prof_profile_t* profile, thread_data_t*
         // a new parent call tree to not lose call tree information we have gathered so far.
         prof_method_t* dummy_method = create_method(profile, 0, cProfile, ID2SYM(rb_intern("_inserted_parent_")), Qnil, 0);
         prof_call_tree_t* parent_call_tree = prof_call_tree_create(dummy_method, NULL, Qnil, 0);
-        prof_frame_push(thread_data->stack, parent_call_tree, measurement , RTEST(profile->paused));
 
         parent_call_tree->measurement->total_time = thread_data->call_tree->measurement->total_time;
         parent_call_tree->measurement->self_time = 0;
@@ -177,8 +177,9 @@ prof_method_t* prof_thread_set_call_tree(prof_profile_t* profile, thread_data_t*
 
         call_tree_data->parent = parent_call_tree;
         call_tree_table_insert(parent_call_tree->children, call_tree_data->method->key, call_tree_data);
-
         thread_data->call_tree = parent_call_tree;
+
+        return prof_frame_push(thread_data->stack, parent_call_tree, measurement, RTEST(profile->paused));
     }
 }
 

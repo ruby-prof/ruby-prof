@@ -150,38 +150,32 @@ prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, 
         int source_line = (event != RUBY_EVENT_C_CALL ? FIX2INT(rb_tracearg_lineno(trace_arg)) : 0);
         result = create_method(profile, key, klass, msym, source_file, source_line);
     }
-
+    
     return result;
 }
 
-prof_frame_t* prof_thread_set_call_tree(prof_profile_t* profile, thread_data_t* thread_data, prof_call_tree_t* call_tree_data, double measurement)
+void prof_thread_set_call_tree(thread_data_t* thread_data, prof_method_t* method, prof_call_tree_t* parent_call_tree, double measurement)
 {
     if (!thread_data->call_tree)
     {
-        thread_data->call_tree = call_tree_data;
+        thread_data->call_tree = parent_call_tree;
         return NULL;
     }
     else
     {
-        return NULL;
-
-        // We have returned out of the highest level method we have profiled so far. So we need to create
-        // a new parent call tree to not lose call tree information we have gathered so far.
-        prof_method_t* dummy_method = create_method(profile, 0, cProfile, ID2SYM(rb_intern("_inserted_parent_")), Qnil, 0);
-        prof_call_tree_t* parent_call_tree = prof_call_tree_create(dummy_method, NULL, Qnil, 0);
-
+       // prof_call_tree_t* parent_call_tree = prof_call_tree_create(method, NULL, Qnil, 0);
         parent_call_tree->measurement->total_time = thread_data->call_tree->measurement->total_time;
         parent_call_tree->measurement->self_time = 0;
         parent_call_tree->measurement->wait_time = thread_data->call_tree->measurement->wait_time;
 
+        parent_call_tree->method->measurement->total_time += thread_data->call_tree->measurement->total_time;
+        parent_call_tree->method->measurement->wait_time += thread_data->call_tree->measurement->wait_time;
+
+
         thread_data->call_tree->parent = parent_call_tree;
         call_tree_table_insert(parent_call_tree->children, thread_data->call_tree->method->key, thread_data->call_tree);
 
-        call_tree_data->parent = parent_call_tree;
-        call_tree_table_insert(parent_call_tree->children, call_tree_data->method->key, call_tree_data);
         thread_data->call_tree = parent_call_tree;
-
-        return prof_frame_push(thread_data->stack, parent_call_tree, measurement, RTEST(profile->paused));
     }
 }
 
@@ -267,7 +261,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
 
                 frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));
 
-                prof_thread_set_call_tree(profile, thread_data, call_tree, measurement);
+                prof_thread_set_call_tree(thread_data, method, call_tree, measurement);
             }
 
             if (prof_frame_is_real(frame))
@@ -307,7 +301,20 @@ static void prof_event_hook(VALUE trace_point, void* data)
             }
 
             if (!frame)
-                prof_thread_set_call_tree(profile, thread_data, call_tree, measurement);
+            {
+                // We have returned out of the highest level method we have profiled so far. So we need to create
+                // a new parent call tree to not lose call tree information we have gathered so far.
+                VALUE msym = ID2SYM(rb_intern("_inserted_parent_"));
+                st_data_t key = method_key(cProfile, msym);
+                prof_method_t* method = method_table_lookup(thread_data->method_table, key);
+
+                if (!method)
+                {
+                    method = create_method(profile, key, cProfile, msym, Qnil, 0);
+                }
+
+                prof_thread_set_call_tree(thread_data, method, call_tree, measurement);
+            }
 
             // Push a new frame onto the stack for a new c-call or ruby call (into a method)
             prof_frame_t* next_frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));

@@ -163,6 +163,8 @@ prof_frame_t* prof_thread_set_call_tree(prof_profile_t* profile, thread_data_t* 
     }
     else
     {
+        return NULL;
+
         // We have returned out of the highest level method we have profiled so far. So we need to create
         // a new parent call tree to not lose call tree information we have gathered so far.
         prof_method_t* dummy_method = create_method(profile, 0, cProfile, ID2SYM(rb_intern("_inserted_parent_")), Qnil, 0);

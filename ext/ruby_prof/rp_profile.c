@@ -251,6 +251,10 @@ static void prof_event_hook(VALUE trace_point, void* data)
 
                 prof_thread_set_call_tree(thread_data, method, call_tree, measurement);
             }
+            
+            frame->source_file = rb_tracearg_path(trace_arg);
+            frame->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
+            
             break;
         }
         case RUBY_EVENT_CALL:

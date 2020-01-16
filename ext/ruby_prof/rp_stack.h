@@ -18,7 +18,6 @@ typedef struct
 
     VALUE source_file;
     unsigned int source_line;
-    unsigned int passes; /* Count of "pass" frames, _after_ this one. */
 
     double start_time;
     double switch_time;  /* Time at switch to different thread */
@@ -27,9 +26,6 @@ typedef struct
     double pause_time; // Time pause() was initiated
     double dead_time; // Time to ignore (i.e. total amount of time between pause/resume blocks)
 } prof_frame_t;
-
-#define prof_frame_is_real(f) ((f)->passes == 0)
-#define prof_frame_is_pass(f) ((f)->passes > 0)
 
 #define prof_frame_is_paused(f) (f->pause_time >= 0)
 #define prof_frame_is_unpaused(f) (f->pause_time < 0)
@@ -51,7 +47,6 @@ void prof_stack_free(prof_stack_t* stack);
 prof_frame_t* prof_frame_current(prof_stack_t* stack);
 prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused);
 prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement);
-prof_frame_t* prof_frame_pass(prof_stack_t* stack);
 prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line);
 
 #endif //__RP_STACK__

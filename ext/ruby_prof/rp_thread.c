@@ -236,11 +236,7 @@ static int collect_methods(st_data_t key, st_data_t value, st_data_t result)
        We want to store the method info information into an array.*/
     VALUE methods = (VALUE)result;
     prof_method_t* method = (prof_method_t*)value;
-
-    if (!method->excluded)
-    {
-        rb_ary_push(methods, prof_method_wrap(method));
-    }
+    rb_ary_push(methods, prof_method_wrap(method));
 
     return ST_CONTINUE;
 }

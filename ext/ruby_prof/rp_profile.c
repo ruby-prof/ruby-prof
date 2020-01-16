@@ -45,13 +45,6 @@ static int excludes_method(st_data_t key, prof_profile_t* profile)
 static prof_method_t* create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
     prof_method_t* result = prof_method_create(klass, msym, source_file, source_line);
-
-    if (excludes_method(key, profile))
-    {
-        result->excluded = true;
-    }
-
-    /* Insert the newly created method, or the exlcusion sentinel. */
     method_table_insert(profile->last_thread_data->method_table, result->key, result);
 
     return result;
@@ -141,6 +134,9 @@ prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, 
 #endif
 
     st_data_t key = method_key(klass, msym);
+
+    if (excludes_method(key, profile))
+        return NULL;
 
     prof_method_t* result = method_table_lookup(thread_data->method_table, key);
 
@@ -256,12 +252,6 @@ static void prof_event_hook(VALUE trace_point, void* data)
 
                 prof_thread_set_call_tree(thread_data, method, call_tree, measurement);
             }
-
-            if (prof_frame_is_real(frame))
-            {
-                frame->source_file = rb_tracearg_path(trace_arg);
-                frame->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
-            }
             break;
         }
         case RUBY_EVENT_CALL:
@@ -271,12 +261,6 @@ static void prof_event_hook(VALUE trace_point, void* data)
 
             if (!method)
                 break;
-
-            if (method->excluded)
-            {
-                prof_frame_pass(thread_data->stack);
-                break;
-            }
 
             // Frame can be NULL if we are switching from one fiber to another (see FiberTest#fiber_test)
             prof_frame_t* frame = prof_frame_current(thread_data->stack);
@@ -318,6 +302,12 @@ static void prof_event_hook(VALUE trace_point, void* data)
         case RUBY_EVENT_RETURN:
         case RUBY_EVENT_C_RETURN:
         {
+            // We need to check for excluded methods so that we don't pop them off the stack
+            prof_method_t* method = check_method(profile, trace_arg, event, thread_data);
+
+            if (!method)
+                break;
+
             prof_frame_pop(thread_data->stack, measurement);
             break;
         }

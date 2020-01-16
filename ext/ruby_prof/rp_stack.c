@@ -90,7 +90,6 @@ prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, 
     prof_frame_t* result = prof_stack_push(stack);
 
     result->call_tree = call_tree;
-    result->passes = 0;
 
     result->start_time = measurement;
     result->pause_time = -1; // init as not paused.
@@ -134,14 +133,6 @@ prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement)
     if (!frame)
         return NULL;
 
-    /* Match passes until we reach the frame itself. */
-    if (prof_frame_is_pass(frame))
-    {
-        frame->passes--;
-        /* Additional frames can be consumed. See pop_frames(). */
-        return frame;
-    }
-
     /* Calculate the total time this method took */
     prof_frame_unpause(frame, measurement);
 
@@ -174,16 +165,6 @@ prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement)
         parent_frame->dead_time += frame->dead_time;
     }
 
-    return frame;
-}
-
-prof_frame_t* prof_frame_pass(prof_stack_t* stack)
-{
-    prof_frame_t* frame = stack->ptr;
-    if (frame)
-    {
-        frame->passes++;
-    }
     return frame;
 }
 

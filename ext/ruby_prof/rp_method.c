@@ -159,8 +159,6 @@ prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, in
     result->method_name = msym;
     result->measurement = prof_measurement_create();
 
-    result->excluded = false;
-
     result->call_trees = prof_call_trees_create();
     result->allocations_table = allocations_table_create();
 
@@ -381,16 +379,6 @@ static VALUE prof_method_recursive(VALUE self)
 }
 
 /* call-seq:
-   excluded? -> boolean
-
-   Returns the true if this method was excluded */
-static VALUE prof_method_excluded(VALUE self)
-{
-    prof_method_t* method = prof_get_method(self);
-    return method->excluded ? Qtrue : Qfalse;
-}
-
-/* call-seq:
    call_trees -> CallTrees
 
 Returns the CallTrees associated with this method. */
@@ -412,7 +400,6 @@ static VALUE prof_method_dump(VALUE self)
 
     rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(method_data->key));
     rb_hash_aset(result, ID2SYM(rb_intern("recursive")), prof_method_recursive(self));
-    rb_hash_aset(result, ID2SYM(rb_intern("excluded")), prof_method_excluded(self));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(method_data->source_line));
 
@@ -435,7 +422,6 @@ static VALUE prof_method_load(VALUE self, VALUE data)
     method_data->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
 
     method_data->recursive = rb_hash_aref(data, ID2SYM(rb_intern("recursive"))) == Qtrue ? true : false;
-    method_data->excluded = rb_hash_aref(data, ID2SYM(rb_intern("excluded"))) == Qtrue ? true : false;
 
     method_data->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     method_data->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
@@ -477,7 +463,6 @@ void rp_init_method_info()
     rb_define_method(cRpMethodInfo, "line", prof_method_line, 0);
 
     rb_define_method(cRpMethodInfo, "recursive?", prof_method_recursive, 0);
-    rb_define_method(cRpMethodInfo, "excluded?", prof_method_excluded, 0);
 
     rb_define_method(cRpMethodInfo, "_dump_data", prof_method_dump, 0);
     rb_define_method(cRpMethodInfo, "_load_data", prof_method_load, 1);

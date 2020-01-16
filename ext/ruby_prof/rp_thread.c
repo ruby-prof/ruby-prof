@@ -57,7 +57,6 @@ void prof_thread_mark(void* data)
         rb_gc_mark(thread->object);
 
     rb_gc_mark(thread->fiber);
-    rb_gc_mark(thread->fiber);
 
     if (thread->methods != Qnil)
         rb_gc_mark(thread->methods);

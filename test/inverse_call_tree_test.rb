@@ -33,11 +33,6 @@ class InverseCallTreeTest < TestCase
     self.send(method_name.to_sym)
     result = profile = RubyProf.stop
 
-    printer = RubyProf::CallInfoPrinter.new(result)
-    File.open('c:/temp/call_tree.txt', 'wb') do |file|
-      printer.print(file)
-    end
-
     assert_equal(1, profile.threads.count)
 
     thread = profile.threads.first

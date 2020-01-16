@@ -57,18 +57,18 @@ class FiberTest < TestCase
     assert_in_delta(0.2, method_each.total_time, 0.05)
   end
 
-  #def test_merged_fibers
-  #  result  = RubyProf.profile(merge_fibers: true) { fiber_test }
-  #  assert_equal(1, result.threads.length)
-  #
-  #  thread = result.threads.first
-  #  assert_equal(thread.id, thread.fiber_id)
-  #  assert_in_delta(0.3, thread.total_time, 0.05)
-  #
-  #  assert(method_next = thread.methods.detect{|m| m.full_name == "Enumerator#next"})
-  #  assert(method_each = thread.methods.detect{|m| m.full_name == "Enumerator#each"})
-  #
-  #  assert_in_delta(0.2, method_next.total_time, 0.05)
-  #  assert_in_delta(0.2, method_each.total_time, 0.05)
-  #end
+  def test_merged_fibers
+    result  = RubyProf.profile(merge_fibers: true) { fiber_test }
+    assert_equal(1, result.threads.length)
+
+    thread = result.threads.first
+    assert_equal(thread.id, thread.fiber_id)
+    assert_in_delta(0.3, thread.total_time, 0.05)
+
+    assert(method_next = thread.methods.detect{|m| m.full_name == "Enumerator#next"})
+    assert(method_each = thread.methods.detect{|m| m.full_name == "Enumerator#each"})
+
+    assert_in_delta(0.2, method_next.total_time, 0.05)
+    assert_in_delta(0.2, method_each.total_time, 0.05)
+  end
 end

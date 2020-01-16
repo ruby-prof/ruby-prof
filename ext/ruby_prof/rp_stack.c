@@ -30,7 +30,7 @@ prof_frame_t* prof_stack_last(prof_stack_t* stack)
         return stack->ptr - 1;
 }
 
-prof_frame_t* prof_stack_verify_size(prof_stack_t* stack)
+void prof_stack_verify_size(prof_stack_t* stack)
 {
     // Is there space on the stack?  If not, double its size.
     if (stack->ptr == stack->end)

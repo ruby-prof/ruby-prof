@@ -124,9 +124,8 @@ static thread_data_t* prof_get_thread(VALUE self)
     return result;
 }
 
-/* ======   Thread Table  ====== */
-/* The thread table is hash keyed on ruby thread_id that stores instances
-   of thread_data_t. */
+// ======   Thread Table  ======
+// The thread table is hash keyed on ruby fiber_id that stores instances of thread_data_t. 
 
 st_table* threads_table_create()
 {
@@ -187,6 +186,7 @@ thread_data_t* threads_table_insert(void* prof, VALUE fiber)
     return result;
 }
 
+// ======   Profiling Methods  ======
 void switch_thread(void* prof, thread_data_t* thread_data, double measurement)
 {
     prof_profile_t* profile = prof;
@@ -233,6 +233,7 @@ int unpause_thread(st_data_t key, st_data_t value, st_data_t data)
     return ST_CONTINUE;
 }
 
+// ======   Helper Methods  ======
 static int collect_methods(st_data_t key, st_data_t value, st_data_t result)
 {
     /* Called for each method stored in a thread's method table.
@@ -244,6 +245,7 @@ static int collect_methods(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
+// ======   RubyProf::Thread  ======
 /* call-seq:
    id -> number
 

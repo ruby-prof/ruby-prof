@@ -36,20 +36,6 @@ VALUE cProfile;
  */
 FILE* trace_file = NULL;
 
-static int excludes_method(st_data_t key, prof_profile_t* profile)
-{
-    return (profile->exclude_methods_tbl &&
-            method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
-}
-
-static prof_method_t* create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
-{
-    prof_method_t* result = prof_method_create(klass, msym, source_file, source_line);
-    method_table_insert(profile->last_thread_data->method_table, result->key, result);
-
-    return result;
-}
-
 static const char* get_event_name(rb_event_flag_t event)
 {
     switch (event) {
@@ -91,7 +77,7 @@ VALUE get_fiber(prof_profile_t* profile)
     else
         return rb_fiber_current();
 }
-/* ===========  Profiling ================= */
+
 thread_data_t* check_fiber(prof_profile_t* profile, double measurement)
 {
     thread_data_t* result = NULL;
@@ -114,6 +100,20 @@ thread_data_t* check_fiber(prof_profile_t* profile, double measurement)
     {
         result = profile->last_thread_data;
     }
+    return result;
+}
+
+static int excludes_method(st_data_t key, prof_profile_t* profile)
+{
+    return (profile->exclude_methods_tbl &&
+            method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
+}
+
+static prof_method_t* create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
+{
+    prof_method_t* result = prof_method_create(klass, msym, source_file, source_line);
+    method_table_insert(profile->last_thread_data->method_table, result->key, result);
+
     return result;
 }
 
@@ -168,6 +168,7 @@ void prof_thread_set_call_tree(thread_data_t* thread_data, prof_method_t* method
     thread_data->call_tree = parent_call_tree;
 }
 
+/* ===========  Profiling ================= */
 static void prof_trace(prof_profile_t* profile, rb_trace_arg_t* trace_arg, double measurement)
 {
     static VALUE last_fiber = Qnil;

@@ -84,7 +84,7 @@ prof_frame_t* prof_frame_current(prof_stack_t* stack)
     return prof_stack_last(stack);
 }
 
-prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, int paused)
+prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, bool paused)
 {
     prof_frame_t* parent_frame = prof_stack_last(stack);
     prof_frame_t* result = prof_stack_push(stack);
@@ -124,6 +124,21 @@ prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, 
 
     // Return the result
     return result;
+}
+
+prof_frame_t* prof_frame_unshift(prof_stack_t* stack, prof_call_tree_t* parent_call_tree, prof_call_tree_t* call_tree, double measurement)
+{
+    if (prof_stack_last(stack))
+        rb_raise(rb_eRuntimeError, "Stach unshift can only be called with an empty stack");
+
+    parent_call_tree->measurement->total_time = call_tree->measurement->total_time;
+    parent_call_tree->measurement->self_time = 0;
+    parent_call_tree->measurement->wait_time = call_tree->measurement->wait_time;
+
+    parent_call_tree->method->measurement->total_time += call_tree->measurement->total_time;
+    parent_call_tree->method->measurement->wait_time += call_tree->measurement->wait_time;
+
+    return prof_frame_push(stack, parent_call_tree, measurement, false);
 }
 
 prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement)

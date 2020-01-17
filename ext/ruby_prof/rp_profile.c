@@ -117,6 +117,21 @@ static prof_method_t* create_method(prof_profile_t* profile, st_data_t key, VALU
     return result;
 }
 
+static prof_method_t* check_parent_method(prof_profile_t* profile, thread_data_t* thread_data)
+{
+    VALUE msym = ID2SYM(rb_intern("_inserted_parent_"));
+    st_data_t key = method_key(cProfile, msym);
+
+    prof_method_t* result = method_table_lookup(thread_data->method_table, key);
+
+    if (!result)
+    {
+        result = create_method(profile, key, cProfile, msym, Qnil, 0);
+    }
+
+    return result;
+}
+
 prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, rb_event_flag_t event, thread_data_t* thread_data)
 {
     VALUE klass = rb_tracearg_defined_class(trace_arg);
@@ -148,22 +163,6 @@ prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, 
     }
     
     return result;
-}
-
-void prof_thread_set_call_tree(thread_data_t* thread_data, prof_method_t* method, prof_call_tree_t* parent_call_tree, double measurement)
-{
-    if (thread_data->call_tree)
-    {
-        parent_call_tree->measurement->total_time = thread_data->call_tree->measurement->total_time;
-        parent_call_tree->measurement->self_time = 0;
-        parent_call_tree->measurement->wait_time = thread_data->call_tree->measurement->wait_time;
-
-        parent_call_tree->method->measurement->total_time += thread_data->call_tree->measurement->total_time;
-        parent_call_tree->method->measurement->wait_time += thread_data->call_tree->measurement->wait_time;
-
-        prof_call_tree_add_parent(thread_data->call_tree, parent_call_tree);
-    }
-    thread_data->call_tree = parent_call_tree;
 }
 
 /* ===========  Profiling ================= */
@@ -246,9 +245,17 @@ static void prof_event_hook(VALUE trace_point, void* data)
                 prof_call_tree_t* call_tree = prof_call_tree_create(method, NULL, method->source_file, method->source_line);
                 prof_add_call_tree(method->call_trees, call_tree);
 
-                frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));
-
-                prof_thread_set_call_tree(thread_data, method, call_tree, measurement);
+                if (thread_data->call_tree)
+                {
+                    prof_call_tree_add_parent(thread_data->call_tree, call_tree);
+                    frame = prof_frame_unshift(thread_data->stack, call_tree, thread_data->call_tree, measurement);
+                }
+                else
+                {
+                    frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));
+                }
+                
+                thread_data->call_tree = call_tree;
             }
             
             frame->source_file = rb_tracearg_path(trace_arg);
@@ -264,36 +271,39 @@ static void prof_event_hook(VALUE trace_point, void* data)
             if (!method)
                 break;
 
-            // Frame can be NULL if we are switching from one fiber to another (see FiberTest#fiber_test)
             prof_frame_t* frame = prof_frame_current(thread_data->stack);
-            prof_call_tree_t* parent_call_tree = frame ? frame->call_tree : NULL;
-            prof_call_tree_t* call_tree = parent_call_tree ? call_tree_table_lookup(parent_call_tree->children, method->key) : NULL;
+            prof_call_tree_t* parent_call_tree = NULL;
+            prof_call_tree_t* call_tree = NULL;
+
+            // Frame can be NULL if we are switching from one fiber to another (see FiberTest#fiber_test)
+            if (frame)
+            {
+                parent_call_tree = frame->call_tree;
+                call_tree = call_tree_table_lookup(parent_call_tree->children, method->key);
+            }
+            else if (!frame && thread_data->call_tree)
+            {
+                // There is no current parent - likely we have returned out of the highest level method we have profiled so far. 
+                // This can happen with enumerators (see fiber_test.rb). So create a new dummy parent.
+                prof_method_t* parent_method = check_parent_method(profile, thread_data);
+                parent_call_tree = prof_call_tree_create(parent_method, NULL, Qnil, 0);
+                prof_add_call_tree(parent_method->call_trees, parent_call_tree);
+                prof_call_tree_add_parent(thread_data->call_tree, parent_call_tree);
+                frame = prof_frame_unshift(thread_data->stack, parent_call_tree, thread_data->call_tree, measurement);
+                thread_data->call_tree = parent_call_tree;
+            }
 
             if (!call_tree)
             {
-                /* This call info does not yet exist.  So create it, then add
-                    it to previous callinfo's children and to the current method .*/
-                call_tree = prof_call_tree_create(method, parent_call_tree, frame ? frame->source_file : Qnil, frame ? frame->source_line: 0);
+                // This call info does not yet exist.  So create it and add it to previous CallTree's children and the current method.
+                call_tree = prof_call_tree_create(method, parent_call_tree, frame ? frame->source_file : Qnil, frame? frame->source_line : 0);
                 prof_add_call_tree(method->call_trees, call_tree);
                 if (parent_call_tree)
                     prof_call_tree_add_child(parent_call_tree, call_tree);
             }
 
-            if (!frame)
-            {
-                // We have returned out of the highest level method we have profiled so far. So we need to create
-                // a new parent call tree to not lose call tree information we have gathered so far.
-                VALUE msym = ID2SYM(rb_intern("_inserted_parent_"));
-                st_data_t key = method_key(cProfile, msym);
-                prof_method_t* method = method_table_lookup(thread_data->method_table, key);
-
-                if (!method)
-                {
-                    method = create_method(profile, key, cProfile, msym, Qnil, 0);
-                }
-
-                prof_thread_set_call_tree(thread_data, method, call_tree, measurement);
-            }
+            if (!thread_data->call_tree)
+                thread_data->call_tree = call_tree;
 
             // Push a new frame onto the stack for a new c-call or ruby call (into a method)
             prof_frame_t* next_frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));
@@ -650,6 +660,7 @@ static VALUE prof_start(VALUE self)
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
+    trace_file_name = "c:\\temp\\trace.txt";
 
     if (trace_file_name != NULL)
     {

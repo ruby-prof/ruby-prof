@@ -145,7 +145,7 @@ prof_call_tree_t* prof_get_call_tree(VALUE self)
 }
 
 /* =======  Call Tree Table   ========*/
-size_t call_tree_table_insert(st_table* table, st_data_t key, prof_call_tree_t* val)
+static size_t call_tree_table_insert(st_table* table, st_data_t key, prof_call_tree_t* val)
 {
     return st_insert(table, (st_data_t)key, (st_data_t)val);
 }
@@ -175,6 +175,18 @@ uint32_t prof_call_figure_depth(prof_call_tree_t* call_tree_data)
 
     return result;
 }
+
+void prof_call_tree_add_parent(prof_call_tree_t* self, prof_call_tree_t* parent)
+{
+    prof_call_tree_add_child(parent, self);
+    self->parent = parent;
+}
+
+void prof_call_tree_add_child(prof_call_tree_t* self, prof_call_tree_t* child)
+{
+    call_tree_table_insert(self->children, child->method->key, child);
+}
+
 
 /* =======  RubyProf::CallTree   ========*/
 

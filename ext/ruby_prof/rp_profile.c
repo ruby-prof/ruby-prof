@@ -161,9 +161,7 @@ void prof_thread_set_call_tree(thread_data_t* thread_data, prof_method_t* method
         parent_call_tree->method->measurement->total_time += thread_data->call_tree->measurement->total_time;
         parent_call_tree->method->measurement->wait_time += thread_data->call_tree->measurement->wait_time;
 
-
-        thread_data->call_tree->parent = parent_call_tree;
-        call_tree_table_insert(parent_call_tree->children, thread_data->call_tree->method->key, thread_data->call_tree);
+        prof_call_tree_add_parent(thread_data->call_tree, parent_call_tree);
     }
     thread_data->call_tree = parent_call_tree;
 }
@@ -278,7 +276,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
                 call_tree = prof_call_tree_create(method, parent_call_tree, frame ? frame->source_file : Qnil, frame ? frame->source_line: 0);
                 prof_add_call_tree(method->call_trees, call_tree);
                 if (parent_call_tree)
-                    call_tree_table_insert(parent_call_tree->children, method->key, call_tree);
+                    prof_call_tree_add_child(parent_call_tree, call_tree);
             }
 
             if (!frame)

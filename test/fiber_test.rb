@@ -38,6 +38,26 @@ class FiberTest < TestCase
   def test_fibers
     result  = RubyProf.profile { fiber_test }
 
+    printer = RubyProf::CallInfoPrinter.new(result)
+    File.open('c:/temp/call_tree.txt', 'wb') do |file|
+      printer.print(file)
+    end
+
+    printer = RubyProf::GraphHtmlPrinter.new(result)
+    File.open('c:/temp/graph.html', 'wb') do |file|
+      printer.print(file)
+    end
+
+    printer = RubyProf::GraphPrinter.new(result)
+    File.open('c:/temp/graph.txt', 'wb') do |file|
+      printer.print(file)
+    end
+
+    printer = RubyProf::CallStackPrinter.new(result)
+    File.open('c:/temp/call_stack.html', 'wb') do |file|
+      printer.print(file)
+    end
+
     profiled_fiber_ids = result.threads.map(&:fiber_id)
     assert_equal(2, result.threads.length)
     assert_equal([@thread_id], result.threads.map(&:id).uniq)
@@ -46,15 +66,198 @@ class FiberTest < TestCase
     assert profiled_fiber_ids.include?(@root_fiber)
     assert(root_fiber_profile = result.threads.detect{|t| t.fiber_id == @root_fiber})
     assert(enum_fiber_profile = result.threads.detect{|t| t.fiber_id != @root_fiber})
+    assert_in_delta(0.33, root_fiber_profile.total_time, 0.05)
+    assert_in_delta(0.33, enum_fiber_profile.total_time, 0.05)
 
-    assert_in_delta(0.3, root_fiber_profile.total_time, 0.05)
-    assert_in_delta(0.2, enum_fiber_profile.total_time, 0.05)
+    methods = result.threads[0].methods.sort.reverse
+    assert_equal(12, methods.count)
 
-    assert(method_next = root_fiber_profile.methods.detect{|m| m.full_name == "Enumerator#next"})
-    assert(method_each = enum_fiber_profile.methods.detect{|m| m.full_name == "Enumerator#each"})
+    method = methods[0]
+    assert_equal('FiberTest#test_fibers', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0.33, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0.33, method.children_time, 0.05)
 
-    assert_in_delta(0.2, method_next.total_time, 0.05)
-    assert_in_delta(0.2, method_each.total_time, 0.05)
+    method = methods[1]
+    assert_equal('FiberTest#fiber_test', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0.33, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0.33, method.children_time, 0.05)
+
+    method = methods[2]
+    assert_equal('Enumerator#next', method.full_name)
+    assert_equal(3, method.called)
+    assert_in_delta(0.22, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0.22, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[3]
+    assert_equal('Kernel#sleep', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0.11, method.total_time, 0.05)
+    assert_in_delta(0.11, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[4]
+    assert_equal('Set#<<', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[5]
+    assert_equal('Module#===', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[6]
+    assert_equal('Kernel#object_id', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[7]
+    assert_equal('Class#new', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[8]
+    assert_equal('<Class::Fiber>#current', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[9]
+    assert_equal('Exception#exception', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[10]
+    assert_equal('Exception#backtrace', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[11]
+    assert_equal('Enumerator#initialize', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    methods = result.threads[1].methods.sort.reverse
+    assert_equal(11, methods.count)
+
+    method = methods[0]
+    assert_equal('RubyProf::Profile#_inserted_parent_', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0.33, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0.11, method.wait_time, 0.05)
+    assert_in_delta(0.22, method.children_time, 0.05)
+
+    method = methods[1]
+    assert_equal('Enumerator#each', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0.22, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0.22, method.children_time, 0.05)
+
+    method = methods[2]
+    assert_equal('Enumerator::Generator#each', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0.22, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0.22, method.children_time, 0.05)
+
+    method = methods[3]
+    assert_equal('Array#each', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0.22, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0.22, method.children_time, 0.05)
+
+    method = methods[4]
+    assert_equal('Kernel#sleep', method.full_name)
+    assert_equal(2, method.called)
+    assert_in_delta(0.22, method.total_time, 0.05)
+    assert_in_delta(0.22, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[5]
+    assert_equal('Exception#initialize', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[6]
+    assert_equal('Set#<<', method.full_name)
+    assert_equal(2, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[7]
+    assert_equal('Kernel#object_id', method.full_name)
+    assert_equal(2, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[8]
+    assert_equal('Enumerator::Yielder#yield', method.full_name)
+    assert_equal(2, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[9]
+    assert_equal('<Class::Fiber>#current', method.full_name)
+    assert_equal(2, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+
+    method = methods[10]
+    assert_equal('Numeric#eql?', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
   end
 
   def test_merged_fibers

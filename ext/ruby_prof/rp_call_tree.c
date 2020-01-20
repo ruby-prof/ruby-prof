@@ -13,7 +13,7 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
     prof_call_tree_t* result = ALLOC(prof_call_tree_t);
     result->method = method;
     result->parent = parent;
-    result->children = method_table_create();
+    result->children = st_init_numtable();
     result->object = Qnil;
     result->measurement = prof_measurement_create();
 
@@ -28,7 +28,7 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
 prof_call_tree_t* prof_call_tree_copy(prof_call_tree_t* other)
 {
     prof_call_tree_t* result = ALLOC(prof_call_tree_t);
-    result->children = method_table_create();
+    result->children = st_init_numtable();
     result->object = Qnil;
     result->visits = 0;
 
@@ -55,7 +55,7 @@ void prof_call_tree_merge(prof_call_tree_t* result, prof_call_tree_t* other)
     result->measurement->wait_time += other->measurement->wait_time;
 }
 
-static int prof_call_tree_collect_call_trees(st_data_t key, st_data_t value, st_data_t result)
+static int prof_call_tree_collect_children(st_data_t key, st_data_t value, st_data_t result)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)value;
     VALUE arr = (VALUE)result;
@@ -98,6 +98,7 @@ void prof_call_tree_free(prof_call_tree_t* call_tree_data)
         RDATA(call_tree_data->object)->dmark = NULL;
         RDATA(call_tree_data->object)->dfree = NULL;
         RDATA(call_tree_data->object)->data = NULL;
+        call_tree_data->object = Qnil;
     }
 
     // Free children
@@ -187,7 +188,6 @@ void prof_call_tree_add_child(prof_call_tree_t* self, prof_call_tree_t* child)
     call_tree_table_insert(self->children, child->method->key, child);
 }
 
-
 /* =======  RubyProf::CallTree   ========*/
 
 /* call-seq:
@@ -211,7 +211,7 @@ static VALUE prof_call_tree_children(VALUE self)
 {
     prof_call_tree_t* call_tree = prof_get_call_tree(self);
     VALUE result = rb_ary_new();
-    st_foreach(call_tree->children, prof_call_tree_collect_call_trees, result);
+    st_foreach(call_tree->children, prof_call_tree_collect_children, result);
     return result;
 }
 

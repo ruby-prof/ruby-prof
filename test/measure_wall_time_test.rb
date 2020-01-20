@@ -395,28 +395,32 @@ class MeasureWallTimeTest < TestCase
     assert_in_delta(0.3, methods[2].self_time, 0.03)
     assert_in_delta(0.0, methods[2].children_time, 0.03)
 
-    assert_equal('<Class::RubyProf::C3>#instance', methods[3].full_name)
-    assert_in_delta(0.0, methods[3].total_time, 0.03)
-    assert_in_delta(0.0, methods[3].wait_time, 0.03)
-    assert_in_delta(0.0, methods[3].self_time, 0.03)
-    assert_in_delta(0.0, methods[3].children_time, 0.03)
+    method = methods.detect {|method| method.full_name == '<Class::RubyProf::C3>#instance'}
+    assert_equal('<Class::RubyProf::C3>#instance', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.03)
+    assert_in_delta(0.0, method.wait_time, 0.03)
+    assert_in_delta(0.0, method.self_time, 0.03)
+    assert_in_delta(0.0, method.children_time, 0.03)
 
-    assert_equal('Thread::Mutex#synchronize', methods[4].full_name)
-    assert_in_delta(0.0, methods[4].total_time, 0.03)
-    assert_in_delta(0.0, methods[4].wait_time, 0.03)
-    assert_in_delta(0.0, methods[4].self_time, 0.03)
-    assert_in_delta(0.0, methods[4].children_time, 0.03)
+    method = methods.detect {|method| method.full_name == 'Thread::Mutex#synchronize'}
+    assert_equal('Thread::Mutex#synchronize', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.03)
+    assert_in_delta(0.0, method.wait_time, 0.03)
+    assert_in_delta(0.0, method.self_time, 0.03)
+    assert_in_delta(0.0, method.children_time, 0.03)
 
-    assert_equal('Class#new', methods[5].full_name)
-    assert_in_delta(0.0, methods[5].total_time, 0.03)
-    assert_in_delta(0.0, methods[5].wait_time, 0.03)
-    assert_in_delta(0.0, methods[5].self_time, 0.03)
-    assert_in_delta(0.0, methods[5].children_time, 0.03)
+    method = methods.detect {|method| method.full_name == 'Class#new'}
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.03)
+    assert_in_delta(0.0, method.wait_time, 0.03)
+    assert_in_delta(0.0, method.self_time, 0.03)
+    assert_in_delta(0.0, method.children_time, 0.03)
 
-    assert_equal('BasicObject#initialize', methods[6].full_name)
-    assert_in_delta(0.0, methods[6].total_time, 0.03)
-    assert_in_delta(0.0, methods[6].wait_time, 0.03)
-    assert_in_delta(0.0, methods[6].self_time, 0.03)
-    assert_in_delta(0.0, methods[6].children_time, 0.03)
+    method = methods.detect {|method| method.full_name == 'BasicObject#initialize'}
+    assert_equal('BasicObject#initialize', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.03)
+    assert_in_delta(0.0, method.wait_time, 0.03)
+    assert_in_delta(0.0, method.self_time, 0.03)
+    assert_in_delta(0.0, method.children_time, 0.03)
   end
 end

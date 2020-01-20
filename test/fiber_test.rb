@@ -93,6 +93,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')
     method = methods.detect {|method| method.full_name == 'Set#<<'}
     assert_equal('Set#<<', method.full_name)
     assert_equal(1, method.called)
@@ -100,6 +101,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
+    end
 
     method = methods.detect {|method| method.full_name == 'Module#==='}
     assert_equal('Module#===', method.full_name)
@@ -150,7 +152,12 @@ class FiberTest < TestCase
     assert_in_delta(0, method.children_time, 0.05)
 
     methods = result.threads[1].methods.sort.reverse
-    assert_equal(11, methods.count)
+
+    if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.6.0')
+    assert_equal(10, methods.count)
+    else
+      assert_equal(11, methods.count)
+    end
 
     method = methods[0]
     assert_equal('RubyProf::Profile#_inserted_parent_', method.full_name)

@@ -38,26 +38,6 @@ class FiberTest < TestCase
   def test_fibers
     result  = RubyProf.profile { fiber_test }
 
-    printer = RubyProf::CallInfoPrinter.new(result)
-    File.open('c:/temp/call_tree.txt', 'wb') do |file|
-      printer.print(file)
-    end
-
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('c:/temp/graph.html', 'wb') do |file|
-      printer.print(file)
-    end
-
-    printer = RubyProf::GraphPrinter.new(result)
-    File.open('c:/temp/graph.txt', 'wb') do |file|
-      printer.print(file)
-    end
-
-    printer = RubyProf::CallStackPrinter.new(result)
-    File.open('c:/temp/call_stack.html', 'wb') do |file|
-      printer.print(file)
-    end
-
     profiled_fiber_ids = result.threads.map(&:fiber_id)
     assert_equal(2, result.threads.length)
     assert_equal([@thread_id], result.threads.map(&:id).uniq)

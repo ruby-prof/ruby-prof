@@ -660,7 +660,6 @@ static VALUE prof_start(VALUE self)
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");
-    trace_file_name = "c:\\temp\\trace.txt";
 
     if (trace_file_name != NULL)
     {

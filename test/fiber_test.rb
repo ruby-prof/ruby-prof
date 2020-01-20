@@ -149,7 +149,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.children_time, 0.05)
 
     methods = result.threads[1].methods.sort.reverse
-    assert_equal(11, methods.count)
+    assert_equal(10, methods.count)
 
     method = methods[0]
     assert_equal('RubyProf::Profile#_inserted_parent_', method.full_name)
@@ -226,14 +226,6 @@ class FiberTest < TestCase
     method = methods[9]
     assert_equal('<Class::Fiber>#current', method.full_name)
     assert_equal(2, method.called)
-    assert_in_delta(0, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(0, method.children_time, 0.05)
-
-    method = methods[10]
-    assert_equal('Numeric#eql?', method.full_name)
-    assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.05)

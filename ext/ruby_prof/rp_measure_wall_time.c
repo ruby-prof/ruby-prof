@@ -15,7 +15,9 @@ static VALUE cMeasureWallTime;
 static double measure_wall_time(rb_trace_arg_t* trace_arg)
 {
 #if defined(_WIN32)
-    return GetTickCount();
+    LARGE_INTEGER time;
+    QueryPerformanceCounter(&time);
+    return time.QuadPart;
 #elif defined(__APPLE__)
     return mach_absolute_time();// * (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom;
 #elif defined(__linux__)
@@ -32,7 +34,9 @@ static double measure_wall_time(rb_trace_arg_t* trace_arg)
 static double multiplier_wall_time(void)
 {
 #if defined(_WIN32)
-    return 1.0 / 1000.0;
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    return 1.0 / frequency.QuadPart;
 #elif defined(__APPLE__)
     mach_timebase_info_data_t mach_timebase;
     mach_timebase_info(&mach_timebase);

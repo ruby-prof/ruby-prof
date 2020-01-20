@@ -54,7 +54,7 @@ module RubyProf
 
     # :enddoc:
     def <=>(other)
-      if other == nil
+      if other.nil?
         -1
       elsif self.full_name == other.full_name
         0

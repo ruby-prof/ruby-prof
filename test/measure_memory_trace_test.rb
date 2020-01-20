@@ -383,9 +383,9 @@ class MeasureMemoryTraceTest < TestCase
       thread = result.threads.first
 
       if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7.0')
-        assert_in_delta(1760, thread.total_time, 1)
-      else
         assert_in_delta(800, thread.total_time, 1)
+      else
+        assert_in_delta(1760, thread.total_time, 1)
       end
 
       methods = result.threads.first.methods.sort.reverse

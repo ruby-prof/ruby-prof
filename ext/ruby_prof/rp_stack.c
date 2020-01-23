@@ -180,6 +180,8 @@ prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement)
         parent_frame->dead_time += frame->dead_time;
     }
 
+    frame->source_file = Qnil;
+
     return frame;
 }
 

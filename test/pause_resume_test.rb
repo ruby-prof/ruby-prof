@@ -2,6 +2,7 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
+require_relative 'measure_times'
 
 class PauseResumeTest < TestCase
   def setup
@@ -43,15 +44,15 @@ class PauseResumeTest < TestCase
     assert_equal('PauseResumeTest#test_pause_resume', methods[2].full_name)
 
     # Check times
-    assert_in_delta(0.2, methods[0].total_time, 0.02)
+    assert_in_delta(0.22, methods[0].total_time, 0.02)
     assert_in_delta(0, methods[0].wait_time, 0.02)
     assert_in_delta(0, methods[0].self_time, 0.02)
 
-    assert_in_delta(0.2, methods[1].total_time, 0.02)
+    assert_in_delta(0.22, methods[1].total_time, 0.02)
     assert_in_delta(0, methods[1].wait_time, 0.02)
-    assert_in_delta(0.2, methods[1].self_time, 0.02)
+    assert_in_delta(0.22, methods[1].self_time, 0.02)
 
-    assert_in_delta(0.2, methods[2].total_time, 0.02)
+    assert_in_delta(0.22, methods[2].total_time, 0.02)
     assert_in_delta(0, methods[2].wait_time, 0.02)
     assert_in_delta(0, methods[2].self_time, 0.02)
   end
@@ -70,9 +71,9 @@ class PauseResumeTest < TestCase
     method_1c
 
     result = profile.stop
-    assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_1$/}[0].total_time, 0.05)
+    assert_in_delta(0.65, result.threads[0].methods.select {|m| m.full_name =~ /test_pause_resume_1$/}[0].total_time, 0.05)
   end
-  def method_1a; sleep 0.2 end
+  def method_1a; sleep 0.22 end
   def method_1b; sleep 1   end
   def method_1c; sleep 0.4 end
 
@@ -90,7 +91,7 @@ class PauseResumeTest < TestCase
     result = profile.stop
     assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_2$/}[0].total_time, 0.05)
   end
-  def method_2a; sleep 0.2 end
+  def method_2a; sleep 0.22 end
   def method_2b(profile); sleep 0.5; profile.resume; sleep 0.4 end
 
   # pause in child frame, resume in parent
@@ -105,10 +106,18 @@ class PauseResumeTest < TestCase
     method_3b
 
     result = profile.stop
-    assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_3$/}[0].total_time, 0.05)
+    assert_in_delta(0.65, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_3$/}[0].total_time, 0.05)
   end
-  def method_3a(profile); sleep 0.2; profile.pause; sleep 0.5 end
-  def method_3b; sleep 0.4 end
+
+  def method_3a(profile)
+    sleep 0.22
+    profile.pause
+    sleep 0.5
+  end
+
+  def method_3b
+    sleep 0.4
+  end
 
   def test_pause_seq
     profile = RubyProf::Profile.new

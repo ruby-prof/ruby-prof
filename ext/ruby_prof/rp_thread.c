@@ -85,6 +85,7 @@ static void prof_thread_free(thread_data_t* thread_data)
         RDATA(thread_data->object)->dmark = NULL;
         RDATA(thread_data->object)->dfree = NULL;
         RDATA(thread_data->object)->data = NULL;
+        thread_data->object = Qnil;
     }
 
     method_table_free(thread_data->method_table);

@@ -75,6 +75,7 @@ void prof_measurement_free(prof_measurement_t* measurement)
         RDATA(measurement->object)->dmark = NULL;
         RDATA(measurement->object)->dfree = NULL;
         RDATA(measurement->object)->data = NULL;
+        measurement->object = Qnil;
     }
 
     xfree(measurement);

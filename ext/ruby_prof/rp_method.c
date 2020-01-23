@@ -194,6 +194,7 @@ static void prof_method_free(prof_method_t* method)
         RDATA(method->object)->dmark = NULL;
         RDATA(method->object)->dfree = NULL;
         RDATA(method->object)->data = NULL;
+        method->object = Qnil;
     }
 
     allocations_table_free(method->allocations_table);

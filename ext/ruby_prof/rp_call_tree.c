@@ -66,7 +66,7 @@ static int prof_call_tree_collect_children(st_data_t key, st_data_t value, st_da
 static int prof_call_tree_mark_children(st_data_t key, st_data_t value, st_data_t data)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)value;
-    st_foreach(call_tree->children, prof_call_tree_mark_children, NULL);
+    st_foreach(call_tree->children, prof_call_tree_mark_children, data);
     prof_call_tree_mark(call_tree);
     return ST_CONTINUE;
 }

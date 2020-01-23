@@ -63,6 +63,14 @@ static int prof_call_tree_collect_children(st_data_t key, st_data_t value, st_da
     return ST_CONTINUE;
 }
 
+static int prof_call_tree_mark_children(st_data_t key, st_data_t value, st_data_t data)
+{
+    prof_call_tree_t* call_tree = (prof_call_tree_t*)value;
+    st_foreach(call_tree->children, prof_call_tree_mark_children, NULL);
+    prof_call_tree_mark(call_tree);
+    return ST_CONTINUE;
+}
+
 void prof_call_tree_mark(void* data)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
@@ -74,6 +82,11 @@ void prof_call_tree_mark(void* data)
         rb_gc_mark(call_tree->source_file);
 
     prof_measurement_mark(call_tree->measurement);
+
+    // Recurse down through the whole call tree but only from the top node
+    // to avoid calling mark over and over and over.
+    if (!call_tree->parent)
+        st_foreach(call_tree->children, prof_call_tree_mark_children, NULL);
 }
 
 static void prof_call_tree_ruby_gc_free(void* data)

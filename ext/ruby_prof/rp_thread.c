@@ -67,6 +67,9 @@ void prof_thread_mark(void* data)
     if (thread->thread_id != Qnil)
         rb_gc_mark(thread->thread_id);
 
+    if (thread->call_tree)
+        prof_call_tree_mark(thread->call_tree);
+
     st_foreach(thread->method_table, mark_methods, 0);
 }
 

@@ -394,10 +394,20 @@ class MeasureMemoryTraceTest < TestCase
       # Method 0
       method = methods[0]
       assert_equal('MeasureMemoryTraceTest#test_memory',  method.full_name)
-      assert_in_delta(1760, method.total_time, 1)
+      if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7.0')
+        assert_in_delta(800, method.total_time, 1)
+      else
+        assert_in_delta(1760, method.total_time, 1)
+      end
+
       assert_equal(0.0, method.wait_time)
       assert_equal(0.0, method.self_time)
-      assert_in_delta(1760, method.children_time, 1)
+
+      if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7.0')
+        assert_in_delta(800, method.children_time, 1)
+      else
+        assert_in_delta(1760, method.children_time, 1)
+      end
 
       assert_equal(0, method.call_trees.callers.length)
 

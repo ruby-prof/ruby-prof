@@ -154,9 +154,14 @@ class FiberTest < TestCase
     methods = result.threads[1].methods.sort.reverse
 
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.6.0')
-    assert_equal(10, methods.count)
-    else
+      assert_equal(10, methods.count)
+    elsif Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')
       assert_equal(11, methods.count)
+    else
+      assert_equal(12, methods.count)
+    end
+    methods.each do |method|
+      puts method.full_name
     end
 
     method = methods[0]
@@ -239,6 +244,17 @@ class FiberTest < TestCase
     assert_in_delta(0, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
+
+    if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.5.0')
+    method = methods.detect {|method| method.full_name == 'Numeric#eql?'}
+    assert_equal('Numeric#eql?', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
+    end
+
   end
 
   def test_merged_fibers

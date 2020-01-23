@@ -86,7 +86,7 @@ void prof_call_tree_mark(void* data)
     // Recurse down through the whole call tree but only from the top node
     // to avoid calling mark over and over and over.
     if (!call_tree->parent)
-        st_foreach(call_tree->children, prof_call_tree_mark_children, NULL);
+        st_foreach(call_tree->children, prof_call_tree_mark_children, 0);
 }
 
 static void prof_call_tree_ruby_gc_free(void* data)

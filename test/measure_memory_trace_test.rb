@@ -771,7 +771,7 @@ class MeasureMemoryTraceTest < TestCase
 
       call_tree = method.call_trees.callees[1]
       assert_equal('Allocator#run', call_tree.target.full_name)
-      assert_equal(1720.0, call_tree.total_time)
+      assert_equal(760.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(0.0, call_tree.self_time)
       assert_equal(1720.0, call_tree.children_time)
@@ -779,7 +779,7 @@ class MeasureMemoryTraceTest < TestCase
       # Method 1
       method = methods[1]
       assert_equal('Allocator#run',method.full_name)
-      assert_equal(1720.0, method.total_time)
+      assert_equal(760.0, method.total_time)
       assert_equal(0.0, method.wait_time)
       assert_equal(0.0, method.self_time)
       assert_equal(1720.0, method.children_time)
@@ -787,7 +787,7 @@ class MeasureMemoryTraceTest < TestCase
       assert_equal(1, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
       assert_equal('MeasureMemoryTraceTest#test_memory', call_tree.parent.target.full_name)
-      assert_equal(1720.0, call_tree.total_time)
+      assert_equal(760.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(0.0, call_tree.self_time)
       assert_equal(1720.0, call_tree.children_time)
@@ -795,7 +795,7 @@ class MeasureMemoryTraceTest < TestCase
       assert_equal(1, method.call_trees.callees.length)
       call_tree = method.call_trees.callees[0]
       assert_equal('Allocator#internal_run', call_tree.target.full_name)
-      assert_equal(1720.0, call_tree.total_time)
+      assert_equal(760.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(0.0, call_tree.self_time)
       assert_equal(1720.0, call_tree.children_time)
@@ -803,7 +803,7 @@ class MeasureMemoryTraceTest < TestCase
       # Method 2
       method = methods[2]
       assert_equal('Allocator#internal_run',  method.full_name)
-      assert_equal(1720.0, method.total_time)
+      assert_equal(760.0, method.total_time)
       assert_equal(0.0, method.wait_time)
       assert_equal(0.0, method.self_time)
       assert_equal(1720.0, method.children_time)
@@ -811,10 +811,10 @@ class MeasureMemoryTraceTest < TestCase
       assert_equal(1, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
       assert_equal('Allocator#run', call_tree.parent.target.full_name)
-      assert_equal(1720.0, call_tree.total_time)
+      assert_equal(760.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(0.0, call_tree.self_time)
-      assert_equal(1720.0, call_tree.children_time)
+      assert_equal(760.0, call_tree.children_time)
 
       assert_equal(3, method.call_trees.callees.length)
       call_tree = method.call_trees.callees[0]
@@ -856,7 +856,7 @@ class MeasureMemoryTraceTest < TestCase
 
       call_tree = method.call_trees.callers[1]
       assert_equal('Integer#times', call_tree.parent.target.full_name)
-        assert_equal(400.0, call_tree.total_time)
+      assert_equal(400.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(400.0, call_tree.self_time)
       assert_equal(0.0, call_tree.children_time)

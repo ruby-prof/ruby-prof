@@ -58,7 +58,7 @@ class CallTreesTest < TestCase
     method = result.threads.first.methods[1]
 
     100.times do |i|
-      aggregated_call_infos = method.call_trees.callers
+      method.call_trees.callers
       GC.start
     end
     assert(true)

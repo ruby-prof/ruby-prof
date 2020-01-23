@@ -208,13 +208,15 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == 'Set#<<'}
-    assert_equal('Set#<<', method.full_name)
-    assert_equal(2, method.called)
-    assert_in_delta(0, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(0, method.children_time, 0.05)
+    if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.6.0')
+      method = methods.detect {|method| method.full_name == 'Set#<<'}
+      assert_equal('Set#<<', method.full_name)
+      assert_equal(2, method.called)
+      assert_in_delta(0, method.total_time, 0.05)
+      assert_in_delta(0, method.self_time, 0.05)
+      assert_in_delta(0, method.wait_time, 0.05)
+      assert_in_delta(0, method.children_time, 0.05)
+    end
 
     method = methods.detect {|method| method.full_name == 'Kernel#object_id'}
     assert_equal('Kernel#object_id', method.full_name)
@@ -240,15 +242,13 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.6.0')
-      method = methods.detect {|method| method.full_name == 'Numeric#eql?'}
-      assert_equal('Numeric#eql?', method.full_name)
-      assert_equal(1, method.called)
-      assert_in_delta(0, method.total_time, 0.05)
-      assert_in_delta(0, method.self_time, 0.05)
-      assert_in_delta(0, method.wait_time, 0.05)
-      assert_in_delta(0, method.children_time, 0.05)
-    end
+    method = methods.detect {|method| method.full_name == 'Numeric#eql?'}
+    assert_equal('Numeric#eql?', method.full_name)
+    assert_equal(1, method.called)
+    assert_in_delta(0, method.total_time, 0.05)
+    assert_in_delta(0, method.self_time, 0.05)
+    assert_in_delta(0, method.wait_time, 0.05)
+    assert_in_delta(0, method.children_time, 0.05)
   end
 
   def test_merged_fibers

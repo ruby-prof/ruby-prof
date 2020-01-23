@@ -50,6 +50,7 @@ void prof_call_trees_free(prof_call_trees_t* call_trees)
         RDATA(call_trees->object)->dmark = NULL;
         RDATA(call_trees->object)->dfree = NULL;
         RDATA(call_trees->object)->data = NULL;
+        call_trees->object = Qnil;
     }
 
     // Note we do not free our call_tree structures - since they have no parents they will free themselves
@@ -63,7 +64,7 @@ void prof_call_trees_ruby_gc_free(void* data)
     call_trees->object = Qnil;
 }
 
-static int prof_call_trees_collect_callers(st_data_t key, st_data_t value, st_data_t data)
+static int prof_call_trees_collect_aggregates(st_data_t key, st_data_t value, st_data_t data)
 {
     VALUE result = (VALUE)data;
     prof_call_tree_t* call_tree_data = (prof_call_tree_t*)value;
@@ -197,7 +198,7 @@ VALUE prof_call_trees_callers(VALUE self)
     }
 
     VALUE result = rb_ary_new_capa(callers->num_entries);
-    st_foreach(callers, prof_call_trees_collect_callers, result);
+    st_foreach(callers, prof_call_trees_collect_aggregates, result);
     st_free_table(callers);
     return result;
 }
@@ -217,7 +218,7 @@ VALUE prof_call_trees_callees(VALUE self)
     }
 
     VALUE result = rb_ary_new_capa(callees->num_entries);
-    st_foreach(callees, prof_call_trees_collect_callers, result);
+    st_foreach(callees, prof_call_trees_collect_aggregates, result);
     st_free_table(callees);
     return result;
 }

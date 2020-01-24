@@ -377,7 +377,7 @@ prof_profile_t* prof_get_profile(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    return DATA_PTR(self);
+    return RTYPEDDATA_DATA(self);
 }
 
 static int collect_threads(st_data_t key, st_data_t value, st_data_t result)
@@ -399,14 +399,14 @@ static int mark_threads(st_data_t key, st_data_t value, st_data_t result)
     return ST_CONTINUE;
 }
 
-static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
+static int prof_profile_mark_methods(st_data_t key, st_data_t value, st_data_t result)
 {
     prof_method_t* method = (prof_method_t*)value;
     prof_method_mark(method);
     return ST_CONTINUE;
 }
 
-static void prof_mark(prof_profile_t* profile)
+static void prof_profile_mark(prof_profile_t* profile)
 {
     rb_gc_mark(profile->tracepoints);
     rb_gc_mark(profile->running);
@@ -419,13 +419,13 @@ static void prof_mark(prof_profile_t* profile)
         rb_st_foreach(profile->threads_tbl, mark_threads, 0);
 
     if (profile->exclude_methods_tbl)
-        rb_st_foreach(profile->exclude_methods_tbl, mark_methods, 0);
+        rb_st_foreach(profile->exclude_methods_tbl, prof_profile_mark_methods, 0);
 }
 
 /* Freeing the profile creates a cascade of freeing.
    It fress the thread table, which frees its methods,
    which frees its call infos. */
-static void prof_free(prof_profile_t* profile)
+static void prof_profile_ruby_gc_free(prof_profile_t* profile)
 {
     profile->last_thread_data = NULL;
 
@@ -454,11 +454,29 @@ static void prof_free(prof_profile_t* profile)
     xfree(profile);
 }
 
+size_t prof_profile_size(const void* data)
+{
+    return sizeof(prof_profile_t);
+}
+
+static const rb_data_type_t profile_type =
+{
+    .wrap_struct_name = "Profile",
+    .function =
+    {
+        .dmark = prof_profile_mark,
+        .dfree = prof_profile_ruby_gc_free,
+        .dsize = prof_profile_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 static VALUE prof_allocate(VALUE klass)
 {
     VALUE result;
     prof_profile_t* profile;
-    result = Data_Make_Struct(klass, prof_profile_t, prof_mark, prof_free, profile);
+    result = TypedData_Make_Struct(klass, prof_profile_t, &profile_type, profile);
     profile->threads_tbl = threads_table_create();
     profile->exclude_threads_tbl = NULL;
     profile->include_threads_tbl = NULL;
@@ -870,7 +888,7 @@ VALUE prof_profile_load(VALUE self, VALUE data)
     for (int i = 0; i < rb_array_len(threads); i++)
     {
         VALUE thread = rb_ary_entry(threads, i);
-        thread_data_t* thread_data = DATA_PTR(thread);
+        thread_data_t* thread_data = prof_get_thread(thread);
         rb_st_insert(profile->threads_tbl, (st_data_t)thread_data->fiber_id, (st_data_t)thread_data);
     }
 

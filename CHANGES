@@ -1,3 +1,14 @@
+1.2.0 (2020-01-23)
+=====================
+* Fix call stack printer broken in version 1.0.0 (Charlie Savage)
+* Ruby 2.7.0 support (Charlie Savage)
+* Switch to Windows high precision timer for measuring wall time (Charlie Savage)
+* Much better support for reverse call trees - if you start RubyProf at the bottom
+  of a call tree it will correctly calculate times as it ascends the tree (Charlie Savage)
+* Port AggregateCallInfo from Ruby to C to increase performance
+* API change - CallInfo has been renamed CallTree
+* Fix crashes on Ruby 2.4.*
+
 1.1.0 (2019-12-14)
 =====================
 Changes

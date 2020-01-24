@@ -346,7 +346,7 @@ static VALUE prof_call_tree_load(VALUE self, VALUE data)
 void rp_init_call_tree()
 {
     /* CallTree */
-    cRpCallTree = rb_define_class_under(mProf, "CallTree", rb_cData);
+    cRpCallTree = rb_define_class_under(mProf, "CallTree", rb_cObject);
     rb_undef_method(CLASS_OF(cRpCallTree), "new");
     rb_define_alloc_func(cRpCallTree, prof_call_tree_allocate);
 

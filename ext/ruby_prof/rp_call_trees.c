@@ -267,7 +267,7 @@ VALUE prof_call_trees_load(VALUE self, VALUE data)
 
 void rp_init_call_trees()
 {
-    cRpCallTrees = rb_define_class_under(mProf, "CallTrees", rb_cData);
+    cRpCallTrees = rb_define_class_under(mProf, "CallTrees", rb_cObject);
     rb_undef_method(CLASS_OF(cRpCallTrees), "new");
     rb_define_alloc_func(cRpCallTrees, prof_call_trees_allocate);
 

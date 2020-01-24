@@ -217,7 +217,7 @@ void rp_init_measure()
     rp_init_measure_allocations();
     rp_init_measure_memory();
 
-    cRpMeasurement = rb_define_class_under(mProf, "Measurement", rb_cData);
+    cRpMeasurement = rb_define_class_under(mProf, "Measurement", rb_cObject);
     rb_undef_method(CLASS_OF(cRpMeasurement), "new");
     rb_define_alloc_func(cRpMeasurement, prof_measurement_allocate);
 

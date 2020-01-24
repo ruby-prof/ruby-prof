@@ -458,7 +458,7 @@ static VALUE prof_method_load(VALUE self, VALUE data)
 void rp_init_method_info()
 {
     /* MethodInfo */
-    cRpMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cData);
+    cRpMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cObject);
     rb_undef_method(CLASS_OF(cRpMethodInfo), "new");
     rb_define_alloc_func(cRpMethodInfo, prof_method_allocate);
 

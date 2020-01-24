@@ -343,7 +343,7 @@ static VALUE prof_thread_load(VALUE self, VALUE data)
 
 void rp_init_thread(void)
 {
-    cRpThread = rb_define_class_under(mProf, "Thread", rb_cData);
+    cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
     rb_undef_method(CLASS_OF(cRpThread), "new");
     rb_define_alloc_func(cRpThread, prof_thread_allocate);
 

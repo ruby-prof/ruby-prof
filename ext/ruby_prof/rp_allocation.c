@@ -267,7 +267,7 @@ static VALUE prof_allocation_load(VALUE self, VALUE data)
 
 void rp_init_allocation(void)
 {
-    cRpAllocation = rb_define_class_under(mProf, "Allocation", rb_cData);
+    cRpAllocation = rb_define_class_under(mProf, "Allocation", rb_cObject);
     rb_undef_method(CLASS_OF(cRpAllocation), "new");
     rb_define_alloc_func(cRpAllocation, prof_allocation_allocate);
 

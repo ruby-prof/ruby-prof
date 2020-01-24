@@ -6,14 +6,14 @@ require File.expand_path('../test_helper', __FILE__)
 class LineNumbers
   def method_1
     method_2
-    filler = 1
+    _filler = 1
     method_3
   end
 
   def method_2
-    filler = 1
+    _filler = 1
     2.times do |i|
-      filler = 2
+      _filler = 2
       method_3
     end
   end

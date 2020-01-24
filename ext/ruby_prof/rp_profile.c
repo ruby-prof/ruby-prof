@@ -406,8 +406,9 @@ static int prof_profile_mark_methods(st_data_t key, st_data_t value, st_data_t r
     return ST_CONTINUE;
 }
 
-static void prof_profile_mark(prof_profile_t* profile)
+static void prof_profile_mark(void* data)
 {
+    prof_profile_t* profile = (prof_profile_t*)data;
     rb_gc_mark(profile->tracepoints);
     rb_gc_mark(profile->running);
     rb_gc_mark(profile->paused);
@@ -425,8 +426,9 @@ static void prof_profile_mark(prof_profile_t* profile)
 /* Freeing the profile creates a cascade of freeing.
    It fress the thread table, which frees its methods,
    which frees its call infos. */
-static void prof_profile_ruby_gc_free(prof_profile_t* profile)
+static void prof_profile_ruby_gc_free(void* data)
 {
+    prof_profile_t* profile = (prof_profile_t*)data;
     profile->last_thread_data = NULL;
 
     threads_table_free(profile->threads_tbl);

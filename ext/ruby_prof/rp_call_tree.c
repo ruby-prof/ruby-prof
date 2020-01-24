@@ -108,9 +108,7 @@ void prof_call_tree_free(prof_call_tree_t* call_tree_data)
        yes clean it up so to avoid a segmentation fault. */
     if (call_tree_data->object != Qnil)
     {
-        RDATA(call_tree_data->object)->dmark = NULL;
-        RDATA(call_tree_data->object)->dfree = NULL;
-        RDATA(call_tree_data->object)->data = NULL;
+        RTYPEDDATA(call_tree_data->object)->data = NULL;
         call_tree_data->object = Qnil;
     }
 
@@ -130,11 +128,24 @@ size_t prof_call_tree_size(const void* data)
     return sizeof(prof_call_tree_t);
 }
 
+static const rb_data_type_t call_tree_type =
+{
+    .wrap_struct_name = "CallTree",
+    .function =
+    {
+        .dmark = prof_call_tree_mark,
+        .dfree = prof_call_tree_ruby_gc_free,
+        .dsize = prof_call_tree_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 VALUE prof_call_tree_wrap(prof_call_tree_t* call_tree)
 {
     if (call_tree->object == Qnil)
     {
-        call_tree->object = Data_Wrap_Struct(cRpCallTree, prof_call_tree_mark, prof_call_tree_ruby_gc_free, call_tree);
+        call_tree->object = TypedData_Wrap_Struct(cRpCallTree, &call_tree_type, call_tree);
     }
     return call_tree->object;
 }
@@ -150,7 +161,7 @@ prof_call_tree_t* prof_get_call_tree(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    prof_call_tree_t* result = DATA_PTR(self);
+    prof_call_tree_t* result = RTYPEDDATA_DATA(self);
 
     if (!result)
         rb_raise(rb_eRuntimeError, "This RubyProf::CallTree instance has already been freed, likely because its profile has been freed.");

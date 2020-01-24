@@ -27,6 +27,8 @@ st_table* threads_table_create(void);
 thread_data_t* threads_table_lookup(void* profile, VALUE fiber);
 thread_data_t* threads_table_insert(void* profile, VALUE fiber);
 void threads_table_free(st_table* table);
+
+thread_data_t* prof_get_thread(VALUE self);
 VALUE prof_thread_wrap(thread_data_t* thread);
 void prof_thread_mark(void* data);
 

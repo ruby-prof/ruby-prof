@@ -43,6 +43,18 @@ prof_allocation_t* prof_allocation_create(void)
     return result;
 }
 
+prof_allocation_t* prof_get_allocation(VALUE self)
+{
+    /* Can't use Data_Get_Struct because that triggers the event hook
+       ending up in endless recursion. */
+    prof_allocation_t* result = RTYPEDDATA_DATA(self);
+
+    if (!result)
+        rb_raise(rb_eRuntimeError, "This RubyProf::Allocation instance has already been freed, likely because its profile has been freed.");
+
+    return result;
+}
+
 prof_allocation_t* prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg)
 {
     VALUE object = rb_tracearg_object(trace_arg);
@@ -85,9 +97,7 @@ void prof_allocation_free(prof_allocation_t* allocation)
        yes clean it up so to avoid a segmentation fault. */
     if (allocation->object != Qnil)
     {
-        RDATA(allocation->object)->dmark = NULL;
-        RDATA(allocation->object)->dfree = NULL;
-        RDATA(allocation->object)->data = NULL;
+        RTYPEDDATA(allocation->object)->data = NULL;
         allocation->object = Qnil;
     }
 
@@ -115,11 +125,24 @@ void prof_allocation_mark(void* data)
         rb_gc_mark(allocation->source_file);
 }
 
+static const rb_data_type_t allocation_type =
+{
+    .wrap_struct_name = "Allocation",
+    .function =
+    {
+        .dmark = prof_allocation_mark,
+        .dfree = prof_allocation_ruby_gc_free,
+        .dsize = prof_allocation_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+}; 
+
 VALUE prof_allocation_wrap(prof_allocation_t* allocation)
 {
     if (allocation->object == Qnil)
     {
-        allocation->object = Data_Wrap_Struct(cRpAllocation, prof_allocation_mark, prof_allocation_ruby_gc_free, allocation);
+        allocation->object = TypedData_Wrap_Struct(cRpAllocation, &allocation_type, allocation);
     }
     return allocation->object;
 }
@@ -135,7 +158,7 @@ prof_allocation_t* prof_allocation_get(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    prof_allocation_t* result = DATA_PTR(self);
+    prof_allocation_t* result = RTYPEDDATA_DATA(self);
     if (!result)
         rb_raise(rb_eRuntimeError, "This RubyProf::Allocation instance has already been freed, likely because its profile has been freed.");
 
@@ -210,7 +233,7 @@ static VALUE prof_allocation_memory(VALUE self)
 /* :nodoc: */
 static VALUE prof_allocation_dump(VALUE self)
 {
-    prof_allocation_t* allocation = DATA_PTR(self);
+    prof_allocation_t* allocation = prof_get_allocation(self);
 
     VALUE result = rb_hash_new();
 
@@ -228,7 +251,7 @@ static VALUE prof_allocation_dump(VALUE self)
 /* :nodoc: */
 static VALUE prof_allocation_load(VALUE self, VALUE data)
 {
-    prof_allocation_t* allocation = DATA_PTR(self);
+    prof_allocation_t* allocation = prof_get_allocation(self);
     allocation->object = self;
 
     allocation->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));

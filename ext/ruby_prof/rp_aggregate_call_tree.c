@@ -24,11 +24,29 @@ static void prof_aggregate_call_tree_ruby_gc_free(void* data)
     prof_call_tree_free(call_tree);
 }
 
+size_t prof_aggregate_call_tree_size(const void* data)
+{
+    return sizeof(prof_call_tree_t);
+}
+
+static const rb_data_type_t aggregate_call_tree_type =
+{
+    .wrap_struct_name = "Aggregate_CallTree",
+    .function =
+    {
+        .dmark = prof_aggregate_call_tree_mark,
+        .dfree = prof_aggregate_call_tree_ruby_gc_free,
+        .dsize = prof_aggregate_call_tree_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 VALUE prof_aggregate_call_tree_wrap(prof_call_tree_t* call_tree)
 {
     if (call_tree->object == Qnil)
     {
-        call_tree->object = Data_Wrap_Struct(cRpAggregateCallTree, prof_aggregate_call_tree_mark, prof_aggregate_call_tree_ruby_gc_free, call_tree);
+        call_tree->object = TypedData_Wrap_Struct(cRpAggregateCallTree, &aggregate_call_tree_type, call_tree);
     }
     return call_tree->object;
 }

@@ -138,7 +138,7 @@ prof_method_t* prof_get_method(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    prof_method_t* result = DATA_PTR(self);
+    prof_method_t* result = RTYPEDDATA_DATA(self);
 
     if (!result)
         rb_raise(rb_eRuntimeError, "This RubyProf::MethodInfo instance has already been freed, likely because its profile has been freed.");
@@ -191,9 +191,7 @@ static void prof_method_free(prof_method_t* method)
        yes clean it up so to avoid a segmentation fault. */
     if (method->object != Qnil)
     {
-        RDATA(method->object)->dmark = NULL;
-        RDATA(method->object)->dfree = NULL;
-        RDATA(method->object)->data = NULL;
+        RTYPEDDATA(method->object)->data = NULL;
         method->object = Qnil;
     }
 
@@ -234,11 +232,24 @@ static VALUE prof_method_allocate(VALUE klass)
     return method_data->object;
 }
 
+static const rb_data_type_t method_info_type =
+{
+    .wrap_struct_name = "MethodInfo",
+    .function =
+    {
+        .dmark = prof_method_mark,
+        .dfree = prof_method_ruby_gc_free,
+        .dsize = prof_method_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+}; 
+
 VALUE prof_method_wrap(prof_method_t* method)
 {
     if (method->object == Qnil)
     {
-        method->object = Data_Wrap_Struct(cRpMethodInfo, prof_method_mark, prof_method_ruby_gc_free, method);
+        method->object = TypedData_Wrap_Struct(cRpMethodInfo, &method_info_type, method);
     }
     return method->object;
 }
@@ -392,7 +403,7 @@ static VALUE prof_method_call_trees(VALUE self)
 /* :nodoc: */
 static VALUE prof_method_dump(VALUE self)
 {
-    prof_method_t* method_data = DATA_PTR(self);
+    prof_method_t* method_data = prof_get_method(self);
     VALUE result = rb_hash_new();
 
     rb_hash_aset(result, ID2SYM(rb_intern("klass_name")), prof_method_klass_name(self));
@@ -414,7 +425,7 @@ static VALUE prof_method_dump(VALUE self)
 /* :nodoc: */
 static VALUE prof_method_load(VALUE self, VALUE data)
 {
-    prof_method_t* method_data = RDATA(self)->data;
+    prof_method_t* method_data = prof_get_method(self);
     method_data->object = self;
 
     method_data->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));

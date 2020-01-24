@@ -14,7 +14,7 @@ prof_call_trees_t* prof_get_call_trees(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    prof_call_trees_t* result = DATA_PTR(self);
+    prof_call_trees_t* result = RTYPEDDATA_DATA(self);
 
     if (!result)
         rb_raise(rb_eRuntimeError, "This RubyProf::CallTrees instance has already been freed, likely because its profile has been freed.");
@@ -47,9 +47,7 @@ void prof_call_trees_free(prof_call_trees_t* call_trees)
        yes clean it up so to avoid a segmentation fault. */
     if (call_trees->object != Qnil)
     {
-        RDATA(call_trees->object)->dmark = NULL;
-        RDATA(call_trees->object)->dfree = NULL;
-        RDATA(call_trees->object)->data = NULL;
+        RTYPEDDATA(call_trees->object)->data = NULL;
         call_trees->object = Qnil;
     }
 
@@ -94,11 +92,29 @@ static int prof_call_trees_collect_callees(st_data_t key, st_data_t value, st_da
     return ST_CONTINUE;
 }
 
+size_t prof_call_trees_size(const void* data)
+{
+    return sizeof(prof_call_trees_t);
+}
+
+static const rb_data_type_t call_trees_type =
+{
+    .wrap_struct_name = "CallTrees",
+    .function =
+    {
+        .dmark = prof_call_trees_mark,
+        .dfree = prof_call_trees_ruby_gc_free,
+        .dsize = prof_call_trees_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 VALUE prof_call_trees_wrap(prof_call_trees_t* call_trees)
 {
     if (call_trees->object == Qnil)
     {
-        call_trees->object = Data_Wrap_Struct(cRpCallTrees, prof_call_trees_mark, prof_call_trees_ruby_gc_free, call_trees);
+        call_trees->object = TypedData_Wrap_Struct(cRpCallTrees, &call_trees_type, call_trees);
     }
     return call_trees->object;
 }
@@ -235,7 +251,7 @@ VALUE prof_call_trees_dump(VALUE self)
 /* :nodoc: */
 VALUE prof_call_trees_load(VALUE self, VALUE data)
 {
-    prof_call_trees_t* call_trees_data = DATA_PTR(self);
+    prof_call_trees_t* call_trees_data = prof_get_call_trees(self);
     call_trees_data->object = self;
 
     VALUE call_trees = rb_hash_aref(data, ID2SYM(rb_intern("call_trees")));

@@ -13,14 +13,12 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
     prof_call_tree_t* result = ALLOC(prof_call_tree_t);
     result->method = method;
     result->parent = parent;
-    result->children = rb_st_init_numtable();
     result->object = Qnil;
-    result->measurement = prof_measurement_create();
-
     result->visits = 0;
-
     result->source_line = source_line;
     result->source_file = source_file;
+    result->children = rb_st_init_numtable();
+    result->measurement = prof_measurement_create();
 
     return result;
 }
@@ -73,7 +71,8 @@ static int prof_call_tree_mark_children(st_data_t key, st_data_t value, st_data_
 
 void prof_call_tree_mark(void* data)
 {
-    if (!data) return;
+    if (!data)
+        return;
 
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
 
@@ -113,6 +112,7 @@ void prof_call_tree_free(prof_call_tree_t* call_tree_data)
        yes clean it up so to avoid a segmentation fault. */
     if (call_tree_data->object != Qnil)
     {
+        struct RTypedData* foo = RTYPEDDATA(call_tree_data->object);
         RTYPEDDATA(call_tree_data->object)->data = NULL;
         call_tree_data->object = Qnil;
     }

@@ -181,8 +181,11 @@ prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, in
    out our Ruby object reference.*/
 static void prof_method_ruby_gc_free(void* data)
 {
-    prof_method_t* method = (prof_method_t*)data;
-    method->object = Qnil;
+    if (data)
+    {
+        prof_method_t* method = (prof_method_t*)data;
+        method->object = Qnil;
+    }
 }
 
 static void prof_method_free(prof_method_t* method)

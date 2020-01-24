@@ -61,9 +61,12 @@ void prof_measurement_mark(void* data)
 
 static void prof_measurement_ruby_gc_free(void* data)
 {
-    // Measurements are freed by their owning object (call info or method)
-    prof_measurement_t* measurement = (prof_measurement_t*)data;
-    measurement->object = Qnil;
+    if (data)
+    {
+        // Measurements are freed by their owning object (call info or method)
+        prof_measurement_t* measurement = (prof_measurement_t*)data;
+        measurement->object = Qnil;
+    }
 }
 
 void prof_measurement_free(prof_measurement_t* measurement)

@@ -75,8 +75,11 @@ void prof_thread_mark(void* data)
 
 void prof_thread_ruby_gc_free(void* data)
 {
-    thread_data_t* thread_data = (thread_data_t*)data;
-    thread_data->object = Qnil;
+    if (data)
+    {
+        thread_data_t* thread_data = (thread_data_t*)data;
+        thread_data->object = Qnil;
+    }
 }
 
 static void prof_thread_free(thread_data_t* thread_data)

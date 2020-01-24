@@ -87,8 +87,11 @@ prof_allocation_t* prof_allocate_increment(prof_method_t* method, rb_trace_arg_t
 
 static void prof_allocation_ruby_gc_free(void* data)
 {
-    prof_allocation_t* allocation = (prof_allocation_t*)data;
-    allocation->object = Qnil;
+    if (data)
+    {
+        prof_allocation_t* allocation = (prof_allocation_t*)data;
+        allocation->object = Qnil;
+    }
 }
 
 void prof_allocation_free(prof_allocation_t* allocation)

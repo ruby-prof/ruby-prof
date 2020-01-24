@@ -91,8 +91,11 @@ void prof_call_tree_mark(void* data)
 
 static void prof_call_tree_ruby_gc_free(void* data)
 {
-    prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
-    call_tree->object = Qnil;
+    if (data)
+    {
+        prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
+        call_tree->object = Qnil;
+    }
 }
 
 static int prof_call_tree_free_children(st_data_t key, st_data_t value, st_data_t data)

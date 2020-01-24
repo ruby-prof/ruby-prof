@@ -57,9 +57,12 @@ void prof_call_trees_free(prof_call_trees_t* call_trees)
 
 void prof_call_trees_ruby_gc_free(void* data)
 {
-    // This object gets freed by its owning method
-    prof_call_trees_t* call_trees = (prof_call_trees_t*)data;
-    call_trees->object = Qnil;
+    if (data)
+    {
+        // This object gets freed by its owning method
+        prof_call_trees_t* call_trees = (prof_call_trees_t*)data;
+        call_trees->object = Qnil;
+    }
 }
 
 static int prof_call_trees_collect_aggregates(st_data_t key, st_data_t value, st_data_t data)

@@ -9,7 +9,7 @@ prof_allocation_t* allocations_table_lookup(st_table* table, st_data_t key)
 {
     prof_allocation_t* result = NULL;
     st_data_t value;
-    if (st_lookup(table, key, &value))
+    if (rb_st_lookup(table, key, &value))
     {
         result = (prof_allocation_t*)value;
     }
@@ -19,7 +19,7 @@ prof_allocation_t* allocations_table_lookup(st_table* table, st_data_t key)
 
 void allocations_table_insert(st_table* table, st_data_t key, prof_allocation_t* allocation)
 {
-    st_insert(table, (st_data_t)key, (st_data_t)allocation);
+    rb_st_insert(table, (st_data_t)key, (st_data_t)allocation);
 }
 
 st_data_t allocations_key(VALUE klass, int source_line)

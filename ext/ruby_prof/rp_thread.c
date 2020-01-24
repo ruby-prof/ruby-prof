@@ -70,7 +70,7 @@ void prof_thread_mark(void* data)
     if (thread->call_tree)
         prof_call_tree_mark(thread->call_tree);
 
-    st_foreach(thread->method_table, mark_methods, 0);
+    rb_st_foreach(thread->method_table, mark_methods, 0);
 }
 
 void prof_thread_ruby_gc_free(void* data)
@@ -133,7 +133,7 @@ static thread_data_t* prof_get_thread(VALUE self)
 
 st_table* threads_table_create()
 {
-    return st_init_numtable();
+    return rb_st_init_numtable();
 }
 
 static int thread_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
@@ -144,8 +144,8 @@ static int thread_table_free_iterator(st_data_t key, st_data_t value, st_data_t 
 
 void threads_table_free(st_table* table)
 {
-    st_foreach(table, thread_table_free_iterator, 0);
-    st_free_table(table);
+    rb_st_foreach(table, thread_table_free_iterator, 0);
+    rb_st_free_table(table);
 }
 
 thread_data_t* threads_table_lookup(void* prof, VALUE fiber)
@@ -154,7 +154,7 @@ thread_data_t* threads_table_lookup(void* prof, VALUE fiber)
     thread_data_t* result = NULL;
     st_data_t val;
 
-    if (st_lookup(profile->threads_tbl, fiber, &val))
+    if (rb_st_lookup(profile->threads_tbl, fiber, &val))
     {
         result = (thread_data_t*)val;
     }
@@ -171,14 +171,14 @@ thread_data_t* threads_table_insert(void* prof, VALUE fiber)
     result->fiber = fiber;
     result->fiber_id = rb_obj_id(fiber);
     result->thread_id = rb_obj_id(thread);
-    st_insert(profile->threads_tbl, (st_data_t)fiber, (st_data_t)result);
+    rb_st_insert(profile->threads_tbl, (st_data_t)fiber, (st_data_t)result);
 
     // Are we tracing this thread?
-    if (profile->include_threads_tbl && !st_lookup(profile->include_threads_tbl, thread, 0))
+    if (profile->include_threads_tbl && !rb_st_lookup(profile->include_threads_tbl, thread, 0))
     {
         result->trace = false;
     }
-    else if (profile->exclude_threads_tbl && st_lookup(profile->exclude_threads_tbl, thread, 0))
+    else if (profile->exclude_threads_tbl && rb_st_lookup(profile->exclude_threads_tbl, thread, 0))
     {
         result->trace = false;
     }
@@ -291,7 +291,7 @@ static VALUE prof_thread_methods(VALUE self)
     if (thread->methods == Qnil)
     {
         thread->methods = rb_ary_new();
-        st_foreach(thread->method_table, collect_methods, thread->methods);
+        rb_st_foreach(thread->method_table, collect_methods, thread->methods);
     }
     return thread->methods;
 }

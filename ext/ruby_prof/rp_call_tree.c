@@ -13,7 +13,7 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
     prof_call_tree_t* result = ALLOC(prof_call_tree_t);
     result->method = method;
     result->parent = parent;
-    result->children = st_init_numtable();
+    result->children = rb_st_init_numtable();
     result->object = Qnil;
     result->measurement = prof_measurement_create();
 
@@ -28,7 +28,7 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
 prof_call_tree_t* prof_call_tree_copy(prof_call_tree_t* other)
 {
     prof_call_tree_t* result = ALLOC(prof_call_tree_t);
-    result->children = st_init_numtable();
+    result->children = rb_st_init_numtable();
     result->object = Qnil;
     result->visits = 0;
 
@@ -66,7 +66,7 @@ static int prof_call_tree_collect_children(st_data_t key, st_data_t value, st_da
 static int prof_call_tree_mark_children(st_data_t key, st_data_t value, st_data_t data)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)value;
-    st_foreach(call_tree->children, prof_call_tree_mark_children, data);
+    rb_st_foreach(call_tree->children, prof_call_tree_mark_children, data);
     prof_call_tree_mark(call_tree);
     return ST_CONTINUE;
 }
@@ -86,7 +86,7 @@ void prof_call_tree_mark(void* data)
     // Recurse down through the whole call tree but only from the top node
     // to avoid calling mark over and over and over.
     if (!call_tree->parent)
-        st_foreach(call_tree->children, prof_call_tree_mark_children, 0);
+        rb_st_foreach(call_tree->children, prof_call_tree_mark_children, 0);
 }
 
 static void prof_call_tree_ruby_gc_free(void* data)
@@ -115,8 +115,8 @@ void prof_call_tree_free(prof_call_tree_t* call_tree_data)
     }
 
     // Free children
-    st_foreach(call_tree_data->children, prof_call_tree_free_children, 0);
-    st_free_table(call_tree_data->children);
+    rb_st_foreach(call_tree_data->children, prof_call_tree_free_children, 0);
+    rb_st_free_table(call_tree_data->children);
 
     // Free measurement
     prof_measurement_free(call_tree_data->measurement);
@@ -161,13 +161,13 @@ prof_call_tree_t* prof_get_call_tree(VALUE self)
 /* =======  Call Tree Table   ========*/
 static size_t call_tree_table_insert(st_table* table, st_data_t key, prof_call_tree_t* val)
 {
-    return st_insert(table, (st_data_t)key, (st_data_t)val);
+    return rb_st_insert(table, (st_data_t)key, (st_data_t)val);
 }
 
 prof_call_tree_t* call_tree_table_lookup(st_table* table, st_data_t key)
 {
     st_data_t val;
-    if (st_lookup(table, (st_data_t)key, &val))
+    if (rb_st_lookup(table, (st_data_t)key, &val))
     {
         return (prof_call_tree_t*)val;
     }
@@ -224,7 +224,7 @@ static VALUE prof_call_tree_children(VALUE self)
 {
     prof_call_tree_t* call_tree = prof_get_call_tree(self);
     VALUE result = rb_ary_new();
-    st_foreach(call_tree->children, prof_call_tree_collect_children, result);
+    rb_st_foreach(call_tree->children, prof_call_tree_collect_children, result);
     return result;
 }
 

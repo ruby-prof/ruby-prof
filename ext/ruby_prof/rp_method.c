@@ -103,7 +103,7 @@ st_data_t method_key(VALUE klass, VALUE msym)
 /* ======   Allocation Table  ====== */
 st_table* allocations_table_create()
 {
-    return st_init_numtable();
+    return rb_st_init_numtable();
 }
 
 static int allocations_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
@@ -129,8 +129,8 @@ static int prof_method_mark_allocations(st_data_t key, st_data_t value, st_data_
 
 void allocations_table_free(st_table* table)
 {
-    st_foreach(table, allocations_table_free_iterator, 0);
-    st_free_table(table);
+    rb_st_foreach(table, allocations_table_free_iterator, 0);
+    rb_st_free_table(table);
 }
 
 /* ================  prof_method_t   =================*/
@@ -224,7 +224,7 @@ void prof_method_mark(void* data)
 
     prof_measurement_mark(method->measurement);
 
-    st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
+    rb_st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
 }
 
 static VALUE prof_method_allocate(VALUE klass)
@@ -245,7 +245,7 @@ VALUE prof_method_wrap(prof_method_t* method)
 
 st_table* method_table_create()
 {
-    return st_init_numtable();
+    return rb_st_init_numtable();
 }
 
 static int method_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
@@ -256,19 +256,19 @@ static int method_table_free_iterator(st_data_t key, st_data_t value, st_data_t 
 
 void method_table_free(st_table* table)
 {
-    st_foreach(table, method_table_free_iterator, 0);
-    st_free_table(table);
+    rb_st_foreach(table, method_table_free_iterator, 0);
+    rb_st_free_table(table);
 }
 
 size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val)
 {
-    return st_insert(table, (st_data_t)key, (st_data_t)val);
+    return rb_st_insert(table, (st_data_t)key, (st_data_t)val);
 }
 
 prof_method_t* method_table_lookup(st_table* table, st_data_t key)
 {
     st_data_t val;
-    if (st_lookup(table, (st_data_t)key, &val))
+    if (rb_st_lookup(table, (st_data_t)key, &val))
     {
         return (prof_method_t*)val;
     }
@@ -296,7 +296,7 @@ static VALUE prof_method_allocations(VALUE self)
 {
     prof_method_t* method = prof_get_method(self);
     VALUE result = rb_ary_new();
-    st_foreach(method->allocations_table, prof_method_collect_allocations, result);
+    rb_st_foreach(method->allocations_table, prof_method_collect_allocations, result);
     return result;
 }
 
@@ -439,7 +439,7 @@ static VALUE prof_method_load(VALUE self, VALUE data)
         VALUE allocation = rb_ary_entry(allocations, i);
         prof_allocation_t* allocation_data = prof_allocation_get(allocation);
 
-        st_insert(method_data->allocations_table, allocation_data->key, (st_data_t)allocation_data);
+        rb_st_insert(method_data->allocations_table, allocation_data->key, (st_data_t)allocation_data);
     }
     return data;
 }

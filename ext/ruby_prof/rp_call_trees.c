@@ -81,14 +81,14 @@ static int prof_call_trees_collect_callees(st_data_t key, st_data_t value, st_da
 
     prof_call_tree_t* aggregate_call_tree_data = NULL;
 
-    if (st_lookup(callers, call_tree_data->method->key, (st_data_t*)&aggregate_call_tree_data))
+    if (rb_st_lookup(callers, call_tree_data->method->key, (st_data_t*)&aggregate_call_tree_data))
     {
         prof_call_tree_merge(aggregate_call_tree_data, call_tree_data);
     }
     else
     {
         aggregate_call_tree_data = prof_call_tree_copy(call_tree_data);
-        st_insert(callers, call_tree_data->method->key, (st_data_t)aggregate_call_tree_data);
+        rb_st_insert(callers, call_tree_data->method->key, (st_data_t)aggregate_call_tree_data);
     }
 
     return ST_CONTINUE;
@@ -175,7 +175,7 @@ VALUE prof_call_trees_call_trees(VALUE self)
 Returns an array of aggregated CallTree objects that called this method (ie, parents).*/
 VALUE prof_call_trees_callers(VALUE self)
 {
-    st_table* callers = st_init_numtable();
+    st_table* callers = rb_st_init_numtable();
 
     prof_call_trees_t* call_trees = prof_get_call_trees(self);
     for (prof_call_tree_t** p_call_tree = call_trees->start; p_call_tree < call_trees->ptr; p_call_tree++)
@@ -186,20 +186,20 @@ VALUE prof_call_trees_callers(VALUE self)
 
         prof_call_tree_t* aggregate_call_tree_data = NULL;
 
-        if (st_lookup(callers, parent->method->key, (st_data_t*)&aggregate_call_tree_data))
+        if (rb_st_lookup(callers, parent->method->key, (st_data_t*)&aggregate_call_tree_data))
         {
             prof_call_tree_merge(aggregate_call_tree_data, *p_call_tree);
         }
         else
         {
             aggregate_call_tree_data = prof_call_tree_copy(*p_call_tree);
-            st_insert(callers, parent->method->key, (st_data_t)aggregate_call_tree_data);
+            rb_st_insert(callers, parent->method->key, (st_data_t)aggregate_call_tree_data);
         }
     }
 
     VALUE result = rb_ary_new_capa(callers->num_entries);
-    st_foreach(callers, prof_call_trees_collect_aggregates, result);
-    st_free_table(callers);
+    rb_st_foreach(callers, prof_call_trees_collect_aggregates, result);
+    rb_st_free_table(callers);
     return result;
 }
 
@@ -209,17 +209,17 @@ VALUE prof_call_trees_callers(VALUE self)
 Returns an array of aggregated CallTree objects that this method called (ie, children).*/
 VALUE prof_call_trees_callees(VALUE self)
 {
-    st_table* callees = st_init_numtable();
+    st_table* callees = rb_st_init_numtable();
 
     prof_call_trees_t* call_trees = prof_get_call_trees(self);
     for (prof_call_tree_t** call_tree = call_trees->start; call_tree < call_trees->ptr; call_tree++)
     {
-        st_foreach((*call_tree)->children, prof_call_trees_collect_callees, (st_data_t)callees);
+        rb_st_foreach((*call_tree)->children, prof_call_trees_collect_callees, (st_data_t)callees);
     }
 
     VALUE result = rb_ary_new_capa(callees->num_entries);
-    st_foreach(callees, prof_call_trees_collect_aggregates, result);
-    st_free_table(callees);
+    rb_st_foreach(callees, prof_call_trees_collect_aggregates, result);
+    rb_st_free_table(callees);
     return result;
 }
 

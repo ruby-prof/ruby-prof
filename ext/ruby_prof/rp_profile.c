@@ -416,10 +416,10 @@ static void prof_mark(prof_profile_t* profile)
     // If GC stress is true (useful for debugging), when threads_table_create is called in the
     // allocate method Ruby will immediately call this mark method. Thus the threads_tbl will be NULL.
     if (profile->threads_tbl)
-        st_foreach(profile->threads_tbl, mark_threads, 0);
+        rb_st_foreach(profile->threads_tbl, mark_threads, 0);
 
     if (profile->exclude_methods_tbl)
-        st_foreach(profile->exclude_methods_tbl, mark_methods, 0);
+        rb_st_foreach(profile->exclude_methods_tbl, mark_methods, 0);
 }
 
 /* Freeing the profile creates a cascade of freeing.
@@ -434,13 +434,13 @@ static void prof_free(prof_profile_t* profile)
 
     if (profile->exclude_threads_tbl)
     {
-        st_free_table(profile->exclude_threads_tbl);
+        rb_st_free_table(profile->exclude_threads_tbl);
         profile->exclude_threads_tbl = NULL;
     }
 
     if (profile->include_threads_tbl)
     {
-        st_free_table(profile->include_threads_tbl);
+        rb_st_free_table(profile->include_threads_tbl);
         profile->include_threads_tbl = NULL;
     }
 
@@ -493,7 +493,7 @@ static int pop_frames(VALUE key, st_data_t value, st_data_t data)
 static void
 prof_stop_threads(prof_profile_t* profile)
 {
-    st_foreach(profile->threads_tbl, pop_frames, (st_data_t)profile);
+    rb_st_foreach(profile->threads_tbl, pop_frames, (st_data_t)profile);
 }
 
 /* call-seq:
@@ -574,7 +574,7 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
         for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
         {
             VALUE thread = rb_ary_entry(exclude_threads, i);
-            st_insert(profile->exclude_threads_tbl, thread, Qtrue);
+            rb_st_insert(profile->exclude_threads_tbl, thread, Qtrue);
         }
     }
 
@@ -586,7 +586,7 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
         for (i = 0; i < RARRAY_LEN(include_threads); i++)
         {
             VALUE thread = rb_ary_entry(include_threads, i);
-            st_insert(profile->include_threads_tbl, thread, Qtrue);
+            rb_st_insert(profile->include_threads_tbl, thread, Qtrue);
         }
     }
 
@@ -697,7 +697,7 @@ static VALUE prof_pause(VALUE self)
     {
         profile->paused = Qtrue;
         profile->measurement_at_pause_resume = prof_measure(profile->measurer, NULL);
-        st_foreach(profile->threads_tbl, pause_thread, (st_data_t)profile);
+        rb_st_foreach(profile->threads_tbl, pause_thread, (st_data_t)profile);
     }
 
     return self;
@@ -720,7 +720,7 @@ static VALUE prof_resume(VALUE self)
     {
         profile->paused = Qfalse;
         profile->measurement_at_pause_resume = prof_measure(profile->measurer, NULL);
-        st_foreach(profile->threads_tbl, unpause_thread, (st_data_t)profile);
+        rb_st_foreach(profile->threads_tbl, unpause_thread, (st_data_t)profile);
     }
 
     return rb_block_given_p() ? rb_ensure(rb_yield, self, prof_pause, self) : self;
@@ -773,7 +773,7 @@ static VALUE prof_threads(VALUE self)
 {
     VALUE result = rb_ary_new();
     prof_profile_t* profile = prof_get_profile(self);
-    st_foreach(profile->threads_tbl, collect_threads, result);
+    rb_st_foreach(profile->threads_tbl, collect_threads, result);
     return result;
 }
 
@@ -871,7 +871,7 @@ VALUE prof_profile_load(VALUE self, VALUE data)
     {
         VALUE thread = rb_ary_entry(threads, i);
         thread_data_t* thread_data = DATA_PTR(thread);
-        st_insert(profile->threads_tbl, (st_data_t)thread_data->fiber_id, (st_data_t)thread_data);
+        rb_st_insert(profile->threads_tbl, (st_data_t)thread_data->fiber_id, (st_data_t)thread_data);
     }
 
     return data;

@@ -31,7 +31,7 @@ class InverseCallTreeTest < TestCase
   def test_inverse
     method_name = "method_#{INVERSE_DEPTH - 1}"
     self.send(method_name.to_sym)
-    result = profile = RubyProf.stop
+    profile = RubyProf.stop
 
     assert_equal(1, profile.threads.count)
 

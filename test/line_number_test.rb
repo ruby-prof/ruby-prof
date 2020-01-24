@@ -24,7 +24,7 @@ class LineNumbers
   end
 
   def method_4
-    sleep(1.2)
+    sleep(1)
   end
 end
 

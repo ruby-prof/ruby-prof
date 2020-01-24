@@ -34,6 +34,8 @@ prof_call_trees_t* prof_call_trees_create()
 
 void prof_call_trees_mark(void* data)
 {
+    if (!data) return;
+
     prof_call_trees_t* call_trees = (prof_call_trees_t*)data;
     prof_call_tree_t** call_tree;
     for (call_tree = call_trees->start; call_tree < call_trees->ptr; call_tree++)

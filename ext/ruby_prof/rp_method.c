@@ -211,6 +211,8 @@ size_t prof_method_size(const void* data)
 
 void prof_method_mark(void* data)
 {
+    if (!data) return;
+
     prof_method_t* method = (prof_method_t*)data;
 
     if (method->object != Qnil)

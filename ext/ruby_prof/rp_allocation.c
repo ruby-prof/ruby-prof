@@ -114,6 +114,8 @@ size_t prof_allocation_size(const void* data)
 
 void prof_allocation_mark(void* data)
 {
+    if (!data) return;
+
     prof_allocation_t* allocation = (prof_allocation_t*)data;
     if (allocation->object != Qnil)
         rb_gc_mark(allocation->object);

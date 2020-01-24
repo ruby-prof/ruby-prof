@@ -53,6 +53,8 @@ prof_measurement_t* prof_measurement_create(void)
 
 void prof_measurement_mark(void* data)
 {
+    if (!data) return;
+
     prof_measurement_t* measurement_data = (prof_measurement_t*)data;
 
     if (measurement_data->object != Qnil)

@@ -73,6 +73,8 @@ static int prof_call_tree_mark_children(st_data_t key, st_data_t value, st_data_
 
 void prof_call_tree_mark(void* data)
 {
+    if (!data) return;
+
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
 
     if (call_tree->object != Qnil)

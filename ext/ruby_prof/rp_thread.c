@@ -51,6 +51,8 @@ size_t prof_thread_size(const void* data)
 
 void prof_thread_mark(void* data)
 {
+    if (!data) return;
+
     thread_data_t* thread = (thread_data_t*)data;
 
     if (thread->object != Qnil)

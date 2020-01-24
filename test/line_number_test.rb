@@ -19,12 +19,12 @@ class LineNumbers
   end
 
   def method_3
-    sleep(0.35)
+    sleep(0.3)
     method_4
   end
 
   def method_4
-    sleep(1)
+    sleep(1.2)
   end
 end
 

@@ -46,12 +46,13 @@ static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
 
 size_t prof_thread_size(const void* data)
 {
-    return sizeof(prof_call_tree_t);
+    return sizeof(thread_data_t);
 }
 
 void prof_thread_mark(void* data)
 {
-    if (!data) return;
+    if (!data)
+        return;
 
     thread_data_t* thread = (thread_data_t*)data;
 

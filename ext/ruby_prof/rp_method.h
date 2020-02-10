@@ -20,7 +20,7 @@ enum {
 
 /* Profiling information for each method. */
 /* Excluded methods have no call_trees, source_klass, or source_file. */
-typedef struct
+typedef struct prof_method_t
 {
     st_data_t key;                          /* Table key */
 

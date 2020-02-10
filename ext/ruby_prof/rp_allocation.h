@@ -7,7 +7,7 @@
 #include "ruby_prof.h"
 #include "rp_method.h"
 
-typedef struct
+typedef struct prof_allocation_t
 {
     st_data_t key;                    /* Key in hash table */
     unsigned int klass_flags;         /* Information about the type of class */

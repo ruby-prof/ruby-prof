@@ -10,7 +10,7 @@
 
 extern VALUE cProfile;
 
-typedef struct
+typedef struct prof_profile_t
 {
     VALUE running;
     VALUE paused;

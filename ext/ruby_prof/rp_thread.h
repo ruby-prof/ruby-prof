@@ -8,7 +8,7 @@
 #include "rp_stack.h"
 
 /* Profiling information for a thread. */
-typedef struct
+typedef struct thread_data_t
 {
     // Runtime
     VALUE object;                     /* Cache to wrapped object */

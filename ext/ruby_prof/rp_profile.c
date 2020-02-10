@@ -412,7 +412,6 @@ static void prof_profile_mark(void* data)
     rb_gc_mark(profile->tracepoints);
     rb_gc_mark(profile->running);
     rb_gc_mark(profile->paused);
-    rb_gc_mark(profile->tracepoints);
 
     // If GC stress is true (useful for debugging), when threads_table_create is called in the
     // allocate method Ruby will immediately call this mark method. Thus the threads_tbl will be NULL.

@@ -22,13 +22,10 @@ enum {
 // Excluded methods have no call_trees, source_klass, or source_file. 
 typedef struct prof_method_t
 {
-    st_data_t key;                          // Table key 
-
-    int visits;                             // Current visits on the stack 
-
     struct prof_call_trees_t* call_trees;   // Call infos that call this method 
     st_table* allocations_table;            // Tracks object allocations 
 
+    st_data_t key;                          // Table key 
     unsigned int klass_flags;               // Information about the type of class 
     VALUE klass;                            // Resolved klass 
     VALUE klass_name;                       // Resolved klass name for this method 
@@ -37,10 +34,11 @@ typedef struct prof_method_t
     VALUE object;                           // Cached ruby object 
 
     bool recursive;
-    VALUE source_file;                       // Source file 
-    int source_line;                         // Line number 
+    int visits;                             // Current visits on the stack 
+    VALUE source_file;                      // Source file 
+    int source_line;                        // Line number 
 
-    prof_measurement_t* measurement;
+    prof_measurement_t* measurement;        // Stores measurement data for this method
 } prof_method_t;
 
 void rp_init_method_info(void);

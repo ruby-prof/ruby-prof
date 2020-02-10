@@ -422,9 +422,8 @@ static void prof_profile_mark(void* data)
         rb_st_foreach(profile->exclude_methods_tbl, prof_profile_mark_methods, 0);
 }
 
-/* Freeing the profile creates a cascade of freeing.
-   It fress the thread table, which frees its methods,
-   which frees its call infos. */
+/* Freeing the profile creates a cascade of freeing. It frees its threads table, which frees 
+   each thread and its associated call treee and methods. */
 static void prof_profile_ruby_gc_free(void* data)
 {
     prof_profile_t* profile = (prof_profile_t*)data;

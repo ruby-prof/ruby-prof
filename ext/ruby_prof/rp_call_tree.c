@@ -82,6 +82,7 @@ void prof_call_tree_mark(void* data)
     if (call_tree->source_file != Qnil)
         rb_gc_mark(call_tree->source_file);
 
+    prof_method_mark(call_tree->method);
     prof_measurement_mark(call_tree->measurement);
 
     // Recurse down through the whole call tree but only from the top node

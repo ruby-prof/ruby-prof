@@ -109,15 +109,17 @@ static int excludes_method(st_data_t key, prof_profile_t* profile)
             method_table_lookup(profile->exclude_methods_tbl, key) != NULL);
 }
 
-static prof_method_t* create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
+static prof_method_t* create_method(VALUE profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
-    prof_method_t* result = prof_method_create(klass, msym, source_file, source_line);
-    method_table_insert(profile->last_thread_data->method_table, result->key, result);
+    prof_method_t* result = prof_method_create(profile, klass, msym, source_file, source_line);
+
+    prof_profile_t* profile_t = prof_get_profile(profile);
+    method_table_insert(profile_t->last_thread_data->method_table, result->key, result);
 
     return result;
 }
 
-static prof_method_t* check_parent_method(prof_profile_t* profile, thread_data_t* thread_data)
+static prof_method_t* check_parent_method(VALUE profile, thread_data_t* thread_data)
 {
     VALUE msym = ID2SYM(rb_intern("_inserted_parent_"));
     st_data_t key = method_key(cProfile, msym);
@@ -132,7 +134,7 @@ static prof_method_t* check_parent_method(prof_profile_t* profile, thread_data_t
     return result;
 }
 
-prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, rb_event_flag_t event, thread_data_t* thread_data)
+prof_method_t* check_method(VALUE profile, rb_trace_arg_t* trace_arg, rb_event_flag_t event, thread_data_t* thread_data)
 {
     VALUE klass = rb_tracearg_defined_class(trace_arg);
 
@@ -150,7 +152,8 @@ prof_method_t* check_method(prof_profile_t* profile, rb_trace_arg_t* trace_arg, 
 
     st_data_t key = method_key(klass, msym);
 
-    if (excludes_method(key, profile))
+    prof_profile_t* profile_t = prof_get_profile(profile);
+    if (excludes_method(key, profile_t))
         return NULL;
 
     prof_method_t* result = method_table_lookup(thread_data->method_table, key);
@@ -208,15 +211,17 @@ static void prof_trace(prof_profile_t* profile, rb_trace_arg_t* trace_arg, doubl
 
 static void prof_event_hook(VALUE trace_point, void* data)
 {
-    prof_profile_t* profile = (prof_profile_t*)data;
+    VALUE profile = (VALUE)data;
+    prof_profile_t* profile_t = prof_get_profile(profile);
+
     rb_trace_arg_t* trace_arg = rb_tracearg_from_tracepoint(trace_point);
-    double measurement = prof_measure(profile->measurer, trace_arg);
+    double measurement = prof_measure(profile_t->measurer, trace_arg);
     rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     VALUE self = rb_tracearg_self(trace_arg);
 
     if (trace_file != NULL)
     {
-        prof_trace(profile, trace_arg, measurement);
+        prof_trace(profile_t, trace_arg, measurement);
     }
 
     /* Special case - skip any methods from the mProf
@@ -224,7 +229,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
     if (self == mProf)
         return;
 
-    thread_data_t* thread_data = check_fiber(profile, measurement);
+    thread_data_t* thread_data = check_fiber(profile_t, measurement);
 
     if (!thread_data->trace)
         return;
@@ -252,7 +257,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
                 }
                 else
                 {
-                    frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));
+                    frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile_t->paused));
                 }
                 
                 thread_data->call_tree = call_tree;
@@ -306,7 +311,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
                 thread_data->call_tree = call_tree;
 
             // Push a new frame onto the stack for a new c-call or ruby call (into a method)
-            prof_frame_t* next_frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile->paused));
+            prof_frame_t* next_frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile_t->paused));
             next_frame->source_file = method->source_file;
             next_frame->source_line = method->source_line;
             break;
@@ -347,12 +352,12 @@ void prof_install_hook(VALUE self)
                                                RUBY_EVENT_CALL | RUBY_EVENT_RETURN |
                                                RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN |
                                                RUBY_EVENT_LINE,
-                                               prof_event_hook, profile);
+                                               prof_event_hook, (void*)self);
     rb_ary_push(profile->tracepoints, event_tracepoint);
 
     if (profile->measurer->track_allocations)
     {
-        VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, profile);
+        VALUE allocation_tracepoint = rb_tracepoint_new(Qnil, RUBY_INTERNAL_EVENT_NEWOBJ, prof_event_hook, (void*)self);
         rb_ary_push(profile->tracepoints, allocation_tracepoint);
     }
 
@@ -864,7 +869,7 @@ static VALUE prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
 
     if (!method)
     {
-        method = prof_method_create(klass, msym, Qnil, 0);
+        method = prof_method_create(self, klass, msym, Qnil, 0);
         method_table_insert(profile->exclude_methods_tbl, method->key, method);
     }
 

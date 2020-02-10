@@ -146,9 +146,11 @@ prof_method_t* prof_get_method(VALUE self)
     return result;
 }
 
-prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line)
+prof_method_t* prof_method_create(VALUE profile, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
     prof_method_t* result = ALLOC(prof_method_t);
+    result->profile = profile;
+
     result->key = method_key(klass, msym);
     result->klass_flags = 0;
 
@@ -215,6 +217,9 @@ void prof_method_mark(void* data)
 
     prof_method_t* method = (prof_method_t*)data;
 
+    if (method->profile != Qnil)
+        rb_gc_mark(method->profile);
+
     if (method->object != Qnil)
         rb_gc_mark(method->object);
 
@@ -232,7 +237,7 @@ void prof_method_mark(void* data)
 
 static VALUE prof_method_allocate(VALUE klass)
 {
-    prof_method_t* method_data = prof_method_create(Qnil, Qnil, Qnil, 0);
+    prof_method_t* method_data = prof_method_create(Qnil, Qnil, Qnil, Qnil, 0);
     method_data->object = prof_method_wrap(method_data);
     return method_data->object;
 }

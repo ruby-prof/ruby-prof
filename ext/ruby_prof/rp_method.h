@@ -1,5 +1,5 @@
-// Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
-   Please see the LICENSE file for copyright and distribution information 
+/* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
+   Please see the LICENSE file for copyright and distribution information */
 
 #ifndef __RP_METHOD_INFO__
 #define __RP_METHOD_INFO__
@@ -22,6 +22,7 @@ enum {
 // Excluded methods have no call_trees, source_klass, or source_file. 
 typedef struct prof_method_t
 {
+    VALUE profile;                          // Profile this method is associated with - needed for mark phase
     struct prof_call_trees_t* call_trees;   // Call infos that call this method 
     st_table* allocations_table;            // Tracks object allocations 
 
@@ -49,7 +50,7 @@ st_table* method_table_create(void);
 prof_method_t* method_table_lookup(st_table* table, st_data_t key);
 size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val);
 void method_table_free(st_table* table);
-prof_method_t* prof_method_create(VALUE klass, VALUE msym, VALUE source_file, int source_line);
+prof_method_t* prof_method_create(VALUE profile, VALUE klass, VALUE msym, VALUE source_file, int source_line);
 prof_method_t* prof_get_method(VALUE self);
 
 VALUE prof_method_wrap(prof_method_t* result);

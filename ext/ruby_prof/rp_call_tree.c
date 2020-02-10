@@ -113,7 +113,6 @@ void prof_call_tree_free(prof_call_tree_t* call_tree_data)
        yes clean it up so to avoid a segmentation fault. */
     if (call_tree_data->object != Qnil)
     {
-        struct RTypedData* foo = RTYPEDDATA(call_tree_data->object);
         RTYPEDDATA(call_tree_data->object)->data = NULL;
         call_tree_data->object = Qnil;
     }

@@ -1,5 +1,5 @@
-/* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
-   Please see the LICENSE file for copyright and distribution information */
+// Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
+   Please see the LICENSE file for copyright and distribution information 
 
 #ifndef __RP_METHOD_INFO__
 #define __RP_METHOD_INFO__
@@ -9,36 +9,36 @@
 
 extern VALUE cRpMethodInfo;
 
-/* Source relation bit offsets. */
+// Source relation bit offsets. 
 enum {
-    kModuleIncludee = 0x1,                    /* Included in module */
-    kClassSingleton = 0x2,                    /* Singleton of a class */
-    kModuleSingleton = 0x4,                   /* Singleton of a module */
-    kObjectSingleton = 0x8,                   /* Singleton of an object */
-    kOtherSingleton = 0x10                    /* Singleton of unkown object */
+    kModuleIncludee = 0x1,                    // Included in module 
+    kClassSingleton = 0x2,                    // Singleton of a class 
+    kModuleSingleton = 0x4,                   // Singleton of a module 
+    kObjectSingleton = 0x8,                   // Singleton of an object 
+    kOtherSingleton = 0x10                    // Singleton of unkown object 
 };
 
-/* Profiling information for each method. */
-/* Excluded methods have no call_trees, source_klass, or source_file. */
+// Profiling information for each method. 
+// Excluded methods have no call_trees, source_klass, or source_file. 
 typedef struct prof_method_t
 {
-    st_data_t key;                          /* Table key */
+    st_data_t key;                          // Table key 
 
-    int visits;                             /* Current visits on the stack */
+    int visits;                             // Current visits on the stack 
 
-    struct prof_call_trees_t* call_trees;   /* Call infos that call this method */
-    st_table* allocations_table;            /* Tracks object allocations */
+    struct prof_call_trees_t* call_trees;   // Call infos that call this method 
+    st_table* allocations_table;            // Tracks object allocations 
 
-    unsigned int klass_flags;               /* Information about the type of class */
-    VALUE klass;                            /* Resolved klass */
-    VALUE klass_name;                       /* Resolved klass name for this method */
-    VALUE method_name;                      /* Resolved method name for this method */
+    unsigned int klass_flags;               // Information about the type of class 
+    VALUE klass;                            // Resolved klass 
+    VALUE klass_name;                       // Resolved klass name for this method 
+    VALUE method_name;                      // Resolved method name for this method 
 
-    VALUE object;                           /* Cached ruby object */
+    VALUE object;                           // Cached ruby object 
 
     bool recursive;
-    VALUE source_file;                       /* Source file */
-    int source_line;                         /* Line number */
+    VALUE source_file;                       // Source file 
+    int source_line;                         // Line number 
 
     prof_measurement_t* measurement;
 } prof_method_t;

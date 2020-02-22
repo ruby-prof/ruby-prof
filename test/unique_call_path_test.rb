@@ -72,7 +72,7 @@ class UniqueCallPathTest < TestCase
     end
     refute_nil(call_info_a)
 
-    children_of_a = call_info_a.children.inject(Array.new) do |array, c|
+    _children_of_a = call_info_a.children.inject(Array.new) do |array, c|
       if c.parent.eql?(call_info_a)
         array << c
       end

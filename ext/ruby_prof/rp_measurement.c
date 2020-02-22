@@ -53,6 +53,8 @@ prof_measurement_t* prof_measurement_create(void)
 
 void prof_measurement_mark(void* data)
 {
+    if (!data) return;
+
     prof_measurement_t* measurement_data = (prof_measurement_t*)data;
 
     if (measurement_data->object != Qnil)
@@ -61,9 +63,12 @@ void prof_measurement_mark(void* data)
 
 static void prof_measurement_ruby_gc_free(void* data)
 {
-    // Measurements are freed by their owning object (call info or method)
-    prof_measurement_t* measurement = (prof_measurement_t*)data;
-    measurement->object = Qnil;
+    if (data)
+    {
+        // Measurements are freed by their owning object (call info or method)
+        prof_measurement_t* measurement = (prof_measurement_t*)data;
+        measurement->object = Qnil;
+    }
 }
 
 void prof_measurement_free(prof_measurement_t* measurement)
@@ -72,9 +77,7 @@ void prof_measurement_free(prof_measurement_t* measurement)
        yes clean it up so to avoid a segmentation fault. */
     if (measurement->object != Qnil)
     {
-        RDATA(measurement->object)->dmark = NULL;
-        RDATA(measurement->object)->dfree = NULL;
-        RDATA(measurement->object)->data = NULL;
+        RTYPEDDATA(measurement->object)->data = NULL;
         measurement->object = Qnil;
     }
 
@@ -86,11 +89,24 @@ size_t prof_measurement_size(const void* data)
     return sizeof(prof_measurement_t);
 }
 
+static const rb_data_type_t measurement_type =
+{
+    .wrap_struct_name = "Measurement",
+    .function =
+    {
+        .dmark = prof_measurement_mark,
+        .dfree = prof_measurement_ruby_gc_free,
+        .dsize = prof_measurement_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+}; 
+
 VALUE prof_measurement_wrap(prof_measurement_t* measurement)
 {
     if (measurement->object == Qnil)
     {
-        measurement->object = Data_Wrap_Struct(cRpMeasurement, NULL, prof_measurement_ruby_gc_free, measurement);
+        measurement->object = TypedData_Wrap_Struct(cRpMeasurement, &measurement_type, measurement);
     }
     return measurement->object;
 }
@@ -106,7 +122,7 @@ prof_measurement_t* prof_get_measurement(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    prof_measurement_t* result = DATA_PTR(self);
+    prof_measurement_t* result = RTYPEDDATA_DATA(self);
 
     if (!result)
         rb_raise(rb_eRuntimeError, "This RubyProf::Measurement instance has already been freed, likely because its profile has been freed.");
@@ -206,7 +222,7 @@ void rp_init_measure()
     rp_init_measure_allocations();
     rp_init_measure_memory();
 
-    cRpMeasurement = rb_define_class_under(mProf, "Measurement", rb_cData);
+    cRpMeasurement = rb_define_class_under(mProf, "Measurement", rb_cObject);
     rb_undef_method(CLASS_OF(cRpMeasurement), "new");
     rb_define_alloc_func(cRpMeasurement, prof_measurement_allocate);
 

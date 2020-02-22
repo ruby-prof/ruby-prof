@@ -396,14 +396,14 @@ class MeasureWallTimeTest < TestCase
     assert_in_delta(0.0, methods[2].children_time, 0.03)
 
     if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('2.7')
-      method = methods.detect {|method| method.full_name == '<Class::RubyProf::C3>#instance'}
+      method = methods.detect {|a_method| a_method.full_name == '<Class::RubyProf::C3>#instance'}
       assert_equal('<Class::RubyProf::C3>#instance', method.full_name)
       assert_in_delta(0.0, method.total_time, 0.03)
       assert_in_delta(0.0, method.wait_time, 0.03)
       assert_in_delta(0.0, method.self_time, 0.03)
       assert_in_delta(0.0, method.children_time, 0.03)
     else
-      method = methods.detect {|method| method.full_name == 'Singleton::SingletonClassMethods#instance'}
+      method = methods.detect {|a_method| a_method.full_name == 'Singleton::SingletonClassMethods#instance'}
       assert_equal('Singleton::SingletonClassMethods#instance', method.full_name)
       assert_in_delta(0.0, method.total_time, 0.03)
       assert_in_delta(0.0, method.wait_time, 0.03)
@@ -411,21 +411,21 @@ class MeasureWallTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.03)
     end
 
-    method = methods.detect {|method| method.full_name == 'Thread::Mutex#synchronize'}
+    method = methods.detect {|a_method| a_method.full_name == 'Thread::Mutex#synchronize'}
     assert_equal('Thread::Mutex#synchronize', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.03)
     assert_in_delta(0.0, method.wait_time, 0.03)
     assert_in_delta(0.0, method.self_time, 0.03)
     assert_in_delta(0.0, method.children_time, 0.03)
 
-    method = methods.detect {|method| method.full_name == 'Class#new'}
+    method = methods.detect {|a_method| a_method.full_name == 'Class#new'}
     assert_equal('Class#new', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.03)
     assert_in_delta(0.0, method.wait_time, 0.03)
     assert_in_delta(0.0, method.self_time, 0.03)
     assert_in_delta(0.0, method.children_time, 0.03)
 
-    method = methods.detect {|method| method.full_name == 'BasicObject#initialize'}
+    method = methods.detect {|a_method| a_method.full_name == 'BasicObject#initialize'}
     assert_equal('BasicObject#initialize', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.03)
     assert_in_delta(0.0, method.wait_time, 0.03)

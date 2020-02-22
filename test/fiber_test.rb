@@ -8,7 +8,7 @@ require 'set'
 
 # --  Tests ----
 class FiberTest < TestCase
-  def fiber_test
+  def enumerator_with_fibers
     @fiber_ids << Fiber.current.object_id
     enum = Enumerator.new do |yielder|
       [1,2].each do |x|
@@ -36,7 +36,7 @@ class FiberTest < TestCase
   end
 
   def test_fibers
-    result  = RubyProf.profile { fiber_test }
+    result  = RubyProf.profile { enumerator_with_fibers }
 
     profiled_fiber_ids = result.threads.map(&:fiber_id)
     assert_equal(2, result.threads.length)
@@ -61,7 +61,7 @@ class FiberTest < TestCase
     assert_in_delta(0.33, method.children_time, 0.05)
 
     method = methods[1]
-    assert_equal('FiberTest#fiber_test', method.full_name)
+    assert_equal('FiberTest#enumerator_with_fibers', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0.33, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.05)
@@ -85,7 +85,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.children_time, 0.05)
 
     # Since these methods have such short times their order is a bit indeterminate
-    method = methods.detect {|method| method.full_name == 'Class#new'}
+    method = methods.detect {|a_method| a_method.full_name == 'Class#new'}
     assert_equal('Class#new', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -94,16 +94,16 @@ class FiberTest < TestCase
     assert_in_delta(0, method.children_time, 0.05)
 
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')
-    method = methods.detect {|method| method.full_name == 'Set#<<'}
-    assert_equal('Set#<<', method.full_name)
-    assert_equal(1, method.called)
-    assert_in_delta(0, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(0, method.children_time, 0.05)
+      method = methods.detect {|a_method| a_method.full_name == 'Set#<<'}
+      assert_equal('Set#<<', method.full_name)
+      assert_equal(1, method.called)
+      assert_in_delta(0, method.total_time, 0.05)
+      assert_in_delta(0, method.self_time, 0.05)
+      assert_in_delta(0, method.wait_time, 0.05)
+      assert_in_delta(0, method.children_time, 0.05)
     end
 
-    method = methods.detect {|method| method.full_name == 'Module#==='}
+    method = methods.detect {|a_method| a_method.full_name == 'Module#==='}
     assert_equal('Module#===', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -111,7 +111,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == 'Kernel#object_id'}
+    method = methods.detect {|a_method| a_method.full_name == 'Kernel#object_id'}
     assert_equal('Kernel#object_id', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -119,7 +119,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == '<Class::Fiber>#current'}
+    method = methods.detect {|a_method| a_method.full_name == '<Class::Fiber>#current'}
     assert_equal('<Class::Fiber>#current', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -127,7 +127,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == 'Exception#exception'}
+    method = methods.detect {|a_method| a_method.full_name == 'Exception#exception'}
     assert_equal('Exception#exception', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -135,7 +135,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == 'Exception#backtrace'}
+    method = methods.detect {|a_method| a_method.full_name == 'Exception#backtrace'}
     assert_equal('Exception#backtrace', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -143,7 +143,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == 'Enumerator#initialize'}
+    method = methods.detect {|a_method| a_method.full_name == 'Enumerator#initialize'}
     assert_equal('Enumerator#initialize', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -200,7 +200,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.children_time, 0.05)
 
     # Since these methods have such short times their order is a bit indeterminate
-    method = methods.detect {|method| method.full_name == 'Exception#initialize'}
+    method = methods.detect {|a_method| a_method.full_name == 'Exception#initialize'}
     assert_equal('Exception#initialize', method.full_name)
     assert_equal(1, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -209,7 +209,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.children_time, 0.05)
 
     if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')
-      method = methods.detect {|method| method.full_name == 'Set#<<'}
+      method = methods.detect {|a_method| a_method.full_name == 'Set#<<'}
       assert_equal('Set#<<', method.full_name)
       assert_equal(2, method.called)
       assert_in_delta(0, method.total_time, 0.05)
@@ -218,7 +218,7 @@ class FiberTest < TestCase
       assert_in_delta(0, method.children_time, 0.05)
     end
 
-    method = methods.detect {|method| method.full_name == 'Kernel#object_id'}
+    method = methods.detect {|a_method| a_method.full_name == 'Kernel#object_id'}
     assert_equal('Kernel#object_id', method.full_name)
     assert_equal(2, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -226,7 +226,7 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == 'Enumerator::Yielder#yield'}
+    method = methods.detect {|a_method| a_method.full_name == 'Enumerator::Yielder#yield'}
     assert_equal('Enumerator::Yielder#yield', method.full_name)
     assert_equal(2, method.called)
     assert_in_delta(0, method.total_time, 0.05)
@@ -234,27 +234,18 @@ class FiberTest < TestCase
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
 
-    method = methods.detect {|method| method.full_name == '<Class::Fiber>#current'}
+    method = methods.detect {|a_method| a_method.full_name == '<Class::Fiber>#current'}
     assert_equal('<Class::Fiber>#current', method.full_name)
     assert_equal(2, method.called)
     assert_in_delta(0, method.total_time, 0.05)
     assert_in_delta(0, method.self_time, 0.05)
     assert_in_delta(0, method.wait_time, 0.05)
     assert_in_delta(0, method.children_time, 0.05)
-
-    #if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7.0')
-    #  method = methods.detect {|method| method.full_name == 'Numeric#eql?'}
-    #  assert_equal('Numeric#eql?', method.full_name)
-    #  assert_equal(1, method.called)
-    #  assert_in_delta(0, method.total_time, 0.05)
-    #  assert_in_delta(0, method.self_time, 0.05)
-    #  assert_in_delta(0, method.wait_time, 0.05)
-    #  assert_in_delta(0, method.children_time, 0.05)
-    #end
   end
 
   def test_merged_fibers
-    result  = RubyProf.profile(merge_fibers: true) { fiber_test }
+    result  = RubyProf.profile(merge_fibers: true) { enumerator_with_fibers }
+
     assert_equal(1, result.threads.length)
 
     thread = result.threads.first

@@ -13,14 +13,12 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
     prof_call_tree_t* result = ALLOC(prof_call_tree_t);
     result->method = method;
     result->parent = parent;
-    result->children = rb_st_init_numtable();
     result->object = Qnil;
-    result->measurement = prof_measurement_create();
-
     result->visits = 0;
-
     result->source_line = source_line;
     result->source_file = source_file;
+    result->children = rb_st_init_numtable();
+    result->measurement = prof_measurement_create();
 
     return result;
 }
@@ -73,6 +71,9 @@ static int prof_call_tree_mark_children(st_data_t key, st_data_t value, st_data_
 
 void prof_call_tree_mark(void* data)
 {
+    if (!data)
+        return;
+
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
 
     if (call_tree->object != Qnil)
@@ -81,6 +82,7 @@ void prof_call_tree_mark(void* data)
     if (call_tree->source_file != Qnil)
         rb_gc_mark(call_tree->source_file);
 
+    prof_method_mark(call_tree->method);
     prof_measurement_mark(call_tree->measurement);
 
     // Recurse down through the whole call tree but only from the top node
@@ -91,8 +93,11 @@ void prof_call_tree_mark(void* data)
 
 static void prof_call_tree_ruby_gc_free(void* data)
 {
-    prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
-    call_tree->object = Qnil;
+    if (data)
+    {
+        prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
+        call_tree->object = Qnil;
+    }
 }
 
 static int prof_call_tree_free_children(st_data_t key, st_data_t value, st_data_t data)
@@ -108,9 +113,7 @@ void prof_call_tree_free(prof_call_tree_t* call_tree_data)
        yes clean it up so to avoid a segmentation fault. */
     if (call_tree_data->object != Qnil)
     {
-        RDATA(call_tree_data->object)->dmark = NULL;
-        RDATA(call_tree_data->object)->dfree = NULL;
-        RDATA(call_tree_data->object)->data = NULL;
+        RTYPEDDATA(call_tree_data->object)->data = NULL;
         call_tree_data->object = Qnil;
     }
 
@@ -130,11 +133,24 @@ size_t prof_call_tree_size(const void* data)
     return sizeof(prof_call_tree_t);
 }
 
+static const rb_data_type_t call_tree_type =
+{
+    .wrap_struct_name = "CallTree",
+    .function =
+    {
+        .dmark = prof_call_tree_mark,
+        .dfree = prof_call_tree_ruby_gc_free,
+        .dsize = prof_call_tree_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 VALUE prof_call_tree_wrap(prof_call_tree_t* call_tree)
 {
     if (call_tree->object == Qnil)
     {
-        call_tree->object = Data_Wrap_Struct(cRpCallTree, prof_call_tree_mark, prof_call_tree_ruby_gc_free, call_tree);
+        call_tree->object = TypedData_Wrap_Struct(cRpCallTree, &call_tree_type, call_tree);
     }
     return call_tree->object;
 }
@@ -150,7 +166,7 @@ prof_call_tree_t* prof_get_call_tree(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    prof_call_tree_t* result = DATA_PTR(self);
+    prof_call_tree_t* result = RTYPEDDATA_DATA(self);
 
     if (!result)
         rb_raise(rb_eRuntimeError, "This RubyProf::CallTree instance has already been freed, likely because its profile has been freed.");
@@ -335,7 +351,7 @@ static VALUE prof_call_tree_load(VALUE self, VALUE data)
 void rp_init_call_tree()
 {
     /* CallTree */
-    cRpCallTree = rb_define_class_under(mProf, "CallTree", rb_cData);
+    cRpCallTree = rb_define_class_under(mProf, "CallTree", rb_cObject);
     rb_undef_method(CLASS_OF(cRpCallTree), "new");
     rb_define_alloc_func(cRpCallTree, prof_call_tree_allocate);
 

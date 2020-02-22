@@ -46,11 +46,14 @@ static int mark_methods(st_data_t key, st_data_t value, st_data_t result)
 
 size_t prof_thread_size(const void* data)
 {
-    return sizeof(prof_call_tree_t);
+    return sizeof(thread_data_t);
 }
 
 void prof_thread_mark(void* data)
 {
+    if (!data)
+        return;
+
     thread_data_t* thread = (thread_data_t*)data;
 
     if (thread->object != Qnil)
@@ -75,8 +78,11 @@ void prof_thread_mark(void* data)
 
 void prof_thread_ruby_gc_free(void* data)
 {
-    thread_data_t* thread_data = (thread_data_t*)data;
-    thread_data->object = Qnil;
+    if (data)
+    {
+        thread_data_t* thread_data = (thread_data_t*)data;
+        thread_data->object = Qnil;
+    }
 }
 
 static void prof_thread_free(thread_data_t* thread_data)
@@ -85,9 +91,7 @@ static void prof_thread_free(thread_data_t* thread_data)
        yes then set its data to nil to avoid a segmentation fault on the next mark and sweep. */
     if (thread_data->object != Qnil)
     {
-        RDATA(thread_data->object)->dmark = NULL;
-        RDATA(thread_data->object)->dfree = NULL;
-        RDATA(thread_data->object)->data = NULL;
+        RTYPEDDATA(thread_data->object)->data = NULL;
         thread_data->object = Qnil;
     }
 
@@ -101,11 +105,24 @@ static void prof_thread_free(thread_data_t* thread_data)
     xfree(thread_data);
 }
 
+static const rb_data_type_t thread_type =
+{
+    .wrap_struct_name = "ThreadInfo",
+    .function =
+    {
+        .dmark = prof_thread_mark,
+        .dfree = prof_thread_ruby_gc_free,
+        .dsize = prof_thread_size,
+    },
+    .data = NULL,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY
+};
+
 VALUE prof_thread_wrap(thread_data_t* thread)
 {
     if (thread->object == Qnil)
     {
-        thread->object = Data_Wrap_Struct(cRpThread, prof_thread_mark, prof_thread_ruby_gc_free, thread);
+        thread->object = TypedData_Wrap_Struct(cRpThread, &thread_type, thread);
     }
     return thread->object;
 }
@@ -117,11 +134,11 @@ static VALUE prof_thread_allocate(VALUE klass)
     return thread_data->object;
 }
 
-static thread_data_t* prof_get_thread(VALUE self)
+thread_data_t* prof_get_thread(VALUE self)
 {
     /* Can't use Data_Get_Struct because that triggers the event hook
        ending up in endless recursion. */
-    thread_data_t* result = DATA_PTR(self);
+    thread_data_t* result = RTYPEDDATA_DATA(self);
     if (!result)
         rb_raise(rb_eRuntimeError, "This RubyProf::Thread instance has already been freed, likely because its profile has been freed.");
 
@@ -299,7 +316,7 @@ static VALUE prof_thread_methods(VALUE self)
 /* :nodoc: */
 static VALUE prof_thread_dump(VALUE self)
 {
-    thread_data_t* thread_data = DATA_PTR(self);
+    thread_data_t* thread_data = RTYPEDDATA_DATA(self);
 
     VALUE result = rb_hash_new();
     rb_hash_aset(result, ID2SYM(rb_intern("fiber_id")), thread_data->fiber_id);
@@ -312,7 +329,7 @@ static VALUE prof_thread_dump(VALUE self)
 /* :nodoc: */
 static VALUE prof_thread_load(VALUE self, VALUE data)
 {
-    thread_data_t* thread_data = DATA_PTR(self);
+    thread_data_t* thread_data = RTYPEDDATA_DATA(self);
 
     VALUE call_tree = rb_hash_aref(data, ID2SYM(rb_intern("call_tree")));
     thread_data->call_tree = prof_get_call_tree(call_tree);
@@ -323,7 +340,7 @@ static VALUE prof_thread_load(VALUE self, VALUE data)
     for (int i = 0; i < rb_array_len(methods); i++)
     {
         VALUE method = rb_ary_entry(methods, i);
-        prof_method_t* method_data = DATA_PTR(method);
+        prof_method_t* method_data = RTYPEDDATA_DATA(method);
         method_table_insert(thread_data->method_table, method_data->key, method_data);
     }
 
@@ -332,7 +349,7 @@ static VALUE prof_thread_load(VALUE self, VALUE data)
 
 void rp_init_thread(void)
 {
-    cRpThread = rb_define_class_under(mProf, "Thread", rb_cData);
+    cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
     rb_undef_method(CLASS_OF(cRpThread), "new");
     rb_define_alloc_func(cRpThread, prof_thread_allocate);
 

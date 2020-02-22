@@ -18,7 +18,7 @@ typedef enum
     MEASURE_MEMORY
 } prof_measure_mode_t;
 
-typedef struct
+typedef struct prof_measurer_t
 {
     get_measurement measure;
     prof_measure_mode_t mode;

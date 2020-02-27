@@ -29,8 +29,9 @@ module RubyProf
 
       sum = 0
       methods.each do |method|
-        self_percent = (method.self_time / total_time) * 100
-        next if self_percent < min_percent
+        percent = (method.send(filter_by) / total_time) * 100
+        next if percent < min_percent
+        next if percent > max_percent
 
         sum += method.self_time
         #self_time_called = method.called > 0 ? method.self_time/method.called : 0

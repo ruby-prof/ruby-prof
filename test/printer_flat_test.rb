@@ -65,4 +65,31 @@ class PrinterFlatTest < TestCase
       assert_sorted times
     end
   end
+
+  def test_flat_result_max_percent
+    printer = RubyProf::FlatPrinter.new(@result)
+
+    printer.print(output = '', max_percent: 1)
+    self_percents = flat_output_nth_column_values(output, 1).map(&:to_f)
+
+    assert self_percents.max < 1
+  end
+
+  def test_flat_result_filter_by_total_time
+    printer = RubyProf::FlatPrinter.new(@result)
+
+    printer.print(output = '', filter_by: :total_time, min_percent: 50)
+    total_times = flat_output_nth_column_values(output, 2).map(&:to_f)
+
+    assert (total_times.min / total_times.max) >= 0.5
+  end
+
+  def test_flat_result_filter_by_self_time
+    printer = RubyProf::FlatPrinter.new(@result)
+
+    printer.print(output = '', filter_by: :self_time, min_percent: 0.1)
+    self_percents = flat_output_nth_column_values(output, 1).map(&:to_f)
+
+    assert self_percents.min >= 0.1
+  end
 end

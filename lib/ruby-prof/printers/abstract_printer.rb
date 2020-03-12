@@ -17,9 +17,19 @@ module RubyProf
       @output = nil
     end
 
-    # Returns the min_percent of total time a method must take to be included in a profiling report
+    # Returns the min_percent of time a method must take to be included in a profiling report
     def min_percent
       @options[:min_percent] || 0
+    end
+
+    # Returns the max_percent of time a method can take to be included in a profiling report
+    def max_percent
+      @options[:max_percent] || 100
+    end
+
+    # Returns the method to filter methods by (when using min_percent and max_percent)
+    def filter_by
+      @options[:filter_by] || :self_time
     end
 
     # Returns the time format used to show when a profile was run

@@ -58,7 +58,6 @@ if RUBY_PLATFORM.match(/win32|mingw32/)
   win_spec = default_spec.clone
   win_spec.platform = Gem::Platform::CURRENT
   win_spec.files += Dir.glob('lib/**/*.so')
-  win_spec.instance_variable_set(:@cache_file, nil) # Hack to work around gem issue
 
   # Unset extensions
   win_spec.extensions = nil

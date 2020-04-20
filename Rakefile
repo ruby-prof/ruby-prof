@@ -40,7 +40,7 @@ Rake::ExtensionTask.new do |ext|
   ext.ext_dir = "ext/#{SO_NAME}"
   ext.lib_dir = "lib/#{Gem::Version.new(RUBY_VERSION).segments[0..1].join('.')}"
   ext.cross_compile = true
-  ext.cross_platform = ['x86-mingw32', 'x64-mingw32']
+  ext.cross_platform = ['x64-mingw32']
 end
 
 # Rake task to build the default package

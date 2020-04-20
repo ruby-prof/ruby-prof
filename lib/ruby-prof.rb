@@ -1,9 +1,10 @@
 # encoding: utf-8
+require 'rubygems/version'
 
 # Load the C-based binding.
 begin
-  RUBY_VERSION =~ /(\d+\.\d+\.\d+)/
-  require "#{$1}/ruby_prof.so"
+  version = Gem::Version.new(RUBY_VERSION)
+  require "#{version.segments[0..1].join('.')}/ruby_prof.so"
 rescue LoadError
   require "ruby_prof.so"
 end

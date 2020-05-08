@@ -129,7 +129,7 @@ prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, 
 prof_frame_t* prof_frame_unshift(prof_stack_t* stack, prof_call_tree_t* parent_call_tree, prof_call_tree_t* call_tree, double measurement)
 {
     if (prof_stack_last(stack))
-        rb_raise(rb_eRuntimeError, "Stach unshift can only be called with an empty stack");
+        rb_raise(rb_eRuntimeError, "Stack unshift can only be called with an empty stack");
 
     parent_call_tree->measurement->total_time = call_tree->measurement->total_time;
     parent_call_tree->measurement->self_time = 0;

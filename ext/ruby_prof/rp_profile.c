@@ -756,11 +756,7 @@ static VALUE prof_stop(VALUE self)
     {
         if (trace_file != stderr && trace_file != stdout)
         {
-#ifdef _MSC_VER
-            _fcloseall();
-#else
             fclose(trace_file);
-#endif
         }
         trace_file = NULL;
     }

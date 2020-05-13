@@ -70,20 +70,12 @@ static const char* get_event_name(rb_event_flag_t event)
     }
 }
 
-VALUE get_fiber(prof_profile_t* profile)
-{
-    if (profile->merge_fibers)
-        return rb_thread_current();
-    else
-        return rb_fiber_current();
-}
-
 thread_data_t* check_fiber(prof_profile_t* profile, double measurement)
 {
     thread_data_t* result = NULL;
 
-    /* Get the current thread and fiber information. */
-    VALUE fiber = get_fiber(profile);
+    // Get the current fiber
+    VALUE fiber = rb_fiber_current();
 
     /* We need to switch the profiling context if we either had none before,
      we don't merge fibers and the fiber ids differ, or the thread ids differ. */
@@ -172,7 +164,7 @@ prof_method_t* check_method(VALUE profile, rb_trace_arg_t* trace_arg, rb_event_f
 static void prof_trace(prof_profile_t* profile, rb_trace_arg_t* trace_arg, double measurement)
 {
     static VALUE last_fiber = Qnil;
-    VALUE fiber = get_fiber(profile);
+    VALUE fiber = rb_fiber_current();
 
     rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
     const char* event_name = get_event_name(event);
@@ -487,7 +479,6 @@ static VALUE prof_allocate(VALUE klass)
     profile->include_threads_tbl = NULL;
     profile->running = Qfalse;
     profile->allow_exceptions = false;
-    profile->merge_fibers = false;
     profile->exclude_methods_tbl = method_table_create();
     profile->running = Qfalse;
     profile->tracepoints = rb_ary_new();
@@ -529,9 +520,6 @@ prof_stop_threads(prof_profile_t* profile)
                       If not specified, defaults to RubyProf::WALL_TIME.
    allow_exceptions:  Whether to raise exceptions encountered during profiling,
                       or to suppress all exceptions during profiling
-   merge_fibers:      Whether profiling data for a given thread's fibers should all be
-                      subsumed under a single entry. Basically only useful to produce
-                      callgrind profiles.
    track_allocations: Whether to track object allocations while profiling. True or false.
    exclude_common:    Exclude common methods from the profile. True or false.
    exclude_threads:   Threads to exclude from the profiling results.
@@ -546,7 +534,6 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
     VALUE include_threads = Qnil;
     VALUE exclude_common = Qnil;
     VALUE allow_exceptions = Qfalse;
-    VALUE merge_fibers = Qfalse;
     VALUE track_allocations = Qfalse;
 
     int i;
@@ -566,7 +553,6 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
             mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
             track_allocations = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("track_allocations")));
             allow_exceptions = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("allow_exceptions")));
-            merge_fibers = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("merge_fibers")));
             exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
             exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
             include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
@@ -587,7 +573,6 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
     }
     profile->measurer = prof_get_measurer(NUM2INT(mode), track_allocations == Qtrue);
     profile->allow_exceptions = (allow_exceptions == Qtrue);
-    profile->merge_fibers = (merge_fibers == Qtrue);
 
     if (exclude_threads != Qnil)
     {
@@ -679,7 +664,7 @@ static VALUE prof_start(VALUE self)
 
     profile->running = Qtrue;
     profile->paused = Qfalse;
-    profile->last_thread_data = threads_table_insert(profile, get_fiber(profile));
+    profile->last_thread_data = threads_table_insert(profile, rb_fiber_current());
 
     /* open trace file if environment wants it */
     trace_file_name = getenv("RUBY_PROF_TRACE");

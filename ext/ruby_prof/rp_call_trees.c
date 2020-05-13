@@ -219,7 +219,7 @@ VALUE prof_call_trees_callers(VALUE self)
         }
     }
 
-    VALUE result = rb_ary_new_capa(callers->num_entries);
+    VALUE result = rb_ary_new_capa((long)callers->num_entries);
     rb_st_foreach(callers, prof_call_trees_collect_aggregates, result);
     rb_st_free_table(callers);
     return result;
@@ -239,7 +239,7 @@ VALUE prof_call_trees_callees(VALUE self)
         rb_st_foreach((*call_tree)->children, prof_call_trees_collect_callees, (st_data_t)callees);
     }
 
-    VALUE result = rb_ary_new_capa(callees->num_entries);
+    VALUE result = rb_ary_new_capa((long)callees->num_entries);
     rb_st_foreach(callees, prof_call_trees_collect_aggregates, result);
     rb_st_free_table(callees);
     return result;

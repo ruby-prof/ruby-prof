@@ -10,7 +10,7 @@ VALUE total_allocated_objects_key;
 
 static double measure_allocations_via_gc_stats(rb_trace_arg_t* trace_arg)
 {
-    return rb_gc_stat(total_allocated_objects_key);
+    return (double)rb_gc_stat(total_allocated_objects_key);
 }
 
 static double measure_allocations_via_tracing(rb_trace_arg_t* trace_arg)

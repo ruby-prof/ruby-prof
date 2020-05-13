@@ -24,7 +24,7 @@ static double measure_process_time(rb_trace_arg_t* trace_arg)
     userTimeInt.LowPart = userTime.dwLowDateTime;
     userTimeInt.HighPart = userTime.dwHighDateTime;
 
-    return sysTimeInt.QuadPart + userTimeInt.QuadPart;
+    return (double)(sysTimeInt.QuadPart + userTimeInt.QuadPart);
 #elif !defined(CLOCK_PROCESS_CPUTIME_ID)
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);

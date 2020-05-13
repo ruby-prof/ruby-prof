@@ -187,7 +187,7 @@ prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement)
 
 prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line)
 {
-    prof_frame_t* frame = stack->ptr;
+    prof_frame_t* frame = prof_stack_last(stack);
     while (frame >= stack->start)
     {
         if (!frame->call_tree)

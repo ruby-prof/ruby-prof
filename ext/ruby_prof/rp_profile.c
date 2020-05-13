@@ -65,6 +65,8 @@ static const char* get_event_name(rb_event_flag_t event)
         return "fiber-switch";
     case RUBY_EVENT_RAISE:
         return "raise";
+    case RUBY_INTERNAL_EVENT_NEWOBJ:
+        return "newobj";
     default:
         return "unknown";
     }

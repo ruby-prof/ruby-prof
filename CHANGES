@@ -1,3 +1,10 @@
+1.4.0 (2020-05-12)
+=====================
+* API change - remove merge_fibers support since it resulted in incorrect results or crashes (Charlie Savage)
+* Fix crash when profiling memory usage (Charlie Savage)
+* When tracing execution correctly print out newobj tracepoint events (Charlie Savage)
+* Remove no longer needed code for building extensions (Charlie Savage)
+
 1.3.2 (2020-04-19)
 =====================
 * Fix rack profiler so it is thread safe (Charlie Savage)

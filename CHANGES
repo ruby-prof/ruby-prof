@@ -1,3 +1,7 @@
+1.4.1 (2020-05-14)
+=====================
+* Fix compiling on older versions of gcc that do not default to c99 (Charlie Savage)
+
 1.4.0 (2020-05-12)
 =====================
 * API change - remove merge_fibers support since it resulted in incorrect results or crashes (Charlie Savage)

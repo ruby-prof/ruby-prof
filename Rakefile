@@ -6,13 +6,6 @@ require "rake/testtask"
 require "rdoc/task"
 require "date"
 require "rake/clean"
-begin
-  require "bundler/setup"
-  Bundler::GemHelper.install_tasks
-  [:build, :install, :release].each {|t| Rake::Task[t].enhance [:rdoc] }
-rescue LoadError
-  $stderr.puts "Install bundler to get support for simplified gem publishing"
-end
 
 # To release a version of ruby-prof:
 #   * Update lib/ruby-prof/version.rb
@@ -23,10 +16,6 @@ end
 #   * rake package to create the gems
 #   * Tag the release (git tag 0.10.1)
 #   * Push to ruybgems.org (gem push pkg/<gem files>)
-# For a ruby only release, just run
-#   * rake release
-# it will push changes to github, tag the release, build the package and upload it to rubygems.org
-# and in case you forgot to increment the version number or have uncommitted changes, it will refuse to work
 
 GEM_NAME = 'ruby-prof'
 SO_NAME = 'ruby_prof'

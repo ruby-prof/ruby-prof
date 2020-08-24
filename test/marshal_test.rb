@@ -2,8 +2,6 @@
 # encoding: UTF-8
 
 require File.expand_path("../test_helper", __FILE__)
-require 'stringio'
-
 class MarshalTest < TestCase
   def verify_profile(profile_1, profile_2)
     verify_threads(profile_1.threads, profile_2.threads)

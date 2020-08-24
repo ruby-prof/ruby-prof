@@ -4,6 +4,7 @@ require 'erb'
 require 'fileutils'
 require 'base64'
 require 'set'
+require 'stringio'
 
 module RubyProf
   # Prints a HTML visualization of the call tree.

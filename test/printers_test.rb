@@ -2,8 +2,8 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
-require 'stringio'
 require 'fileutils'
+require 'stringio'
 require 'tmpdir'
 require_relative 'prime'
 

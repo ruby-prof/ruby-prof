@@ -22,6 +22,14 @@ void prof_stack_free(prof_stack_t* stack)
     xfree(stack);
 }
 
+prof_frame_t* prof_stack_parent(prof_stack_t* stack)
+{
+    if (stack->ptr == stack->start || stack->ptr - 1 == stack->start)
+        return NULL;
+    else
+        return stack->ptr - 2;
+}
+
 prof_frame_t* prof_stack_last(prof_stack_t* stack)
 {
     if (stack->ptr == stack->start)
@@ -86,8 +94,8 @@ prof_frame_t* prof_frame_current(prof_stack_t* stack)
 
 prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, double measurement, bool paused)
 {
-    prof_frame_t* parent_frame = prof_stack_last(stack);
     prof_frame_t* result = prof_stack_push(stack);
+    prof_frame_t* parent_frame = prof_stack_parent(stack);
 
     result->call_tree = call_tree;
 

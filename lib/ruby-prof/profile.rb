@@ -7,10 +7,14 @@ module RubyProf
     # :nodoc:
     def measure_mode_string
       case self.measure_mode
-        when WALL_TIME    then "wall_time"
-        when PROCESS_TIME then "process_time"
-        when ALLOCATIONS  then "allocations"
-        when MEMORY       then "memory"
+        when WALL_TIME
+          "wall_time"
+        when PROCESS_TIME
+          "process_time"
+        when ALLOCATIONS
+          "allocations"
+        when MEMORY
+          "memory"
       end
     end
 

@@ -25,7 +25,7 @@ module RubyProf
     end
 
     def print_header(thread)
-      @output << "Measure Mode: %s\n" % RubyProf.measure_mode_string
+      @output << "Measure Mode: %s\n" % @result.measure_mode_string
       @output << "Thread ID: #{thread.id}\n"
       @output << "Fiber ID: #{thread.fiber_id}\n"
       @output << "Total Time: #{thread.total_time}\n"

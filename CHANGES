@@ -1,3 +1,11 @@
+1.4.2 (2020-11-3)
+=====================
+* Do NOT use Ruby 2.7.0 and 2.7.1 with ruby-prof. A bug in those versions of ruby causes ruby-prof to
+not work. Version 2.7.2 works correctly.
+* Fix crash caused be reallocating an internal stack that keeps tracks of frames *after* getting a reference to the
+top frame in the stack (Charlie Savage).
+* Fix bug where the flat printer did not correctly report the correct measurement mode.
+
 1.4.1 (2020-05-14)
 =====================
 * Fix compiling on older versions of gcc that do not default to c99 (Charlie Savage)

@@ -20,3 +20,4 @@ Gemfile.lock
 /ext/ruby_prof/vc/ruby_prof.vcxproj.user
 /ext/ruby_prof/vc/obj
 /ext/ruby_prof/vc/bin
+/ext/ruby_prof/mkmf.log

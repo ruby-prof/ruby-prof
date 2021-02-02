@@ -33,5 +33,31 @@ module RubyProf
     def exclude_singleton_methods!(mod, *method_or_methods)
       exclude_methods!(mod.singleton_class, *method_or_methods)
     end
+
+    def exclude_module!(mod)
+      exclude_methods!(mod, mod.methods + mod.instance_methods)
+    end
+
+    def exclude_methods_by_pattern!(pattern)
+      separator = '\\' + pattern[/[#.]/]
+
+      return exclude_module!(Object.const_get(pattern)) unless separator
+
+      mod, methods_pattern = pattern.split(/#{separator}/, 2)
+                                    .each_slice(2).map do |mod, pat|
+                                       [Object.const_get(mod), Regexp.new(pat)]
+                                     end.flatten
+
+
+      method_or_methods = if separator == '#'
+                            mod.instance_methods.grep(methods_pattern)
+                          else
+                            mod.methods.grep(methods_pattern)
+                          end
+
+      mod = separator == '#' ? mod : mod.singleton_class
+
+      exclude_methods!(mod, method_or_methods)
+    end
   end
 end

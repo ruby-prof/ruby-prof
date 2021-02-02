@@ -133,6 +133,67 @@ class ExcludeMethodsTest < TestCase
     assert_equal('ExcludeMethodsClass#b', methods[2].full_name)
   end
 
+  def test_exclude_module
+    obj = ExcludeMethodsClass.new
+    prf = RubyProf::Profile.new
+
+    prf.exclude_module!(ExcludeMethodsClass)
+
+    result = prf.profile {obj.a}
+    methods = result.threads.first.methods.sort.reverse
+
+    assert_equal(8, methods.count)
+    assert_equal('Integer#times', methods[1].full_name)
+    assert_equal('<Class::ExcludeMethodsClass>#e', methods[2].full_name)
+    assert_equal('<Class::ExcludeMethodsClass>#f', methods[3].full_name)
+  end
+
+  def test_exclude_module_by_pattern
+    obj = ExcludeMethodsClass.new
+    prf = RubyProf::Profile.new
+
+    prf.exclude_methods_by_pattern!('ExcludeMethodsClass')
+
+    result = prf.profile {obj.a}
+    methods = result.threads.first.methods.sort.reverse
+
+    assert_equal(8, methods.count)
+    assert_equal("Integer#times", methods[1].full_name)
+    assert_equal("<Class::ExcludeMethodsClass>#e", methods[2].full_name)
+    assert_equal("<Class::ExcludeMethodsClass>#f", methods[3].full_name)
+  end
+
+  def test_exclude_instance_methods_by_pattern
+    obj = ExcludeMethodsClass.new
+    prf = RubyProf::Profile.new
+
+    prf.exclude_methods_by_pattern!('Integer#t.*')
+    prf.exclude_methods_by_pattern!('ExcludeMethodsClass#.*')
+
+    result = prf.profile {obj.a}
+    methods = result.threads.first.methods.sort.reverse
+
+    assert_equal(7, methods.count)
+    assert_equal('<Class::ExcludeMethodsClass>#e', methods[1].full_name)
+    assert_equal('<Class::ExcludeMethodsClass>#f', methods[2].full_name)
+    assert_equal('Kernel#sleep', methods[3].full_name)
+  end
+
+  def test_exclude_class_methods_by_pattern
+    obj = ExcludeMethodsClass.new
+    prf = RubyProf::Profile.new
+
+    prf.exclude_methods_by_pattern!('ExcludeMethodsClass..*')
+
+    result = prf.profile {obj.a}
+    methods = result.threads.first.methods.sort.reverse
+
+    assert_equal(8, methods.count)
+    assert_equal('ExcludeMethodsClass#b', methods[3].full_name)
+    assert_equal('Kernel#sleep', methods[4].full_name)
+    assert_equal('ExcludeMethodsModule#c', methods[5].full_name)
+  end
+
   private
 
   def assert_method_has_been_excluded(result, excluded_method)

@@ -37,10 +37,10 @@ class PrintersTest < TestCase
   end
 
   def test_print_to_files
-    output_dir = 'examples2'
+    output_dir = 'tmp/examples2'
 
     if ENV['SAVE_NEW_PRINTER_EXAMPLES']
-      output_dir = 'examples'
+      output_dir = 'tmp/examples'
     end
     FileUtils.mkdir_p output_dir
 

@@ -35,7 +35,13 @@ class MarshalTest < TestCase
 
       assert_equal(method_1.recursive?, method_2.recursive?)
 
-      assert_equal(method_1.source_file, method_2.source_file)
+      if method_1.source_file
+        assert_equal(method_1.source_file, method_2.source_file)
+      else
+        assert_nil(method_1.source_file)
+        assert_nil(method_2.source_file)
+      end
+
       assert_equal(method_1.line, method_2.line)
 
       verify_measurement(method_1.measurement, method_2.measurement)
@@ -73,10 +79,23 @@ class MarshalTest < TestCase
 
   def verify_call_info(call_info_1, call_info_2)
     assert_equal(call_info_1.target, call_info_2.target)
-    assert_equal(call_info_1.parent&.target, call_info_2.parent&.target)
+
+    if call_info_1.parent&.target
+      assert_equal(call_info_1.parent&.target, call_info_2.parent&.target)
+    else
+      assert_nil(call_info_1.parent&.target)
+      assert_nil(call_info_2.parent&.target)
+    end
 
     assert_equal(call_info_1.depth, call_info_2.depth)
-    assert_equal(call_info_1.source_file, call_info_2.source_file)
+
+    if call_info_1.source_file
+      assert_equal(call_info_1.source_file, call_info_2.source_file) #
+    else
+      assert_nil(call_info_1.source_file)
+      assert_nil(call_info_2.source_file)
+    end
+
     assert_equal(call_info_1.line, call_info_2.line)
 
     verify_measurement(call_info_1.measurement, call_info_2.measurement)

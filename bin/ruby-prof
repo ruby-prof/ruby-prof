@@ -209,6 +209,26 @@ module RubyProf
           exit
         end
 
+        opts.on_tail(<<~eos
+
+          Columns
+
+            %self     - The percentage of time spent in this method, derived from self_time/total_time.
+            total     - The time spent in this method and its children.
+            self      - The time spent in this method.
+            wait      - The amount of time this method waited for other threads.
+            child     - The time spent in this method's children.
+            calls     - The number of times this method was called.
+            name      - The name of the method.
+            location  - The location of the method.
+
+          The interpretation of method names is:
+
+            * MyObject#test - An instance method "test" of the class "MyObject"
+            * <Object:MyObject>#test - The <> characters indicate a method on a singleton class.
+        eos
+        )
+
         opts.on('--allow_exceptions', 'Raise exceptions encountered during profiling (true) or suppress them (false)') do
           options.allow_exceptions = true
         end

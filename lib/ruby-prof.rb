@@ -6,7 +6,11 @@ begin
   version = Gem::Version.new(RUBY_VERSION)
   require "#{version.segments[0..1].join('.')}/ruby_prof.so"
 rescue LoadError
-  require "ruby_prof.so"
+  begin
+    require "ruby_prof.so"
+  rescue LoadError
+    require "./ext/ruby_prof/ruby_prof.so"
+  end
 end
 
 require 'ruby-prof/version'

@@ -158,7 +158,7 @@ prof_method_t* check_method(VALUE profile, rb_trace_arg_t* trace_arg, rb_event_f
         int source_line = (event != RUBY_EVENT_C_CALL ? FIX2INT(rb_tracearg_lineno(trace_arg)) : 0);
         result = create_method(profile, key, klass, msym, source_file, source_line);
     }
-    
+
     return result;
 }
 
@@ -253,13 +253,13 @@ static void prof_event_hook(VALUE trace_point, void* data)
                 {
                     frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile_t->paused));
                 }
-                
+
                 thread_data->call_tree = call_tree;
             }
-            
+
             frame->source_file = rb_tracearg_path(trace_arg);
             frame->source_line = FIX2INT(rb_tracearg_lineno(trace_arg));
-            
+
             break;
         }
         case RUBY_EVENT_CALL:
@@ -282,7 +282,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
             }
             else if (!frame && thread_data->call_tree)
             {
-                // There is no current parent - likely we have returned out of the highest level method we have profiled so far. 
+                // There is no current parent - likely we have returned out of the highest level method we have profiled so far.
                 // This can happen with enumerators (see fiber_test.rb). So create a new dummy parent.
                 prof_method_t* parent_method = check_parent_method(profile, thread_data);
                 parent_call_tree = prof_call_tree_create(parent_method, NULL, Qnil, 0);
@@ -421,7 +421,7 @@ static void prof_profile_mark(void* data)
         rb_st_foreach(profile->exclude_methods_tbl, prof_profile_mark_methods, 0);
 }
 
-/* Freeing the profile creates a cascade of freeing. It frees its threads table, which frees 
+/* Freeing the profile creates a cascade of freeing. It frees its threads table, which frees
    each thread and its associated call treee and methods. */
 static void prof_profile_ruby_gc_free(void* data)
 {

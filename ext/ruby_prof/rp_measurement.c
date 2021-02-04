@@ -100,7 +100,7 @@ static const rb_data_type_t measurement_type =
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY
-}; 
+};
 
 VALUE prof_measurement_wrap(prof_measurement_t* measurement)
 {

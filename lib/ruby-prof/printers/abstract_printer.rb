@@ -113,7 +113,7 @@ module RubyProf
 
     def print_footer(thread)
       @output << <<~EOT
-      
+
         * recursively called methods
 
         Columns are:

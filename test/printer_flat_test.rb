@@ -37,7 +37,7 @@ class PrinterFlatTest < TestCase
     array = array.map(&:to_f) # allow for > 10s times to sort right, since lexographically 4.0 > 10.0
     assert_equal(array, array.sort.reverse)
   end
-  
+
   def test_flat_string
     output = helper_test_flat_string(RubyProf::FlatPrinter)
     assert_match(/prime.rb/, output)

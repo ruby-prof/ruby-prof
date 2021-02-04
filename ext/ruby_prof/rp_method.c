@@ -253,7 +253,7 @@ static const rb_data_type_t method_info_type =
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY
-}; 
+};
 
 VALUE prof_method_wrap(prof_method_t* method)
 {

@@ -141,7 +141,7 @@ static const rb_data_type_t allocation_type =
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY
-}; 
+};
 
 VALUE prof_allocation_wrap(prof_allocation_t* allocation)
 {

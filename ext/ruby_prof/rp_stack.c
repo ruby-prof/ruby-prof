@@ -180,7 +180,7 @@ prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement)
         call_tree->measurement->total_time += total_time;
 
     call_tree->visits--;
-    
+
     prof_frame_t* parent_frame = prof_stack_last(stack);
     if (parent_frame)
     {

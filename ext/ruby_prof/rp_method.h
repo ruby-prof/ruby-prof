@@ -9,35 +9,35 @@
 
 extern VALUE cRpMethodInfo;
 
-// Source relation bit offsets. 
+// Source relation bit offsets.
 enum {
-    kModuleIncludee = 0x1,                    // Included in module 
-    kClassSingleton = 0x2,                    // Singleton of a class 
-    kModuleSingleton = 0x4,                   // Singleton of a module 
-    kObjectSingleton = 0x8,                   // Singleton of an object 
-    kOtherSingleton = 0x10                    // Singleton of unkown object 
+    kModuleIncludee = 0x1,                    // Included in module
+    kClassSingleton = 0x2,                    // Singleton of a class
+    kModuleSingleton = 0x4,                   // Singleton of a module
+    kObjectSingleton = 0x8,                   // Singleton of an object
+    kOtherSingleton = 0x10                    // Singleton of unkown object
 };
 
-// Profiling information for each method. 
-// Excluded methods have no call_trees, source_klass, or source_file. 
+// Profiling information for each method.
+// Excluded methods have no call_trees, source_klass, or source_file.
 typedef struct prof_method_t
 {
     VALUE profile;                          // Profile this method is associated with - needed for mark phase
-    struct prof_call_trees_t* call_trees;   // Call infos that call this method 
-    st_table* allocations_table;            // Tracks object allocations 
+    struct prof_call_trees_t* call_trees;   // Call infos that call this method
+    st_table* allocations_table;            // Tracks object allocations
 
-    st_data_t key;                          // Table key 
-    unsigned int klass_flags;               // Information about the type of class 
-    VALUE klass;                            // Resolved klass 
-    VALUE klass_name;                       // Resolved klass name for this method 
-    VALUE method_name;                      // Resolved method name for this method 
+    st_data_t key;                          // Table key
+    unsigned int klass_flags;               // Information about the type of class
+    VALUE klass;                            // Resolved klass
+    VALUE klass_name;                       // Resolved klass name for this method
+    VALUE method_name;                      // Resolved method name for this method
 
-    VALUE object;                           // Cached ruby object 
+    VALUE object;                           // Cached ruby object
 
     bool recursive;
-    int visits;                             // Current visits on the stack 
-    VALUE source_file;                      // Source file 
-    int source_line;                        // Line number 
+    int visits;                             // Current visits on the stack
+    VALUE source_file;                      // Source file
+    int source_line;                        // Line number
 
     prof_measurement_t* measurement;        // Stores measurement data for this method
 } prof_method_t;

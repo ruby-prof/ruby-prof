@@ -12,6 +12,11 @@ else
   $CFLAGS += ' -std=c11'
 end
 
+# For gcc add -s to strip symbols, reducing library size from 17MB to 78KB (at least on Windows with mingw64)
+if RUBY_PLATFORM !~ /mswin/
+  $LDFLAGS += ' -s'
+end
+
 # And since we are using C99 we want to disable Ruby sending these warnings to gcc
 if CONFIG['warnflags']
   CONFIG['warnflags'].gsub!('-Wdeclaration-after-statement', '')

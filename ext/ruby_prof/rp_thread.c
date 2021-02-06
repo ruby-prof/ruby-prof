@@ -21,7 +21,7 @@ You cannot create an instance of RubyProf::Thread, instead you access it from a 
 
 VALUE cRpThread;
 
-// ======   thread_data_t  ====== 
+// ======   thread_data_t  ======
 thread_data_t* thread_data_create(void)
 {
     thread_data_t* result = ALLOC(thread_data_t);
@@ -146,7 +146,7 @@ thread_data_t* prof_get_thread(VALUE self)
 }
 
 // ======   Thread Table  ======
-// The thread table is hash keyed on ruby fiber_id that stores instances of thread_data_t. 
+// The thread table is hash keyed on ruby fiber_id that stores instances of thread_data_t.
 
 st_table* threads_table_create()
 {

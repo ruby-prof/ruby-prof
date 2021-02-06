@@ -24,6 +24,6 @@ jobs:
     - name: Configure
       run: bundle install
     - name: Build
-      run: rake compile
+      run: bundle exec rake compile
     - name: Test
-      run: rake test
+      run: bundle exec rake test

@@ -29,6 +29,8 @@ class GcTest < TestCase
       array
     end
 
+    GC.start
+
     threads.each do |thread|
       refute_nil(thread.id)
     end
@@ -41,6 +43,8 @@ class GcTest < TestCase
       array.concat(profile.threads.map(&:methods).flatten)
       array
     end
+
+    GC.start
 
     methods.each do |method|
       refute_nil(method.method_name)
@@ -55,6 +59,8 @@ class GcTest < TestCase
       array
     end
 
+    GC.start
+
     method_call_infos.each do |call_trees|
       refute_empty(call_trees.call_trees)
     end
@@ -63,10 +69,12 @@ class GcTest < TestCase
   def test_hold_onto_measurements
     measurements = 5.times.reduce(Array.new) do |array, i|
       profile = run_profile
-      measurements = profile.threads.map(&:methods).flatten.map(&:measurement)
-      array.concat(measurements)
+      measurements_2 = profile.threads.map(&:methods).flatten.map(&:measurement)
+      array.concat(measurements_2)
       array
     end
+
+    GC.start
 
     measurements.each do |measurement|
       error = assert_raises(RuntimeError) do
@@ -82,6 +90,8 @@ class GcTest < TestCase
       array.concat(run_profile.threads.map(&:call_tree))
       array
     end
+
+    GC.start
 
     call_trees.each do |call_tree|
       refute_nil(call_tree.source_file)

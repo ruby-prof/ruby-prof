@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8B6DDF9B22A22C8100F36350"
-               BuildableName = "ruby_prof.dylib"
+               BuildableName = "ruby_prof.bundle"
                BlueprintName = "ruby_prof"
                ReferencedContainer = "container:ruby-prof.xcodeproj">
             </BuildableReference>
@@ -29,8 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -51,7 +49,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8B6DDF9B22A22C8100F36350"
-            BuildableName = "ruby_prof.dylib"
+            BuildableName = "ruby_prof.bundle"
             BlueprintName = "ruby_prof"
             ReferencedContainer = "container:ruby-prof.xcodeproj">
          </BuildableReference>
@@ -62,8 +60,6 @@
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -79,7 +75,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8B6DDF9B22A22C8100F36350"
-            BuildableName = "ruby_prof.dylib"
+            BuildableName = "ruby_prof.bundle"
             BlueprintName = "ruby_prof"
             ReferencedContainer = "container:ruby-prof.xcodeproj">
          </BuildableReference>

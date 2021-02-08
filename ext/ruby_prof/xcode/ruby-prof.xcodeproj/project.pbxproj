@@ -7,14 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		8B08734F22AF9C2900840594 /* libruby.2.5.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */; };
+		8B0A595E25D0F18C0069FCD2 /* rp_aggregate_call_tree.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A595825D0F18C0069FCD2 /* rp_aggregate_call_tree.c */; };
+		8B0A595F25D0F18C0069FCD2 /* rp_aggregate_call_tree.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0A595925D0F18C0069FCD2 /* rp_aggregate_call_tree.h */; };
+		8B0A596025D0F18C0069FCD2 /* rp_call_trees.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A595A25D0F18C0069FCD2 /* rp_call_trees.c */; };
+		8B0A596125D0F18C0069FCD2 /* rp_call_tree.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A595B25D0F18C0069FCD2 /* rp_call_tree.c */; };
+		8B0A596225D0F18C0069FCD2 /* rp_call_trees.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0A595C25D0F18C0069FCD2 /* rp_call_trees.h */; };
+		8B0A596325D0F18C0069FCD2 /* rp_call_tree.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0A595D25D0F18C0069FCD2 /* rp_call_tree.h */; };
+		8B0A596825D0F2090069FCD2 /* libruby.2.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0A596725D0F2090069FCD2 /* libruby.2.7.dylib */; };
 		8B2A0D4522A22D0000F67C5D /* ruby_prof.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.bundle */; };
 		8B4E7E8B22B85D9400D53342 /* rp_profile.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8922B85D9400D53342 /* rp_profile.c */; };
 		8B4E7E8C22B85D9400D53342 /* rp_profile.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8A22B85D9400D53342 /* rp_profile.h */; };
 		8B4E7E8F22B85FD400D53342 /* rp_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8D22B85FD200D53342 /* rp_allocation.c */; };
 		8B4E7E9022B85FD400D53342 /* rp_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8E22B85FD300D53342 /* rp_allocation.h */; };
-		8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2922A21EA800F36350 /* rp_call_info.c */; };
-		8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2B22A21EA800F36350 /* rp_call_info.h */; };
 		8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2822A21EA800F36350 /* rp_method.c */; };
 		8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2F22A21EA900F36350 /* rp_method.h */; };
 		8B6DDFAD22A22C8D00F36350 /* rp_stack.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2322A21EA800F36350 /* rp_stack.c */; };
@@ -46,6 +50,13 @@
 
 /* Begin PBXFileReference section */
 		8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libruby.2.5.5.dylib; path = ../../../../../lib/libruby.2.5.5.dylib; sourceTree = "<group>"; };
+		8B0A595825D0F18C0069FCD2 /* rp_aggregate_call_tree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_aggregate_call_tree.c; path = ../rp_aggregate_call_tree.c; sourceTree = "<group>"; };
+		8B0A595925D0F18C0069FCD2 /* rp_aggregate_call_tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_aggregate_call_tree.h; path = ../rp_aggregate_call_tree.h; sourceTree = "<group>"; };
+		8B0A595A25D0F18C0069FCD2 /* rp_call_trees.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_call_trees.c; path = ../rp_call_trees.c; sourceTree = "<group>"; };
+		8B0A595B25D0F18C0069FCD2 /* rp_call_tree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_call_tree.c; path = ../rp_call_tree.c; sourceTree = "<group>"; };
+		8B0A595C25D0F18C0069FCD2 /* rp_call_trees.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_call_trees.h; path = ../rp_call_trees.h; sourceTree = "<group>"; };
+		8B0A595D25D0F18C0069FCD2 /* rp_call_tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_call_tree.h; path = ../rp_call_tree.h; sourceTree = "<group>"; };
+		8B0A596725D0F2090069FCD2 /* libruby.2.7.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libruby.2.7.dylib; path = ../../../../../lib/libruby.2.7.dylib; sourceTree = "<group>"; };
 		8B4E7E8922B85D9400D53342 /* rp_profile.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_profile.c; path = ../rp_profile.c; sourceTree = "<group>"; };
 		8B4E7E8A22B85D9400D53342 /* rp_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_profile.h; path = ../rp_profile.h; sourceTree = "<group>"; };
 		8B4E7E8D22B85FD200D53342 /* rp_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_allocation.c; path = ../rp_allocation.c; sourceTree = "<group>"; };
@@ -55,8 +66,6 @@
 		8B6DDF2622A21EA800F36350 /* rp_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_thread.h; path = ../rp_thread.h; sourceTree = "<group>"; };
 		8B6DDF2722A21EA800F36350 /* rp_thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_thread.c; path = ../rp_thread.c; sourceTree = "<group>"; };
 		8B6DDF2822A21EA800F36350 /* rp_method.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_method.c; path = ../rp_method.c; sourceTree = "<group>"; };
-		8B6DDF2922A21EA800F36350 /* rp_call_info.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_call_info.c; path = ../rp_call_info.c; sourceTree = "<group>"; };
-		8B6DDF2B22A21EA800F36350 /* rp_call_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_call_info.h; path = ../rp_call_info.h; sourceTree = "<group>"; };
 		8B6DDF2F22A21EA900F36350 /* rp_method.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_method.h; path = ../rp_method.h; sourceTree = "<group>"; };
 		8B6DDF3122A21EA900F36350 /* ruby_prof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ruby_prof.c; path = ../ruby_prof.c; sourceTree = "<group>"; };
 		8B6DDF3222A21EA900F36350 /* rp_stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_stack.h; path = ../rp_stack.h; sourceTree = "<group>"; };
@@ -78,7 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B08734F22AF9C2900840594 /* libruby.2.5.5.dylib in Frameworks */,
+				8B0A596825D0F2090069FCD2 /* libruby.2.7.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,10 +97,14 @@
 		8B6DDF1022A21E8200F36350 = {
 			isa = PBXGroup;
 			children = (
+				8B0A595825D0F18C0069FCD2 /* rp_aggregate_call_tree.c */,
+				8B0A595925D0F18C0069FCD2 /* rp_aggregate_call_tree.h */,
+				8B0A595B25D0F18C0069FCD2 /* rp_call_tree.c */,
+				8B0A595D25D0F18C0069FCD2 /* rp_call_tree.h */,
+				8B0A595A25D0F18C0069FCD2 /* rp_call_trees.c */,
+				8B0A595C25D0F18C0069FCD2 /* rp_call_trees.h */,
 				8B4E7E8D22B85FD200D53342 /* rp_allocation.c */,
 				8B4E7E8E22B85FD300D53342 /* rp_allocation.h */,
-				8B6DDF2922A21EA800F36350 /* rp_call_info.c */,
-				8B6DDF2B22A21EA800F36350 /* rp_call_info.h */,
 				8BF8C17A22EFFDEB000751A9 /* rp_measure_allocations.c */,
 				8BF8C17C22EFFDEB000751A9 /* rp_measure_memory.c */,
 				8BF8C17B22EFFDEB000751A9 /* rp_measure_process_time.c */,
@@ -127,6 +140,7 @@
 		8B6DDF4622A2227300F36350 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8B0A596725D0F2090069FCD2 /* libruby.2.7.dylib */,
 				8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */,
 				8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */,
 			);
@@ -164,8 +178,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8B0A595F25D0F18C0069FCD2 /* rp_aggregate_call_tree.h in Headers */,
 				8BF8C17F22EFFDEC000751A9 /* rp_measurement.h in Headers */,
 				8B4E7E9022B85FD400D53342 /* rp_allocation.h in Headers */,
+				8B0A596225D0F18C0069FCD2 /* rp_call_trees.h in Headers */,
+				8B0A596325D0F18C0069FCD2 /* rp_call_tree.h in Headers */,
 				8B4E7E8C22B85D9400D53342 /* rp_profile.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -229,19 +246,20 @@
 			files = (
 				8BF8C18122EFFDEC000751A9 /* rp_measure_process_time.c in Sources */,
 				8BF8C17E22EFFDEC000751A9 /* rp_measurement.c in Sources */,
-				8B6DDFA022A22C8D00F36350 /* rp_call_info.c in Sources */,
-				8B6DDFA122A22C8D00F36350 /* rp_call_info.h in Sources */,
 				8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */,
 				8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */,
 				8B4E7E8F22B85FD400D53342 /* rp_allocation.c in Sources */,
 				8B6DDFAD22A22C8D00F36350 /* rp_stack.c in Sources */,
 				8B6DDFAE22A22C8D00F36350 /* rp_stack.h in Sources */,
 				8B6DDFAF22A22C8D00F36350 /* rp_thread.c in Sources */,
+				8B0A596025D0F18C0069FCD2 /* rp_call_trees.c in Sources */,
 				8B6DDFB022A22C8D00F36350 /* rp_thread.h in Sources */,
 				8BF8C18022EFFDEC000751A9 /* rp_measure_allocations.c in Sources */,
 				8B6DDFB122A22C8D00F36350 /* ruby_prof.c in Sources */,
+				8B0A595E25D0F18C0069FCD2 /* rp_aggregate_call_tree.c in Sources */,
 				8B6DDFB222A22C8D00F36350 /* ruby_prof.h in Sources */,
 				8BF8C18322EFFDEC000751A9 /* rp_measure_wall_time.c in Sources */,
+				8B0A596125D0F18C0069FCD2 /* rp_call_tree.c in Sources */,
 				8B4E7E8B22B85D9400D53342 /* rp_profile.c in Sources */,
 				8BF8C18222EFFDEC000751A9 /* rp_measure_memory.c in Sources */,
 			);
@@ -302,8 +320,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/local/include/ruby-2.6.0",
-					"/opt/local/include/ruby-2.6.0/x86_64-darwin18/**",
+					"/opt/local/include/ruby-2.7.0",
+					"/opt/local/include/ruby-2.7.0/x86_64-darwin19/**",
 				);
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
@@ -364,8 +382,8 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/local/include/ruby-2.6.0",
-					"/opt/local/include/ruby-2.6.0/x86_64-darwin18/**",
+					"/opt/local/include/ruby-2.7.0",
+					"/opt/local/include/ruby-2.7.0/x86_64-darwin19/**",
 				);
 				LIBRARY_SEARCH_PATHS = /opt/local/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;

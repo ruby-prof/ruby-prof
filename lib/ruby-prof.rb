@@ -4,12 +4,12 @@ require 'rubygems/version'
 # Load the C-based binding.
 begin
   version = Gem::Version.new(RUBY_VERSION)
-  require "#{version.segments[0..1].join('.')}/ruby_prof.#{RbConfig::CONFIG["DLEXT"]}"
+  require "#{version.segments[0..1].join('.')}/ruby_prof.so"
 rescue LoadError
   begin
-    require_relative "ruby_prof.#{RbConfig::CONFIG["DLEXT"]}"
+    require_relative "ruby_prof.so"
   rescue LoadError
-    require_relative "../ext/ruby_prof/ruby_prof.#{RbConfig::CONFIG["DLEXT"]}"
+    require_relative "../ext/ruby_prof/ruby_prof.so"
   end
 end
 

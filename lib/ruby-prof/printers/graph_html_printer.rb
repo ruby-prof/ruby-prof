@@ -29,7 +29,7 @@ module RubyProf
     end
 
     # Creates a link to a method.  Note that we do not create
-    # links to methods which are under the min_perecent
+    # links to methods which are under the min_percent
     # specified by the user, since they will not be
     # printed out.
     def create_link(thread, overall_time, method)

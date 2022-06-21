@@ -33,9 +33,10 @@ class InverseCallTreeTest < TestCase
     self.send(method_name.to_sym)
     profile = RubyProf.stop
 
-    assert_equal(1, profile.threads.count)
-
+    # assert_equal(3, profile.threads.count)
     thread = profile.threads.first
+    assert_equal(3, thread.methods.length)
+
     assert_in_delta(0.79, thread.total_time, 0.05)
 
     assert_equal(7, thread.methods.length)

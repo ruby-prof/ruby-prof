@@ -1,4 +1,4 @@
-= ruby-prof
+# ruby-prof
 
 ![ruby-prof](https://github.com/ruby-prof/ruby-prof/workflows/ruby-prof/badge.svg)
 

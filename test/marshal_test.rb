@@ -5,6 +5,8 @@ require File.expand_path("../test_helper", __FILE__)
 class MarshalTest < TestCase
   def verify_profile(profile_1, profile_2)
     verify_threads(profile_1.threads, profile_2.threads)
+    assert_equal(profile_1.measure_mode, profile_2.measure_mode)
+    assert_equal(profile_1.track_allocations?, profile_2.track_allocations?)
   end
 
   def verify_threads(threads_1, threads_2)
@@ -108,8 +110,19 @@ class MarshalTest < TestCase
     assert_equal(measurement_1.called, measurement_2.called)
   end
 
-  def test_marshal
-    profile_1 = RubyProf.profile do
+  def test_marshal_1
+    profile_1 = RubyProf.profile(:measure_mode => RubyProf::WALL_TIME) do
+      1.times { RubyProf::C1.new.sleep_wait }
+    end
+
+    data = Marshal.dump(profile_1)
+    profile_2 = Marshal.load(data)
+
+    verify_profile(profile_1, profile_2)
+  end
+
+  def test_marshal_2
+    profile_1 = RubyProf.profile(:measure_mode => RubyProf::PROCESS_TIME, :track_allocations => true) do
       1.times { RubyProf::C1.new.sleep_wait }
     end
 

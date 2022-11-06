@@ -16,7 +16,7 @@ void rp_init_measure_memory(void);
 void rp_init_measure_process_time(void);
 void rp_init_measure_wall_time(void);
 
-prof_measurer_t* prof_get_measurer(prof_measure_mode_t measure, bool track_allocations)
+prof_measurer_t* prof_measurer_create(prof_measure_mode_t measure, bool track_allocations)
 {
     switch (measure)
     {

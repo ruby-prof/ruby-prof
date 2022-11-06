@@ -565,7 +565,7 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
     {
         Check_Type(mode, T_FIXNUM);
     }
-    profile->measurer = prof_get_measurer(NUM2INT(mode), track_allocations == Qtrue);
+    profile->measurer = prof_measurer_create(NUM2INT(mode), track_allocations == Qtrue);
     profile->allow_exceptions = (allow_exceptions == Qtrue);
 
     if (exclude_threads != Qnil)
@@ -854,8 +854,14 @@ static VALUE prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
 /* :nodoc: */
 VALUE prof_profile_dump(VALUE self)
 {
+    prof_profile_t* profile = prof_get_profile(self);
+  
     VALUE result = rb_hash_new();
     rb_hash_aset(result, ID2SYM(rb_intern("threads")), prof_threads(self));
+    rb_hash_aset(result, ID2SYM(rb_intern("measurer_mode")), INT2NUM(profile->measurer->mode));
+    rb_hash_aset(result, ID2SYM(rb_intern("measurer_track_allocations")), 
+                 profile->measurer->track_allocations ? Qtrue : Qfalse);
+
     return result;
 }
 
@@ -863,6 +869,11 @@ VALUE prof_profile_dump(VALUE self)
 VALUE prof_profile_load(VALUE self, VALUE data)
 {
     prof_profile_t* profile = prof_get_profile(self);
+
+    VALUE measurer_mode = rb_hash_aref(data, ID2SYM(rb_intern("measurer_mode")));
+    VALUE measurer_track_allocations = rb_hash_aref(data, ID2SYM(rb_intern("measurer_track_allocations")));
+    profile->measurer = prof_measurer_create((prof_measure_mode_t)(NUM2INT(measurer_mode)),
+                                              measurer_track_allocations == Qtrue ? true : false);
 
     VALUE threads = rb_hash_aref(data, ID2SYM(rb_intern("threads")));
     for (int i = 0; i < rb_array_len(threads); i++)

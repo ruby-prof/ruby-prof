@@ -374,7 +374,7 @@ prof_profile_t* prof_get_profile(VALUE self)
 static int collect_threads(st_data_t key, st_data_t value, st_data_t result)
 {
     thread_data_t* thread_data = (thread_data_t*)value;
-    if (thread_data->trace)
+    if (thread_data->trace && thread_data->call_tree)
     {
         VALUE threads_array = (VALUE)result;
         rb_ary_push(threads_array, prof_thread_wrap(thread_data));

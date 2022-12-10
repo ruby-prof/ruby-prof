@@ -19,8 +19,8 @@ class PrinterCallTreeTest < TestCase
   def test_call_tree_string
     printer = RubyProf::CallTreePrinter.new(@result)
 
-    printer.print(:profile => "lolcat", :path => Dir.tmpdir)
-    main_output_file_name = File.join(Dir.tmpdir, "lolcat.callgrind.out.#{$$}")
+    printer.print(:path => Dir.tmpdir)
+    main_output_file_name = File.join(Dir.tmpdir, "callgrind.out.#{$$}")
     assert(File.exist?(main_output_file_name))
     output = File.read(main_output_file_name)
     assert_match(/fn=Object::find_primes/i, output)

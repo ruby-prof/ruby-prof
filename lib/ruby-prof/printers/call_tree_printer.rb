@@ -100,21 +100,17 @@ module RubyProf
       true
     end
 
-    def base_name
-      @options[:profile] || "profile"
-    end
-
     def remove_subsidiary_files_from_previous_profile_runs
-      pattern = [base_name, "callgrind.out", $$, "*"].join(".")
+      pattern = ["callgrind.out", $$, "*"].join(".")
       files = Dir.glob(File.join(path, pattern))
       FileUtils.rm_f(files)
     end
 
     def file_name_for_thread(thread)
       if thread.fiber_id == Fiber.current.object_id
-        [base_name, "callgrind.out", $$].join(".")
+        ["callgrind.out", $$].join(".")
       else
-        [base_name, "callgrind.out", $$, thread.fiber_id].join(".")
+        ["callgrind.out", $$, thread.fiber_id].join(".")
       end
     end
 

@@ -226,6 +226,8 @@ static void prof_event_hook(VALUE trace_point, void* data)
         {
             prof_frame_t* frame = prof_frame_current(thread_data->stack);
 
+            /* If there is no frame then this is either the first method being profiled or we have climbed the
+               call stack higher than where we started. */
             if (!frame)
             {
                 prof_method_t* method = check_method(profile, trace_arg, event, thread_data);
@@ -236,11 +238,13 @@ static void prof_event_hook(VALUE trace_point, void* data)
                 prof_call_tree_t* call_tree = prof_call_tree_create(method, NULL, method->source_file, method->source_line);
                 prof_add_call_tree(method->call_trees, call_tree);
 
+                // We have climbed higher in the stack then where we started
                 if (thread_data->call_tree)
                 {
                     prof_call_tree_add_parent(thread_data->call_tree, call_tree);
                     frame = prof_frame_unshift(thread_data->stack, call_tree, thread_data->call_tree, measurement);
                 }
+                // This is the first method to be profiled
                 else
                 {
                     frame = prof_frame_push(thread_data->stack, call_tree, measurement, RTEST(profile_t->paused));

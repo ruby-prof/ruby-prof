@@ -3,8 +3,6 @@
 
 #include "rp_call_tree.h"
 
-#define INITIAL_CALL_TREES_SIZE 2
-
 VALUE cRpCallTree;
 
 /* =======  prof_call_tree_t   ========*/

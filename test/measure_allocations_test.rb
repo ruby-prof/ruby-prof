@@ -20,14 +20,6 @@ class MeasureAllocationsTraceTest < TestCase
       allocator.run
     end
 
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open('allocations.html', 'w') do |file|
-      printer.print(file)
-    end
-
-    #    return
-
-
     thread = result.threads.first
     assert_in_delta(20, thread.total_time, 1)
 

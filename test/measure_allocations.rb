@@ -18,13 +18,9 @@ class Allocator
     String.new(b_string)
   end
 
-  def internal_run
+  def run
     make_arrays
     make_hashes
     make_strings
-  end
-
-  def run
-    internal_run
   end
 end

@@ -20,11 +20,19 @@ class MeasureAllocationsTraceTest < TestCase
       allocator.run
     end
 
+    printer = RubyProf::GraphHtmlPrinter.new(result)
+    File.open('allocations.html', 'w') do |file|
+      printer.print(file)
+    end
+
+    #    return
+
+
     thread = result.threads.first
     assert_in_delta(20, thread.total_time, 1)
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(13, methods.length)
+    assert_equal(12, methods.length)
 
     # Method 0
     method = methods[0]
@@ -67,30 +75,6 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(0, call_tree.self_time)
     assert_equal(19, call_tree.children_time)
 
-    assert_equal(1, method.call_trees.callees.length)
-    call_tree = method.call_trees.callees[0]
-    assert_equal('Allocator#internal_run', call_tree.target.full_name)
-    assert_equal(19, call_tree.total_time)
-    assert_equal(0, call_tree.wait_time)
-    assert_equal(0, call_tree.self_time)
-    assert_equal(19, call_tree.children_time)
-
-    # Method 2
-    method = methods[2]
-    assert_equal('Allocator#internal_run',  method.full_name)
-    assert_equal(19, method.total_time)
-    assert_equal(0, method.wait_time)
-    assert_equal(0, method.self_time)
-    assert_equal(19, method.children_time)
-
-    assert_equal(1, method.call_trees.callers.length)
-    call_tree = method.call_trees.callers[0]
-    assert_equal('Allocator#run', call_tree.parent.target.full_name)
-    assert_equal(19, call_tree.total_time)
-    assert_equal(0, call_tree.wait_time)
-    assert_equal(0, call_tree.self_time)
-    assert_equal(19, call_tree.children_time)
-
     assert_equal(3, method.call_trees.callees.length)
     call_tree = method.call_trees.callees[0]
     assert_equal('Allocator#make_arrays', call_tree.target.full_name)
@@ -113,8 +97,8 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(1, call_tree.self_time)
     assert_equal(3, call_tree.children_time)
 
-    # Method 3
-    method = methods[3]
+    # Method 2
+    method = methods[2]
     assert_equal('Class#new', method.full_name)
     assert_equal(18, method.total_time)
     assert_equal(0, method.wait_time)
@@ -179,8 +163,8 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(1, call_tree.self_time)
     assert_equal(0, call_tree.children_time)
 
-    # Method 4
-    method = methods[4]
+    # Method 3
+    method = methods[3]
     assert_equal('Allocator#make_arrays', method.full_name)
     assert_equal(10, method.total_time)
     assert_equal(0, method.wait_time)
@@ -189,7 +173,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.call_trees.callers.length)
     call_tree = method.call_trees.callers[0]
-    assert_equal('Allocator#internal_run', call_tree.parent.target.full_name)
+    assert_equal('Allocator#run', call_tree.parent.target.full_name)
     assert_equal(10, call_tree.total_time)
     assert_equal(0, call_tree.wait_time)
     assert_equal(0, call_tree.self_time)
@@ -203,8 +187,8 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(0, call_tree.self_time)
     assert_equal(10, call_tree.children_time)
 
-    # Method 5
-    method = methods[5]
+    # Method 4
+    method = methods[4]
     assert_equal('Integer#times', method.full_name)
     assert_equal(10, method.total_time)
     assert_equal(0, method.wait_time)
@@ -227,8 +211,8 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(10, call_tree.self_time)
     assert_equal(0, call_tree.children_time)
 
-    # Method 6
-    method = methods[6]
+    # Method 5
+    method = methods[5]
     assert_equal('Allocator#make_hashes', method.full_name)
     assert_equal(5, method.total_time)
     assert_equal(0, method.wait_time)
@@ -237,7 +221,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.call_trees.callers.length)
     call_tree = method.call_trees.callers[0]
-    assert_equal('Allocator#internal_run', call_tree.parent.target.full_name)
+    assert_equal('Allocator#run', call_tree.parent.target.full_name)
     assert_equal(5, call_tree.total_time)
     assert_equal(0, call_tree.wait_time)
     assert_equal(0, call_tree.self_time)
@@ -251,8 +235,8 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(5, call_tree.self_time)
     assert_equal(0, call_tree.children_time)
 
-    # Method 7
-    method = methods[7]
+    # Method 6
+    method = methods[6]
     assert_equal('Allocator#make_strings', method.full_name)
     assert_equal(4, method.total_time)
     assert_equal(0, method.wait_time)
@@ -261,7 +245,7 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(1, method.call_trees.callers.length)
     call_tree = method.call_trees.callers[0]
-    assert_equal('Allocator#internal_run', call_tree.parent.target.full_name)
+    assert_equal('Allocator#run', call_tree.parent.target.full_name)
     assert_equal(4, call_tree.total_time)
     assert_equal(0, call_tree.wait_time)
     assert_equal(1, call_tree.self_time)
@@ -282,8 +266,8 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(1, call_tree.self_time)
     assert_equal(1, call_tree.children_time)
 
-    # Method 8
-    method = methods[8]
+    # Method 7
+    method = methods[7]
     assert_equal('String#*', method.full_name)
     assert_equal(1, method.total_time)
     assert_equal(0, method.wait_time)
@@ -300,8 +284,8 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(0, method.call_trees.callees.length)
 
-    # Method 9
-    method = methods[9]
+    # Method 8
+    method = methods[8]
     assert_equal('String#initialize', method.full_name)
     assert_equal(1, method.total_time)
     assert_equal(0, method.wait_time)
@@ -318,8 +302,8 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(0, method.call_trees.callees.length)
 
-    # Method 10
-    method = methods[10]
+    # Method 9
+    method = methods[9]
     assert_equal('BasicObject#initialize', method.full_name)
     assert_equal(0, method.total_time)
     assert_equal(0, method.wait_time)
@@ -336,8 +320,8 @@ class MeasureAllocationsTraceTest < TestCase
 
     assert_equal(0, method.call_trees.callees.length)
 
-    # Method 11
-    method = methods[11]
+    # Method 10
+    method = methods[10]
     assert_equal('Hash#initialize', method.full_name)
     assert_equal(0, method.total_time)
     assert_equal(0, method.wait_time)
@@ -353,23 +337,5 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(0, call_tree.children_time)
 
     assert_equal(0, method.call_trees.callees.length)
-
-    # Method 12
-    method = methods[12]
-    assert_equal('Array#initialize', method.full_name)
-    assert_equal(0, method.total_time)
-    assert_equal(0, method.wait_time)
-    assert_equal(0, method.self_time)
-    assert_equal(0, method.children_time)
-
-    assert_equal(1, method.call_trees.callers.length)
-    call_tree = method.call_trees.callers[0]
-    assert_equal('Class#new', call_tree.parent.target.full_name)
-    assert_equal(0, call_tree.total_time)
-    assert_equal(0, call_tree.wait_time)
-    assert_equal(0, call_tree.self_time)
-    assert_equal(0, call_tree.children_time)
-
-    assert_equal(0, method.call_trees.callees.length)
-  end
+    end
 end

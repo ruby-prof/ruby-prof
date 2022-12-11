@@ -25,7 +25,7 @@ class BugsTest < TestCase
       a = self.array_push_optimized
     end
     assert_equal 2, a.length
-    assert_equal ["BugsTest#test_array_push_optimized", "BugsTest#array_push_optimized", "Array#push"], result.threads.first.methods.map(&:full_name)
+    assert_equal ["BugsTest#test_array_push_optimized", "BugsTest#array_push_optimized", "Array#<<", "Array#push"], result.threads.first.methods.map(&:full_name)
   end
 
   private

@@ -15,7 +15,8 @@ static double measure_memory(rb_trace_arg_t* trace_arg)
     {
         // Only process creation of new objects
         rb_event_flag_t event = rb_tracearg_event_flag(trace_arg);
-        if (event == RUBY_INTERNAL_EVENT_NEWOBJ) {
+        if (event == RUBY_INTERNAL_EVENT_NEWOBJ)
+        {
             // Don't count allocations of internal IMemo objects
             VALUE object = rb_tracearg_object(trace_arg);
             if (BUILTIN_TYPE(object) != T_IMEMO)

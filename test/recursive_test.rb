@@ -46,7 +46,7 @@ class RecursiveTest < TestCase
     end
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(3, methods.length)
+    assert_equal(5, methods.length)
 
     # Method 0: RecursiveTest#test_simple
     method = methods[0]
@@ -81,11 +81,17 @@ class RecursiveTest < TestCase
     call_tree = method.call_trees.callers[1]
     assert_equal('SimpleRecursion#simple', call_tree.parent.target.full_name)
 
-    assert_equal(2, method.call_trees.callees.length)
+    assert_equal(4, method.call_trees.callees.length)
     call_tree = method.call_trees.callees[0]
     assert_equal('Kernel#sleep', call_tree.target.full_name)
 
     call_tree = method.call_trees.callees[1]
+    assert_equal('Integer#==', call_tree.target.full_name)
+
+    call_tree = method.call_trees.callees[2]
+    assert_equal('Integer#-', call_tree.target.full_name)
+
+    call_tree = method.call_trees.callees[3]
     assert_equal('SimpleRecursion#simple', call_tree.target.full_name)
 
     # Method 2: Kernel#sleep
@@ -93,6 +99,7 @@ class RecursiveTest < TestCase
     assert_equal('Kernel#sleep', method.full_name)
     assert_equal(2, method.called)
     refute(method.recursive?)
+
     assert_in_delta(2, method.total_time, 0.1)
     assert_in_delta(2, method.self_time, 0.1)
     assert_in_delta(0, method.wait_time, 0.1)
@@ -104,6 +111,30 @@ class RecursiveTest < TestCase
     assert_equal(0, method.call_trees.callees.length)
 
     assert_equal(0, method.call_trees.callees.length)
+
+    # Method 3
+    method = methods[3]
+    assert_equal('Integer#==', method.full_name)
+    assert_equal(2, method.called)
+    refute(method.recursive?)
+
+    assert_equal(1, method.call_trees.callers.length)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('SimpleRecursion#simple', call_tree.parent.target.full_name)
+
+    assert_equal(0, method.call_trees.callees.length)
+
+    # Method 4
+    method = methods[4]
+    assert_equal('Integer#-', method.full_name)
+    assert_equal(1, method.called)
+    refute(method.recursive?)
+
+    assert_equal(1, method.call_trees.callers.length)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('SimpleRecursion#simple', call_tree.parent.target.full_name)
+
+    assert_equal(0, method.call_trees.callees.length)
   end
 
   def test_cycle
@@ -112,8 +143,9 @@ class RecursiveTest < TestCase
     end
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(5, methods.length)
+    assert_equal(6, methods.length)
 
+    # Method 0
     method = methods[0]
     assert_equal('RecursiveTest#test_cycle', method.full_name)
     assert_equal(1, method.called)
@@ -129,6 +161,7 @@ class RecursiveTest < TestCase
     call_tree = method.call_trees.callees[0]
     assert_equal('SimpleRecursion#render', call_tree.target.full_name)
 
+    # Method 1
     method = methods[1]
     assert_equal('SimpleRecursion#render', method.full_name)
     assert_equal(1, method.called)
@@ -146,6 +179,7 @@ class RecursiveTest < TestCase
     call_tree = method.call_trees.callees[0]
     assert_equal('Integer#times', call_tree.target.full_name)
 
+    # Method 2
     method = methods[2]
     assert_equal('Integer#times', method.full_name)
     assert_equal(2, method.called)
@@ -162,10 +196,13 @@ class RecursiveTest < TestCase
     call_tree = method.call_trees.callers[1]
     assert_equal('SimpleRecursion#render_partial', call_tree.parent.target.full_name)
 
-    assert_equal(1, method.call_trees.callees.length)
+    assert_equal(2, method.call_trees.callees.length)
     call_tree = method.call_trees.callees[0]
     assert_equal('SimpleRecursion#render_partial', call_tree.target.full_name)
+    call_tree = method.call_trees.callees[1]
+    assert_equal('Integer#+', call_tree.target.full_name)
 
+    # Method 3
     method = methods[3]
     assert_equal('SimpleRecursion#render_partial', method.full_name)
     assert_equal(5, method.called)
@@ -192,6 +229,7 @@ class RecursiveTest < TestCase
     call_tree = method.call_trees.callees[2]
     assert_equal('Integer#times', call_tree.target.full_name)
 
+    # Method 4
     method = methods[4]
     assert_equal('Kernel#sleep', method.full_name)
     assert_equal(5, method.called)
@@ -200,6 +238,26 @@ class RecursiveTest < TestCase
     assert_in_delta(5, method.self_time, 0.1)
     assert_in_delta(0, method.wait_time, 0.01)
     assert_in_delta(0, method.children_time, 0.01)
+
+    assert_equal(1, method.call_trees.callers.length)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('SimpleRecursion#render_partial', call_tree.parent.target.full_name)
+
+    assert_equal(0, method.call_trees.callees.length)
+
+    # Method 5
+    method = methods[5]
+    assert_equal('Integer#+', method.full_name)
+    assert_equal(2, method.called)
+    refute(method.recursive?)
+    assert_in_delta(0, method.total_time, 0.1)
+    assert_in_delta(0, method.self_time, 0.1)
+    assert_in_delta(0, method.wait_time, 0.01)
+    assert_in_delta(0, method.children_time, 0.01)
+
+    assert_equal(1, method.call_trees.callers.length)
+    call_tree = method.call_trees.callers[0]
+    assert_equal('Integer#times', call_tree.parent.target.full_name)
 
     assert_equal(0, method.call_trees.callees.length)
   end

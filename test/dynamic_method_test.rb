@@ -46,7 +46,7 @@ class DynamicMethodTest < TestCase
       DynamicMethodTest::FruitMedley#banana
       DynamicMethodTest::FruitMedley#orange
       DynamicMethodTest::FruitMedley#apple
-      Symbol#to_s
+      Integer#==
     )
     assert_equal expected_method_names.join("\n"), methods.map(&:full_name).join("\n")
   end

@@ -135,7 +135,7 @@ class MeasureProcessTimeTest < TestCase
     assert_in_delta(0.08, thread.total_time, 0.05)
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(3, methods.length)
+    assert_equal(5, methods.length)
 
     # Check times
     method = methods[0]
@@ -212,7 +212,7 @@ class MeasureProcessTimeTest < TestCase
     assert_equal(4, methods.length)
 
     methods = result.threads.last.methods.sort.reverse
-    assert_equal(3, methods.length)
+    assert_equal(5, methods.length)
 
     # Check times
     method = methods[0]
@@ -437,7 +437,7 @@ class MeasureProcessTimeTest < TestCase
     assert_in_delta(0.2, thread.total_time, 0.05)
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(5, methods.length)
+    assert_equal(7, methods.length)
 
     # Check times
     method = methods[0]
@@ -456,19 +456,33 @@ class MeasureProcessTimeTest < TestCase
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.11, method.total_time, 0.05)
+    assert_in_delta(0.033, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
-    assert_in_delta(0.11, method.self_time, 0.05)
+    assert_in_delta(0.033, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
-    assert_equal('Class#new', method.full_name)
+    assert_equal('Float#-', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
     assert_in_delta(0.0, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
+    assert_equal('Float#<', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[5]
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[6]
     assert_equal('BasicObject#initialize', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
@@ -482,7 +496,7 @@ class MeasureProcessTimeTest < TestCase
     end
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(6, methods.length)
+    assert_equal(8, methods.length)
 
     # Check times
     method = methods[0]
@@ -508,19 +522,33 @@ class MeasureProcessTimeTest < TestCase
 
     method = methods[3]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.11, method.total_time, 0.05)
+    assert_in_delta(0.033, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
-    assert_in_delta(0.11, method.self_time, 0.05)
+    assert_in_delta(0.033, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
-    assert_equal('Class#new', method.full_name)
+    assert_equal('Float#-', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
     assert_in_delta(0.0, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[5]
+    assert_equal('Float#<', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[6]
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[7]
     assert_equal('BasicObject#initialize', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
@@ -580,7 +608,7 @@ class MeasureProcessTimeTest < TestCase
     assert_equal(4, methods.length)
 
     methods = result.threads.last.methods.sort.reverse
-    assert_equal(5, methods.length)
+    assert_equal(7, methods.length)
 
     # Check times
     method = methods[0]
@@ -599,19 +627,33 @@ class MeasureProcessTimeTest < TestCase
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.1, method.total_time, 0.05)
+    assert_in_delta(0.03, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
-    assert_in_delta(0.1, method.self_time, 0.05)
+    assert_in_delta(0.03, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
-    assert_equal('Class#new', method.full_name)
+    assert_equal('Float#-', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
     assert_in_delta(0.0, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
+    assert_equal('Float#<', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[5]
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[6]
     assert_equal('BasicObject#initialize', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
@@ -662,7 +704,7 @@ class MeasureProcessTimeTest < TestCase
     assert_in_delta(0.3, thread.total_time, 0.05)
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(3, methods.length)
+    assert_equal(5, methods.length)
 
     # Check times
     method = methods[0]
@@ -681,9 +723,9 @@ class MeasureProcessTimeTest < TestCase
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.15, method.total_time, 0.05)
+    assert_in_delta(0.05, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
-    assert_in_delta(0.15, method.self_time, 0.05)
+    assert_in_delta(0.05, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
   end
 
@@ -744,7 +786,7 @@ class MeasureProcessTimeTest < TestCase
     assert_in_delta(0.3, thread.total_time, 0.05)
 
     methods = result.threads.first.methods.sort.reverse
-    assert_equal(5, methods.length)
+    assert_equal(7, methods.length)
 
     # Check times
     method = methods[0]
@@ -763,19 +805,33 @@ class MeasureProcessTimeTest < TestCase
 
     method = methods[2]
     assert_equal('<Module::Process>#clock_gettime', method.full_name)
-    assert_in_delta(0.15, method.total_time, 0.05)
+    assert_in_delta(0.05, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
-    assert_in_delta(0.15, method.self_time, 0.05)
+    assert_in_delta(0.05, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[3]
-    assert_equal('Class#new', method.full_name)
+    assert_equal('Float#-', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)
     assert_in_delta(0.0, method.self_time, 0.05)
     assert_in_delta(0.0, method.children_time, 0.05)
 
     method = methods[4]
+    assert_equal('Float#<', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[5]
+    assert_equal('Class#new', method.full_name)
+    assert_in_delta(0.0, method.total_time, 0.05)
+    assert_in_delta(0.0, method.wait_time, 0.05)
+    assert_in_delta(0.0, method.self_time, 0.05)
+    assert_in_delta(0.0, method.children_time, 0.05)
+
+    method = methods[6]
     assert_equal('BasicObject#initialize', method.full_name)
     assert_in_delta(0.0, method.total_time, 0.05)
     assert_in_delta(0.0, method.wait_time, 0.05)

@@ -3,18 +3,18 @@
 
 require File.expand_path('../test_helper', __FILE__)
 
-class DuplicateNames < TestCase
+class DuplicateNamesTest < TestCase
   def test_names
     result = RubyProf::profile do
       str = %{module Foo; class Bar; def foo; end end end}
 
       eval str
       Foo::Bar.new.foo
-      DuplicateNames.class_eval {remove_const :Foo}
+      DuplicateNamesTest.class_eval {remove_const :Foo}
 
       eval str
       Foo::Bar.new.foo
-      DuplicateNames.class_eval {remove_const :Foo}
+      DuplicateNamesTest.class_eval {remove_const :Foo}
 
       eval str
       Foo::Bar.new.foo
@@ -24,7 +24,7 @@ class DuplicateNames < TestCase
     methods = result.threads.first.methods.sort.reverse
 
     methods = methods.select do |method|
-      method.full_name == 'DuplicateNames::Foo::Bar#foo'
+      method.full_name == 'DuplicateNamesTest::Foo::Bar#foo'
     end
 
     assert_equal(3, methods.length)

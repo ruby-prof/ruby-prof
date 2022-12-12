@@ -1,4 +1,3 @@
 source 'https://rubygems.org'
-
-gem "rake-compiler"
-gem "minitest"
+puts "bundler version: #{Bundler::VERSION}" if ENV['TRAVIS'] == "true"
+gemspec

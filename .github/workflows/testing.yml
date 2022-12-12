@@ -17,8 +17,6 @@ jobs:
           - { os: windows-latest , ruby: mswin }
     runs-on: ${{ matrix.os }}
     steps:
-    - name: Install libyaml-devel
-      run: sudo apt-get install -y  libyaml-dev
     - uses: actions/checkout@v3
     - name: Set up Ruby
       uses: ruby/setup-ruby@v1

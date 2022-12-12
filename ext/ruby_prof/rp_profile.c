@@ -211,7 +211,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
     }
 
     /* Special case - skip any methods from the mProf
-     module since they clutter the results but aren't important to them results. */
+     module since they clutter the results but aren't important. */
     if (self == mProf)
         return;
 

@@ -26,6 +26,7 @@ static double measure_process_time(rb_trace_arg_t* trace_arg)
 
     return (double)(sysTimeInt.QuadPart + userTimeInt.QuadPart);
 #elif !defined(CLOCK_PROCESS_CPUTIME_ID)
+    #include <sys/resource.h>
     struct rusage usage;
     getrusage(RUSAGE_SELF, &usage);
     return usage.ru_stime.tv_sec + usage.ru_utime.tv_sec + ((usage.ru_stime.tv_usec + usage.ru_utime.tv_usec) / 1000000.0);

@@ -11,20 +11,20 @@ static double measure_process_time(rb_trace_arg_t* trace_arg)
 #if defined(_WIN32)
     FILETIME  createTime;
     FILETIME  exitTime;
-    FILETIME  sysTime;
+    FILETIME  kernelTime;
     FILETIME  userTime;
 
-    ULARGE_INTEGER sysTimeInt;
+    ULARGE_INTEGER kernelTimeInt;
     ULARGE_INTEGER userTimeInt;
 
-    GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &sysTime, &userTime);
+    GetProcessTimes(GetCurrentProcess(), &createTime, &exitTime, &kernelTime, &userTime);
 
-    sysTimeInt.LowPart = sysTime.dwLowDateTime;
-    sysTimeInt.HighPart = sysTime.dwHighDateTime;
+    kernelTimeInt.LowPart = kernelTime.dwLowDateTime;
+    kernelTimeInt.HighPart = kernelTime.dwHighDateTime;
     userTimeInt.LowPart = userTime.dwLowDateTime;
     userTimeInt.HighPart = userTime.dwHighDateTime;
 
-    return (double)(sysTimeInt.QuadPart + userTimeInt.QuadPart);
+    return (double)(kernelTimeInt.QuadPart + userTimeInt.QuadPart);
 #elif !defined(CLOCK_PROCESS_CPUTIME_ID)
     #include <sys/resource.h>
     struct rusage usage;

@@ -4,7 +4,7 @@
 require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_allocations'
 
-class MeasureMemoryTraceTest < TestCase
+class MeasureMemoryTest < TestCase
   def setup
     RubyProf::measure_mode = RubyProf::MEMORY
   end
@@ -29,7 +29,7 @@ class MeasureMemoryTraceTest < TestCase
 
       # Method 0
       method = methods[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory',  method.full_name)
+      assert_equal('MeasureMemoryTest#test_memory',  method.full_name)
       assert_in_delta(800, method.total_time, 1)
 
       assert_equal(0.0, method.wait_time)
@@ -62,7 +62,7 @@ class MeasureMemoryTraceTest < TestCase
 
       assert_equal(1, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory', call_tree.parent.target.full_name)
+      assert_equal('MeasureMemoryTest#test_memory', call_tree.parent.target.full_name)
       assert_equal(760.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(0.0, call_tree.self_time)
@@ -124,7 +124,7 @@ class MeasureMemoryTraceTest < TestCase
 
       assert_equal(4, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory', call_tree.parent.target.full_name)
+      assert_equal('MeasureMemoryTest#test_memory', call_tree.parent.target.full_name)
       assert_equal(40.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(40.0, call_tree.self_time)
@@ -388,7 +388,7 @@ class MeasureMemoryTraceTest < TestCase
 
       # Method 0
       method = methods[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory',  method.full_name)
+      assert_equal('MeasureMemoryTest#test_memory',  method.full_name)
       assert_in_delta(1680, method.total_time, 1)
 
       assert_equal(0.0, method.wait_time)
@@ -421,7 +421,7 @@ class MeasureMemoryTraceTest < TestCase
 
       assert_equal(1, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory', call_tree.parent.target.full_name)
+      assert_equal('MeasureMemoryTest#test_memory', call_tree.parent.target.full_name)
       assert_equal(1560.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(40.0, call_tree.self_time)
@@ -483,7 +483,7 @@ class MeasureMemoryTraceTest < TestCase
 
       assert_equal(4, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory', call_tree.parent.target.full_name)
+      assert_equal('MeasureMemoryTest#test_memory', call_tree.parent.target.full_name)
       assert_equal(40.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(40.0, call_tree.self_time)
@@ -747,7 +747,7 @@ class MeasureMemoryTraceTest < TestCase
 
       # Method 0
       method = methods[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory',  method.full_name)
+      assert_equal('MeasureMemoryTest#test_memory',  method.full_name)
       assert_in_delta(800, method.total_time, 1)
 
       assert_equal(0.0, method.wait_time)
@@ -780,7 +780,7 @@ class MeasureMemoryTraceTest < TestCase
 
       assert_equal(1, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory', call_tree.parent.target.full_name)
+      assert_equal('MeasureMemoryTest#test_memory', call_tree.parent.target.full_name)
       assert_equal(760.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(0.0, call_tree.self_time)
@@ -818,7 +818,7 @@ class MeasureMemoryTraceTest < TestCase
 
       assert_equal(4, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureMemoryTraceTest#test_memory', call_tree.parent.target.full_name)
+      assert_equal('MeasureMemoryTest#test_memory', call_tree.parent.target.full_name)
       assert_equal(40.0, call_tree.total_time)
       assert_equal(0.0, call_tree.wait_time)
       assert_equal(40.0, call_tree.self_time)

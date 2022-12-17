@@ -329,5 +329,5 @@ class MeasureAllocationsTraceTest < TestCase
     assert_equal(0, call_tree.children_time)
 
     assert_equal(0, method.call_trees.callees.length)
-    end
+  end
 end

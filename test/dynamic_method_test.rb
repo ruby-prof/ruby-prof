@@ -48,6 +48,7 @@ class DynamicMethodTest < TestCase
         DynamicMethodTest::FruitMedley#banana
         DynamicMethodTest::FruitMedley#orange
         DynamicMethodTest::FruitMedley#apple
+        Symbol#to_s
       )
     else
       expected_method_names = %w(

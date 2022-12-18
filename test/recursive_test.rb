@@ -83,17 +83,11 @@ class RecursiveTest < TestCase
       call_tree = method.call_trees.callers[1]
       assert_equal('SimpleRecursion#simple', call_tree.parent.target.full_name)
 
-      assert_equal(4, method.call_trees.callees.length)
+      assert_equal(2, method.call_trees.callees.length)
       call_tree = method.call_trees.callees[0]
       assert_equal('Kernel#sleep', call_tree.target.full_name)
 
       call_tree = method.call_trees.callees[1]
-      assert_equal('Integer#==', call_tree.target.full_name)
-
-      call_tree = method.call_trees.callees[2]
-      assert_equal('Integer#-', call_tree.target.full_name)
-
-      call_tree = method.call_trees.callees[3]
       assert_equal('SimpleRecursion#simple', call_tree.target.full_name)
 
       # Method 2: Kernel#sleep
@@ -267,14 +261,12 @@ class RecursiveTest < TestCase
       call_tree = method.call_trees.callers[1]
       assert_equal('SimpleRecursion#render_partial', call_tree.parent.target.full_name)
 
-      assert_equal(2, method.call_trees.callees.length)
+      assert_equal(1, method.call_trees.callees.length)
       call_tree = method.call_trees.callees[0]
       assert_equal('SimpleRecursion#render_partial', call_tree.target.full_name)
-      call_tree = method.call_trees.callees[1]
-      assert_equal('Integer#+', call_tree.target.full_name)
 
       # Method 3
-      method = methods[3]
+      method = methods[2]
       assert_equal('SimpleRecursion#render_partial', method.full_name)
       assert_equal(5, method.called)
       assert(method.recursive?)
@@ -283,22 +275,16 @@ class RecursiveTest < TestCase
       assert_in_delta(0, method.wait_time, 0.01)
       assert_in_delta(5, method.children_time, 0.05)
 
-      assert_equal(2, method.call_trees.callers.length)
+      assert_equal(1, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('Integer#times', call_tree.parent.target.full_name)
-
-      call_tree = method.call_trees.callers[1]
       assert_equal('SimpleRecursion#render_partial', call_tree.parent.target.full_name)
 
-      assert_equal(3, method.call_trees.callees.length)
+      assert_equal(2, method.call_trees.callees.length)
       call_tree = method.call_trees.callees[0]
       assert_equal('Kernel#sleep', call_tree.target.full_name)
 
       call_tree = method.call_trees.callees[1]
       assert_equal('SimpleRecursion#render_partial', call_tree.target.full_name)
-
-      call_tree = method.call_trees.callees[2]
-      assert_equal('Integer#times', call_tree.target.full_name)
 
       # Method 4
       method = methods[4]

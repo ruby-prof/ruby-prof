@@ -121,13 +121,16 @@ class UniqueCallPathTest < TestCase
       assert_equal(1, children_of_a.length)
 
       assert_equal(1, children_of_a[0].called)
-      assert_equal("Integer#==", children_of_a[0].target.full_name)
+      assert_equal("UniqueCallPath#method_b", children_of_a[0].target.full_name)
     else
       assert_equal(2, call_info_a.children.length)
       assert_equal(2, children_of_a.length)
 
       assert_equal(1, children_of_a[0].called)
       assert_equal("Integer#==", children_of_a[0].target.full_name)
+
+      assert_equal(1, children_of_a[1].called)
+      assert_equal("UniqueCallPath#method_b", children_of_a[1].target.full_name)
     end
   end
 end

@@ -464,14 +464,14 @@ class MeasureProcessTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[3]
-      assert_equal('Float#-', method.full_name)
+      assert_includes(['Float#<', 'Float#-'], method.full_name)
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[4]
-      assert_equal('Float#<', method.full_name)
+      assert_includes(['Float#<', 'Float#-'], method.full_name)
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
@@ -530,25 +530,25 @@ class MeasureProcessTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[4]
-      assert_equal('Float#-', method.full_name)
-      assert_in_delta(0.0, method.total_time, 0.05)
-      assert_in_delta(0.0, method.wait_time, 0.05)
-      assert_in_delta(0.0, method.self_time, 0.05)
-      assert_in_delta(0.0, method.children_time, 0.05)
+      assert_includes(['Float#<', 'Float#-'], method.full_name)
+      assert_in_delta(0.03, method.total_time, 0.03)
+      assert_in_delta(0.03, method.wait_time, 0.03)
+      assert_in_delta(0.03, method.self_time, 0.03)
+      assert_in_delta(0.03, method.children_time, 0.03)
 
       method = methods[5]
-      assert_equal('Float#<', method.full_name)
-      assert_in_delta(0.0, method.total_time, 0.05)
-      assert_in_delta(0.0, method.wait_time, 0.05)
-      assert_in_delta(0.0, method.self_time, 0.05)
-      assert_in_delta(0.0, method.children_time, 0.05)
+      assert_includes(['Float#<', 'Float#-'], method.full_name)
+      assert_in_delta(0.03, method.total_time, 0.03)
+      assert_in_delta(0.03, method.wait_time, 0.03)
+      assert_in_delta(0.03, method.self_time, 0.03)
+      assert_in_delta(0.03, method.children_time, 0.03)
 
       method = methods[6]
       assert_equal('Class#new', method.full_name)
-      assert_in_delta(0.0, method.total_time, 0.05)
-      assert_in_delta(0.0, method.wait_time, 0.05)
-      assert_in_delta(0.0, method.self_time, 0.05)
-      assert_in_delta(0.0, method.children_time, 0.05)
+      assert_in_delta(0.0, method.total_time, 0.01)
+      assert_in_delta(0.0, method.wait_time, 0.01)
+      assert_in_delta(0.0, method.self_time, 0.01)
+      assert_in_delta(0.0, method.children_time, 0.01)
 
       method = methods[7]
       assert_equal('BasicObject#initialize', method.full_name)
@@ -635,14 +635,14 @@ class MeasureProcessTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[3]
-      assert_equal('Float#-', method.full_name)
+      assert_includes(['Float#<', 'Float#-'], method.full_name)
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[4]
-      assert_equal('Float#<', method.full_name)
+      assert_includes(['Float#<', 'Float#-'], method.full_name)
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
@@ -813,14 +813,14 @@ class MeasureProcessTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[3]
-      assert_equal('Float#-', method.full_name)
+      assert_equal('Float#<', method.full_name)
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[4]
-      assert_equal('Float#<', method.full_name)
+      assert_equal('Float#-', method.full_name)
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)

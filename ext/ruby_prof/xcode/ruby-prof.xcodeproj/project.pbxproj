@@ -13,12 +13,12 @@
 		8B0A596125D0F18C0069FCD2 /* rp_call_tree.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B0A595B25D0F18C0069FCD2 /* rp_call_tree.c */; };
 		8B0A596225D0F18C0069FCD2 /* rp_call_trees.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0A595C25D0F18C0069FCD2 /* rp_call_trees.h */; };
 		8B0A596325D0F18C0069FCD2 /* rp_call_tree.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B0A595D25D0F18C0069FCD2 /* rp_call_tree.h */; };
-		8B0A596825D0F2090069FCD2 /* libruby.2.7.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B0A596725D0F2090069FCD2 /* libruby.2.7.dylib */; };
-		8B2A0D4522A22D0000F67C5D /* ruby_prof.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.bundle */; };
 		8B4E7E8B22B85D9400D53342 /* rp_profile.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8922B85D9400D53342 /* rp_profile.c */; };
 		8B4E7E8C22B85D9400D53342 /* rp_profile.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8A22B85D9400D53342 /* rp_profile.h */; };
 		8B4E7E8F22B85FD400D53342 /* rp_allocation.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B4E7E8D22B85FD200D53342 /* rp_allocation.c */; };
 		8B4E7E9022B85FD400D53342 /* rp_allocation.h in Headers */ = {isa = PBXBuildFile; fileRef = 8B4E7E8E22B85FD300D53342 /* rp_allocation.h */; };
+		8B64BCD4294F00700075D4FF /* libruby.3.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 8B64BCD3294F00700075D4FF /* libruby.3.1.dylib */; };
+		8B64BCD6294F08050075D4FF /* ruby_prof.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 8B6DDF9C22A22C8100F36350 /* ruby_prof.bundle */; };
 		8B6DDFAB22A22C8D00F36350 /* rp_method.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2822A21EA800F36350 /* rp_method.c */; };
 		8B6DDFAC22A22C8D00F36350 /* rp_method.h in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2F22A21EA900F36350 /* rp_method.h */; };
 		8B6DDFAD22A22C8D00F36350 /* rp_stack.c in Sources */ = {isa = PBXBuildFile; fileRef = 8B6DDF2322A21EA800F36350 /* rp_stack.c */; };
@@ -36,13 +36,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		8B2A0D4422A22CF100F67C5D /* CopyFiles */ = {
+		8B64BCD5294F07C80075D4FF /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = "/opt/local/src/ruby-prof/ext/ruby_prof";
+			dstPath = "/usr/local/src/ruby-prof/lib/3.1";
 			dstSubfolderSpec = 0;
 			files = (
-				8B2A0D4522A22D0000F67C5D /* ruby_prof.bundle in CopyFiles */,
+				8B64BCD6294F08050075D4FF /* ruby_prof.bundle in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,6 +61,7 @@
 		8B4E7E8A22B85D9400D53342 /* rp_profile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_profile.h; path = ../rp_profile.h; sourceTree = "<group>"; };
 		8B4E7E8D22B85FD200D53342 /* rp_allocation.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_allocation.c; path = ../rp_allocation.c; sourceTree = "<group>"; };
 		8B4E7E8E22B85FD300D53342 /* rp_allocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_allocation.h; path = ../rp_allocation.h; sourceTree = "<group>"; };
+		8B64BCD3294F00700075D4FF /* libruby.3.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libruby.3.1.dylib; path = ../../../../../Cellar/ruby/3.1.2/lib/libruby.3.1.dylib; sourceTree = "<group>"; };
 		8B6DDF2322A21EA800F36350 /* rp_stack.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rp_stack.c; path = ../rp_stack.c; sourceTree = "<group>"; };
 		8B6DDF2422A21EA800F36350 /* ruby_prof.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ruby_prof.h; path = ../ruby_prof.h; sourceTree = "<group>"; };
 		8B6DDF2622A21EA800F36350 /* rp_thread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rp_thread.h; path = ../rp_thread.h; sourceTree = "<group>"; };
@@ -87,7 +88,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8B0A596825D0F2090069FCD2 /* libruby.2.7.dylib in Frameworks */,
+				8B64BCD4294F00700075D4FF /* libruby.3.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +141,7 @@
 		8B6DDF4622A2227300F36350 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8B64BCD3294F00700075D4FF /* libruby.3.1.dylib */,
 				8B0A596725D0F2090069FCD2 /* libruby.2.7.dylib */,
 				8B08734E22AF9C2900840594 /* libruby.2.5.5.dylib */,
 				8B6DDF4722A2227400F36350 /* libruby.2.6.dylib */,
@@ -197,7 +199,7 @@
 				8B6DDF9822A22C8100F36350 /* Headers */,
 				8B6DDF9922A22C8100F36350 /* Sources */,
 				8B6DDF9A22A22C8100F36350 /* Frameworks */,
-				8B2A0D4422A22CF100F67C5D /* CopyFiles */,
+				8B64BCD5294F07C80075D4FF /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -271,7 +273,6 @@
 		8B6DDF1B22A21E8200F36350 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -320,10 +321,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/local/include/ruby-2.7.0",
-					"/opt/local/include/ruby-2.7.0/x86_64-darwin19/**",
+					"/usr/local/Cellar/ruby/3.1.2/include/ruby-3.1.0",
+					"/usr/local/Cellar/ruby/3.1.2/include/ruby-3.1.0/x86_64-darwin21/**",
 				);
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/ruby/3.1.2/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -335,7 +336,6 @@
 		8B6DDF1C22A21E8200F36350 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -382,10 +382,10 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"/opt/local/include/ruby-2.7.0",
-					"/opt/local/include/ruby-2.7.0/x86_64-darwin19/**",
+					"/usr/local/Cellar/ruby/3.1.2/include/ruby-3.1.0",
+					"/usr/local/Cellar/ruby/3.1.2/include/ruby-3.1.0/x86_64-darwin21/**",
 				);
-				LIBRARY_SEARCH_PATHS = /opt/local/lib;
+				LIBRARY_SEARCH_PATHS = /usr/local/Cellar/ruby/3.1.2/lib;
 				MACOSX_DEPLOYMENT_TARGET = 10.14;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;

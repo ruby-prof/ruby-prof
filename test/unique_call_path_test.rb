@@ -79,9 +79,14 @@ class UniqueCallPathTest < TestCase
       array
     end
 
-    assert_equal(2, call_info_a.children.length)
-    assert_equal("Integer#==", call_info_a.children[0].target.full_name)
-    assert_equal("UniqueCallPath#method_b", call_info_a.children[1].target.full_name)
+    if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.1')
+      assert_equal(1, call_info_a.children.length)
+      assert_equal("UniqueCallPath#method_b", call_info_a.children[0].target.full_name)
+    else
+      assert_equal(2, call_info_a.children.length)
+      assert_equal("Integer#==", call_info_a.children[0].target.full_name)
+      assert_equal("UniqueCallPath#method_b", call_info_a.children[1].target.full_name)
+    end
   end
 
   def test_unique_path
@@ -107,14 +112,22 @@ class UniqueCallPathTest < TestCase
       array
     end
 
-    assert_equal(2, call_info_a.children.length)
-    assert_equal(2, children_of_a.length)
-
     children_of_a = children_of_a.sort do |c1, c2|
       c1.target.full_name <=> c2.target.full_name
     end
 
-    assert_equal(1, children_of_a[0].called)
-    assert_equal("Integer#==", children_of_a[0].target.full_name)
+    if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.1')
+      assert_equal(1, call_info_a.children.length)
+      assert_equal(1, children_of_a.length)
+
+      assert_equal(1, children_of_a[0].called)
+      assert_equal("Integer#==", children_of_a[0].target.full_name)
+    else
+      assert_equal(2, call_info_a.children.length)
+      assert_equal(2, children_of_a.length)
+
+      assert_equal(1, children_of_a[0].called)
+      assert_equal("Integer#==", children_of_a[0].target.full_name)
+    end
   end
 end

@@ -25,7 +25,7 @@ class MeasureMemoryTest < TestCase
 
       assert_in_delta(800, thread.total_time, 1)
       methods = result.threads.first.methods.sort.reverse
-      assert_equal(13, methods.length)
+      assert_equal(12, methods.length)
 
       # Method 0
       method = methods[0]

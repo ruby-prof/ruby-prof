@@ -42,7 +42,7 @@ end
 Rake::Task[:package].enhance [:rdoc]
 
 # Setup Windows Gem
-if RUBY_PLATFORM.match(/win32|mingw32/)
+if RUBY_PLATFORM.match(/mswin|mingw/)
   # Windows specification
   win_spec = default_spec.clone
   win_spec.platform = Gem::Platform::CURRENT

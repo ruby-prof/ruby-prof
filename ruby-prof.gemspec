@@ -36,7 +36,7 @@ EOF
   spec.files = Dir['CHANGES',
                    'LICENSE',
                    'Rakefile',
-                   'README.rdoc',
+                   'README.md',
                    'ruby-prof.gemspec',
                    'bin/ruby-prof',
                    'bin/ruby-prof-check-trace',

@@ -1,3 +1,8 @@
+1.4.5 (2022-12-27)
+=====================
+* Look for ruby_prof extension built on install in the lib directory (Charlie Savage)
+* Added Ruby 3.2.0 build for mingw-urct
+
 1.4.4 (2022-12-11)
 =====================
 * Update tests for Ruby 3.1 (Charlie Savage)

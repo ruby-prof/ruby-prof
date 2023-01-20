@@ -184,9 +184,17 @@ static VALUE prof_measurement_set_called(VALUE self, VALUE called)
     return called;
 }
 
+void prof_measurement_merge(prof_measurement_t* source, prof_measurement_t* destination)
+{
+  destination->called += source->called;
+  destination->total_time += source->total_time;
+  destination->self_time += source->self_time;
+  destination->wait_time += source->wait_time;
+}
+
+
 /* :nodoc: */
-static VALUE
-prof_measurement_dump(VALUE self)
+static VALUE prof_measurement_dump(VALUE self)
 {
     prof_measurement_t* measurement_data = prof_get_measurement(self);
     VALUE result = rb_hash_new();

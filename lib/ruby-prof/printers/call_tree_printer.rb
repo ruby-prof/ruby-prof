@@ -68,8 +68,6 @@ module RubyProf
 
     def print_threads
       remove_subsidiary_files_from_previous_profile_runs
-      # TODO: merge fibers of a given thread here, instead of relying
-      # on the profiler to merge fibers.
       @result.threads.each do |thread|
         print_thread(thread)
       end

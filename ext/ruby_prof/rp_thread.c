@@ -313,6 +313,15 @@ static VALUE prof_thread_methods(VALUE self)
     return thread->methods;
 }
 
+static VALUE prof_thread_merge(VALUE self, VALUE other)
+{
+  thread_data_t* self_ptr = prof_get_thread(self);
+  thread_data_t* other_ptr = prof_get_thread(other);
+  prof_call_tree_merge_internal(self_ptr->call_tree, other_ptr->call_tree);
+  
+  return other;
+}
+
 /* :nodoc: */
 static VALUE prof_thread_dump(VALUE self)
 {
@@ -357,6 +366,7 @@ void rp_init_thread(void)
     rb_define_method(cRpThread, "call_tree", prof_call_tree, 0);
     rb_define_method(cRpThread, "fiber_id", prof_fiber_id, 0);
     rb_define_method(cRpThread, "methods", prof_thread_methods, 0);
+    rb_define_method(cRpThread, "merge!", prof_thread_merge, 1);
     rb_define_method(cRpThread, "_dump_data", prof_thread_dump, 0);
     rb_define_method(cRpThread, "_load_data", prof_thread_load, 1);
 }

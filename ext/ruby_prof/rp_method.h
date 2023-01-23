@@ -15,7 +15,7 @@ enum {
     kClassSingleton = 0x2,                    // Singleton of a class
     kModuleSingleton = 0x4,                   // Singleton of a module
     kObjectSingleton = 0x8,                   // Singleton of an object
-    kOtherSingleton = 0x10                    // Singleton of unkown object
+    kOtherSingleton = 0x10                    // Singleton of unknown object
 };
 
 // Profiling information for each method.

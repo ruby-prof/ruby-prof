@@ -52,7 +52,14 @@ module RubyProf
       self.total_time - self.self_time - self.wait_time
     end
 
-    # :enddoc:
+    def eql?(other)
+      self.hash == other.hash
+    end
+
+    def ==(other)
+      self.eql?(other)
+    end
+
     def <=>(other)
       if other.nil?
         -1

@@ -40,7 +40,7 @@ VALUE resolve_klass(VALUE klass, unsigned int* klass_flags)
             *klass_flags |= kObjectSingleton;
             result = rb_class_superclass(klass);
         }
-        /* Ok, this could be other things like an array made put onto
+        /* Ok, this could be other things like an array put onto
            a singleton object (yeah, it happens, see the singleton
            objects test case). */
         else
@@ -97,7 +97,12 @@ st_data_t method_key(VALUE klass, VALUE msym)
         resolved_klass = RBASIC(klass)->klass;
     }
 
-    return (resolved_klass << 4) + (msym);
+    st_data_t hash = rb_hash_start(0);
+    hash = rb_hash_uint(hash, resolved_klass);
+    hash = rb_hash_uint(hash, msym);
+    hash = rb_hash_end(hash);
+
+    return hash;
 }
 
 /* ======   Allocation Table  ====== */
@@ -310,6 +315,45 @@ the RubyProf::Profile object.
 */
 
 /* call-seq:
+   new(klass, method_name) -> method_info
+
+Creates a new MethodInfo instance. +Klass+ should be a reference to
+a Ruby class and +method_name+ a symbol identifying one of its instance methods.*/
+static VALUE prof_method_initialize(VALUE self, VALUE klass, VALUE method_name)
+{
+  prof_method_t* method_ptr = prof_get_method(self);
+  method_ptr->klass = klass;
+  method_ptr->method_name = method_name;
+
+  // Setup method key
+  method_ptr->key = method_key(klass, method_name);
+
+  // Get method object
+  VALUE ruby_method = rb_funcall(klass, rb_intern("instance_method"), 1, method_name);
+
+  // Get source file and line number
+  VALUE location_array = rb_funcall(ruby_method, rb_intern("source_location"), 0);
+  if (location_array != Qnil && RARRAY_LEN(location_array) == 2)
+  {
+    method_ptr->source_file = rb_ary_entry(location_array, 0);
+    method_ptr->source_line = NUM2INT(rb_ary_entry(location_array, 1));
+  }
+
+  return self;
+}
+
+/* call-seq:
+   hash -> hash
+
+Returns the hash key for this method info. The hash key is calculated based on the
+klass name and method name */
+static VALUE prof_method_hash(VALUE self)
+{
+  prof_method_t* method_ptr = prof_get_method(self);
+  return ULL2NUM(method_ptr->key);
+}
+
+/* call-seq:
    allocations -> array
 
 Returns an array of allocation information.*/
@@ -334,7 +378,7 @@ static VALUE prof_method_measurement(VALUE self)
 /* call-seq:
    source_file => string
 
-return the source file of the method
+Returns the source file of the method
 */
 static VALUE prof_method_source_file(VALUE self)
 {
@@ -469,8 +513,16 @@ void rp_init_method_info()
 {
     /* MethodInfo */
     cRpMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cObject);
-    rb_undef_method(CLASS_OF(cRpMethodInfo), "new");
+
+    rb_define_const(cRpMethodInfo, "MODULE_INCLUDEE", INT2NUM(kModuleIncludee));
+    rb_define_const(cRpMethodInfo, "CLASS_SINGLETON", INT2NUM(kClassSingleton));
+    rb_define_const(cRpMethodInfo, "MODULE_SINGLETON", INT2NUM(kModuleSingleton));
+    rb_define_const(cRpMethodInfo, "OBJECT_SINGLETON", INT2NUM(kObjectSingleton));
+    rb_define_const(cRpMethodInfo, "OTHER_SINGLETON", INT2NUM(kOtherSingleton));
+
     rb_define_alloc_func(cRpMethodInfo, prof_method_allocate);
+    rb_define_method(cRpMethodInfo, "initialize", prof_method_initialize, 2);
+    rb_define_method(cRpMethodInfo, "hash", prof_method_hash, 0);
 
     rb_define_method(cRpMethodInfo, "klass_name", prof_method_klass_name, 0);
     rb_define_method(cRpMethodInfo, "klass_flags", prof_method_klass_flags, 0);

@@ -897,18 +897,19 @@ void rp_init_profile(void)
 
     rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
+    rb_define_method(cProfile, "profile", prof_profile_object, 0);
     rb_define_method(cProfile, "start", prof_start, 0);
     rb_define_method(cProfile, "stop", prof_stop, 0);
     rb_define_method(cProfile, "resume", prof_resume, 0);
     rb_define_method(cProfile, "pause", prof_pause, 0);
     rb_define_method(cProfile, "running?", prof_running, 0);
     rb_define_method(cProfile, "paused?", prof_paused, 0);
-    rb_define_method(cProfile, "threads", prof_threads, 0);
-    rb_define_method(cProfile, "exclude_method!", prof_exclude_method, 2);
-    rb_define_method(cProfile, "profile", prof_profile_object, 0);
 
+    rb_define_method(cProfile, "exclude_method!", prof_exclude_method, 2);
     rb_define_method(cProfile, "measure_mode", prof_profile_measure_mode, 0);
     rb_define_method(cProfile, "track_allocations?", prof_profile_track_allocations, 0);
+
+    rb_define_method(cProfile, "threads", prof_threads, 0);
 
     rb_define_method(cProfile, "_dump_data", prof_profile_dump, 0);
     rb_define_method(cProfile, "_load_data", prof_profile_load, 1);

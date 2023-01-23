@@ -51,6 +51,22 @@ prof_measurement_t* prof_measurement_create(void)
     return result;
 }
 
+/* call-seq:
+     new(total_time, self_time, wait_time, called) -> Measurement
+
+   Creates a new measuremen instance. */
+static VALUE prof_measurement_initialize(VALUE self, VALUE total_time, VALUE self_time, VALUE wait_time, VALUE called)
+{
+  prof_measurement_t* result = prof_get_measurement(self);
+
+  result->total_time = NUM2DBL(total_time);
+  result->self_time = NUM2DBL(self_time);
+  result->wait_time = NUM2DBL(wait_time);
+  result->called = NUM2INT(called);
+  result->object = self;
+  return self;
+}
+
 void prof_measurement_mark(void* data)
 {
     if (!data) return;
@@ -141,6 +157,17 @@ static VALUE prof_measurement_total_time(VALUE self)
 }
 
 /* call-seq:
+   total_time=value -> value
+
+Sets the call count to n. */
+static VALUE prof_measurement_set_total_time(VALUE self, VALUE value)
+{
+  prof_measurement_t* result = prof_get_measurement(self);
+  result->total_time = NUM2DBL(value);
+  return value;
+}
+
+/* call-seq:
    self_time -> float
 
 Returns the total amount of time spent in this method. */
@@ -150,6 +177,17 @@ prof_measurement_self_time(VALUE self)
     prof_measurement_t* result = prof_get_measurement(self);
 
     return rb_float_new(result->self_time);
+}
+
+/* call-seq:
+   self_time=value -> value
+
+Sets the call count to value. */
+static VALUE prof_measurement_set_self_time(VALUE self, VALUE value)
+{
+  prof_measurement_t* result = prof_get_measurement(self);
+  result->self_time = NUM2DBL(value);
+  return value;
 }
 
 /* call-seq:
@@ -164,6 +202,17 @@ static VALUE prof_measurement_wait_time(VALUE self)
 }
 
 /* call-seq:
+   wait_time=value -> value
+
+Sets the wait time to value. */
+static VALUE prof_measurement_set_wait_time(VALUE self, VALUE value)
+{
+  prof_measurement_t* result = prof_get_measurement(self);
+  result->wait_time = NUM2DBL(value);
+  return value;
+}
+
+/* call-seq:
    called -> int
 
 Returns the total amount of times this method was called. */
@@ -174,24 +223,36 @@ static VALUE prof_measurement_called(VALUE self)
 }
 
 /* call-seq:
-   called=n -> n
+   called=value -> value
 
-Sets the call count to n. */
-static VALUE prof_measurement_set_called(VALUE self, VALUE called)
+Sets the call count to value. */
+static VALUE prof_measurement_set_called(VALUE self, VALUE value)
 {
-    prof_measurement_t* result = prof_get_measurement(self);
-    result->called = NUM2INT(called);
-    return called;
+  prof_measurement_t* result = prof_get_measurement(self);
+  result->called = NUM2INT(value);
+  return value;
 }
 
-void prof_measurement_merge(prof_measurement_t* source, prof_measurement_t* destination)
+/* :nodoc: */
+void prof_measurement_merge_internal(prof_measurement_t* self, prof_measurement_t* other)
 {
-  destination->called += source->called;
-  destination->total_time += source->total_time;
-  destination->self_time += source->self_time;
-  destination->wait_time += source->wait_time;
+  self->called += other->called;
+  self->total_time += other->total_time;
+  self->self_time += other->self_time;
+  self->wait_time += other->wait_time;
 }
 
+/* call-seq:
+   merge(other)
+
+   Adds the content of other measurement to this measurement */
+VALUE prof_measurement_merge(VALUE self, VALUE other)
+{
+  prof_measurement_t* self_ptr = prof_get_measurement(self);
+  prof_measurement_t* other_ptr = prof_get_measurement(other);
+  prof_measurement_merge_internal(self_ptr, other_ptr);
+  return self;
+}
 
 /* :nodoc: */
 static VALUE prof_measurement_dump(VALUE self)
@@ -231,14 +292,18 @@ void rp_init_measure()
     rp_init_measure_memory();
 
     cRpMeasurement = rb_define_class_under(mProf, "Measurement", rb_cObject);
-    rb_undef_method(CLASS_OF(cRpMeasurement), "new");
     rb_define_alloc_func(cRpMeasurement, prof_measurement_allocate);
 
+    rb_define_method(cRpMeasurement, "initialize", prof_measurement_initialize, 4);
+    rb_define_method(cRpMeasurement, "merge!", prof_measurement_merge, 1);
     rb_define_method(cRpMeasurement, "called", prof_measurement_called, 0);
     rb_define_method(cRpMeasurement, "called=", prof_measurement_set_called, 1);
     rb_define_method(cRpMeasurement, "total_time", prof_measurement_total_time, 0);
+    rb_define_method(cRpMeasurement, "total_time=", prof_measurement_set_total_time, 1);
     rb_define_method(cRpMeasurement, "self_time", prof_measurement_self_time, 0);
+    rb_define_method(cRpMeasurement, "self_time=", prof_measurement_set_self_time, 1);
     rb_define_method(cRpMeasurement, "wait_time", prof_measurement_wait_time, 0);
+    rb_define_method(cRpMeasurement, "wait_time=", prof_measurement_set_wait_time, 1);
 
     rb_define_method(cRpMeasurement, "_dump_data", prof_measurement_dump, 0);
     rb_define_method(cRpMeasurement, "_load_data", prof_measurement_load, 1);

@@ -44,7 +44,7 @@ void prof_measurement_free(prof_measurement_t* measurement);
 VALUE prof_measurement_wrap(prof_measurement_t* measurement);
 prof_measurement_t* prof_get_measurement(VALUE self);
 void prof_measurement_mark(void* data);
-void prof_measurement_merge(prof_measurement_t* source, prof_measurement_t* destination);
+void prof_measurement_merge_internal(prof_measurement_t* destination, prof_measurement_t* other);
 
 void rp_init_measure(void);
 

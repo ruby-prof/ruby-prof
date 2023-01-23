@@ -87,7 +87,7 @@ static int prof_call_trees_collect_callees(st_data_t key, st_data_t value, st_da
 
     if (rb_st_lookup(callers, call_tree_data->method->key, (st_data_t*)&aggregate_call_tree_data))
     {
-        prof_call_tree_merge(aggregate_call_tree_data, call_tree_data);
+        prof_call_tree_merge_internal(aggregate_call_tree_data, call_tree_data);
     }
     else
     {
@@ -210,7 +210,7 @@ VALUE prof_call_trees_callers(VALUE self)
 
         if (rb_st_lookup(callers, parent->method->key, (st_data_t*)&aggregate_call_tree_data))
         {
-            prof_call_tree_merge(aggregate_call_tree_data, *p_call_tree);
+            prof_call_tree_merge_internal(aggregate_call_tree_data, *p_call_tree);
         }
         else
         {

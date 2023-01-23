@@ -27,7 +27,7 @@ typedef struct prof_call_tree_t
 
 prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t* parent, VALUE source_file, int source_line);
 prof_call_tree_t* prof_call_tree_copy(prof_call_tree_t* other);
-void prof_call_tree_merge(prof_call_tree_t* result, prof_call_tree_t* other);
+void prof_call_tree_merge_internal(prof_call_tree_t* destination, prof_call_tree_t* other);
 void prof_call_tree_mark(void* data);
 prof_call_tree_t* call_tree_table_lookup(st_table* table, st_data_t key);
 

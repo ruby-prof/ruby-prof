@@ -215,35 +215,37 @@ class FiberTest < TestCase
     assert_in_delta(0, method.children_time)
   end
 
-  def test_times_no_merge
-    result  = RubyProf.profile { concurrency }
+  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.1.0')
+    def test_times_no_merge
+      result  = RubyProf.profile { concurrency }
 
-    assert_equal(4, result.threads.size)
+      assert_equal(4, result.threads.size)
 
-    result.threads.each do |thread|
+      result.threads.each do |thread|
+        assert_in_delta(0.5, thread.call_tree.target.total_time, 0.2)
+        assert_in_delta(0.0, thread.call_tree.target.self_time)
+        assert_in_delta(0.0, thread.call_tree.target.wait_time)
+        assert_in_delta(0.5, thread.call_tree.target.children_time, 0.2)
+      end
+    end
+
+    def test_times_merge
+      result  = RubyProf.profile { concurrency }
+      result.merge!
+
+      assert_equal(2, result.threads.size)
+
+      thread = result.threads[0]
       assert_in_delta(0.5, thread.call_tree.target.total_time, 0.2)
       assert_in_delta(0.0, thread.call_tree.target.self_time)
       assert_in_delta(0.0, thread.call_tree.target.wait_time)
       assert_in_delta(0.5, thread.call_tree.target.children_time, 0.2)
+
+      thread = result.threads[1]
+      assert_in_delta(1.5, thread.call_tree.target.total_time, 0.2)
+      assert_in_delta(0.0, thread.call_tree.target.self_time)
+      assert_in_delta(0.0, thread.call_tree.target.wait_time)
+      assert_in_delta(1.5, thread.call_tree.target.children_time, 0.2)
     end
-  end
-
-  def test_times_merge
-    result  = RubyProf.profile { concurrency }
-    result.merge!
-
-    assert_equal(2, result.threads.size)
-
-    thread = result.threads[0]
-    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.2)
-    assert_in_delta(0.0, thread.call_tree.target.self_time)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.2)
-
-    thread = result.threads[1]
-    assert_in_delta(1.5, thread.call_tree.target.total_time, 0.2)
-    assert_in_delta(0.0, thread.call_tree.target.self_time)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time)
-    assert_in_delta(1.5, thread.call_tree.target.children_time, 0.2)
   end
 end

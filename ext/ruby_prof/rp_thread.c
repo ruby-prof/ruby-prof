@@ -171,7 +171,8 @@ thread_data_t* threads_table_lookup(void* prof, VALUE fiber)
     thread_data_t* result = NULL;
     st_data_t val;
 
-    if (rb_st_lookup(profile->threads_tbl, fiber, &val))
+    VALUE fiber_id = rb_obj_id(fiber);
+    if (rb_st_lookup(profile->threads_tbl, fiber_id, &val))
     {
         result = (thread_data_t*)val;
     }
@@ -188,7 +189,7 @@ thread_data_t* threads_table_insert(void* prof, VALUE fiber)
     result->fiber = fiber;
     result->fiber_id = rb_obj_id(fiber);
     result->thread_id = rb_obj_id(thread);
-    rb_st_insert(profile->threads_tbl, (st_data_t)fiber, (st_data_t)result);
+    rb_st_insert(profile->threads_tbl, (st_data_t)result->fiber_id, (st_data_t)result);
 
     // Are we tracing this thread?
     if (profile->include_threads_tbl && !rb_st_lookup(profile->include_threads_tbl, thread, 0))

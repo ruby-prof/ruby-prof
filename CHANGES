@@ -1,3 +1,8 @@
+1.5.0 (2023-01-23)
+=====================
+* Add new Profile#merge! method that merges results for threads/fibers that share the same root method (Charlie Savage)
+* Expand API to allow creation of +Measurement+, +CallTree+, +MethodInfo+ and +Thread+ instances (Charlie Savage)
+
 1.4.5 (2022-12-27)
 =====================
 * Look for ruby_prof extension built on install in the lib directory (Charlie Savage)

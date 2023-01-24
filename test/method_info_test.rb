@@ -23,7 +23,7 @@ class MethodInfoTest < Minitest::Test
     error = assert_raises(NoMethodError) do
       method_info = RubyProf::MethodInfo.new(nil, nil)
     end
-    assert_equal("undefined method `instance_method' for nil:NilClass", error.message)
+    assert_match(/undefined method `instance_method' for nil:NilClass/, error.message)
   end
 
   def test_initialize_nil_method_name

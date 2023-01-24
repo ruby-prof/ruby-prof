@@ -242,7 +242,7 @@ static VALUE prof_allocation_dump(VALUE self)
 
     VALUE result = rb_hash_new();
 
-    rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(allocation->key));
+    rb_hash_aset(result, ID2SYM(rb_intern("key")), ULL2NUM(allocation->key));
     rb_hash_aset(result, ID2SYM(rb_intern("klass_name")), prof_allocation_klass_name(self));
     rb_hash_aset(result, ID2SYM(rb_intern("klass_flags")), INT2FIX(allocation->klass_flags));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), allocation->source_file);
@@ -259,7 +259,7 @@ static VALUE prof_allocation_load(VALUE self, VALUE data)
     prof_allocation_t* allocation = prof_get_allocation(self);
     allocation->object = self;
 
-    allocation->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
+    allocation->key = RB_NUM2ULL(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
     allocation->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));
     allocation->klass_flags = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("klass_flags"))));
     allocation->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));

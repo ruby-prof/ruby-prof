@@ -464,7 +464,7 @@ static VALUE prof_method_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("klass_flags")), INT2FIX(method_data->klass_flags));
     rb_hash_aset(result, ID2SYM(rb_intern("method_name")), method_data->method_name);
 
-    rb_hash_aset(result, ID2SYM(rb_intern("key")), INT2FIX(method_data->key));
+    rb_hash_aset(result, ID2SYM(rb_intern("key")), ULL2NUM(method_data->key));
     rb_hash_aset(result, ID2SYM(rb_intern("recursive")), prof_method_recursive(self));
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), method_data->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(method_data->source_line));
@@ -485,7 +485,7 @@ static VALUE prof_method_load(VALUE self, VALUE data)
     method_data->klass_name = rb_hash_aref(data, ID2SYM(rb_intern("klass_name")));
     method_data->klass_flags = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("klass_flags"))));
     method_data->method_name = rb_hash_aref(data, ID2SYM(rb_intern("method_name")));
-    method_data->key = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
+    method_data->key = RB_NUM2ULL(rb_hash_aref(data, ID2SYM(rb_intern("key"))));
 
     method_data->recursive = rb_hash_aref(data, ID2SYM(rb_intern("recursive"))) == Qtrue ? true : false;
 

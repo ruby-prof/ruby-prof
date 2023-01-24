@@ -1,16 +1,8 @@
 # frozen_string_literal: true
 
 require File.expand_path('../test_helper', __FILE__)
+require_relative './call_tree_builder'
 require 'base64'
-
-# Create a DummyClass with methods so we can create call trees in the test_merge method below
-class DummyClass
-  %i[root a b aa ab ba bb].each do |method_name|
-    define_method(method_name) do
-    end
-  end
-end
-
 
 class CallTreeTest < Minitest::Test
   def test_initialize
@@ -75,106 +67,10 @@ class CallTreeTest < Minitest::Test
     assert_equal(call_tree_parent, call_tree_child.parent)
   end
 
-  def create_call_trees
-    # Test merging of two call trees that look like this:
-    #
-    #          root            root
-    #        /     \         /     \
-    #       a       b       a       b
-    #     /  \       \       \     / \
-    #   aa   ab      bb      ab  ba  bb
-    #
-
-    # -------  Call Tree 1 ---------
-    call_trees = DummyClass.instance_methods(false).inject(Hash.new) do |hash, method_name|
-      method_info = RubyProf::MethodInfo.new(DummyClass, method_name)
-      call_tree = RubyProf::CallTree.new(method_info)
-      hash[method_name] = call_tree
-      hash
-    end
-
-    # Setup parent children
-    call_trees[:root].add_child(call_trees[:a])
-    call_trees[:root].add_child(call_trees[:b])
-    call_trees[:a].add_child(call_trees[:aa])
-    call_trees[:a].add_child(call_trees[:ab])
-    call_trees[:b].add_child(call_trees[:bb])
-
-    # Setup times
-    call_trees[:aa].measurement.total_time = 1.5
-    call_trees[:aa].measurement.self_time = 1.5
-    call_trees[:ab].measurement.total_time = 2.2
-    call_trees[:ab].measurement.self_time = 2.2
-    call_trees[:a].measurement.total_time = 3.7
-
-    call_trees[:aa].target.measurement.total_time = 1.5
-    call_trees[:aa].target.measurement.self_time = 1.5
-    call_trees[:ab].target.measurement.total_time = 2.2
-    call_trees[:ab].target.measurement.self_time = 2.2
-    call_trees[:a].target.measurement.total_time = 3.7
-
-    call_trees[:bb].measurement.total_time = 4.3
-    call_trees[:bb].measurement.self_time = 4.3
-    call_trees[:b].measurement.total_time = 4.3
-
-    call_trees[:bb].target.measurement.total_time = 4.3
-    call_trees[:bb].target.measurement.self_time = 4.3
-    call_trees[:b].target.measurement.total_time = 4.3
-
-    call_trees[:root].measurement.total_time = 8.0
-    call_trees[:root].target.measurement.total_time = 8.0
-
-    call_tree_1 = call_trees[:root]
-
-    # -------  Call Tree 2 ---------
-    call_trees = DummyClass.instance_methods(false).inject(Hash.new) do |hash, method_name|
-      method_info = RubyProf::MethodInfo.new(DummyClass, method_name)
-      call_tree = RubyProf::CallTree.new(method_info)
-      hash[method_name] = call_tree
-      hash
-    end
-
-    # Setup parent children
-    call_trees[:root].add_child(call_trees[:a])
-    call_trees[:root].add_child(call_trees[:b])
-    call_trees[:a].add_child(call_trees[:ab])
-    call_trees[:b].add_child(call_trees[:ba])
-    call_trees[:b].add_child(call_trees[:bb])
-
-    # Setup times
-    call_trees[:ab].measurement.total_time = 0.4
-    call_trees[:ab].measurement.self_time = 0.4
-    call_trees[:a].measurement.total_time = 0.4
-
-    call_trees[:ab].target.measurement.total_time = 0.4
-    call_trees[:ab].target.measurement.self_time = 0.4
-    call_trees[:a].target.measurement.total_time = 0.4
-
-    call_trees[:ba].measurement.total_time = 0.9
-    call_trees[:ba].measurement.self_time = 0.7
-    call_trees[:ba].measurement.wait_time = 0.2
-    call_trees[:bb].measurement.total_time = 2.3
-    call_trees[:bb].measurement.self_time = 2.3
-    call_trees[:b].measurement.total_time = 3.2
-
-    call_trees[:ba].target.measurement.total_time = 0.9
-    call_trees[:ba].target.measurement.self_time = 0.7
-    call_trees[:ba].target.measurement.wait_time = 0.2
-    call_trees[:bb].target.measurement.total_time = 2.3
-    call_trees[:bb].target.measurement.self_time = 2.3
-    call_trees[:b].target.measurement.total_time = 3.2
-
-    call_trees[:root].measurement.total_time = 3.6
-    call_trees[:root].target.measurement.total_time = 3.6
-
-    call_tree_2 = call_trees[:root]
-
-    return call_tree_1, call_tree_2
-  end
-
   def test_merge
-    call_tree_1, call_tree_2 = create_call_trees
-    call_tree_1.merge(call_tree_2)
+    call_tree_1 = create_call_tree_1
+    call_tree_2 = create_call_tree_2
+    call_tree_1.merge!(call_tree_2)
 
     # Root
     call_tree = call_tree_1

@@ -779,6 +779,32 @@ static VALUE prof_threads(VALUE self)
     return result;
 }
 
+/* call-seq:
+   add_thread(thread) -> thread
+
+Adds the specified RubyProf thread to the profile. */
+static VALUE prof_add_thread(VALUE self, VALUE thread)
+{
+  prof_profile_t* profile_ptr = prof_get_profile(self);
+  thread_data_t* thread_ptr = prof_get_thread(thread);
+  rb_st_insert(profile_ptr->threads_tbl, thread_ptr->fiber_id, (st_data_t)thread_ptr);
+  return thread;
+}
+
+/* call-seq:
+   remove_thread(thread) -> thread
+
+Removes the specified thread from the profile. This is used to remove threads
+after they have been merged togher. Retuns the removed thread. */
+static VALUE prof_remove_thread(VALUE self, VALUE thread)
+{
+  prof_profile_t* profile_ptr = prof_get_profile(self);
+  thread_data_t* thread_ptr = prof_get_thread(thread);
+  VALUE fiber_id = thread_ptr->fiber_id;
+  rb_st_delete(profile_ptr->threads_tbl, (st_data_t*)&fiber_id, NULL);
+  return thread;
+}
+
 /* Document-method: RubyProf::Profile#Profile
    call-seq:
    profile(&block) -> self
@@ -910,6 +936,8 @@ void rp_init_profile(void)
     rb_define_method(cProfile, "track_allocations?", prof_profile_track_allocations, 0);
 
     rb_define_method(cProfile, "threads", prof_threads, 0);
+    rb_define_method(cProfile, "add_thread", prof_add_thread, 1);
+    rb_define_method(cProfile, "remove_thread", prof_remove_thread, 1);
 
     rb_define_method(cProfile, "_dump_data", prof_profile_dump, 0);
     rb_define_method(cProfile, "_load_data", prof_profile_load, 1);

@@ -4,12 +4,38 @@
 require File.expand_path('../test_helper', __FILE__)
 require 'timeout'
 require 'benchmark'
+require_relative './call_tree_builder'
 
 # --  Tests ----
 class ThreadTest < TestCase
   def setup
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME
+  end
+
+  def test_initialize
+    method_info = RubyProf::MethodInfo.new(Array, :size)
+    call_tree = RubyProf::CallTree.new(method_info)
+    thread = RubyProf::Thread.new(call_tree, Thread.current, Fiber.current)
+
+    assert_equal(call_tree, thread.call_tree)
+    assert(thread)
+    assert(thread.id)
+    assert(thread.fiber_id)
+  end
+
+  def test_merge
+    call_tree_1 = create_call_tree_1
+    thread_1 = RubyProf::Thread.new(call_tree_1, Thread.current, Fiber.current)
+
+    call_tree_2 = create_call_tree_2
+    thread_2 = RubyProf::Thread.new(call_tree_2, Thread.current, Fiber.current)
+
+    thread_1.merge!(thread_2)
+    assert_in_delta(11.6, thread_1.call_tree.total_time, 0.00001)
+    assert_in_delta(0, thread_1.call_tree.self_time, 0.00001)
+    assert_in_delta(0.0, thread_1.call_tree.wait_time, 0.00001)
+    assert_in_delta(11.6, thread_1.call_tree.children_time, 0.00001)
   end
 
   def test_thread_count

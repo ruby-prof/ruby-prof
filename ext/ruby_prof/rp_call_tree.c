@@ -442,7 +442,7 @@ void rp_init_call_tree()
     rb_define_method(cRpCallTree, "source_file", prof_call_tree_source_file, 0);
     rb_define_method(cRpCallTree, "line", prof_call_tree_line, 0);
 
-    rb_define_method(cRpCallTree, "merge", prof_call_tree_merge, 1);
+    rb_define_method(cRpCallTree, "merge!", prof_call_tree_merge, 1);
 
     rb_define_method(cRpCallTree, "_dump_data", prof_call_tree_dump, 0);
     rb_define_method(cRpCallTree, "_load_data", prof_call_tree_load, 1);

@@ -268,6 +268,22 @@ static int collect_methods(st_data_t key, st_data_t value, st_data_t result)
 
 // ======   RubyProf::Thread  ======
 /* call-seq:
+   new(call_tree, thread, fiber) -> thread
+
+Creates a new RubyProf thread instance. +call_tree+ is the root call_tree instance,
++thread+ is a reference to a Ruby thread and +fiber+ is a reference to a Ruby fiber.*/
+static VALUE prof_thread_initialize(VALUE self, VALUE call_tree, VALUE thread, VALUE fiber)
+{
+  thread_data_t* thread_ptr = prof_get_thread(self);
+  thread_ptr->call_tree = prof_get_call_tree(call_tree);
+  thread_ptr->fiber = fiber;
+  thread_ptr->fiber_id = rb_obj_id(fiber);
+  thread_ptr->thread_id = rb_obj_id(thread);
+
+  return self;
+}
+
+/* call-seq:
    id -> number
 
 Returns the thread id of this thread. */
@@ -290,7 +306,7 @@ static VALUE prof_fiber_id(VALUE self)
 /* call-seq:
    call_tree -> CallTree
 
-Returns the root of the call tree. */
+Returns the root call tree. */
 static VALUE prof_call_tree(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
@@ -359,8 +375,8 @@ static VALUE prof_thread_load(VALUE self, VALUE data)
 void rp_init_thread(void)
 {
     cRpThread = rb_define_class_under(mProf, "Thread", rb_cObject);
-    rb_undef_method(CLASS_OF(cRpThread), "new");
     rb_define_alloc_func(cRpThread, prof_thread_allocate);
+    rb_define_method(cRpThread, "initialize", prof_thread_initialize, 3);
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
     rb_define_method(cRpThread, "call_tree", prof_call_tree, 0);

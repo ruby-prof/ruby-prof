@@ -40,8 +40,18 @@ module RubyProf
         thread.call_tree.target
       end
 
-      # For each group of threads, get the first one, merge the other threads into it, then
-      # delete the other threads
+      # call-seq:
+      # merge! -> self
+      #
+      # Merges RubyProf threads whose root call_trees reference the same target method. This is useful
+      # when profiling code that uses a main thread/fiber to distribute work to multiple workers.
+      # If there are tens or hundreds of workers, viewing results per worker thread/fiber can be
+      # overwhelming. Using +merge!+ will combine the worker times together into one result.
+      #
+      # Note the reported time will be much greater than the actual wall time. For example, if there
+      # are 10 workers that each run for 5 seconds, merged results will show one thread that
+      # ran for 50 seconds.
+
       merged_threads = grouped.map do |call_tree, threads|
         thread = threads.shift
         threads.each do |other_thread|
@@ -50,6 +60,7 @@ module RubyProf
         end
         thread
       end
+      self
     end
   end
 end

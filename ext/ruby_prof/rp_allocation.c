@@ -248,7 +248,7 @@ static VALUE prof_allocation_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), allocation->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(allocation->source_line));
     rb_hash_aset(result, ID2SYM(rb_intern("count")), INT2FIX(allocation->count));
-    rb_hash_aset(result, ID2SYM(rb_intern("memory")), LONG2FIX(allocation->memory));
+    rb_hash_aset(result, ID2SYM(rb_intern("memory")), ULL2NUM(allocation->memory));
 
     return result;
 }
@@ -265,7 +265,7 @@ static VALUE prof_allocation_load(VALUE self, VALUE data)
     allocation->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     allocation->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
     allocation->count = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("count"))));
-    allocation->memory = FIX2LONG(rb_hash_aref(data, ID2SYM(rb_intern("memory"))));
+    allocation->memory = NUM2ULONG(rb_hash_aref(data, ID2SYM(rb_intern("memory"))));
 
     return data;
 }

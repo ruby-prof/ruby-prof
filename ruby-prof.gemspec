@@ -59,6 +59,7 @@ EOF
   spec.required_ruby_version = '>= 2.7.0'
   spec.date = Time.now.strftime('%Y-%m-%d')
   spec.homepage = 'https://github.com/ruby-prof/ruby-prof'
+  spec.add_dependency("facets")
   spec.add_development_dependency('minitest')
   spec.add_development_dependency('rake-compiler')
 end

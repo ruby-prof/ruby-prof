@@ -6,6 +6,7 @@ require 'ruby-prof'
 # Now setup option parser
 require 'ostruct'
 require 'optparse'
+require 'facets/string/modulize'
 
 module RubyProf
   # == Synopsis
@@ -52,6 +53,8 @@ module RubyProf
     # :enddoc:
     attr_accessor :options
     attr_reader :profile
+
+    BUILTIN_PRINTERS = [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack, :dot, :multi].freeze
 
     def initialize
       setup_options
@@ -118,7 +121,7 @@ module RubyProf
         opts.separator ""
         opts.separator "Options:"
 
-        opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack, :dot, :multi],
+        opts.on('-p printer', '--printer=printer',
                 'Select a printer:',
                 '  flat - Prints a flat profile as text (default).',
                 '  graph - Prints a graph profile as text.',
@@ -129,22 +132,18 @@ module RubyProf
                 '  multi - Creates several reports in output directory'
         ) do |printer|
 
-          case printer
-          when :flat
-            options.printer = RubyProf::FlatPrinter
-          when :graph
-            options.printer = RubyProf::GraphPrinter
-          when :graph_html
-            options.printer = RubyProf::GraphHtmlPrinter
-          when :call_tree
-            options.printer = RubyProf::CallTreePrinter
-          when :call_stack
-            options.printer = RubyProf::CallStackPrinter
-          when :dot
-            options.printer = RubyProf::DotPrinter
-          when :multi
-            options.printer = RubyProf::MultiPrinter
+
+          if BUILTIN_PRINTERS.include?(printer.to_sym)
+            options.printer_class_name = "RubyProf::#{printer}Printer".modulize
+          elsif printer.modulize == printer # if this is already in a modularized, it's a class
+            options.printer_class_name = printer
+          else
+            raise "FIXME"
           end
+        end
+
+        opts.on('--printer-require=require') do |require|
+          options.printer_require = require
         end
 
         opts.on('-m min_percent', '--min_percent=min_percent', Float,
@@ -242,6 +241,17 @@ module RubyProf
       end
     end
 
+    def load_printer
+      if options.printer_require
+        require options.printer_require
+      end
+
+      # class name given? constantize it now
+      if options.printer_class_name
+        options.printer = constantize(options.printer_class_name)
+      end
+    end
+
     def parse_args
       # Make sure the user specified at least one file
       if ARGV.length < 1 and not options.exec
@@ -252,6 +262,9 @@ module RubyProf
       end
 
       self.option_parser.parse! ARGV
+
+      # make sure it's loaded from options in time to check for directory
+      load_printer
 
       if options.printer.needs_dir?
         options.file ||= "."

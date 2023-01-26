@@ -129,7 +129,8 @@ module RubyProf
                 '  call_tree - format for KCacheGrind',
                 '  call_stack - prints a HTML visualization of the call tree',
                 '  dot - Prints a graph profile as a dot file',
-                '  multi - Creates several reports in output directory'
+                '  multi - Creates several reports in output directory',
+                '  <class name> - Use a custom class'
         ) do |printer|
 
 
@@ -138,11 +139,13 @@ module RubyProf
           elsif printer.modulize == printer # if this is already in a modularized, it's a class
             options.printer_class_name = printer
           else
-            raise "FIXME"
+            puts "Invalid printer: #{printer}"
+            puts opts
+            exit(-1)
           end
         end
 
-        opts.on('--printer-require=require') do |require|
+        opts.on('--printer-require=require', 'A ruby class to load for loading the printer') do |require|
           options.printer_require = require
         end
 
@@ -243,12 +246,26 @@ module RubyProf
 
     def load_printer
       if options.printer_require
-        require options.printer_require
+        begin
+          require options.printer_require
+        rescue LoadError
+          puts "Couldn't require #{options.printer_require} Double check that it is correct, and any gems needed are installed"
+          puts
+          puts option_parser
+          exit(-1)
+        end
       end
 
       # class name given? constantize it now
       if options.printer_class_name
-        options.printer = constantize(options.printer_class_name)
+        begin
+          options.printer = constantize(options.printer_class_name)
+        rescue NameError
+          puts "Couldn't find #{options.printer_class_name} to use as a printer. Double check that it is correct, and that you have given a --printer-require if necessary."
+          puts
+          puts option_parser
+          exit(-1)
+        end
       end
     end
 

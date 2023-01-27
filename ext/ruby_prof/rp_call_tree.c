@@ -23,22 +23,8 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
 
 prof_call_tree_t* prof_call_tree_copy(prof_call_tree_t* other)
 {
-    prof_call_tree_t* result = ALLOC(prof_call_tree_t);
-    result->children = rb_st_init_numtable();
-    result->object = Qnil;
-    result->visits = 0;
-
-    result->method = other->method;
-    result->parent = other->parent;
-    result->source_line = other->source_line;
-    result->source_file = other->source_file;
-
-    result->measurement = prof_measurement_create();
-    result->measurement->called = other->measurement->called;
-    result->measurement->total_time = other->measurement->total_time;
-    result->measurement->self_time = other->measurement->self_time;
-    result->measurement->wait_time = other->measurement->wait_time;
-    result->measurement->object = Qnil;
+    prof_call_tree_t* result = prof_call_tree_create(other->method, other->parent, other->source_file, other->source_line);
+    result->measurement = prof_measurement_copy(other->measurement);
 
     return result;
 }

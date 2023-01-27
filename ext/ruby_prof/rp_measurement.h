@@ -40,6 +40,7 @@ prof_measurer_t* prof_measurer_create(prof_measure_mode_t measure, bool track_al
 double prof_measure(prof_measurer_t* measurer, rb_trace_arg_t* trace_arg);
 
 prof_measurement_t* prof_measurement_create(void);
+prof_measurement_t* prof_measurement_copy(prof_measurement_t* other);
 void prof_measurement_free(prof_measurement_t* measurement);
 VALUE prof_measurement_wrap(prof_measurement_t* measurement);
 prof_measurement_t* prof_get_measurement(VALUE self);

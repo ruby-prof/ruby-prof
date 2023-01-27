@@ -67,6 +67,33 @@ static VALUE prof_measurement_initialize(VALUE self, VALUE total_time, VALUE sel
   return self;
 }
 
+prof_measurement_t* prof_measurement_copy(prof_measurement_t* other)
+{
+  prof_measurement_t* result = prof_measurement_create();
+  result->called = other->called;
+  result->total_time = other->total_time;
+  result->self_time = other->self_time;
+  result->wait_time = other->wait_time;
+
+  return result;
+}
+
+static VALUE prof_measurement_initialize_copy(VALUE self, VALUE other)
+{
+  if (self == other)
+    return self;
+
+  prof_measurement_t* self_ptr = prof_get_measurement(self);
+  prof_measurement_t* other_ptr = prof_get_measurement(other);
+
+  self_ptr->called = other_ptr->called;
+  self_ptr->total_time = other_ptr->total_time;
+  self_ptr->self_time = other_ptr->self_time;
+  self_ptr->wait_time = other_ptr->wait_time;
+
+  return self;
+}
+
 void prof_measurement_mark(void* data)
 {
     if (!data) return;
@@ -295,6 +322,7 @@ void rp_init_measure()
     rb_define_alloc_func(cRpMeasurement, prof_measurement_allocate);
 
     rb_define_method(cRpMeasurement, "initialize", prof_measurement_initialize, 4);
+    rb_define_method(cRpMeasurement, "initialize_copy", prof_measurement_initialize, 1);
     rb_define_method(cRpMeasurement, "merge!", prof_measurement_merge, 1);
     rb_define_method(cRpMeasurement, "called", prof_measurement_called, 0);
     rb_define_method(cRpMeasurement, "called=", prof_measurement_set_called, 1);

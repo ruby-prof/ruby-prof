@@ -33,26 +33,29 @@ module RubyProf
       exclude_methods!(mod.singleton_class, *method_or_methods)
     end
 
+    # call-seq:
+    # merge! -> self
+    #
+    # Merges RubyProf threads whose root call_trees reference the same target method. This is useful
+    # when profiling code that uses a main thread/fiber to distribute work to multiple workers.
+    # If there are tens or hundreds of workers, viewing results per worker thread/fiber can be
+    # overwhelming. Using +merge!+ will combine the worker times together into one result.
+    #
+    # Note the reported time will be much greater than the actual wall time. For example, if there
+    # are 10 workers that each run for 5 seconds, merged results will show one thread that
+    # ran for 50 seconds.
+    #
     def merge!
-      # First group threads by their root call tree methods. If the methods are
+      # First group threads by their root call tree target (method). If the methods are
       # different than there is nothing to merge
       grouped = threads.group_by do |thread|
         thread.call_tree.target
       end
 
-      # call-seq:
-      # merge! -> self
-      #
-      # Merges RubyProf threads whose root call_trees reference the same target method. This is useful
-      # when profiling code that uses a main thread/fiber to distribute work to multiple workers.
-      # If there are tens or hundreds of workers, viewing results per worker thread/fiber can be
-      # overwhelming. Using +merge!+ will combine the worker times together into one result.
-      #
-      # Note the reported time will be much greater than the actual wall time. For example, if there
-      # are 10 workers that each run for 5 seconds, merged results will show one thread that
-      # ran for 50 seconds.
-
-      merged_threads = grouped.map do |call_tree, threads|
+      # For each target, get the first thread. Then loop over the remaining threads,
+      # and merge them into the first one and ten delete them. So we will be left with
+      # one thread per target.
+      grouped.each do |target, threads|
         thread = threads.shift
         threads.each do |other_thread|
           thread.merge!(other_thread)
@@ -60,6 +63,7 @@ module RubyProf
         end
         thread
       end
+
       self
     end
   end

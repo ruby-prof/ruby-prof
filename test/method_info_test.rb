@@ -21,14 +21,14 @@ class MethodInfoTest < Minitest::Test
 
   def test_initialize_nil_klass
     error = assert_raises(NoMethodError) do
-      method_info = RubyProf::MethodInfo.new(nil, nil)
+      RubyProf::MethodInfo.new(nil, nil)
     end
     assert_match(/undefined method `instance_method' for nil:NilClass/, error.message)
   end
 
   def test_initialize_nil_method_name
     error = assert_raises(TypeError) do
-      method_info = RubyProf::MethodInfo.new(Base64, nil)
+      RubyProf::MethodInfo.new(Base64, nil)
     end
     assert_equal("nil is not a symbol nor a string", error.to_s)
   end

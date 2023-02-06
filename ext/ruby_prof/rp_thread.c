@@ -376,7 +376,7 @@ static VALUE prof_thread_load(VALUE self, VALUE data)
 {
     thread_data_t* thread_data = RTYPEDDATA_DATA(self);
 
-    thread_data->owner = FIX2INT(rb_hash_aref(data, rb_intern("owner")));
+    thread_data->owner = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("owner"))));
 
     VALUE call_tree = rb_hash_aref(data, ID2SYM(rb_intern("call_tree")));
     thread_data->call_tree = prof_get_call_tree(call_tree);

@@ -405,7 +405,7 @@ static VALUE prof_call_tree_load(VALUE self, VALUE data)
     prof_call_tree_t* call_tree = prof_get_call_tree(self);
     call_tree->object = self;
 
-    call_tree->owner = FIX2INT(rb_hash_aref(data, rb_intern("owner")));
+    call_tree->owner = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("owner"))));
 
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     call_tree->measurement = prof_get_measurement(measurement);

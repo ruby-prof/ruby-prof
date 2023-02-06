@@ -320,7 +320,7 @@ prof_measurement_load(VALUE self, VALUE data)
     prof_measurement_t* measurement = prof_get_measurement(self);
     measurement->object = self;
 
-    measurement->owner = FIX2INT(rb_hash_aref(data, rb_intern("owner")));
+    measurement->owner = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("owner"))));
     measurement->total_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("total_time"))));
     measurement->self_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("self_time"))));
     measurement->wait_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("wait_time"))));

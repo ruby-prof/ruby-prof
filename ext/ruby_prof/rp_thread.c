@@ -25,6 +25,7 @@ VALUE cRpThread;
 thread_data_t* thread_data_create(void)
 {
     thread_data_t* result = ALLOC(thread_data_t);
+    result->owner = OWNER_C;
     result->stack = prof_stack_create();
     result->method_table = method_table_create();
     result->call_tree = NULL;
@@ -76,15 +77,6 @@ void prof_thread_mark(void* data)
     rb_st_foreach(thread->method_table, mark_methods, 0);
 }
 
-void prof_thread_ruby_gc_free(void* data)
-{
-    if (data)
-    {
-        thread_data_t* thread_data = (thread_data_t*)data;
-        thread_data->object = Qnil;
-    }
-}
-
 static void prof_thread_free(thread_data_t* thread_data)
 {
     /* Has this method object been accessed by Ruby?  If
@@ -103,6 +95,27 @@ static void prof_thread_free(thread_data_t* thread_data)
     prof_stack_free(thread_data->stack);
 
     xfree(thread_data);
+}
+
+void prof_thread_ruby_gc_free(void* data)
+{
+    thread_data_t* thread_data = (thread_data_t*)data;
+
+    if (!thread_data)
+    {
+        // Object has already been freed by C code
+        return;
+    }
+    else if (thread_data->owner == OWNER_RUBY)
+    {
+        // Ruby owns this object, we need to free the underlying C struct
+        prof_thread_free(thread_data);
+    }
+    else
+    {
+        // The Ruby object is being freed, but not the underlying C structure. So unlink the two.
+        thread_data->object = Qnil;
+    }
 }
 
 static const rb_data_type_t thread_type =
@@ -130,6 +143,7 @@ VALUE prof_thread_wrap(thread_data_t* thread)
 static VALUE prof_thread_allocate(VALUE klass)
 {
     thread_data_t* thread_data = thread_data_create();
+    thread_data->owner = OWNER_RUBY;
     thread_data->object = prof_thread_wrap(thread_data);
     return thread_data->object;
 }
@@ -276,7 +290,11 @@ Creates a new RubyProf thread instance. +call_tree+ is the root call_tree instan
 static VALUE prof_thread_initialize(VALUE self, VALUE call_tree, VALUE thread, VALUE fiber)
 {
   thread_data_t* thread_ptr = prof_get_thread(self);
+
+  // This call tree must now be managed by C
   thread_ptr->call_tree = prof_get_call_tree(call_tree);
+  thread_ptr->call_tree->owner = OWNER_C;
+
   thread_ptr->fiber = fiber;
   thread_ptr->fiber_id = rb_obj_id(fiber);
   thread_ptr->thread_id = rb_obj_id(thread);
@@ -345,6 +363,7 @@ static VALUE prof_thread_dump(VALUE self)
     thread_data_t* thread_data = RTYPEDDATA_DATA(self);
 
     VALUE result = rb_hash_new();
+    rb_hash_aset(result, ID2SYM(rb_intern("owner")), INT2FIX(thread_data->owner));
     rb_hash_aset(result, ID2SYM(rb_intern("fiber_id")), thread_data->fiber_id);
     rb_hash_aset(result, ID2SYM(rb_intern("methods")), prof_thread_methods(self));
     rb_hash_aset(result, ID2SYM(rb_intern("call_tree")), prof_call_tree(self));
@@ -356,6 +375,8 @@ static VALUE prof_thread_dump(VALUE self)
 static VALUE prof_thread_load(VALUE self, VALUE data)
 {
     thread_data_t* thread_data = RTYPEDDATA_DATA(self);
+
+    thread_data->owner = FIX2INT(rb_hash_aref(data, rb_intern("owner")));
 
     VALUE call_tree = rb_hash_aref(data, ID2SYM(rb_intern("call_tree")));
     thread_data->call_tree = prof_get_call_tree(call_tree);

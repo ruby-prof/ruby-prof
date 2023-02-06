@@ -1,7 +1,6 @@
 /* Copyright (C) 2005-2013 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#include "rp_aggregate_call_tree.h"
 #include "rp_call_trees.h"
 #include "rp_measurement.h"
 
@@ -68,11 +67,11 @@ void prof_call_trees_ruby_gc_free(void* data)
     }
 }
 
-static int prof_call_trees_collect_aggregates(st_data_t key, st_data_t value, st_data_t data)
+static int prof_call_trees_collect(st_data_t key, st_data_t value, st_data_t data)
 {
     VALUE result = (VALUE)data;
     prof_call_tree_t* call_tree_data = (prof_call_tree_t*)value;
-    VALUE aggregate_call_tree = prof_aggregate_call_tree_wrap(call_tree_data);
+    VALUE aggregate_call_tree = prof_call_tree_wrap(call_tree_data);
     rb_ary_push(result, aggregate_call_tree);
 
     return ST_CONTINUE;
@@ -91,7 +90,12 @@ static int prof_call_trees_collect_callees(st_data_t key, st_data_t value, st_da
     }
     else
     {
+        // Copy the call tree so we don't touch the original and give Ruby ownerhip 
+        // of it so that it is freed on GC
         aggregate_call_tree_data = prof_call_tree_copy(call_tree_data);
+        aggregate_call_tree_data->owner = OWNER_RUBY;
+
+
         rb_st_insert(callers, call_tree_data->method->key, (st_data_t)aggregate_call_tree_data);
     }
 
@@ -214,13 +218,17 @@ VALUE prof_call_trees_callers(VALUE self)
         }
         else
         {
+            // Copy the call tree so we don't touch the original and give Ruby ownerhip 
+            // of it so that it is freed on GC
             aggregate_call_tree_data = prof_call_tree_copy(*p_call_tree);
+            aggregate_call_tree_data->owner = OWNER_RUBY;
+
             rb_st_insert(callers, parent->method->key, (st_data_t)aggregate_call_tree_data);
         }
     }
 
     VALUE result = rb_ary_new_capa((long)callers->num_entries);
-    rb_st_foreach(callers, prof_call_trees_collect_aggregates, result);
+    rb_st_foreach(callers, prof_call_trees_collect, result);
     rb_st_free_table(callers);
     return result;
 }
@@ -240,7 +248,7 @@ VALUE prof_call_trees_callees(VALUE self)
     }
 
     VALUE result = rb_ary_new_capa((long)callees->num_entries);
-    rb_st_foreach(callees, prof_call_trees_collect_aggregates, result);
+    rb_st_foreach(callees, prof_call_trees_collect, result);
     rb_st_free_table(callees);
     return result;
 }

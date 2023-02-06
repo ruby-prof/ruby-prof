@@ -786,7 +786,11 @@ Adds the specified RubyProf thread to the profile. */
 static VALUE prof_add_thread(VALUE self, VALUE thread)
 {
   prof_profile_t* profile_ptr = prof_get_profile(self);
+
+  // This thread is now going to be owned by C
   thread_data_t* thread_ptr = prof_get_thread(thread);
+  thread_ptr->owner = OWNER_C;
+
   rb_st_insert(profile_ptr->threads_tbl, thread_ptr->fiber_id, (st_data_t)thread_ptr);
   return thread;
 }

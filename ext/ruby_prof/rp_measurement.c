@@ -43,6 +43,7 @@ double prof_measure(prof_measurer_t* measurer, rb_trace_arg_t* trace_arg)
 prof_measurement_t* prof_measurement_create(void)
 {
     prof_measurement_t* result = ALLOC(prof_measurement_t);
+    result->owner = OWNER_C;
     result->total_time = 0;
     result->self_time = 0;
     result->wait_time = 0;
@@ -80,6 +81,9 @@ prof_measurement_t* prof_measurement_copy(prof_measurement_t* other)
 
 static VALUE prof_measurement_initialize_copy(VALUE self, VALUE other)
 {
+  // This object was created by Ruby either via Measurment#clone or Measurement#dup 
+  // and thus prof_measurement_allocate was called so the object is owned by Ruby
+
   if (self == other)
     return self;
 
@@ -104,16 +108,6 @@ void prof_measurement_mark(void* data)
         rb_gc_mark(measurement_data->object);
 }
 
-static void prof_measurement_ruby_gc_free(void* data)
-{
-    if (data)
-    {
-        // Measurements are freed by their owning object (call info or method)
-        prof_measurement_t* measurement = (prof_measurement_t*)data;
-        measurement->object = Qnil;
-    }
-}
-
 void prof_measurement_free(prof_measurement_t* measurement)
 {
     /* Has this measurement object been accessed by Ruby?  If
@@ -125,6 +119,27 @@ void prof_measurement_free(prof_measurement_t* measurement)
     }
 
     xfree(measurement);
+}
+
+static void prof_measurement_ruby_gc_free(void* data)
+{
+  prof_measurement_t* measurement = (prof_measurement_t*)data;
+
+  if (!measurement)
+  {
+    // Object has already been freed by C code
+    return;
+  }
+  else if (measurement->owner == OWNER_RUBY)
+  {
+    // Ruby owns this object, we need to free the underlying C struct
+    prof_measurement_free(measurement);
+  }
+  else
+  {
+    // The Ruby object is being freed, but not the underlying C structure. So unlink the two.
+    measurement->object = Qnil;
+  }
 }
 
 size_t prof_measurement_size(const void* data)
@@ -157,6 +172,8 @@ VALUE prof_measurement_wrap(prof_measurement_t* measurement)
 static VALUE prof_measurement_allocate(VALUE klass)
 {
     prof_measurement_t* measurement = prof_measurement_create();
+    // This object is being created by Ruby
+    measurement->owner = OWNER_RUBY;
     measurement->object = prof_measurement_wrap(measurement);
     return measurement->object;
 }
@@ -287,6 +304,7 @@ static VALUE prof_measurement_dump(VALUE self)
     prof_measurement_t* measurement_data = prof_get_measurement(self);
     VALUE result = rb_hash_new();
 
+    rb_hash_aset(result, ID2SYM(rb_intern("owner")), INT2FIX(measurement_data->owner));
     rb_hash_aset(result, ID2SYM(rb_intern("total_time")), rb_float_new(measurement_data->total_time));
     rb_hash_aset(result, ID2SYM(rb_intern("self_time")), rb_float_new(measurement_data->self_time));
     rb_hash_aset(result, ID2SYM(rb_intern("wait_time")), rb_float_new(measurement_data->wait_time));
@@ -302,6 +320,7 @@ prof_measurement_load(VALUE self, VALUE data)
     prof_measurement_t* measurement = prof_get_measurement(self);
     measurement->object = self;
 
+    measurement->owner = FIX2INT(rb_hash_aref(data, rb_intern("owner")));
     measurement->total_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("total_time"))));
     measurement->self_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("self_time"))));
     measurement->wait_time = rb_num2dbl(rb_hash_aref(data, ID2SYM(rb_intern("wait_time"))));
@@ -322,7 +341,7 @@ void rp_init_measure()
     rb_define_alloc_func(cRpMeasurement, prof_measurement_allocate);
 
     rb_define_method(cRpMeasurement, "initialize", prof_measurement_initialize, 4);
-    rb_define_method(cRpMeasurement, "initialize_copy", prof_measurement_initialize, 1);
+    rb_define_method(cRpMeasurement, "initialize_copy", prof_measurement_initialize_copy, 1);
     rb_define_method(cRpMeasurement, "merge!", prof_measurement_merge, 1);
     rb_define_method(cRpMeasurement, "called", prof_measurement_called, 0);
     rb_define_method(cRpMeasurement, "called=", prof_measurement_set_called, 1);

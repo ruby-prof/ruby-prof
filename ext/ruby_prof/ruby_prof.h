@@ -23,4 +23,12 @@ extern VALUE mProf;
 // This method is not exposed in Ruby header files - at least not as of Ruby 2.6.3 :(
 extern size_t rb_obj_memsize_of(VALUE);
 
+typedef enum
+{
+  OWNER_UNKNOWN = 0,
+  OWNER_RUBY = 1,
+  OWNER_C = 2
+} prof_owner_t;
+
+
 #endif //__RUBY_PROF_H__

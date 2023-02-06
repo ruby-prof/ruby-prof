@@ -29,6 +29,7 @@ typedef struct prof_measurer_t
 /* Callers and callee information for a method. */
 typedef struct prof_measurement_t
 {
+    prof_owner_t owner;
     double total_time;
     double self_time;
     double wait_time;

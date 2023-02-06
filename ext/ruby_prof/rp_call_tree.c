@@ -9,6 +9,7 @@ VALUE cRpCallTree;
 prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t* parent, VALUE source_file, int source_line)
 {
     prof_call_tree_t* result = ALLOC(prof_call_tree_t);
+    result->owner = OWNER_C;
     result->method = method;
     result->parent = parent;
     result->object = Qnil;
@@ -67,15 +68,6 @@ void prof_call_tree_mark(void* data)
         rb_st_foreach(call_tree->children, prof_call_tree_mark_children, 0);
 }
 
-static void prof_call_tree_ruby_gc_free(void* data)
-{
-    if (data)
-    {
-        prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
-        call_tree->object = Qnil;
-    }
-}
-
 static int prof_call_tree_free_children(st_data_t key, st_data_t value, st_data_t data)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)value;
@@ -102,6 +94,27 @@ void prof_call_tree_free(prof_call_tree_t* call_tree_data)
 
     // Finally free self
     xfree(call_tree_data);
+}
+
+static void prof_call_tree_ruby_gc_free(void* data)
+{
+  prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
+
+  if (!call_tree)
+  {
+    // Object has already been freed by C code
+    return;
+  }
+  else if (call_tree->owner == OWNER_RUBY)
+  {
+    // Ruby owns this object, we need to free the underlying C struct
+    prof_call_tree_free(call_tree);
+  }
+  else
+  {
+    // The Ruby object is being freed, but not the underlying C structure. So unlink the two.
+    call_tree->object = Qnil;
+  }
 }
 
 size_t prof_call_tree_size(const void* data)
@@ -134,6 +147,8 @@ VALUE prof_call_tree_wrap(prof_call_tree_t* call_tree)
 static VALUE prof_call_tree_allocate(VALUE klass)
 {
     prof_call_tree_t* call_tree = prof_call_tree_create(NULL, NULL, Qnil, 0);
+    // This object is being created by Ruby
+    call_tree->owner = OWNER_RUBY;
     call_tree->object = prof_call_tree_wrap(call_tree);
     return call_tree->object;
 }
@@ -191,6 +206,9 @@ void prof_call_tree_add_parent(prof_call_tree_t* self, prof_call_tree_t* parent)
 void prof_call_tree_add_child(prof_call_tree_t* self, prof_call_tree_t* child)
 {
     call_tree_table_insert(self->children, child->method->key, child);
+    
+    // The child is now managed by C since its parent will free it
+    child->owner = OWNER_C;
 }
 
 /* =======  RubyProf::CallTree   ========*/
@@ -365,6 +383,8 @@ static VALUE prof_call_tree_dump(VALUE self)
     prof_call_tree_t* call_tree_data = prof_get_call_tree(self);
     VALUE result = rb_hash_new();
 
+    rb_hash_aset(result, ID2SYM(rb_intern("owner")), INT2FIX(call_tree_data->owner));
+
     rb_hash_aset(result, ID2SYM(rb_intern("measurement")), prof_measurement_wrap(call_tree_data->measurement));
 
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), call_tree_data->source_file);
@@ -384,6 +404,8 @@ static VALUE prof_call_tree_load(VALUE self, VALUE data)
     VALUE parent = Qnil;
     prof_call_tree_t* call_tree = prof_get_call_tree(self);
     call_tree->object = self;
+
+    call_tree->owner = FIX2INT(rb_hash_aref(data, rb_intern("owner")));
 
     VALUE measurement = rb_hash_aref(data, ID2SYM(rb_intern("measurement")));
     call_tree->measurement = prof_get_measurement(measurement);

@@ -13,6 +13,7 @@ extern VALUE cRpCallTree;
 /* Callers and callee information for a method. */
 typedef struct prof_call_tree_t
 {
+    prof_owner_t owner;
     prof_method_t* method;
     struct prof_call_tree_t* parent;
     st_table* children;             /* Call infos that this call info calls */

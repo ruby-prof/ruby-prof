@@ -67,16 +67,18 @@ class GcTest < TestCase
   end
 
   def test_hold_onto_measurements
-    measurements = 5.times.reduce(Array.new) do |array, i|
-      profile = run_profile
-      measurements_2 = profile.threads.map(&:methods).flatten.map(&:measurement)
-      array.concat(measurements_2)
-      array
-    end
+    # Run a profile
+    profile = run_profile
+
+    # Get measurement objects
+    measurements = profile.threads.map(&:methods).flatten.map(&:measurement)
+
+    # Free the profiles which frees the measurements
+    profile = nil
 
     GC.start
 
-    measurements.each do |measurement|
+    measurements.each_with_index do |measurement|
       error = assert_raises(RuntimeError) do
         measurement.total_time
       end

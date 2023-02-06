@@ -67,6 +67,31 @@ class CallTreeTest < Minitest::Test
     assert_equal(call_tree_parent, call_tree_child.parent)
   end
 
+  def test_add_child_gc
+    GC.stress = true
+
+    begin
+      method_info_parent = RubyProf::MethodInfo.new(Base64, :encode64)
+      call_tree_parent = RubyProf::CallTree.new(method_info_parent)
+
+      method_info_child = RubyProf::MethodInfo.new(Array, :pack)
+      call_tree_child = RubyProf::CallTree.new(method_info_child)
+      call_tree_parent.add_child(call_tree_child)
+
+      # Free the child first
+      call_tree_child = nil
+      GC.start
+
+      # Now free the parent and make sure it doesn't free the child a second time
+      call_tree_parent = nil
+      GC.start
+
+      assert(true)
+    ensure
+      GC.stress = false
+    end
+  end
+
   def test_merge
     call_tree_1 = create_call_tree_1
     call_tree_2 = create_call_tree_2

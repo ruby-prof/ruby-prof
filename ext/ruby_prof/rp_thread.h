@@ -10,7 +10,7 @@
 /* Profiling information for a thread. */
 typedef struct thread_data_t
 {
-    // Runtime
+    prof_owner_t owner;               /* Who owns this object */
     VALUE object;                     /* Cache to wrapped object */
     VALUE fiber;                      /* Fiber */
     prof_stack_t* stack;              /* Stack of frames */

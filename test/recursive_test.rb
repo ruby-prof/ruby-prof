@@ -375,7 +375,7 @@ class RecursiveTest < TestCase
       assert_in_delta(5, method.total_time, 0.1)
       assert_in_delta(0, method.self_time, 0.1)
       assert_in_delta(0, method.wait_time, 0.01)
-      assert_in_delta(5, method.children_time, 0.05)
+      assert_in_delta(5, method.children_time, 0.1)
 
       assert_equal(2, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]

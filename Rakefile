@@ -61,7 +61,7 @@ end
 desc "Generate rdoc documentation"
 RDoc::Task.new("rdoc") do |rdoc|
   rdoc.rdoc_dir = 'doc'
-  rdoc.title    = "ruby-prof"
+  rdoc.title = "ruby-prof"
   # Show source inline with line numbers
   rdoc.options << "--line-numbers"
   # Make the readme file the start page for the generated html

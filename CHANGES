@@ -1,7 +1,8 @@
-1.5.0 (2023-01-23)
+1.5.0 (2023-02-06)
 =====================
 * Add new Profile#merge! method that merges results for threads/fibers that share the same root method (Charlie Savage)
-* Expand API to allow creation of +Measurement+, +CallTree+, +MethodInfo+ and +Thread+ instances (Charlie Savage)
+* Expand API to allow creation of +Measurement+, +CallTree+, +MethodInfo+ and +Thread+ instances. This
+ was done to make is possible to write tests for the new Profile#merge! functionality (Charlie Savage)
 
 1.4.5 (2022-12-27)
 =====================

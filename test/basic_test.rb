@@ -6,7 +6,7 @@ require_relative './measure_times'
 
 class BasicTest < TestCase
   def setup
-    # Need to use wall time for this test due to the sleep calls
+    super
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end
 

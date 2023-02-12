@@ -6,6 +6,7 @@ Minitest::Test.i_suck_and_my_tests_are_order_dependent!
 
 class GcTest < TestCase
   def setup
+    super
     GC.stress = true
   end
 

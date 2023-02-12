@@ -223,21 +223,32 @@ void prof_method_mark(void* data)
     prof_method_t* method = (prof_method_t*)data;
 
     if (method->profile != Qnil)
-        rb_gc_mark(method->profile);
+        rb_gc_mark_movable(method->profile);
 
     if (method->object != Qnil)
-        rb_gc_mark(method->object);
+        rb_gc_mark_movable(method->object);
 
-    rb_gc_mark(method->klass_name);
-    rb_gc_mark(method->method_name);
-    rb_gc_mark(method->source_file);
+    rb_gc_mark_movable(method->klass_name);
+    rb_gc_mark_movable(method->method_name);
+    rb_gc_mark_movable(method->source_file);
 
     if (method->klass != Qnil)
-        rb_gc_mark(method->klass);
+        rb_gc_mark_movable(method->klass);
 
     prof_measurement_mark(method->measurement);
 
     rb_st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
+}
+
+void prof_method_compact(void* data)
+{
+    prof_method_t* method = (prof_method_t*)data;
+    method->profile = rb_gc_location(method->profile);
+    method->object = rb_gc_location(method->object);
+    method->klass_name = rb_gc_location(method->klass_name);
+    method->method_name = rb_gc_location(method->method_name);
+    method->source_file = rb_gc_location(method->source_file);
+    method->klass = rb_gc_location(method->klass);
 }
 
 static VALUE prof_method_allocate(VALUE klass)
@@ -255,6 +266,7 @@ static const rb_data_type_t method_info_type =
         .dmark = prof_method_mark,
         .dfree = prof_method_ruby_gc_free,
         .dsize = prof_method_size,
+        .dcompact = prof_method_compact
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY

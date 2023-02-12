@@ -102,10 +102,16 @@ void prof_measurement_mark(void* data)
 {
     if (!data) return;
 
-    prof_measurement_t* measurement_data = (prof_measurement_t*)data;
+    prof_measurement_t* measurement = (prof_measurement_t*)data;
 
-    if (measurement_data->object != Qnil)
-        rb_gc_mark(measurement_data->object);
+    if (measurement->object != Qnil)
+        rb_gc_mark_movable(measurement->object);
+}
+
+void prof_measurement_compact(void* data)
+{
+    prof_measurement_t* measurement = (prof_measurement_t*)data;
+    measurement->object = rb_gc_location(measurement->object);
 }
 
 void prof_measurement_free(prof_measurement_t* measurement)
@@ -155,6 +161,7 @@ static const rb_data_type_t measurement_type =
         .dmark = prof_measurement_mark,
         .dfree = prof_measurement_ruby_gc_free,
         .dsize = prof_measurement_size,
+        .dcompact = prof_measurement_compact
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY

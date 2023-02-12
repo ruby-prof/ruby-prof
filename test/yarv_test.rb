@@ -6,6 +6,7 @@ require File.expand_path('../test_helper', __FILE__)
 # tests for bugs reported by users
 class YarvTest < TestCase
   def setup
+    super
     RubyProf::measure_mode = RubyProf::WALL_TIME
     define_methods
   end

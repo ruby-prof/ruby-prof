@@ -6,6 +6,7 @@ require_relative './measure_allocations'
 
 class MeasureMemoryTest < TestCase
   def setup
+    super
     RubyProf::measure_mode = RubyProf::MEMORY
   end
 

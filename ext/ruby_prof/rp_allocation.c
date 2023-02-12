@@ -118,16 +118,25 @@ void prof_allocation_mark(void* data)
 
     prof_allocation_t* allocation = (prof_allocation_t*)data;
     if (allocation->object != Qnil)
-        rb_gc_mark(allocation->object);
+        rb_gc_mark_movable(allocation->object);
 
     if (allocation->klass != Qnil)
-        rb_gc_mark(allocation->klass);
+        rb_gc_mark_movable(allocation->klass);
 
     if (allocation->klass_name != Qnil)
-        rb_gc_mark(allocation->klass_name);
+        rb_gc_mark_movable(allocation->klass_name);
 
     if (allocation->source_file != Qnil)
-        rb_gc_mark(allocation->source_file);
+        rb_gc_mark_movable(allocation->source_file);
+}
+
+void prof_allocation_compact(void* data)
+{
+    prof_allocation_t* allocation = (prof_allocation_t*)data;
+    allocation->object = rb_gc_location(allocation->object);
+    allocation->klass = rb_gc_location(allocation->klass);
+    allocation->klass_name = rb_gc_location(allocation->klass_name);
+    allocation->source_file = rb_gc_location(allocation->source_file);
 }
 
 static const rb_data_type_t allocation_type =
@@ -138,6 +147,7 @@ static const rb_data_type_t allocation_type =
         .dmark = prof_allocation_mark,
         .dfree = prof_allocation_ruby_gc_free,
         .dsize = prof_allocation_size,
+        .dcompact = prof_allocation_compact
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY

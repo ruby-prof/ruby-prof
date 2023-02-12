@@ -7,6 +7,7 @@ class InverseCallTreeTest < TestCase
   INVERSE_DEPTH = 5
 
   def setup
+    super
     # Need to use wall time for this test due to the sleep calls
     RubyProf::measure_mode = RubyProf::WALL_TIME
   end

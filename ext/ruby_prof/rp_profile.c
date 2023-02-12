@@ -404,9 +404,9 @@ static int prof_profile_mark_methods(st_data_t key, st_data_t value, st_data_t r
 static void prof_profile_mark(void* data)
 {
     prof_profile_t* profile = (prof_profile_t*)data;
-    rb_gc_mark(profile->tracepoints);
-    rb_gc_mark(profile->running);
-    rb_gc_mark(profile->paused);
+    rb_gc_mark_movable(profile->tracepoints);
+    rb_gc_mark_movable(profile->running);
+    rb_gc_mark_movable(profile->paused);
 
     // If GC stress is true (useful for debugging), when threads_table_create is called in the
     // allocate method Ruby will immediately call this mark method. Thus the threads_tbl will be NULL.
@@ -415,6 +415,14 @@ static void prof_profile_mark(void* data)
 
     if (profile->exclude_methods_tbl)
         rb_st_foreach(profile->exclude_methods_tbl, prof_profile_mark_methods, 0);
+}
+
+void prof_profile_compact(void* data)
+{
+    prof_profile_t* profile = (prof_profile_t*)data;
+    profile->tracepoints = rb_gc_location(profile->tracepoints);
+    profile->running = rb_gc_location(profile->running);
+    profile->paused = rb_gc_location(profile->paused);
 }
 
 /* Freeing the profile creates a cascade of freeing. It frees its threads table, which frees
@@ -462,6 +470,7 @@ static const rb_data_type_t profile_type =
         .dmark = prof_profile_mark,
         .dfree = prof_profile_ruby_gc_free,
         .dsize = prof_profile_size,
+        .dcompact = prof_profile_compact
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY

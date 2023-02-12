@@ -6,6 +6,7 @@ require_relative './measure_allocations'
 
 class MeasureAllocationsTraceTest < TestCase
   def setup
+    super
     RubyProf::measure_mode = RubyProf::ALLOCATIONS
   end
 

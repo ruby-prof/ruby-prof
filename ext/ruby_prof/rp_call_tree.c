@@ -54,10 +54,10 @@ void prof_call_tree_mark(void* data)
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
 
     if (call_tree->object != Qnil)
-        rb_gc_mark(call_tree->object);
+        rb_gc_mark_movable(call_tree->object);
 
     if (call_tree->source_file != Qnil)
-        rb_gc_mark(call_tree->source_file);
+        rb_gc_mark_movable(call_tree->source_file);
 
     prof_method_mark(call_tree->method);
     prof_measurement_mark(call_tree->measurement);
@@ -66,6 +66,13 @@ void prof_call_tree_mark(void* data)
     // to avoid calling mark over and over and over.
     if (!call_tree->parent)
         rb_st_foreach(call_tree->children, prof_call_tree_mark_children, 0);
+}
+
+void prof_call_tree_compact(void* data)
+{
+    prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
+    call_tree->object = rb_gc_location(call_tree->object);
+    call_tree->source_file = rb_gc_location(call_tree->source_file);
 }
 
 static int prof_call_tree_free_children(st_data_t key, st_data_t value, st_data_t data)
@@ -130,6 +137,7 @@ static const rb_data_type_t call_tree_type =
         .dmark = prof_call_tree_mark,
         .dfree = prof_call_tree_ruby_gc_free,
         .dsize = prof_call_tree_size,
+        .dcompact = prof_call_tree_compact
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY

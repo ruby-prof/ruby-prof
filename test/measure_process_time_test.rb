@@ -6,6 +6,7 @@ require_relative './measure_times'
 
 class MeasureProcessTimeTest < TestCase
   def setup
+    super
     # Need to fix this for linux (windows works since PROCESS_TIME is WALL_TIME anyway)
     RubyProf::measure_mode = RubyProf::PROCESS_TIME
     GC.start

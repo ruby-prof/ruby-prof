@@ -9,6 +9,7 @@ require_relative 'prime'
 # --  Tests ----
 class PrinterCallTreeTest < TestCase
   def setup
+    super
     # WALL_TIME so we can use sleep in our test and get same measurements on linux and windows
     RubyProf::measure_mode = RubyProf::WALL_TIME
     @result = RubyProf.profile do

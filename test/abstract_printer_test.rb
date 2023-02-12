@@ -5,6 +5,7 @@ require File.expand_path('../test_helper', __FILE__)
 
 class AbstractPrinterTest < TestCase
   def setup
+    super
     @result = {}
     @printer = RubyProf::AbstractPrinter.new(@result)
     @options = {}

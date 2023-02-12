@@ -58,23 +58,33 @@ void prof_thread_mark(void* data)
     thread_data_t* thread = (thread_data_t*)data;
 
     if (thread->object != Qnil)
-        rb_gc_mark(thread->object);
+        rb_gc_mark_movable(thread->object);
 
-    rb_gc_mark(thread->fiber);
+    rb_gc_mark_movable(thread->fiber);
 
     if (thread->methods != Qnil)
-        rb_gc_mark(thread->methods);
+        rb_gc_mark_movable(thread->methods);
 
     if (thread->fiber_id != Qnil)
-        rb_gc_mark(thread->fiber_id);
+        rb_gc_mark_movable(thread->fiber_id);
 
     if (thread->thread_id != Qnil)
-        rb_gc_mark(thread->thread_id);
+        rb_gc_mark_movable(thread->thread_id);
 
     if (thread->call_tree)
         prof_call_tree_mark(thread->call_tree);
 
     rb_st_foreach(thread->method_table, mark_methods, 0);
+}
+
+void prof_thread_compact(void* data)
+{
+    thread_data_t* thread = (thread_data_t*)data;
+    thread->object = rb_gc_location(thread->object);
+    thread->fiber = rb_gc_location(thread->fiber);
+    thread->methods = rb_gc_location(thread->methods);
+    thread->fiber_id = rb_gc_location(thread->fiber_id);
+    thread->thread_id = rb_gc_location(thread->thread_id);
 }
 
 static void prof_thread_free(thread_data_t* thread_data)
@@ -126,6 +136,7 @@ static const rb_data_type_t thread_type =
         .dmark = prof_thread_mark,
         .dfree = prof_thread_ruby_gc_free,
         .dsize = prof_thread_size,
+        .dcompact = prof_thread_compact
     },
     .data = NULL,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY

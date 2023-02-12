@@ -10,4 +10,11 @@ ENV["N"] = "0" # Older versions of minitest
 
 require 'minitest/autorun'
 class TestCase < Minitest::Test
+  def setup
+    super
+    if defined?(GC.verify_compaction_references)
+      # Ask the GC to move objects around
+      GC.verify_compaction_references(double_heap: true, toward: :empty)
+    end
+  end
 end

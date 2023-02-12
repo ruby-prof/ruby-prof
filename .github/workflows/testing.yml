@@ -2,7 +2,7 @@ name: ruby-prof
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, testing ]
   pull_request:
     branches: [ master ]
 
@@ -26,4 +26,4 @@ jobs:
     - name: Build
       run: bundle exec rake compile
     - name: Test
-      run: bundle exec rake test
+      run: bundle exec rake test TESTOPTS="-v"

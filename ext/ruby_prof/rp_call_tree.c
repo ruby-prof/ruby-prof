@@ -57,7 +57,7 @@ void prof_call_tree_mark(void* data)
         rb_gc_mark_movable(call_tree->object);
 
     if (call_tree->source_file != Qnil)
-        rb_gc_mark_movable(call_tree->source_file);
+        rb_gc_mark(call_tree->source_file);
 
     prof_method_mark(call_tree->method);
     prof_measurement_mark(call_tree->measurement);
@@ -72,7 +72,6 @@ void prof_call_tree_compact(void* data)
 {
     prof_call_tree_t* call_tree = (prof_call_tree_t*)data;
     call_tree->object = rb_gc_location(call_tree->object);
-    call_tree->source_file = rb_gc_location(call_tree->source_file);
 }
 
 static int prof_call_tree_free_children(st_data_t key, st_data_t value, st_data_t data)

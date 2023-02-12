@@ -127,7 +127,7 @@ void prof_allocation_mark(void* data)
         rb_gc_mark_movable(allocation->klass_name);
 
     if (allocation->source_file != Qnil)
-        rb_gc_mark_movable(allocation->source_file);
+        rb_gc_mark(allocation->source_file);
 }
 
 void prof_allocation_compact(void* data)
@@ -136,7 +136,6 @@ void prof_allocation_compact(void* data)
     allocation->object = rb_gc_location(allocation->object);
     allocation->klass = rb_gc_location(allocation->klass);
     allocation->klass_name = rb_gc_location(allocation->klass_name);
-    allocation->source_file = rb_gc_location(allocation->source_file);
 }
 
 static const rb_data_type_t allocation_type =

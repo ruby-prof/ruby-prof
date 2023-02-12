@@ -60,7 +60,7 @@ void prof_thread_mark(void* data)
     if (thread->object != Qnil)
         rb_gc_mark_movable(thread->object);
 
-    rb_gc_mark_movable(thread->fiber);
+    rb_gc_mark(thread->fiber);
 
     if (thread->methods != Qnil)
         rb_gc_mark_movable(thread->methods);
@@ -81,7 +81,6 @@ void prof_thread_compact(void* data)
 {
     thread_data_t* thread = (thread_data_t*)data;
     thread->object = rb_gc_location(thread->object);
-    thread->fiber = rb_gc_location(thread->fiber);
     thread->methods = rb_gc_location(thread->methods);
     thread->fiber_id = rb_gc_location(thread->fiber_id);
     thread->thread_id = rb_gc_location(thread->thread_id);

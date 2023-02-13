@@ -4,7 +4,7 @@
 require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_allocations'
 
-class MeasureAllocationsTraceTest < TestCase
+class MeasureAllocationsTest < TestCase
   def setup
     super
     RubyProf::measure_mode = RubyProf::ALLOCATIONS
@@ -30,7 +30,7 @@ class MeasureAllocationsTraceTest < TestCase
 
       # Method 0
       method = methods[0]
-      assert_equal('MeasureAllocationsTraceTest#test_allocations',  method.full_name)
+      assert_equal('MeasureAllocationsTest#test_allocations',  method.full_name)
       assert_in_delta(20, method.total_time, 1)
       assert_equal(0, method.wait_time)
       assert_equal(0, method.self_time)
@@ -63,7 +63,7 @@ class MeasureAllocationsTraceTest < TestCase
 
       assert_equal(1, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureAllocationsTraceTest#test_allocations', call_tree.parent.target.full_name)
+      assert_equal('MeasureAllocationsTest#test_allocations', call_tree.parent.target.full_name)
       assert_equal(19, call_tree.total_time)
       assert_equal(0, call_tree.wait_time)
       assert_equal(0, call_tree.self_time)
@@ -101,7 +101,7 @@ class MeasureAllocationsTraceTest < TestCase
 
       assert_equal(4, method.call_trees.callers.length)
       call_tree = method.call_trees.callers[0]
-      assert_equal('MeasureAllocationsTraceTest#test_allocations', call_tree.parent.target.full_name)
+      assert_equal('MeasureAllocationsTest#test_allocations', call_tree.parent.target.full_name)
       assert_equal(1, call_tree.total_time)
       assert_equal(0, call_tree.wait_time)
       assert_equal(1, call_tree.self_time)

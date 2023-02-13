@@ -190,7 +190,7 @@ void prof_method_mark(void* data)
     prof_method_t* method = (prof_method_t*)data;
 
     if (method->profile != Qnil)
-        rb_gc_mark(method->profile);
+        rb_gc_mark_movable(method->profile);
 
     if (method->object != Qnil)
         rb_gc_mark_movable(method->object);
@@ -210,6 +210,7 @@ void prof_method_compact(void* data)
 {
     prof_method_t* method = (prof_method_t*)data;
     method->object = rb_gc_location(method->object);
+    method->profile = rb_gc_location(method->profile);
     method->klass_name = rb_gc_location(method->klass_name);
     method->method_name = rb_gc_location(method->method_name);
 }

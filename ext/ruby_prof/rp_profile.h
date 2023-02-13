@@ -12,6 +12,7 @@ extern VALUE cProfile;
 
 typedef struct prof_profile_t
 {
+    VALUE object;
     VALUE running;
     VALUE paused;
 

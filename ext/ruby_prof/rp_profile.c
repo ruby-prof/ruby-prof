@@ -518,9 +518,9 @@ prof_stop_threads(prof_profile_t* profile)
 
 /* call-seq:
    new()
-   new(options)
+   new(keyword_args)
 
-   Returns a new profiler. Possible options for the options hash are:
+   Returns a new profiler. Possible keyword arguments include:
 
    measure_mode:      Measure mode. Specifies the profile measure mode.
                       If not specified, defaults to RubyProf::WALL_TIME.
@@ -533,71 +533,48 @@ prof_stop_threads(prof_profile_t* profile)
                       all other threads. */
 static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
 {
+    VALUE keywords;
+    rb_scan_args_kw(RB_SCAN_ARGS_KEYWORDS, argc, argv, ":", &keywords);
+
+    ID table[] = {rb_intern("measure_mode"),
+                  rb_intern("track_allocations"),
+                  rb_intern("allow_exceptions"),
+                  rb_intern("exclude_common"),
+                  rb_intern("exclude_threads"),
+                  rb_intern("include_threads") };
+    VALUE values[6];
+    rb_get_kwargs(keywords, table, 0, 6, values);
+
+    VALUE mode = values[0] == Qundef ? INT2NUM(MEASURE_WALL_TIME) : values[0];
+    VALUE track_allocations = values[1] == Qtrue ? Qtrue : Qfalse;
+    VALUE allow_exceptions = values[2] == Qtrue ? Qtrue : Qfalse;
+    VALUE exclude_common = values[3] == Qtrue ? Qtrue : Qfalse;
+    VALUE exclude_threads = values[4];
+    VALUE include_threads = values[5];
+
+    Check_Type(mode, T_FIXNUM);
     prof_profile_t* profile = prof_get_profile(self);
-    VALUE mode_or_options;
-    VALUE mode = Qnil;
-    VALUE exclude_threads = Qnil;
-    VALUE include_threads = Qnil;
-    VALUE exclude_common = Qnil;
-    VALUE allow_exceptions = Qfalse;
-    VALUE track_allocations = Qfalse;
+    profile->measurer = prof_measurer_create(NUM2INT(mode), track_allocations);
+    profile->allow_exceptions = (allow_exceptions);
 
-    int i;
-
-    switch (rb_scan_args(argc, argv, "02", &mode_or_options, &exclude_threads))
-    {
-    case 0:
-        break;
-    case 1:
-        if (FIXNUM_P(mode_or_options))
-        {
-            mode = mode_or_options;
-        }
-        else
-        {
-            Check_Type(mode_or_options, T_HASH);
-            mode = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("measure_mode")));
-            track_allocations = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("track_allocations")));
-            allow_exceptions = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("allow_exceptions")));
-            exclude_common = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_common")));
-            exclude_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("exclude_threads")));
-            include_threads = rb_hash_aref(mode_or_options, ID2SYM(rb_intern("include_threads")));
-        }
-        break;
-    case 2:
-        Check_Type(exclude_threads, T_ARRAY);
-        break;
-    }
-
-    if (mode == Qnil)
-    {
-        mode = INT2NUM(MEASURE_WALL_TIME);
-    }
-    else
-    {
-        Check_Type(mode, T_FIXNUM);
-    }
-    profile->measurer = prof_measurer_create(NUM2INT(mode), track_allocations == Qtrue);
-    profile->allow_exceptions = (allow_exceptions == Qtrue);
-
-    if (exclude_threads != Qnil)
+    if (exclude_threads != Qundef)
     {
         Check_Type(exclude_threads, T_ARRAY);
         assert(profile->exclude_threads_tbl == NULL);
         profile->exclude_threads_tbl = threads_table_create();
-        for (i = 0; i < RARRAY_LEN(exclude_threads); i++)
+        for (int i = 0; i < RARRAY_LEN(exclude_threads); i++)
         {
             VALUE thread = rb_ary_entry(exclude_threads, i);
             rb_st_insert(profile->exclude_threads_tbl, thread, Qtrue);
         }
     }
 
-    if (include_threads != Qnil)
+    if (include_threads != Qundef)
     {
         Check_Type(include_threads, T_ARRAY);
         assert(profile->include_threads_tbl == NULL);
         profile->include_threads_tbl = threads_table_create();
-        for (i = 0; i < RARRAY_LEN(include_threads); i++)
+        for (int i = 0; i < RARRAY_LEN(include_threads); i++)
         {
             VALUE thread = rb_ary_entry(include_threads, i);
             rb_st_insert(profile->include_threads_tbl, thread, Qtrue);

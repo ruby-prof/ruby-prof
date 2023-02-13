@@ -105,39 +105,6 @@ st_data_t method_key(VALUE klass, VALUE msym)
     return hash;
 }
 
-/* ======   Allocation Table  ====== */
-st_table* allocations_table_create()
-{
-    return rb_st_init_numtable();
-}
-
-static int allocations_table_free_iterator(st_data_t key, st_data_t value, st_data_t dummy)
-{
-    prof_allocation_free((prof_allocation_t*)value);
-    return ST_CONTINUE;
-}
-
-static int prof_method_collect_allocations(st_data_t key, st_data_t value, st_data_t result)
-{
-    prof_allocation_t* allocation = (prof_allocation_t*)value;
-    VALUE arr = (VALUE)result;
-    rb_ary_push(arr, prof_allocation_wrap(allocation));
-    return ST_CONTINUE;
-}
-
-static int prof_method_mark_allocations(st_data_t key, st_data_t value, st_data_t data)
-{
-    prof_allocation_t* allocation = (prof_allocation_t*)value;
-    prof_allocation_mark(allocation);
-    return ST_CONTINUE;
-}
-
-void allocations_table_free(st_table* table)
-{
-    rb_st_foreach(table, allocations_table_free_iterator, 0);
-    rb_st_free_table(table);
-}
-
 /* ================  prof_method_t   =================*/
 prof_method_t* prof_get_method(VALUE self)
 {
@@ -167,7 +134,7 @@ prof_method_t* prof_method_create(VALUE profile, VALUE klass, VALUE msym, VALUE 
     result->measurement = prof_measurement_create();
 
     result->call_trees = prof_call_trees_create();
-    result->allocations_table = allocations_table_create();
+    result->allocations_table = prof_allocations_create();
 
     result->visits = 0;
     result->recursive = false;
@@ -205,7 +172,7 @@ static void prof_method_free(prof_method_t* method)
         method->object = Qnil;
     }
 
-    allocations_table_free(method->allocations_table);
+    prof_allocations_free(method->allocations_table);
     prof_call_trees_free(method->call_trees);
     prof_measurement_free(method->measurement);
     xfree(method);
@@ -236,8 +203,7 @@ void prof_method_mark(void* data)
         rb_gc_mark(method->klass);
 
     prof_measurement_mark(method->measurement);
-
-    rb_st_foreach(method->allocations_table, prof_method_mark_allocations, 0);
+    prof_allocations_mark(method->allocations_table);
 }
 
 void prof_method_compact(void* data)
@@ -369,9 +335,7 @@ Returns an array of allocation information.*/
 static VALUE prof_method_allocations(VALUE self)
 {
     prof_method_t* method = prof_get_method(self);
-    VALUE result = rb_ary_new();
-    rb_st_foreach(method->allocations_table, prof_method_collect_allocations, result);
-    return result;
+    return prof_allocations_wrap(method->allocations_table);
 }
 
 /* call-seq:
@@ -508,13 +472,7 @@ static VALUE prof_method_load(VALUE self, VALUE data)
     method_data->measurement = prof_get_measurement(measurement);
 
     VALUE allocations = rb_hash_aref(data, ID2SYM(rb_intern("allocations")));
-    for (int i = 0; i < rb_array_len(allocations); i++)
-    {
-        VALUE allocation = rb_ary_entry(allocations, i);
-        prof_allocation_t* allocation_data = prof_allocation_get(allocation);
-
-        rb_st_insert(method_data->allocations_table, allocation_data->key, (st_data_t)allocation_data);
-    }
+    prof_allocations_unwrap(method_data->allocations_table, allocations);
     return data;
 }
 

@@ -5,7 +5,6 @@
 #define _RP_ALLOCATION_
 
 #include "ruby_prof.h"
-#include "rp_method.h"
 
 typedef struct prof_allocation_t
 {
@@ -20,12 +19,15 @@ typedef struct prof_allocation_t
     VALUE object;                     /* Cache to wrapped object */
 } prof_allocation_t;
 
+// Allocation (prof_allocation_t*)
 void rp_init_allocation(void);
-void prof_allocation_free(prof_allocation_t* allocation);
-void prof_allocation_mark(void* data);
-VALUE prof_allocation_wrap(prof_allocation_t* allocation);
-prof_allocation_t* prof_allocation_get(VALUE self);
-prof_allocation_t* prof_allocate_increment(prof_method_t* method, rb_trace_arg_t* trace_arg);
+prof_allocation_t* prof_allocate_increment(st_table* allocations_table, rb_trace_arg_t* trace_arg);
 
+// Allocations (st_table*)
+st_table* prof_allocations_create(void);
+VALUE prof_allocations_wrap(st_table* allocations_table);
+void prof_allocations_unwrap(st_table* allocations_table, VALUE allocations);
+void prof_allocations_mark(st_table* allocations_table);
+void prof_allocations_free(st_table* table);
 
 #endif //_RP_ALLOCATION_

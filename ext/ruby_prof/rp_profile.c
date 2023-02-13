@@ -327,7 +327,7 @@ static void prof_event_hook(VALUE trace_point, void* data)
 
             prof_method_t* method = prof_find_method(thread_data->stack, source_file, source_line);
             if (method)
-                prof_allocate_increment(method, trace_arg);
+                prof_allocate_increment(method->allocations_table, trace_arg);
 
             break;
         }

@@ -27,17 +27,12 @@ class STPT
 end
 
 class StackPrinterTest < TestCase
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   def test_stack_can_be_printed
     start_time = Time.now
-    RubyProf.start
-    5.times{STPT.new.a}
-    result = RubyProf.stop
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
+      5.times{STPT.new.a}
+    end
+
     end_time = Time.now
     expected_time = end_time - start_time
 
@@ -51,6 +46,7 @@ class StackPrinterTest < TestCase
   end
 
   private
+
   def print(result)
     test = caller.first =~ /in `(.*)'/ ? $1 : "test"
     testfile_name = "#{Dir.tmpdir}/ruby_prof_#{test}.html"

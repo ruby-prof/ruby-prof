@@ -5,18 +5,8 @@ require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_allocations'
 
 class MeasureAllocationsTest < TestCase
-  def setup
-    super
-    RubyProf::measure_mode = RubyProf::ALLOCATIONS
-  end
-
-  def test_allocations_mode
-    RubyProf::measure_mode = RubyProf::ALLOCATIONS
-    assert_equal(RubyProf::ALLOCATIONS, RubyProf::measure_mode)
-  end
-
   def test_allocations
-    result = RubyProf.profile(:track_allocations => true) do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::ALLOCATIONS, track_allocations: true) do
       allocator = Allocator.new
       allocator.run
     end

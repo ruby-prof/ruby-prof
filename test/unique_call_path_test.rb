@@ -30,7 +30,7 @@ class UniqueCallPathTest < TestCase
   def test_root
     unique_call_path = UniqueCallPath.new
 
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       unique_call_path.method_a(1)
     end
 
@@ -41,7 +41,7 @@ class UniqueCallPathTest < TestCase
   def test_root_children
     unique_call_path = UniqueCallPath.new
 
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       unique_call_path.method_a(1)
       unique_call_path.method_k(2)
     end
@@ -59,7 +59,7 @@ class UniqueCallPathTest < TestCase
   def test_children_of
     unique_call_path = UniqueCallPath.new
 
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       unique_call_path.method_a(1)
       unique_call_path.method_k(2)
     end
@@ -92,7 +92,7 @@ class UniqueCallPathTest < TestCase
   def test_unique_path
     unique_call_path = UniqueCallPath.new
 
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       unique_call_path.method_a(1)
       unique_call_path.method_k(1)
     end

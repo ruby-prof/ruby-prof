@@ -5,7 +5,7 @@ require File.expand_path('../test_helper', __FILE__)
 
 class DuplicateNamesTest < TestCase
   def test_names
-    result = RubyProf::profile do
+    result = RubyProf::Profile.profile do
       str = %{module Foo; class Bar; def foo; end end end}
 
       eval str

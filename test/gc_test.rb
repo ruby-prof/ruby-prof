@@ -19,7 +19,7 @@ class GcTest < TestCase
   end
 
   def run_profile
-    RubyProf.profile do
+    RubyProf::Profile.profile do
       self.some_method
     end
   end

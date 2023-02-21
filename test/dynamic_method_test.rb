@@ -24,15 +24,9 @@ class DynamicMethodTest < TestCase
     end
   end
 
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   def test_dynamic_method
     medley = FruitMedley.new
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       medley.apple
       medley.orange
       medley.banana

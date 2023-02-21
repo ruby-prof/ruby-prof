@@ -26,7 +26,7 @@ end
 
 class SingletonTest < TestCase
   def test_singleton
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       a = A.new
       a << :first_thing
       assert_equal(1, a.as.size)

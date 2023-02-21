@@ -27,12 +27,6 @@ class MSTPT
 end
 
 class MultiPrinterTest < TestCase
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   def test_refuses_io_objects
     # we don't need a real profile for this test
     p = RubyProf::MultiPrinter.new nil

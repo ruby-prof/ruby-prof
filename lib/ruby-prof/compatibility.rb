@@ -96,4 +96,18 @@ module RubyProf
   def self.ensure_not_running!
     raise(RuntimeError, "RubyProf is already running") if running?
   end
+
+  class << self
+    extend Gem::Deprecate
+    deprecate :measure_mode, "Profile#measure_mode", 2023, 6
+    deprecate :measure_mode=, "Profile#measure_mode=", 2023, 6
+    deprecate :exclude_threads, "Profile#exclude_threads", 2023, 6
+    deprecate :exclude_threads=, "Profile#initialize", 2023, 6
+    deprecate :start, "Profile#start", 2023, 6
+    deprecate :pause, "Profile#pause", 2023, 6
+    deprecate :stop, "Profile#stop", 2023, 6
+    deprecate :resume, "Profile#resume", 2023, 6
+    deprecate :running?, "Profile#running?", 2023, 6
+    deprecate :profile, "Profile.profile", 2023, 6
+  end
 end

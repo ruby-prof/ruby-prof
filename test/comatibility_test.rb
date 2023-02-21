@@ -4,10 +4,16 @@
 require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_times'
 
-class BasicTest < TestCase
+class CompatibilityTest < TestCase
   def setup
     super
+    Gem::Deprecate.skip = true
     RubyProf::measure_mode = RubyProf::WALL_TIME
+  end
+
+  def teardown
+    super
+    Gem::Deprecate.skip = false
   end
 
   def test_running

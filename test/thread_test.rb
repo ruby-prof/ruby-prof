@@ -8,12 +8,6 @@ require_relative './call_tree_builder'
 
 # --  Tests ----
 class ThreadTest < TestCase
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   def test_initialize
     method_info = RubyProf::MethodInfo.new(Array, :size)
     call_tree = RubyProf::CallTree.new(method_info)
@@ -40,24 +34,25 @@ class ThreadTest < TestCase
   end
 
   def test_thread_count
-    RubyProf.start
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
+      thread = Thread.new do
+        sleep(1)
+      end
 
-    thread = Thread.new do
-      sleep(1)
+      thread.join
     end
-
-    thread.join
-    result = RubyProf.stop
     assert_equal(2, result.threads.length)
   end
 
   def test_thread_identity
-    RubyProf.start
+    profile = RubyProf::Profile.new(measure_mode: RubyProf::WALL_TIME)
+    profile.start
+
     sleep_thread = Thread.new do
       sleep(1)
     end
     sleep_thread.join
-    result = RubyProf.stop
+    result = profile.stop
 
     thread_ids = result.threads.map {|thread| thread.id}.sort
     threads = [Thread.current, sleep_thread]
@@ -74,7 +69,9 @@ class ThreadTest < TestCase
   end
 
   def test_thread_timings
-    RubyProf.start
+    profile = RubyProf::Profile.new(measure_mode: RubyProf::WALL_TIME)
+    profile.start
+
     thread = Thread.new do
       sleep 0
       # force it to hit thread.join, below, first
@@ -84,7 +81,7 @@ class ThreadTest < TestCase
       sleep(1)
     end
     thread.join
-    result = RubyProf.stop
+    result = profile.stop
 
     # Check background thread
     assert_equal(2, result.threads.length)

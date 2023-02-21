@@ -34,15 +34,9 @@ class ExcludeMethodsClass
 end
 
 class ExcludeMethodsTest < TestCase
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   def test_methods_can_be_profiled
     obj = ExcludeMethodsClass.new
-    prf = RubyProf::Profile.new
+    prf = RubyProf::Profile.new(measure_mode: RubyProf::WALL_TIME)
 
     result = prf.profile {obj.a}
     methods = result.threads.first.methods.sort.reverse
@@ -103,7 +97,7 @@ class ExcludeMethodsTest < TestCase
 
   def test_exclude_common_methods1
     obj = ExcludeMethodsClass.new
-    prf = RubyProf::Profile.new
+    prf = RubyProf::Profile.new(measure_mode: RubyProf::WALL_TIME)
 
     prf.exclude_common_methods!
 
@@ -125,7 +119,7 @@ class ExcludeMethodsTest < TestCase
   def test_exclude_common_methods2
     obj = ExcludeMethodsClass.new
 
-    result = RubyProf.profile(exclude_common: true) { 5.times {obj.a} }
+    result = RubyProf::Profile.profile(exclude_common: true) { 5.times {obj.a} }
     methods = result.threads.first.methods.sort.reverse
 
     assert_equal(9, methods.count)

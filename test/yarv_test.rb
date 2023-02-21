@@ -7,13 +7,12 @@ require File.expand_path('../test_helper', __FILE__)
 class YarvTest < TestCase
   def setup
     super
-    RubyProf::measure_mode = RubyProf::WALL_TIME
     define_methods
   end
 
   def test_array_push_unoptimized
     a = nil
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       a = self.array_push_unoptimized
     end
     assert_equal 2, a.length
@@ -22,7 +21,7 @@ class YarvTest < TestCase
 
   def test_array_push_optimized
     a = nil
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       a = self.array_push_optimized
     end
     assert_equal(2, a.length)

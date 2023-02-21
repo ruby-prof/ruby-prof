@@ -4,7 +4,7 @@
 require File.expand_path('../test_helper', __FILE__)
 
 # Make sure this works with no class or method
-result = RubyProf.profile do
+result = RubyProf::Profile.profile do
   sleep 1
 end
 

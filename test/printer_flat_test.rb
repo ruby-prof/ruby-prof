@@ -10,7 +10,7 @@ require_relative 'prime'
 # --  Tests ----
 class PrinterFlatTest < TestCase
   def run_profile
-    RubyProf.profile(:measure_mode => RubyProf::WALL_TIME) do
+    RubyProf::Profile.profile(:measure_mode => RubyProf::WALL_TIME) do
       run_primes(1000, 5000)
     end
   end

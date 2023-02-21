@@ -8,7 +8,7 @@ require File.expand_path('../test_helper', __FILE__)
 
 class EnumerableTest < TestCase
   def test_enumerable
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       3.times {  [1,2,3].any? {|n| n} }
     end
     methods = if RUBY_VERSION >= "2.2.0"

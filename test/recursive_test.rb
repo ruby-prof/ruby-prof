@@ -33,16 +33,10 @@ end
 
 # --  Tests ----
 class RecursiveTest < TestCase
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   include SimpleRecursion
 
   def test_simple
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       simple(1)
     end
 
@@ -202,7 +196,7 @@ class RecursiveTest < TestCase
   end
 
   def test_cycle
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       render
     end
 

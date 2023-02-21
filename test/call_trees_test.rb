@@ -13,7 +13,7 @@ class CallTreesTest < TestCase
   end
 
   def test_call_infos
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       some_method_1
     end
 
@@ -51,7 +51,7 @@ class CallTreesTest < TestCase
   end
 
   def test_gc
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       some_method_1
     end
 

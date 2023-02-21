@@ -5,19 +5,9 @@ require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_allocations'
 
 class MeasureMemoryTest < TestCase
-  def setup
-    super
-    RubyProf::measure_mode = RubyProf::MEMORY
-  end
-
-  def test_memory_mode
-    RubyProf::measure_mode = RubyProf::MEMORY
-    assert_equal(RubyProf::MEMORY, RubyProf::measure_mode)
-  end
-
   if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.0')
     def test_memory
-      result = RubyProf.profile do
+      result = RubyProf::Profile.profile(measure_mode: RubyProf::MEMORY) do
         allocator = Allocator.new
         allocator.run
       end
@@ -352,7 +342,7 @@ class MeasureMemoryTest < TestCase
     end
   elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
     def test_memory
-      result = RubyProf.profile do
+      result = RubyProf::Profile.profile(measure_mode: RubyProf::MEMORY) do
         allocator = Allocator.new
         allocator.run
       end
@@ -687,7 +677,7 @@ class MeasureMemoryTest < TestCase
     end
   else
     def test_memory
-      result = RubyProf.profile do
+      result = RubyProf::Profile.profile(measure_mode: RubyProf::MEMORY) do
         allocator = Allocator.new
         allocator.run
       end

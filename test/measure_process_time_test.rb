@@ -7,20 +7,14 @@ require_relative './measure_times'
 class MeasureProcessTimeTest < TestCase
   def setup
     super
-    # Need to fix this for linux (windows works since PROCESS_TIME is WALL_TIME anyway)
-    RubyProf::measure_mode = RubyProf::PROCESS_TIME
     GC.start
-  end
-
-  def test_mode
-    assert_equal(RubyProf::PROCESS_TIME, RubyProf::measure_mode)
   end
 
   # These tests run to fast for Windows to detect any used process time
   if !windows?
     if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.1')
       def test_class_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.sleep_wait
         end
 
@@ -54,7 +48,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_class_methods_sleep_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.sleep_wait
           end
@@ -131,7 +125,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_class_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.busy_wait
         end
 
@@ -165,7 +159,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_class_methods_busy_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.busy_wait
           end
@@ -242,7 +236,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.new.sleep_wait
         end
 
@@ -290,7 +284,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_sleep_block
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           1.times { RubyProf::C1.new.sleep_wait }
         end
 
@@ -342,7 +336,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_sleep_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.new.sleep_wait
           end
@@ -433,7 +427,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.new.busy_wait
         end
 
@@ -481,7 +475,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_busy_block
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           1.times { RubyProf::C1.new.busy_wait }
         end
 
@@ -533,7 +527,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_busy_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.new.busy_wait
           end
@@ -624,7 +618,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.sleep_wait
         end
 
@@ -658,7 +652,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.busy_wait
         end
 
@@ -692,7 +686,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_instance_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.new.sleep_wait
         end
 
@@ -740,7 +734,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_instance_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.new.busy_wait
         end
 
@@ -788,7 +782,7 @@ class MeasureProcessTimeTest < TestCase
       end
     else
       def test_class_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.sleep_wait
         end
 
@@ -822,7 +816,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_class_methods_sleep_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.sleep_wait
           end
@@ -899,7 +893,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_class_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.busy_wait
         end
 
@@ -933,7 +927,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_class_methods_busy_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.busy_wait
           end
@@ -1010,7 +1004,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.new.sleep_wait
         end
 
@@ -1058,7 +1052,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_sleep_block
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           1.times { RubyProf::C1.new.sleep_wait }
         end
 
@@ -1110,7 +1104,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_sleep_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.new.sleep_wait
           end
@@ -1201,7 +1195,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.new.busy_wait
         end
 
@@ -1263,7 +1257,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_busy_block
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           1.times { RubyProf::C1.new.busy_wait }
         end
 
@@ -1329,7 +1323,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_instance_methods_busy_threaded
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           background_thread = Thread.new do
             RubyProf::C1.new.busy_wait
           end
@@ -1434,7 +1428,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.sleep_wait
         end
 
@@ -1468,7 +1462,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.busy_wait
         end
 
@@ -1502,7 +1496,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_instance_methods_sleep
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.new.sleep_wait
         end
 
@@ -1550,7 +1544,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       def test_module_instance_methods_busy
-        result = RubyProf.profile do
+        result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C2.new.busy_wait
         end
 

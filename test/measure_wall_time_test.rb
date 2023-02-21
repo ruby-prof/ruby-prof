@@ -5,19 +5,8 @@ require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_times'
 
 class MeasureWallTimeTest < TestCase
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
-  def test_mode
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-    assert_equal(RubyProf::WALL_TIME, RubyProf::measure_mode)
-  end
-
   def test_class_methods
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       RubyProf::C1.sleep_wait
     end
 
@@ -47,7 +36,7 @@ class MeasureWallTimeTest < TestCase
   end
 
   def test_class_methods_threaded
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       background_thread = Thread.new do
         RubyProf::C1.sleep_wait
       end
@@ -117,7 +106,7 @@ class MeasureWallTimeTest < TestCase
   end
 
   def test_instance_methods
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       RubyProf::C1.new.sleep_wait
     end
 
@@ -164,7 +153,7 @@ class MeasureWallTimeTest < TestCase
   end
 
   def test_instance_methods_block
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       1.times { RubyProf::C1.new.sleep_wait }
     end
 
@@ -216,7 +205,7 @@ class MeasureWallTimeTest < TestCase
   end
 
   def test_instance_methods_threaded
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       background_thread = Thread.new do
         RubyProf::C1.new.sleep_wait
       end
@@ -298,7 +287,7 @@ class MeasureWallTimeTest < TestCase
   end
 
   def test_module_methods
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       RubyProf::C2.sleep_wait
     end
 
@@ -327,7 +316,7 @@ class MeasureWallTimeTest < TestCase
   end
 
   def test_module_instance_methods
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       RubyProf::C2.new.sleep_wait
     end
 
@@ -368,7 +357,7 @@ class MeasureWallTimeTest < TestCase
   end
 
   def test_singleton_methods
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       RubyProf::C3.instance.sleep_wait
     end
 

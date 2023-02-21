@@ -46,14 +46,8 @@ class FiberTest < TestCase
     fiber.resume
   end
 
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   def test_fibers
-    result = RubyProf.profile { enumerator_with_fibers }
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { enumerator_with_fibers }
 
     assert_equal(2, result.threads.size)
 
@@ -143,7 +137,7 @@ class FiberTest < TestCase
   end
 
   def test_fiber_resume
-    result  = RubyProf.profile { fiber_yield_resume }
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { fiber_yield_resume }
 
     assert_equal(2, result.threads.size)
 
@@ -218,7 +212,7 @@ class FiberTest < TestCase
 
   if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.1.0')
     def test_times_no_merge
-      result  = RubyProf.profile { concurrency }
+      result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency }
 
       assert_equal(4, result.threads.size)
 
@@ -231,7 +225,7 @@ class FiberTest < TestCase
     end
 
     def test_times_merge
-      result  = RubyProf.profile { concurrency }
+      result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency }
       result.merge!
 
       assert_equal(2, result.threads.size)

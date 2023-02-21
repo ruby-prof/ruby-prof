@@ -5,14 +5,8 @@ require File.expand_path('../test_helper', __FILE__)
 require_relative './measure_times'
 
 class CallTreeVisitorTest < TestCase
-  def setup
-    super
-    # Need to use wall time for this test due to the sleep calls
-    RubyProf::measure_mode = RubyProf::WALL_TIME
-  end
-
   def test_visit
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       RubyProf::C1.sleep_wait
     end
 

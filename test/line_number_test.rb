@@ -31,7 +31,7 @@ class LineNumbersTest < TestCase
   def test_function_line_no
     numbers = LineNumbers.new
 
-    result = RubyProf.profile do
+    result = RubyProf::Profile.profile do
       numbers.method_1
     end
 

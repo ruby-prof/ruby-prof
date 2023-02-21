@@ -7,7 +7,7 @@ require_relative './measure_times'
 class MeasureWallTimeTest < TestCase
   def setup
     # OSX on github actions are very slow so double the deltas to avoid test failures
-    @delta_multiplier = self.osx? && ENV["GITHUB_ACTIONS"] ? 2 : 1
+    @delta_multiplier = self.osx? && ENV["GITHUB_ACTIONS"] ? 4 : 1
   end
 
   def test_class_methods

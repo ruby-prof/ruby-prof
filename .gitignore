@@ -6,13 +6,10 @@ heap.dump
 /.idea
 *.bundle
 *.so
-/tmp/*
-!/tmp/.keep
 .*.swp
 ipch
 .rvmrc
 Gemfile.lock
-/profile.callgrind.out.*
 *.gem
 .ruby-version
 /ext/ruby_prof/vc/x64

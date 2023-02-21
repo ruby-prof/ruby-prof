@@ -554,8 +554,8 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
 
     Check_Type(mode, T_FIXNUM);
     prof_profile_t* profile = prof_get_profile(self);
-    profile->measurer = prof_measurer_create(NUM2INT(mode), track_allocations);
-    profile->allow_exceptions = (allow_exceptions);
+    profile->measurer = prof_measurer_create(NUM2INT(mode), RB_TEST(track_allocations));
+    profile->allow_exceptions = RB_TEST(allow_exceptions);
 
     if (exclude_threads != Qundef)
     {
@@ -581,7 +581,7 @@ static VALUE prof_initialize(int argc, VALUE* argv, VALUE self)
         }
     }
 
-    if (RTEST(exclude_common))
+    if (RB_TEST(exclude_common))
     {
         prof_exclude_common_methods(self);
     }

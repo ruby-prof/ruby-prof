@@ -23,14 +23,14 @@ module RubyProf
       ExcludeCommonMethods.apply!(self)
     end
 
-    def exclude_methods!(mod, *method_or_methods)
-      [method_or_methods].flatten.each do |name|
-        exclude_method!(mod, name)
+    def exclude_methods!(mod, *method_names)
+      [method_names].flatten.each do |method_name|
+        exclude_method!(mod, method_name)
       end
     end
 
-    def exclude_singleton_methods!(mod, *method_or_methods)
-      exclude_methods!(mod.singleton_class, *method_or_methods)
+    def exclude_singleton_methods!(mod, *method_names)
+      exclude_methods!(mod.singleton_class, *method_names)
     end
 
     # call-seq:

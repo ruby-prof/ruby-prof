@@ -22,31 +22,38 @@ VALUE resolve_klass(VALUE klass, unsigned int* klass_flags)
            figure out what it is attached to.*/
         VALUE attached = rb_iv_get(klass, "__attached__");
 
-        /* Is this a singleton class acting as a metaclass? */
-        if (BUILTIN_TYPE(attached) == T_CLASS)
+        switch (BUILTIN_TYPE(attached))
         {
-            *klass_flags |= kClassSingleton;
-            result = attached;
-        }
-        /* Is this for singleton methods on a module? */
-        else if (BUILTIN_TYPE(attached) == T_MODULE)
-        {
-            *klass_flags |= kModuleSingleton;
-            result = attached;
-        }
-        /* Is this for singleton methods on an object? */
-        else if (BUILTIN_TYPE(attached) == T_OBJECT)
-        {
-            *klass_flags |= kObjectSingleton;
-            result = rb_class_superclass(klass);
-        }
-        /* Ok, this could be other things like an array put onto
-           a singleton object (yeah, it happens, see the singleton
-           objects test case). */
-        else
-        {
-            *klass_flags |= kOtherSingleton;
-            result = klass;
+            /* Is this a singleton class acting as a metaclass? */
+            case T_CLASS:
+            {
+                *klass_flags |= kClassSingleton;
+                result = attached;
+                break;
+            }
+            /* Is this for singleton methods on a module? */
+            case T_MODULE:
+            {
+                *klass_flags |= kModuleSingleton;
+                result = attached;
+                break;
+            }
+            /* Is this for singleton methods on an object? */
+            case T_OBJECT:
+            {
+                *klass_flags |= kObjectSingleton;
+                result = rb_class_superclass(klass);
+                break;
+            }
+            /* Ok, this could be other things like an array put onto
+               a singleton object (yeah, it happens, see the singleton
+               objects test case). */
+            default:
+            {
+                *klass_flags |= kOtherSingleton;
+                result = klass;
+                break;
+            }
         }
     }
     /* Is this an include for a module?  If so get the actual
@@ -56,7 +63,7 @@ VALUE resolve_klass(VALUE klass, unsigned int* klass_flags)
     {
         unsigned int dummy;
         *klass_flags |= kModuleIncludee;
-        result = resolve_klass(RBASIC(klass)->klass, &dummy);
+        result = resolve_klass(RBASIC_CLASS(klass), &dummy);
     }
     return result;
 }
@@ -94,7 +101,7 @@ st_data_t method_key(VALUE klass, VALUE msym)
     }
     else if (BUILTIN_TYPE(klass) == T_ICLASS)
     {
-        resolved_klass = RBASIC(klass)->klass;
+        resolved_klass = RBASIC_CLASS(klass);
     }
 
     st_data_t hash = rb_hash_start(0);

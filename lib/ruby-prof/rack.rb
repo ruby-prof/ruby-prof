@@ -60,7 +60,6 @@ module Rack
     def profiling_options
       result = {}
       result[:measure_mode] = @options[:measure_mode] || ::RubyProf::WALL_TIME
-      result[:min_percent] = @options[:min_percent] || 1
       result[:track_allocations] = @options[:track_allocations] || false
       result[:exclude_common] = @options[:exclude_common] || false
 

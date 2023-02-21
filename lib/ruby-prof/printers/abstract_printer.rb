@@ -50,7 +50,7 @@ module RubyProf
     # options - Hash of print options. Note that each printer can
     # define its own set of options.
     #
-    #   :min_percent - Number 0 to 100 that specifes the minimum
+    #   :min_percent - Number 0 to 100 that specifies the minimum
     #                  %self (the methods self time divided by the
     #                  overall total time) that a method must take
     #                  for it to be printed out in the report.

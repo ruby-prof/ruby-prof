@@ -6,16 +6,16 @@ module RubyProf
   # profile, a call stack profile and a graph profile.
   class MultiPrinter
     def initialize(result, printers = [:flat, :graph_html])
-      @flat_printer = FlatPrinter.new(result) if printers.include?(:flat)
+      @flat_printer = printers.include?(:flat) ? FlatPrinter.new(result) : nil
 
-      @graph_printer = GraphPrinter.new(result) if printers.include?(:graph)
-      @graph_html_printer = GraphHtmlPrinter.new(result) if printers.include?(:graph_html)
+      @graph_printer = printers.include?(:graph) ? GraphPrinter.new(result) : nil
+      @graph_html_printer = printers.include?(:graph_html) ? GraphHtmlPrinter.new(result) : nil
 
-      @tree_printer = CallTreePrinter.new(result) if printers.include?(:tree)
-      @call_info_printer = CallInfoPrinter.new(result) if printers.include?(:call_tree)
+      @tree_printer = printers.include?(:tree) ? CallTreePrinter.new(result) : nil
+      @call_info_printer = printers.include?(:call_tree) ? CallInfoPrinter.new(result) : nil
 
-      @stack_printer = CallStackPrinter.new(result) if printers.include?(:stack)
-      @dot_printer = DotPrinter.new(result) if printers.include?(:dot)
+      @stack_printer = printers.include?(:stack) ? CallStackPrinter.new(result) : nil
+      @dot_printer = printers.include?(:dot) ? DotPrinter.new(result) : nil
     end
 
     def self.needs_dir?

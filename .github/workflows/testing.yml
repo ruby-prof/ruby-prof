@@ -27,3 +27,5 @@ jobs:
       run: bundle exec rake compile
     - name: Test
       run: bundle exec rake test
+      env:
+        GITHUB_ACTIONS: true

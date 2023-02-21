@@ -1,0 +1,10 @@
+module RubyProf
+  class CallTreeVisitor
+    def initialize: (CallTree call_tree) -> void
+    def visit: () { (CallTree call_tree, :enter | :exit) -> void } -> void
+
+    private
+
+    def visit_call_tree: (CallTreee call_tree) { (uCallTree call_tree, :enter | :exit) -> void } -> void
+  end
+end

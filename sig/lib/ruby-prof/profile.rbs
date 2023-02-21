@@ -1,0 +1,38 @@
+module RubyProf
+  class Profile
+    def self.profile: (?Integer measure_mode,
+                       ?bool allow_exceptions,
+                       ?bool track_allocations,
+                       ?bool exclude_common,
+                       ?Array[::Thread] exclude_threads,
+                       ?Array[::Thread] include_threads) { () -> void } -> void
+
+    def initialize: (?Integer measure_mode,
+                     ?bool allow_exceptions,
+                     ?bool track_allocations,
+                     ?bool exclude_common,
+                     ?Array[::Thread] exclude_threads,
+                     ?Array[::Thread] include_threads) -> void
+
+    def profile: () { () -> void } -> self
+    def start: () -> self
+    def stop: () -> self
+    def resume: () -> self
+    def pause: () -> self
+    def running?: () -> bool
+    def paused?: () -> bool
+
+    def track_allocations?: () -> bool
+
+    def threads: () -> Array[Thread]
+    def add_thread: (Thread thread) -> Thread
+    def remove_thread: (Thread thread) -> Thread
+
+    def measure_mode_string: () -> Integer
+    def exclude_common_methods!: () -> void
+    def exclude_methods!: (Module mod, Array[Symbol] method_names) -> void
+    def exclude_method!: (Module mod, Symbol method_name) -> void
+    def exclude_singleton_methods!: (Module mod, Array[Symbol] method_names) -> void
+    def merge!: () -> self
+  end
+end

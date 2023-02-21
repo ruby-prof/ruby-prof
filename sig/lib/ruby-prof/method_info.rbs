@@ -1,0 +1,15 @@
+module RubyProf
+  class MethodInfo
+    include Comparable
+    def full_name: () -> ::String
+    def called: () -> Integer
+    def total_time: () -> Float
+    def self_time: () -> Float
+    def wait_time: () -> Float
+    def children_time: () -> Float
+    def eql?: (MethodInfo other) -> bool
+    def ==: (MethodInfo other) -> bool
+    def <=>: (MethodInfo other) -> (-1 | 0 | -1 )
+    def to_s: () -> ::String
+  end
+end

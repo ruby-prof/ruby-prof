@@ -1,0 +1,25 @@
+module RubyProf
+  class CallTree
+    def initialize: (?MethodInfo method_info) -> void
+
+    def target: () -> MethodInfo
+    def measurement: () -> Measurement
+    def parent: () -> CallTree
+    def children: () -> Array[CallTree]
+    def add_child: (CallTree child) -> self
+    def depth: () -> Integer
+    def merge!: (CallTree other) -> self
+
+    def called: () -> Integer
+    def total_time: () -> Float
+    def self_time: () -> Float
+    def wait_time: () -> Float
+    def children_time: () -> Float
+    def source_file: () -> String
+    def line: () -> Integer
+
+    def <=>: (CallTree other) -> (0 | -1 | 1 )
+    def to_s: () -> String
+    def inspect: () -> String
+  end
+end

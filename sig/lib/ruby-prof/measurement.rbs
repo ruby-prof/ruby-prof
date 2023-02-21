@@ -1,0 +1,11 @@
+module RubyProf
+  # The Measurement class is a helper class used by RubyProf::MethodInfo to store information about the method.
+  # You cannot create a CallTree object directly, they are generated while running a profile.
+  class Measurement
+    def children_time: () -> untyped
+
+    def to_s: () -> ::String
+
+    def inspect: () -> untyped
+  end
+end

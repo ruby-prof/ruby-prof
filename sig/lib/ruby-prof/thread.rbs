@@ -1,0 +1,12 @@
+module RubyProf
+  class Thread
+    def intialize: (CallTree call_tree, ::Thread thread, Fiber fiber) -> void
+    def total_time: () -> Float
+    def wait_time: () -> Float
+    def id: () -> Integer
+    def fiber_id: () -> Integer
+    def call_tree: () -> CallTree
+    def methods: () -> Array[MethodInfo]
+    def merge!: (Thread thread) -> self
+  end
+end

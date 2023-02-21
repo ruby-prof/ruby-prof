@@ -6,7 +6,6 @@ module Rack
     def initialize(app, options = {})
       @app = app
       @options = options
-      @options[:min_percent] ||= 1
 
       @tmpdir = options[:path] || Dir.tmpdir
       FileUtils.mkdir_p(@tmpdir)
@@ -26,14 +25,19 @@ module Rack
       if should_profile?(request.path)
         begin
           result = nil
-          data = ::RubyProf::Profile.profile(profiling_options) do
+          profile = ::RubyProf::Profile.profile(profiling_options) do
             result = @app.call(env)
           end
+
+          if @options[:merge_fibers]
+            profile.merge!
+          end
+
 
           path = request.path.gsub('/', '-')
           path.slice!(0)
 
-          print(data, path)
+          print(profile, path)
           result
         end
       else
@@ -54,21 +58,21 @@ module Rack
     end
 
     def profiling_options
-      options = {}
-      options[:measure_mode] = ::RubyProf.measure_mode
-      options[:exclude_threads] =
-        if @options[:ignore_existing_threads]
-          Thread.list.select{|t| t != Thread.current}
-        else
-          ::RubyProf.exclude_threads
-        end
+      result = {}
+      result[:measure_mode] = @options[:measure_mode] || ::RubyProf::WALL_TIME
+      result[:min_percent] = @options[:min_percent] || 1
+      result[:track_allocations] = @options[:track_allocations] || false
+      result[:exclude_common] = @options[:exclude_common] || false
+
+      if @options[:ignore_existing_threads]
+        result[:exclude_threads] = Thread.list.select {|thread| thread != Thread.current}
+      end
+
       if @options[:request_thread_only]
-        options[:include_threads] = [Thread.current]
+        result[:include_threads] = [Thread.current]
       end
-      if @options[:merge_fibers]
-        options[:merge_fibers] = true
-      end
-      options
+
+      result
     end
 
     def print(data, path)

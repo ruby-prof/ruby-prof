@@ -75,22 +75,29 @@ module Rack
       result
     end
 
-    def print(data, path)
+    def print_options
+      result = {}
+      result[:min_percent] = @options[:min_percent] || 1
+      result[:sort_method] = @options[:sort_method] || :total_time
+      result
+    end
+
+    def print(profile, path)
       @printer_klasses.each do |printer_klass, base_name|
-        printer = printer_klass.new(data)
+        printer = printer_klass.new(profile)
 
         if base_name.respond_to?(:call)
           base_name = base_name.call
         end
 
         if printer_klass == ::RubyProf::MultiPrinter
-          printer.print(@options.merge(:profile => "#{path}-#{base_name}"))
+          printer.print(print_options.merge(:profile => "#{path}-#{base_name}"))
         elsif printer_klass == ::RubyProf::CallTreePrinter
-          printer.print(@options.merge(:profile => "#{path}-#{base_name}"))
+          printer.print(print_options.merge(:profile => "#{path}-#{base_name}"))
         else
           file_name = ::File.join(@tmpdir, "#{path}-#{base_name}")
           ::File.open(file_name, 'wb') do |file|
-            printer.print(file, @options)
+            printer.print(file, print_options)
           end
         end
       end

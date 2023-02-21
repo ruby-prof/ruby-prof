@@ -1,3 +1,12 @@
+1.6.0 (2023-02-20)
+=====================
+* Add support for Ruby's compacting garbage collector (Charlie Savage)
+* Add rbs signature files (Charlie Savage)
+* Update rack adapter used for profiling Rails to include latest ruby-prof features (Charlie Savage)
+* Add warnings for deprecated methods (Charlie Savage)
+* Update tests to not use deprecated methods (Charlie Savage)
+* Improve tests on OSX (Charlie Savage)
+
 1.5.0 (2023-02-06)
 =====================
 * Add new Profile#merge! method that merges results for threads/fibers that share the same root method (Charlie Savage)

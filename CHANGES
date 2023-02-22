@@ -1,3 +1,7 @@
+1.6.1 (2023-02-21)
+=====================
+* Fix loading C extension for MacOS (Charlie Savage)
+
 1.6.0 (2023-02-20)
 =====================
 * Add support for Ruby's compacting garbage collector (Charlie Savage)

@@ -6,7 +6,7 @@
 
 #include "ruby_prof.h"
 #include "rp_stack.h"
-
+extern st_table* merge_method_table;
 /* Profiling information for a thread. */
 typedef struct thread_data_t
 {

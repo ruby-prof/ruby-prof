@@ -2,9 +2,10 @@
    Please see the LICENSE file for copyright and distribution information */
 
 #include "rp_call_tree.h"
+#include "rp_call_trees.h"
 
 VALUE cRpCallTree;
-
+extern st_table* merge_method_table;
 /* =======  prof_call_tree_t   ========*/
 prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t* parent, VALUE source_file, int source_line)
 {
@@ -335,20 +336,33 @@ static VALUE prof_call_tree_line(VALUE self)
 
 static int prof_call_tree_merge_children(st_data_t key, st_data_t value, st_data_t data)
 {
-  prof_call_tree_t* other_child = (prof_call_tree_t*)value;
-  prof_call_tree_t* self = (prof_call_tree_t*)data;
-
-  st_data_t self_child;
-  if (rb_st_lookup(self->children, other_child->method->key, &self_child))
-  {
-    prof_call_tree_merge_internal((prof_call_tree_t*)self_child, other_child);
-  }
-  else
-  {
-    prof_call_tree_t* copy = prof_call_tree_copy(other_child);
-    prof_call_tree_add_child(self, copy);
-  }
-  return ST_CONTINUE;
+    prof_call_tree_t *other_child = (prof_call_tree_t *)value;
+    prof_call_tree_t *self = (prof_call_tree_t *)data;
+    // lookup the method of current call tree in the thread table and point it to that
+    prof_method_t *orig_other_child = other_child->method;
+    prof_method_t *self_method_ptr = method_table_lookup((st_table *)merge_method_table, other_child->method->key);
+    other_child->method = self_method_ptr;
+    prof_call_trees_t *call_trees = orig_other_child->call_trees;
+    for (prof_call_tree_t **p_call_tree = call_trees->start; p_call_tree < call_trees->ptr; p_call_tree++)
+    {
+    prof_call_tree_t *parent = (*p_call_tree)->parent;
+    if (parent == NULL)
+        continue;
+    if (parent && self->parent && (parent->method->key == self->parent->method->key) && (self->method->key == (*p_call_tree)->method->key))
+    {
+        prof_measurement_merge_internal((*p_call_tree)->measurement, self->measurement);
+        prof_add_call_tree(self_method_ptr->call_trees, self);
+        rb_st_foreach((*p_call_tree)->children, prof_call_tree_merge_children, (st_data_t)self);
+    }
+    else
+    {
+        prof_call_tree_t *copy = prof_call_tree_copy((*p_call_tree));
+        prof_call_tree_add_parent(copy, self);
+        prof_add_call_tree(self_method_ptr->call_trees, copy);
+        rb_st_foreach((*p_call_tree)->children, prof_call_tree_merge_children, (st_data_t)copy);
+    }
+    }
+    return ST_CONTINUE;
 }
 
 void prof_call_tree_merge_internal(prof_call_tree_t* self, prof_call_tree_t* other)
@@ -363,18 +377,17 @@ void prof_call_tree_merge_internal(prof_call_tree_t* self, prof_call_tree_t* oth
   if (self->parent && other->parent)
   {
     if (self->parent->method->key != other->parent->method->key)
-      return;
+    return;
   }
   else if (self->parent || other->parent)
   {
     return;
   }
 
-  prof_measurement_merge_internal(self->measurement, other->measurement);
-  prof_measurement_merge_internal(self->method->measurement, other->method->measurement);
-
+  prof_measurement_merge_internal(self->measurement, other->measurement);  
+  
   rb_st_foreach(other->children, prof_call_tree_merge_children, (st_data_t)self);
-}
+   }
 
 VALUE prof_call_tree_merge(VALUE self, VALUE other)
 {

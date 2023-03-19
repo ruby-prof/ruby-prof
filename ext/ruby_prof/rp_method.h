@@ -50,6 +50,7 @@ st_table* method_table_create(void);
 prof_method_t* method_table_lookup(st_table* table, st_data_t key);
 size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val);
 void method_table_free(st_table* table);
+void prof_method_table_merge(st_table* self, st_table* other);
 prof_method_t* prof_method_create(VALUE profile, VALUE klass, VALUE msym, VALUE source_file, int source_line);
 prof_method_t* prof_get_method(VALUE self);
 

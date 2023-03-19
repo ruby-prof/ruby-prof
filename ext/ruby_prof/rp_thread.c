@@ -20,7 +20,6 @@ You cannot create an instance of RubyProf::Thread, instead you access it from a 
 #include "rp_profile.h"
 
 VALUE cRpThread;
-
 // ======   thread_data_t  ======
 thread_data_t* thread_data_create(void)
 {
@@ -362,8 +361,10 @@ static VALUE prof_thread_merge(VALUE self, VALUE other)
 {
   thread_data_t* self_ptr = prof_get_thread(self);
   thread_data_t* other_ptr = prof_get_thread(other);
-  prof_call_tree_merge_internal(self_ptr->call_tree, other_ptr->call_tree);
-  
+  prof_method_table_merge(self_ptr->method_table,other_ptr->method_table);
+  prof_call_tree_merge_internal(self_ptr->call_tree, other_ptr->call_tree,self_ptr->method_table);
+  // Setting methods to nil so that the new data is rendered
+  self_ptr->methods= Qnil;
   return other;
 }
 

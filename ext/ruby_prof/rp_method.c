@@ -154,6 +154,13 @@ prof_method_t* prof_method_create(VALUE profile, VALUE klass, VALUE msym, VALUE 
     return result;
 }
 
+prof_method_t* prof_method_copy(prof_method_t* other)
+{
+    prof_method_t* result = prof_method_create(other->profile, other->klass, other->method_name, other->source_file, other->source_line);
+    result->measurement = prof_measurement_copy(other->measurement);
+
+    return result;
+}
 /* The underlying c structures are freed when the parent profile is freed.
    However, on shutdown the Ruby GC frees objects in any will-nilly order.
    That means the ruby thread object wrapping the c thread struct may
@@ -272,6 +279,33 @@ void method_table_free(st_table* table)
 size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val)
 {
     return rb_st_insert(table, (st_data_t)key, (st_data_t)val);
+}
+
+static int prof_method_table_merge_internal(st_data_t key, st_data_t value, st_data_t data)
+{
+    st_table* self_table = (st_table*)data;
+    prof_method_t* other_child = (prof_method_t*)value;
+    st_data_t self_child;
+    if (rb_st_lookup(self_table, other_child->key, &self_child))
+    {
+      prof_measurement_merge_internal(((prof_method_t*)self_child)->measurement, other_child->measurement);
+      //re-insert the self child to store the updated values or a new child from the other thread
+      method_table_insert(self_table,((prof_method_t*)self_child)->key,(prof_method_t*)self_child); 
+    }
+    else
+    {
+        prof_method_t* copy = prof_method_copy(other_child);
+        copy->key = other_child->key;
+        method_table_insert(self_table,copy->key,copy); 
+    }
+  
+  return ST_CONTINUE;
+       
+}
+
+void prof_method_table_merge(st_table* self, st_table* other)
+{   
+  rb_st_foreach(other,prof_method_table_merge_internal,(st_data_t)self);
 }
 
 prof_method_t* method_table_lookup(st_table* table, st_data_t key)

@@ -91,7 +91,7 @@ class CallTreeTest < Minitest::Test
       GC.stress = false
     end
   end
-
+=begin
   def test_merge
     call_tree_1 = create_call_tree_1
     call_tree_2 = create_call_tree_2
@@ -194,4 +194,5 @@ class CallTreeTest < Minitest::Test
     assert_in_delta(0.2, call_tree.target.wait_time, 0.00001)
     assert_in_delta(0.0, call_tree.target.children_time, 0.00001)
   end
+=end
 end

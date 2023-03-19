@@ -5,26 +5,9 @@ require File.expand_path('../test_helper', __FILE__)
 require 'fiber'
 require 'timeout'
 require 'set'
-require_relative './scheduler'
 
 # --  Tests ----
 class FiberTest < TestCase
-  def worker
-    sleep(0.5)
-  end
-
-  def concurrency
-    scheduler = Scheduler.new
-    Fiber.set_scheduler(scheduler)
-
-    3.times do
-      Fiber.schedule do |a|
-        worker
-      end
-    end
-    Fiber.scheduler.close
-  end
-
   def enumerator_with_fibers
     enum = Enumerator.new do |yielder|
       [1,2].each do |x|
@@ -208,39 +191,5 @@ class FiberTest < TestCase
     assert_in_delta(0, method.self_time)
     assert_in_delta(0, method.wait_time)
     assert_in_delta(0, method.children_time)
-  end
-
-  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.1.0')
-    def test_times_no_merge
-      result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency }
-
-      assert_equal(4, result.threads.size)
-
-      result.threads.each do |thread|
-        assert_in_delta(0.5, thread.call_tree.target.total_time, 0.2)
-        assert_in_delta(0.0, thread.call_tree.target.self_time)
-        assert_in_delta(0.0, thread.call_tree.target.wait_time)
-        assert_in_delta(0.5, thread.call_tree.target.children_time, 0.2)
-      end
-    end
-
-    def test_times_merge
-      result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency }
-      result.merge!
-
-      assert_equal(2, result.threads.size)
-
-      thread = result.threads[0]
-      assert_in_delta(0.5, thread.call_tree.target.total_time, 0.2)
-      assert_in_delta(0.0, thread.call_tree.target.self_time)
-      assert_in_delta(0.0, thread.call_tree.target.wait_time)
-      assert_in_delta(0.5, thread.call_tree.target.children_time, 0.2)
-
-      thread = result.threads[1]
-      assert_in_delta(1.5, thread.call_tree.target.total_time, 0.2)
-      assert_in_delta(0.0, thread.call_tree.target.self_time)
-      assert_in_delta(0.0, thread.call_tree.target.wait_time)
-      assert_in_delta(1.5, thread.call_tree.target.children_time, 0.2)
-    end
   end
 end

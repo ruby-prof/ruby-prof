@@ -411,7 +411,7 @@ static VALUE prof_method_line(VALUE self)
 }
 
 /* call-seq:
-   klass_name -> string
+   klass_name -> String
 
 Returns the name of this method's class.  Singleton classes
 will have the form <Object::Object>. */
@@ -437,9 +437,9 @@ static VALUE prof_method_klass_flags(VALUE self)
 }
 
 /* call-seq:
-   method_name -> string
+   method_name -> Symbol
 
-Returns the name of this method in the format Object#method.  Singletons
+Returns the name of this method in the format Object#method. Singletons
 methods will be returned in the format <Object::Object>#method.*/
 
 static VALUE prof_method_name(VALUE self)

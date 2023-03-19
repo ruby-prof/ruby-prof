@@ -2,6 +2,9 @@ module RubyProf
   class MethodInfo
     include Comparable
     def full_name: () -> ::String
+    def method_name: () -> ::Symbol
+    def klass_name: () -> ::String
+    def klass_flags: () -> ::Integer
     def called: () -> Integer
     def total_time: () -> Float
     def self_time: () -> Float

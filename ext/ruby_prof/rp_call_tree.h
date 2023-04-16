@@ -30,11 +30,11 @@ typedef struct prof_meth_table_self_thread_t
 {
     st_table* self_thread_method_table;
     prof_call_tree_t* call_tree;
-}prof_meth_table_self_thread_t;
+} prof_meth_table_self_thread_t;
 
 prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t* parent, VALUE source_file, int source_line);
 prof_call_tree_t* prof_call_tree_copy(prof_call_tree_t* other);
-void prof_call_tree_merge_internal(prof_call_tree_t* destination, prof_call_tree_t* other,st_table* self_thread_table);
+void prof_call_tree_merge_internal(prof_call_tree_t* destination, prof_call_tree_t* other, st_table* self_thread_table);
 void prof_call_tree_mark(void* data);
 prof_call_tree_t* call_tree_table_lookup(st_table* table, st_data_t key);
 

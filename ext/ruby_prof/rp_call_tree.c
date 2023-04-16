@@ -339,7 +339,7 @@ static int prof_call_tree_merge_children(st_data_t key, st_data_t value, st_data
     prof_call_tree_t* other_child = (prof_call_tree_t*)value;
     prof_meth_table_self_thread_t* self_thr_tbl = (prof_meth_table_self_thread_t*)data;
     prof_call_tree_t* self = self_thr_tbl->call_tree;
-    st_table* merge_method_table=self_thr_tbl->self_thread_method_table;
+    st_table* merge_method_table = self_thr_tbl->self_thread_method_table;
    
     prof_method_t* self_method_ptr = method_table_lookup(merge_method_table, other_child->method->key);
     if (self_method_ptr == NULL)
@@ -365,14 +365,15 @@ static int prof_call_tree_merge_children(st_data_t key, st_data_t value, st_data
     rb_st_foreach(other_child->children, prof_call_tree_merge_children, (st_data_t)self_thr_tbl);
     return ST_CONTINUE;
 }
-prof_meth_table_self_thread_t* prof_meth_table_self_thread_create(prof_call_tree_t* self,st_table* self_thread_table)
+
+prof_meth_table_self_thread_t* prof_meth_table_self_thread_create(prof_call_tree_t* self, st_table* self_thread_table)
 {
    prof_meth_table_self_thread_t* result = ALLOC(prof_meth_table_self_thread_t);
    result->call_tree = self;
    result->self_thread_method_table = self_thread_table;
    return result;
 }
-void prof_call_tree_merge_internal(prof_call_tree_t* self, prof_call_tree_t* other,st_table* self_thread_table)
+void prof_call_tree_merge_internal(prof_call_tree_t* self, prof_call_tree_t* other, st_table* self_thread_table)
 {
     // Make sure the methods are the same
     if (self->method->key != other->method->key)
@@ -392,14 +393,14 @@ void prof_call_tree_merge_internal(prof_call_tree_t* self, prof_call_tree_t* oth
     }
 
     prof_measurement_merge_internal(self->measurement, other->measurement);
-    prof_meth_table_self_thread_t* thread_table_struct = prof_meth_table_self_thread_create(self,self_thread_table);
+    prof_meth_table_self_thread_t* thread_table_struct = prof_meth_table_self_thread_create(self, self_thread_table);
     rb_st_foreach(other->children, prof_call_tree_merge_children, (st_data_t)thread_table_struct);
     xfree(thread_table_struct);
 }
 
 
 
-VALUE prof_call_tree_merge(VALUE self, VALUE other,VALUE self_thr)
+VALUE prof_call_tree_merge(VALUE self, VALUE other, VALUE self_thr)
 {
   prof_call_tree_t* source = prof_get_call_tree(self);
   prof_call_tree_t* destination = prof_get_call_tree(other);

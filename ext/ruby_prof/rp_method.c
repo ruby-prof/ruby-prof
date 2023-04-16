@@ -286,12 +286,13 @@ static int prof_method_table_merge_internal(st_data_t key, st_data_t value, st_d
 {
     st_table* self_table = (st_table*)data;
     prof_method_t* other_child = (prof_method_t*)value;
-    st_data_t self_child;
-    if (rb_st_lookup(self_table, other_child->key, &self_child))
+
+    prof_method_t* self_child = method_table_lookup(self_table, other_child->key);
+    if (self_child)
     {
-      prof_measurement_merge_internal(((prof_method_t*)self_child)->measurement, other_child->measurement);
+      prof_measurement_merge_internal(self_child->measurement, other_child->measurement);
       //re-insert the self child to store the updated values or a new child from the other thread
-      method_table_insert(self_table, ((prof_method_t*)self_child)->key, (prof_method_t*)self_child); 
+      method_table_insert(self_table, self_child->key, self_child); 
     }
     else
     {

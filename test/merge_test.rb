@@ -2,9 +2,6 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
-require 'fiber'
-require 'timeout'
-require 'set'
 require_relative './scheduler'
 
 if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0.0')
@@ -12,25 +9,19 @@ if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('3.0.0')
 # --  Tests ----
 class MergeTest < TestCase
   def worker1
-    #puts "worker1 - start"
     sleep(0.5)
-    #    puts "worker1 - end"
   end
 
   def worker2
-    #puts "worker2 - start"
     sleep(0.5)
     sleep(0.5)
-    #puts "worker2 - end"
   end
 
   def worker3
-    #puts "worker3 - start"
     sleep(0.5)
-    #puts "worker3 - end"
   end
 
-  def concurrency_mergable
+  def concurrency_single_worker
     scheduler = Scheduler.new
     Fiber.set_scheduler(scheduler)
 
@@ -42,7 +33,7 @@ class MergeTest < TestCase
     Fiber.scheduler.close
   end
 
-  def concurrency_unmergable
+  def concurrency_multiple_workers
     scheduler = Scheduler.new
     Fiber.set_scheduler(scheduler)
 
@@ -55,52 +46,100 @@ class MergeTest < TestCase
     Fiber.scheduler.close
   end
 
-  def test_times_no_merge
-    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_mergable }
-
+  def test_single_worker_unmerged
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_single_worker }
     assert_equal(4, result.threads.size)
 
-    result.threads.each do |thread|
-      assert_in_delta(0.5, thread.call_tree.target.total_time, 0.2)
-      assert_in_delta(0.0, thread.call_tree.target.self_time)
-      assert_in_delta(0.0, thread.call_tree.target.wait_time)
-      assert_in_delta(0.5, thread.call_tree.target.children_time, 0.2)
-    end
+    thread = result.threads[0]
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+
+    thread = result.threads[1]
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+
+    thread = result.threads[2]
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+
+    thread = result.threads[3]
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
   end
 
-  def test_times_mergable
-    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_mergable }
+  def test_single_worker_merged
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_single_worker }
     result.merge!
-
-    printer = RubyProf::GraphHtmlPrinter.new(result)
-    File.open("graph.html", "wb") do |file|
-      printer.print(file)
-    end
 
     assert_equal(2, result.threads.size)
 
     thread = result.threads[0]
-    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.2)
-    assert_in_delta(0.0, thread.call_tree.target.self_time)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.2)
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
 
     thread = result.threads[1]
-    assert_in_delta(1.5, thread.call_tree.target.total_time, 0.2)
-    assert_in_delta(0.0, thread.call_tree.target.self_time)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time)
-    assert_in_delta(1.5, thread.call_tree.target.children_time, 0.2)
+    assert_in_delta(1.5, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(1.5, thread.call_tree.target.children_time, 0.1)
   end
 
-  def test_unmergable
-    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_unmergable }
+  def test_multiple_workers_unmerged
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_multiple_workers }
+    assert_equal(4, result.threads.count)
 
+    thread = result.threads[0]
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1)
+
+    thread = result.threads[1]
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+
+    thread = result.threads[2]
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1)
+
+    thread = result.threads[3]
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+  end
+
+  def test_multiple_workers_merged
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_multiple_workers }
     result.merge!
 
-    printer = RubyProf::GraphPrinter.new(result)
-    File.open("graph_merged.txt", "wb") do |file|
-      printer.print(file, :min_percent => 0)
-    end
+    assert_equal(2, result.threads.count)
+
+    thread = result.threads[0]
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1)
+
+    thread = result.threads[1]
+    assert_in_delta(3.0, thread.call_tree.target.total_time, 0.1)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.wait_time, 0.1)
+    assert_in_delta(2.0, thread.call_tree.target.children_time, 0.1)
   end
 end
 end

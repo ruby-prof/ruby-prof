@@ -364,8 +364,10 @@ static VALUE prof_thread_merge(VALUE self, VALUE other)
   thread_data_t* other_ptr = prof_get_thread(other);
   prof_method_table_merge(self_ptr->method_table, other_ptr->method_table);
   prof_call_tree_merge_internal(self_ptr->call_tree, other_ptr->call_tree, self_ptr->method_table);
-  // Setting methods to nil so that the new data is rendered
-  self_ptr->methods= Qnil;
+
+  // Reset method cache since it just changed
+  self_ptr->methods = Qnil;
+
   return other;
 }
 

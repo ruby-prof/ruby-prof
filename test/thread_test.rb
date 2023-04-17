@@ -17,20 +17,87 @@ class ThreadTest < TestCase
     assert(thread)
     assert(thread.id)
     assert(thread.fiber_id)
+
+    assert_equal(1, thread.methods.size)
+    assert_same(method_info, thread.methods[0])
   end
 
   def test_merge
     call_tree_1 = create_call_tree_1
     thread_1 = RubyProf::Thread.new(call_tree_1, Thread.current, Fiber.current)
+    assert_equal(6, thread_1.methods.size)
 
     call_tree_2 = create_call_tree_2
     thread_2 = RubyProf::Thread.new(call_tree_2, Thread.current, Fiber.current)
+    assert_equal(6, thread_2.methods.size)
 
     thread_1.merge!(thread_2)
-    assert_in_delta(11.6, thread_1.call_tree.total_time, 0.00001)
-    assert_in_delta(0, thread_1.call_tree.self_time, 0.00001)
-    assert_in_delta(0.0, thread_1.call_tree.wait_time, 0.00001)
-    assert_in_delta(11.6, thread_1.call_tree.children_time, 0.00001)
+    assert_equal(7, thread_1.methods.size)
+
+    # Method times
+    assert_in_delta(11.6, thread_1.methods[0].total_time, 0.00001) # root
+    assert_in_delta(4.1, thread_1.methods[1].total_time, 0.00001)  # a
+    assert_in_delta(1.5, thread_1.methods[2].total_time, 0.00001)  # aa
+    assert_in_delta(2.6, thread_1.methods[3].total_time, 0.00001)  # ab
+    assert_in_delta(7.5, thread_1.methods[4].total_time, 0.00001)  # b
+    assert_in_delta(6.6, thread_1.methods[5].total_time, 0.00001)  # bb
+    assert_in_delta(0.9, thread_1.methods[6].total_time, 0.00001)  # ba
+
+    # Root
+    call_tree = call_tree_1
+    assert_equal(:root, call_tree.target.method_name)
+    assert_in_delta(11.6, call_tree.total_time, 0.00001)
+    assert_in_delta(0, call_tree.self_time, 0.00001)
+    assert_in_delta(0.0, call_tree.wait_time, 0.00001)
+    assert_in_delta(11.6, call_tree.children_time, 0.00001)
+
+    # a
+    call_tree = call_tree_1.children[0]
+    assert_equal(:a, call_tree.target.method_name)
+    assert_in_delta(4.1, call_tree.total_time, 0.00001)
+    assert_in_delta(0, call_tree.self_time, 0.00001)
+    assert_in_delta(0.0, call_tree.wait_time, 0.00001)
+    assert_in_delta(4.1, call_tree.children_time, 0.00001)
+
+    # aa
+    call_tree = call_tree_1.children[0].children[0]
+    assert_equal(:aa, call_tree.target.method_name)
+    assert_in_delta(1.5, call_tree.total_time, 0.00001)
+    assert_in_delta(1.5, call_tree.self_time, 0.00001)
+    assert_in_delta(0.0, call_tree.wait_time, 0.00001)
+    assert_in_delta(0.0, call_tree.children_time, 0.00001)
+
+    # ab
+    call_tree = call_tree_1.children[0].children[1]
+    assert_equal(:ab, call_tree.target.method_name)
+    assert_in_delta(2.6, call_tree.total_time, 0.00001)
+    assert_in_delta(2.6, call_tree.self_time, 0.00001)
+    assert_in_delta(0.0, call_tree.wait_time, 0.00001)
+    assert_in_delta(0.0, call_tree.children_time, 0.00001)
+
+    # # b
+    # call_tree = call_tree_1.children[1]
+    # assert_equal(:b, call_tree.target.method_name)
+    # assert_in_delta(7.5, call_tree.total_time, 0.00001)
+    # assert_in_delta(0, call_tree.self_time, 0.00001)
+    # assert_in_delta(0.0, call_tree.wait_time, 0.00001)
+    # assert_in_delta(7.5, call_tree.children_time, 0.00001)
+
+    # bb
+    # call_tree = call_tree_1.children[1].children[0]
+    # assert_equal(:bb, call_tree.target.method_name)
+    # assert_in_delta(6.6, call_tree.total_time, 0.00001)
+    # assert_in_delta(6.6, call_tree.self_time, 0.00001)
+    # assert_in_delta(0.0, call_tree.wait_time, 0.00001)
+    # assert_in_delta(0.0, call_tree.children_time, 0.00001)
+
+    # ba
+    call_tree = call_tree_1.children[1].children[1]
+    assert_equal(:ba, call_tree.target.method_name)
+    assert_in_delta(0.9, call_tree.total_time, 0.00001)
+    assert_in_delta(0.7, call_tree.self_time, 0.00001)
+    assert_in_delta(0.2, call_tree.wait_time, 0.00001)
+    assert_in_delta(0.0, call_tree.children_time, 0.00001)
   end
 
   def test_thread_count

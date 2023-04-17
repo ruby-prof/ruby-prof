@@ -47,7 +47,7 @@ class MergeTest < TestCase
   end
 
   def test_single_worker_unmerged
-    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_single_worker }
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME, :allow_exceptions => true) { concurrency_single_worker }
     assert_equal(4, result.threads.size)
 
     thread = result.threads[0]
@@ -76,7 +76,7 @@ class MergeTest < TestCase
   end
 
   def test_single_worker_merged
-    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_single_worker }
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME, :allow_exceptions => true) { concurrency_single_worker }
     result.merge!
 
     assert_equal(2, result.threads.size)
@@ -95,7 +95,7 @@ class MergeTest < TestCase
   end
 
   def test_multiple_workers_unmerged
-    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_multiple_workers }
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME, :allow_exceptions => true) { concurrency_multiple_workers }
     assert_equal(4, result.threads.count)
 
     thread = result.threads[0]
@@ -124,7 +124,7 @@ class MergeTest < TestCase
   end
 
   def test_multiple_workers_merged
-    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) { concurrency_multiple_workers }
+    result  = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME, :allow_exceptions => true) { concurrency_multiple_workers }
     result.merge!
 
     assert_equal(2, result.threads.count)

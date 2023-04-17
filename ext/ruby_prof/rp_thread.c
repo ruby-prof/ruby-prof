@@ -309,6 +309,15 @@ static VALUE prof_thread_initialize(VALUE self, VALUE call_tree, VALUE thread, V
   thread_ptr->fiber_id = rb_obj_id(fiber);
   thread_ptr->thread_id = rb_obj_id(thread);
 
+  // Add methods from call trees into thread methods table
+  VALUE methods = prof_call_tree_methods(thread_ptr->call_tree);
+  for (int i = 0; i < rb_array_len(methods); i++)
+  {
+      VALUE method = rb_ary_entry(methods, i);
+      prof_method_t* method_ptr = prof_get_method(method);
+      method_table_insert(thread_ptr->method_table, method_ptr->key, method_ptr);
+  }
+
   return self;
 }
 

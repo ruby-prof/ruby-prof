@@ -382,7 +382,7 @@ static int prof_call_tree_merge_children(st_data_t key, st_data_t value, st_data
         prof_method_t* method_ptr = method_table_lookup(self_info->method_table, other_child_ptr->method->key);
       
         // Now copy the other call tree, reset its method pointer, and add it as a child
-        prof_call_tree_t* self_child = prof_call_tree_copy(other_child_ptr);
+        self_child = prof_call_tree_copy(other_child_ptr);
         self_child->method = method_ptr;
         prof_call_tree_add_child(self_ptr, self_child);
 

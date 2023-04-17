@@ -170,7 +170,7 @@ VALUE prof_call_trees_min_depth(VALUE self)
     prof_call_trees_t* call_trees = prof_get_call_trees(self);
     for (prof_call_tree_t** p_call_tree = call_trees->start; p_call_tree < call_trees->ptr; p_call_tree++)
     {
-        unsigned int call_tree_depth = prof_call_figure_depth(*p_call_tree);
+        unsigned int call_tree_depth = prof_call_tree_figure_depth(*p_call_tree);
         if (call_tree_depth < depth)
             depth = call_tree_depth;
     }

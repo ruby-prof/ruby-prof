@@ -1,5 +1,10 @@
 #! /usr/bin/env ruby
 
+# To make testing/debugging easier test within this source tree versus an installed gem
+require 'bundler/setup'
+ext_path = File.expand_path(File.join(__dir__, '..', 'ext', 'ruby_prof'))
+$LOAD_PATH.unshift(File.expand_path(ext_path))
+
 # First require ruby-prof
 require 'ruby-prof'
 
@@ -16,6 +21,21 @@ module RubyProf
   # ruby-prof [options] <script.rb> [--] [profiled-script-command-line-options]
   #
   # Options:
+  #        --allow_exceptions           Raise exceptions encountered during profiling (true) or suppress them (false)
+  #    -E, --eval-noprof=code           execute the ruby statements (not profiled)
+  #        --exclude=methods    A comma separated list of methods to exclude.
+  #                                       Specify instance methods via # (Integer#times)
+  #                                       Specify class methods via . (Integer.superclass)
+  #        --exclude-common             Remove common methods from the profile
+  #    -f, --file=path                  Output results to a file instead of standard out.
+  #    -m, --min_percent=min_percent    The minimum percent a method must take before
+  #                                       being included in output reports.
+  #                                       This option is not supported for call tree.
+  #        --mode=measure_mode          Select what ruby-prof should measure:
+  #                                       wall - Wall time (default).
+  #                                       process - Process time.
+  #                                       allocations - Object allocations (requires patched Ruby interpreter).
+  #                                       memory - Allocated memory in KB (requires patched Ruby interpreter).
   #    -p, --printer=printer            Select a printer:
   #                                       flat - Prints a flat profile as text (default).
   #                                       graph - Prints a graph profile as text.
@@ -24,29 +44,15 @@ module RubyProf
   #                                       call_stack - prints a HTML visualization of the call tree
   #                                       dot - Prints a graph profile as a dot file
   #                                       multi - Creates several reports in output directory
-  #    -m, --min_percent=min_percent    The minimum percent a method must take before
-  #                                       being included in output reports.
-  #                                       This option is not supported for call tree.
-  #    -f, --file=path                  Output results to a file instead of standard out.
-  #        --mode=measure_mode          Select what ruby-prof should measure:
-  #                                       wall - Wall time (default).
-  #                                       process - Process time.
-  #                                       allocations - Object allocations (requires patched Ruby interpreter).
-  #                                       memory - Allocated memory in KB (requires patched Ruby interpreter).
+  #    -R, --require-noprof=lib         require a specific library (not profiled)
   #    -s, --sort=sort_mode             Select how ruby-prof results should be sorted:
   #                                       total - Total time
   #                                       self - Self time
   #                                       wait - Wait time
   #                                       child - Child time
-  #        --allow_exceptions           Raise exceptions encountered during profiling (true) or suppress them (false)
-  #    -R, --require-noprof=lib         require a specific library (not profiled)
-  #    -E, --eval-noprof=code           execute the ruby statements (not profiled)
-  #        --exclude=methods    A comma separated list of methods to exclude.
-  #                                       Specify instance methods via # (Integer#times)
-  #                                       Specify class methods via . (Integer.superclass)
-  #        --exclude-common             Remove common methods from the profile
-  #    -h, --help                       Show help message
+  #        --track_allocations          Track allocations while profiling
   #    -v, --version version            Show version (1.1.0)
+  #    -h, --help                       Show help message
 
   class Cmd
     # :enddoc:
@@ -63,15 +69,16 @@ module RubyProf
 
     def setup_options
       @options = OpenStruct.new
-      options.printer = RubyProf::FlatPrinter
+      options.allow_exceptions = false
+      options.exclude = Array.new
+      options.exclude_common = false
+      options.file = nil
       options.measure_mode = RubyProf::WALL_TIME
       options.min_percent = 0
-      options.file = nil
-      options.allow_exceptions = false
-      options.exclude_common = false
-      options.exclude = Array.new
       options.pre_libs = Array.new
       options.pre_execs = Array.new
+      options.printer = RubyProf::FlatPrinter
+      options.track_allocations = false
     end
 
     # This is copied from ActiveSupport:
@@ -118,103 +125,8 @@ module RubyProf
         opts.separator ""
         opts.separator "Options:"
 
-        opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack, :dot, :multi],
-                'Select a printer:',
-                '  flat - Prints a flat profile as text (default).',
-                '  graph - Prints a graph profile as text.',
-                '  graph_html - Prints a graph profile as html.',
-                '  call_tree - format for KCacheGrind',
-                '  call_stack - prints a HTML visualization of the call tree',
-                '  dot - Prints a graph profile as a dot file',
-                '  multi - Creates several reports in output directory'
-        ) do |printer|
-
-          case printer
-          when :flat
-            options.printer = RubyProf::FlatPrinter
-          when :graph
-            options.printer = RubyProf::GraphPrinter
-          when :graph_html
-            options.printer = RubyProf::GraphHtmlPrinter
-          when :call_tree
-            options.printer = RubyProf::CallTreePrinter
-          when :call_stack
-            options.printer = RubyProf::CallStackPrinter
-          when :dot
-            options.printer = RubyProf::DotPrinter
-          when :multi
-            options.printer = RubyProf::MultiPrinter
-          end
-        end
-
-        opts.on('-m min_percent', '--min_percent=min_percent', Float,
-                'The minimum percent a method must take before ',
-                '  being included in output reports.',
-                '  This option is not supported for call tree.') do |min_percent|
-          options.min_percent = min_percent
-        end
-
-        opts.on('-f path', '--file=path',
-                'Output results to a file instead of standard out.') do |file|
-          options.file = file
-          options.old_wd = Dir.pwd
-        end
-
-        opts.on('--mode=measure_mode',
-                [:process, :wall, :allocations, :memory],
-                'Select what ruby-prof should measure:',
-                '  wall - Wall time (default).',
-                '  process - Process time.',
-                '  allocations - Object allocations (requires patched Ruby interpreter).',
-                '  memory - Allocated memory in KB (requires patched Ruby interpreter).') do |measure_mode|
-
-          case measure_mode
-          when :wall
-            options.measure_mode = RubyProf::WALL_TIME
-          when :process
-            options.measure_mode = RubyProf::PROCESS_TIME
-          when :allocations
-            options.measure_mode = RubyProf::ALLOCATIONS
-          when :memory
-            options.measure_mode = RubyProf::MEMORY
-          end
-        end
-
-        opts.on('-s sort_mode', '--sort=sort_mode', [:total, :self, :wait, :child],
-                'Select how ruby-prof results should be sorted:',
-                '  total - Total time',
-                '  self - Self time',
-                '  wait - Wait time',
-                '  child - Child time') do |sort_mode|
-
-          options.sort_method = case sort_mode
-                                when :total
-                                  :total_time
-                                when :self
-                                  :self_time
-                                when :wait
-                                  :wait_time
-                                when :child
-                                  :children_time
-                                end
-        end
-
-        opts.on_tail("-h", "--help", "Show help message") do
-          puts opts
-          exit
-        end
-
-        opts.on_tail("-v version", "--version", "Show version (#{RubyProf::VERSION})") do
-          puts "ruby_prof " + RubyProf::VERSION
-          exit
-        end
-
         opts.on('--allow_exceptions', 'Raise exceptions encountered during profiling (true) or suppress them (false)') do
           options.allow_exceptions = true
-        end
-
-        opts.on('-R lib', '--require-noprof=lib', 'require a specific library (not profiled)') do |lib|
-          options.pre_libs << lib
         end
 
         opts.on('-E code', '--eval-noprof=code', 'execute the ruby statements (not profiled)') do |code|
@@ -238,6 +150,105 @@ module RubyProf
 
         opts.on('--exclude-common', 'Remove common methods from the profile') do
           options.exclude_common = true
+        end
+
+        opts.on('-f path', '--file=path',
+                'Output results to a file instead of standard out.') do |file|
+          options.file = file
+          options.old_wd = Dir.pwd
+        end
+
+        opts.on('-m min_percent', '--min_percent=min_percent', Float,
+                'The minimum percent a method must take before ',
+                '  being included in output reports.',
+                '  This option is not supported for call tree.') do |min_percent|
+          options.min_percent = min_percent
+        end
+
+        opts.on('--mode=measure_mode',
+                [:process, :wall, :allocations, :memory],
+                'Select what ruby-prof should measure:',
+                '  wall - Wall time (default).',
+                '  process - Process time.',
+                '  allocations - Object allocations (requires patched Ruby interpreter).',
+                '  memory - Allocated memory in KB (requires patched Ruby interpreter).') do |measure_mode|
+
+          case measure_mode
+          when :wall
+            options.measure_mode = RubyProf::WALL_TIME
+          when :process
+            options.measure_mode = RubyProf::PROCESS_TIME
+          when :allocations
+            options.measure_mode = RubyProf::ALLOCATIONS
+          when :memory
+            options.measure_mode = RubyProf::MEMORY
+          end
+        end
+
+        opts.on('-p printer', '--printer=printer', [:flat, :flat_with_line_numbers, :graph, :graph_html, :call_tree, :call_stack, :dot, :multi],
+                'Select a printer:',
+                '  flat - Prints a flat profile as text (default).',
+                '  graph - Prints a graph profile as text.',
+                '  graph_html - Prints a graph profile as html.',
+                '  call_tree - format for KCacheGrind',
+                '  call_stack - prints a HTML visualization of the call tree',
+                '  dot - Prints a graph profile as a dot file',
+                '  multi - Creates several reports in output directory'
+        ) do |printer|
+
+          case printer
+            when :flat
+              options.printer = RubyProf::FlatPrinter
+            when :graph
+              options.printer = RubyProf::GraphPrinter
+            when :graph_html
+              options.printer = RubyProf::GraphHtmlPrinter
+            when :call_tree
+              options.printer = RubyProf::CallTreePrinter
+            when :call_stack
+              options.printer = RubyProf::CallStackPrinter
+            when :dot
+              options.printer = RubyProf::DotPrinter
+            when :multi
+              options.printer = RubyProf::MultiPrinter
+          end
+        end
+
+        opts.on('-R lib', '--require-noprof=lib', 'require a specific library (not profiled)') do |lib|
+          options.pre_libs << lib
+        end
+
+        opts.on('-s sort_mode', '--sort=sort_mode', [:total, :self, :wait, :child],
+                'Select how ruby-prof results should be sorted:',
+                '  total - Total time',
+                '  self - Self time',
+                '  wait - Wait time',
+                '  child - Child time') do |sort_mode|
+
+          options.sort_method = case sort_mode
+                                when :total
+                                  :total_time
+                                when :self
+                                  :self_time
+                                when :wait
+                                  :wait_time
+                                when :child
+                                  :children_time
+                                end
+        end
+
+        opts.on('--track_allocations', 'Track allocations while profiling') do
+          options.track_allocations = true
+        end
+
+        opts.on_tail("-v version", "--version", "Show version (#{RubyProf::VERSION})") do
+          puts "ruby_prof " + RubyProf::VERSION
+          exit
+        end
+
+        opts.on_tail("-h", "--help", "Show help message") do
+          puts opts
+          exit
         end
       end
     end
@@ -281,12 +292,18 @@ module RubyProf
     end
 
     def run
-      script = ARGV.shift
-      @profile = Profile.new(options.to_h)
+      profile_options = {:allow_exceptions => options.allow_exceptions,
+                         :exclude_common => options.exclude_common,
+                         :measure_mode => options.measure_mode,
+                         :track_allocations => options.track_allocations}
+
+      @profile = Profile.new(**profile_options)
+
       options.exclude.each do |klass, method|
         @profile.exclude_method!(klass, method)
       end
 
+      script = ARGV.shift
       profile.profile do
        load script
       end
@@ -304,7 +321,8 @@ cmd = RubyProf::Cmd.new
 at_exit {
   # Create a printer
   printer = cmd.options.printer.new(cmd.profile)
-  printer_options = {:min_percent => cmd.options.min_percent, :sort_method => cmd.options.sort_method}
+  printer_options = {:min_percent => cmd.options.min_percent,
+                     :sort_method => cmd.options.sort_method}
 
   # Get output
   if cmd.options.file

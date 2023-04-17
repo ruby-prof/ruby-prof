@@ -354,7 +354,11 @@ static int prof_call_tree_merge_children(st_data_t key, st_data_t value, st_data
     prof_call_tree_t* self_child = call_tree_table_lookup(self_ptr->children, other_child_ptr->method->key);
     if (self_child)
     {
+        // Merge measurements
         prof_measurement_merge_internal(self_ptr->measurement, other_child_ptr->measurement);
+
+        // Update the call tree to point to self_child so we can recurse again
+        self_info->call_tree = self_child;
     }
     else
     {
@@ -368,7 +372,13 @@ static int prof_call_tree_merge_children(st_data_t key, st_data_t value, st_data
 
         // Now tell the method that this call tree invoked it
         prof_add_call_tree(method_ptr->call_trees, copy_ptr);
+
+        // Update the call tree to point to the new child so we can recurse again
+        self_info->call_tree = copy_ptr;
     }
+
+    // Recurse down a level
+    rb_st_foreach(other_child_ptr->children, prof_call_tree_merge_children, (st_data_t)self_info);
 
     return ST_CONTINUE;
 }

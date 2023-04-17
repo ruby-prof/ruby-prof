@@ -131,6 +131,7 @@ module RubyProf
 
           * MyObject#test - An instance method "test" of the class "MyObject"
           * <Object:MyObject>#test - The <> characters indicate a method on a singleton class.
+
       EOT
     end
   end

@@ -29,3 +29,4 @@ jobs:
       run: bundle exec rake test
       env:
         GITHUB_ACTIONS: true
+        TESTOPTS: "-v"

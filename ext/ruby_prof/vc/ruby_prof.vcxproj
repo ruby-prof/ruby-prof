@@ -104,17 +104,20 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby-3.2.0-vc\include\ruby-3.2.0\x64-mswin64_140;C:\msys64\usr\local\ruby-3.2.0-vc\include\ruby-3.2.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\msys64\usr\local\ruby-3.2.1-vc\include\ruby-3.2.0\x64-mswin64_140;C:\msys64\usr\local\ruby-3.2.1-vc\include\ruby-3.2.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>Level3</WarningLevel>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby-3.2.0-vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\msys64\usr\local\ruby-3.2.1-vc\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>x64-vcruntime140-ruby320.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>ruby_prof.def</ModuleDefinitionFile>
       <SubSystem>Console</SubSystem>
     </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

@@ -36,9 +36,11 @@ void prof_call_tree_add_parent(prof_call_tree_t* self, prof_call_tree_t* parent)
 void prof_call_tree_add_child(prof_call_tree_t* self, prof_call_tree_t* child);
 
 uint32_t prof_call_figure_depth(prof_call_tree_t* call_tree_data);
+
 prof_call_tree_t* prof_get_call_tree(VALUE self);
 VALUE prof_call_tree_wrap(prof_call_tree_t* call_tree);
 void prof_call_tree_free(prof_call_tree_t* call_tree);
+
 void rp_init_call_tree();
 
 #endif //__RP_CALL_TREE_H__

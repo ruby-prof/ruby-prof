@@ -780,7 +780,7 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
       end
-    else
+    else # Ruby 3.1 and higher
       def test_class_methods_sleep
         result = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME) do
           RubyProf::C1.sleep_wait
@@ -996,7 +996,8 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.05, method.children_time, 0.05)
 
         method = methods[2]
-        assert_equal('<Module::Process>#clock_gettime', method.full_name)
+        assert('<Module::Process>#clock_gettime' == method.full_name ||
+               'Float#<' == method.full_name)
         assert_in_delta(0.05, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.05, method.self_time, 0.05)

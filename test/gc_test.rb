@@ -37,7 +37,6 @@ class GcTest < TestCase
     end
   end
 
-
   def test_hold_onto_method
     methods = 5.times.reduce(Array.new) do |array, i|
       profile = run_profile

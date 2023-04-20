@@ -1,3 +1,7 @@
+1.6.3 (2023-04-20)
+=====================
+* Remove debug code unintentionally left in ruby-prof command line program (Charlie Savage)
+
 1.6.2 (2023-04-17)
 =====================
 * Fix Profile#merge! implementation (asksurya)

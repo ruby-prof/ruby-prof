@@ -1,10 +1,5 @@
 #! /usr/bin/env ruby
 
-# To make testing/debugging easier test within this source tree versus an installed gem
-require 'bundler/setup'
-ext_path = File.expand_path(File.join(__dir__, '..', 'ext', 'ruby_prof'))
-$LOAD_PATH.unshift(File.expand_path(ext_path))
-
 # First require ruby-prof
 require 'ruby-prof'
 

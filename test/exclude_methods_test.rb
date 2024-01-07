@@ -34,7 +34,7 @@ class ExcludeMethodsClass
 end
 
 class ExcludeMethodsTest < TestCase
-  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.3')
     def test_methods_can_be_profiled
       obj = ExcludeMethodsClass.new
       prf = RubyProf::Profile.new(measure_mode: RubyProf::WALL_TIME)

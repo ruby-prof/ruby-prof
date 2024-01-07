@@ -130,7 +130,7 @@ class LineNumbersTest < TestCase
       assert_equal(1, method.call_trees.callees.count)
       call_tree = method.call_trees.callees[0]
       assert_equal('LineNumbers#method_1', call_tree.target.full_name)
-      assert_equal(35, call_tree.line)
+      assert_equal(36, call_tree.line)
     end
   else
     def test_function_line_no

@@ -157,7 +157,7 @@ class MeasureWallTimeTest < TestCase
     assert_in_delta(0, method.self_time, 0.03 * @delta_multiplier)
   end
 
-  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.3')
     def test_instance_methods_block
       result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
         1.times { RubyProf::C1.new.sleep_wait }

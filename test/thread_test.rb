@@ -144,7 +144,6 @@ class ThreadTest < TestCase
       # force it to hit thread.join, below, first
       # thus forcing sleep(1), below, to be counted as (wall) self_time
       # since we currently count time "in some other thread" as self.wait_time
-      # for whatever reason
       sleep(1)
     end
     thread.join
@@ -155,9 +154,6 @@ class ThreadTest < TestCase
 
     rp_thread = result.threads.detect {|t| t.id == thread.object_id}
     methods = rp_thread.methods.sort.reverse
-    # fails on travis. why?
-    # expected_methods = ["ThreadTest#test_thread_timings", "Kernel#sleep"]
-    # assert_equal(expected_methods, methods.map(&:full_name))
 
     method = methods[0]
     assert_equal('ThreadTest#test_thread_timings', method.full_name)

@@ -61,7 +61,4 @@ EOF
   spec.homepage = 'https://github.com/ruby-prof/ruby-prof'
   spec.add_development_dependency('minitest')
   spec.add_development_dependency('rake-compiler')
-
-  spec.add_runtime_dependency('excon')
-  spec.add_runtime_dependency('benchmark-ips')
 end

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1020"
+   LastUpgradeVersion = "1510"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -43,7 +43,7 @@
       allowLocationSimulation = "YES">
       <PathRunnable
          runnableDebuggingMode = "0"
-         FilePath = "/opt/local/bin/ruby2.5">
+         FilePath = "/usr/local/Cellar/ruby/3.2.1/bin/ruby">
       </PathRunnable>
       <MacroExpansion>
          <BuildableReference
@@ -56,8 +56,8 @@
       </MacroExpansion>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/opt/local/src/ruby-prof/test/printers_test.rb"
-            isEnabled = "YES">
+            argument = ""
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

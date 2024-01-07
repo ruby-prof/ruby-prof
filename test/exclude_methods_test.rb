@@ -145,9 +145,9 @@ class ExcludeMethodsTest < TestCase
       assert_equal('Kernel#sleep', methods[6].full_name)
       assert_equal('ExcludeMethodsModule#c', methods[7].full_name)
       assert_equal('<Module::ExcludeMethodsModule>#d', methods[8].full_name)
-      assert_equal('Integer#succ', methods[9].full_name)
-      assert_equal('Integer#<', methods[10].full_name)
-      assert_equal('Kernel#block_given?', methods[11].full_name)
+      assert_equal('Kernel#block_given?', methods[9].full_name)
+      assert_equal('Integer#succ', methods[10].full_name)
+      assert_equal('Integer#<', methods[11].full_name)
       assert_equal('Kernel#class', methods[12].full_name)
     end
 
@@ -169,9 +169,9 @@ class ExcludeMethodsTest < TestCase
       assert_equal('Kernel#sleep', methods[5].full_name)
       assert_equal('ExcludeMethodsModule#c', methods[6].full_name)
       assert_equal('<Module::ExcludeMethodsModule>#d', methods[7].full_name)
-      assert_equal('Integer#succ', methods[8].full_name)
-      assert_equal('Integer#<', methods[9].full_name)
-      assert_equal('Kernel#block_given?', methods[10].full_name)
+      assert_equal('Kernel#block_given?', methods[8].full_name)
+      assert_equal('Integer#succ', methods[9].full_name)
+      assert_equal('Integer#<', methods[10].full_name)
       assert_equal('Kernel#class', methods[11].full_name)
     end
 
@@ -193,7 +193,7 @@ class ExcludeMethodsTest < TestCase
       assert_equal('<Class::ExcludeMethodsClass>#e', methods[3].full_name)
       assert_equal('Kernel#sleep', methods[4].full_name)
       assert_equal('ExcludeMethodsModule#c', methods[5].full_name)
-      assert_equal('Integer#succ', methods[6].full_name)
+      assert_equal('Kernel#block_given?', methods[6].full_name)
       assert_equal('Integer#succ', methods[7].full_name)
       assert_equal('Integer#<', methods[8].full_name)
       assert_equal('Kernel#class', methods[9].full_name)
@@ -234,11 +234,8 @@ class ExcludeMethodsTest < TestCase
       assert_equal('<Class::ExcludeMethodsClass>#f', methods[4].full_name)
       assert_equal('Kernel#sleep', methods[5].full_name)
       assert_equal('ExcludeMethodsModule#c', methods[6].full_name)
-      assert_equal('ExcludeMethodsModule#d', methods[7].full_name)
-      assert_equal('ExcludeMethodsClass#b', methods[8].full_name)
-      assert_equal('ExcludeMethodsClass#b', methods[9].full_name)
-      assert_equal('ExcludeMethodsClass#b', methods[10].full_name)
-      assert_equal('ExcludeMethodsClass#b', methods[11].full_name)
+      assert_equal('<Module::ExcludeMethodsModule>#d', methods[7].full_name)
+      assert_equal('Kernel#class', methods[8].full_name)
     end
   end
 

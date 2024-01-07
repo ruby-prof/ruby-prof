@@ -1,3 +1,10 @@
+1.7.0 (2024-01-07)
+=====================
+* Add support for ruby 3.3.*  (Charlie Savage)
+* Remove support for ruby 2.7.*  (Charlie Savage)
+* Fix crash caused by referencing Profile Ruby objects from Method objects that were being moved
+  by GC compaction (Charlie Savage)
+
 1.6.3 (2023-04-20)
 =====================
 * Remove debug code unintentionally left in ruby-prof command line program (Charlie Savage)

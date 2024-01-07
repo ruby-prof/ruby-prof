@@ -321,14 +321,14 @@ class MeasureWallTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
 
       method = methods[4]
-      assert_equal("Integer#succ", method.full_name)
+      assert_equal("Kernel#block_given?", method.full_name)
       assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.self_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
 
       method = methods[5]
-      assert_equal("Class#new", method.full_name)
+      assert_equal("Integer#succ", method.full_name)
       assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.self_time, 0.03 * @delta_multiplier)
@@ -342,7 +342,7 @@ class MeasureWallTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
 
       method = methods[7]
-      assert_equal("Kernel#block_given?", method.full_name)
+      assert_equal("Class#new", method.full_name)
       assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.self_time, 0.03 * @delta_multiplier)

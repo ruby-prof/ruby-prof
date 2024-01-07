@@ -1031,14 +1031,14 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[2]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Kernel#sleep', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
@@ -1083,14 +1083,14 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[4]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Kernel#sleep', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
@@ -1174,14 +1174,14 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[2]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Kernel#sleep', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
@@ -1523,14 +1523,14 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[2]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Kernel#sleep', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
@@ -1856,14 +1856,14 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[2]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Kernel#sleep', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
@@ -1883,7 +1883,7 @@ class MeasureProcessTimeTest < TestCase
         end
 
         methods = result.threads.first.methods.sort.reverse
-        assert_equal(6, methods.length)
+        assert_equal(9, methods.length)
 
         # Check times
         method = methods[0]
@@ -1908,20 +1908,41 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Kernel#block_given?', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[4]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Integer#succ', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[5]
+        assert_equal('Integer#<', method.full_name)
+        assert_in_delta(0.0, method.total_time, 0.05)
+        assert_in_delta(0.0, method.wait_time, 0.05)
+        assert_in_delta(0.0, method.self_time, 0.05)
+        assert_in_delta(0.0, method.children_time, 0.05)
+
+        method = methods[6]
+        assert_equal('Class#new', method.full_name)
+        assert_in_delta(0.0, method.total_time, 0.05)
+        assert_in_delta(0.0, method.wait_time, 0.05)
+        assert_in_delta(0.0, method.self_time, 0.05)
+        assert_in_delta(0.0, method.children_time, 0.05)
+
+        method = methods[7]
+        assert_equal('Kernel#sleep', method.full_name)
+        assert_in_delta(0.0, method.total_time, 0.05)
+        assert_in_delta(0.0, method.wait_time, 0.05)
+        assert_in_delta(0.0, method.self_time, 0.05)
+        assert_in_delta(0.0, method.children_time, 0.05)
+
+        method = methods[8]
         assert_equal('BasicObject#initialize', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
@@ -1999,14 +2020,14 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[2]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Kernel#sleep', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
@@ -2088,7 +2109,7 @@ class MeasureProcessTimeTest < TestCase
         end
 
         methods = result.threads.first.methods.sort.reverse
-        assert_equal(8, methods.length)
+        assert_equal(11, methods.length)
 
         # Check times
         method = methods[0]
@@ -2134,13 +2155,34 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.03, method.children_time, 0.03)
 
         method = methods[6]
+        assert_equal('Kernel#block_given?', method.full_name)
+        assert_in_delta(0.0, method.total_time, 0.05)
+        assert_in_delta(0.0, method.wait_time, 0.05)
+        assert_in_delta(0.0, method.self_time, 0.05)
+        assert_in_delta(0.0, method.children_time, 0.05)
+
+        method = methods[7]
+        assert_equal('Integer#succ', method.full_name)
+        assert_in_delta(0.0, method.total_time, 0.05)
+        assert_in_delta(0.0, method.wait_time, 0.05)
+        assert_in_delta(0.0, method.self_time, 0.05)
+        assert_in_delta(0.0, method.children_time, 0.05)
+
+        method = methods[8]
+        assert_equal('Integer#<', method.full_name)
+        assert_in_delta(0.0, method.total_time, 0.05)
+        assert_in_delta(0.0, method.wait_time, 0.05)
+        assert_in_delta(0.0, method.self_time, 0.05)
+        assert_in_delta(0.0, method.children_time, 0.05)
+
+        method = methods[9]
         assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.01)
         assert_in_delta(0.0, method.wait_time, 0.01)
         assert_in_delta(0.0, method.self_time, 0.01)
         assert_in_delta(0.0, method.children_time, 0.01)
 
-        method = methods[7]
+        method = methods[10]
         assert_equal('BasicObject#initialize', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
@@ -2348,14 +2390,14 @@ class MeasureProcessTimeTest < TestCase
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[2]
-        assert_equal('Kernel#sleep', method.full_name)
+        assert_equal('Class#new', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)
         assert_in_delta(0.0, method.children_time, 0.05)
 
         method = methods[3]
-        assert_equal('Class#new', method.full_name)
+        assert_equal('Kernel#sleep', method.full_name)
         assert_in_delta(0.0, method.total_time, 0.05)
         assert_in_delta(0.0, method.wait_time, 0.05)
         assert_in_delta(0.0, method.self_time, 0.05)

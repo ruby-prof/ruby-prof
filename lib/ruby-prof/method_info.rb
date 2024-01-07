@@ -65,9 +65,9 @@ module RubyProf
         -1
       elsif self.full_name == other.full_name
         0
-      elsif self.total_time < other.total_time
+      elsif self.total_time < other.total_time && (self.total_time - other.total_time).abs > 0.0001
         -1
-      elsif self.total_time > other.total_time
+      elsif self.total_time > other.total_time && (self.total_time - other.total_time).abs > 0.0001
         1
       elsif self.call_trees.min_depth < other.call_trees.min_depth
         1

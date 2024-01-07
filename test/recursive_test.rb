@@ -556,8 +556,8 @@ class RecursiveTest < TestCase
 
       # Method 5
       method = methods[5]
-      assert_equal('Integer#succ', method.full_name)
-      assert_equal(4, method.called)
+      assert_equal('Kernel#block_given?', method.full_name)
+      assert_equal(2, method.called)
       refute(method.recursive?)
       assert_in_delta(0, method.total_time, 0.1)
       assert_in_delta(0, method.self_time, 0.1)
@@ -572,8 +572,8 @@ class RecursiveTest < TestCase
 
       # Method 6
       method = methods[6]
-      assert_equal('Integer#<', method.full_name)
-      assert_equal(6, method.called)
+      assert_equal('Integer#succ', method.full_name)
+      assert_equal(4, method.called)
       refute(method.recursive?)
       assert_in_delta(0, method.total_time, 0.1)
       assert_in_delta(0, method.self_time, 0.1)
@@ -588,8 +588,8 @@ class RecursiveTest < TestCase
 
       # Method 7
       method = methods[7]
-      assert_equal('Integer#+', method.full_name)
-      assert_equal(2, method.called)
+      assert_equal('Integer#<', method.full_name)
+      assert_equal(6, method.called)
       refute(method.recursive?)
       assert_in_delta(0, method.total_time, 0.1)
       assert_in_delta(0, method.self_time, 0.1)
@@ -604,7 +604,7 @@ class RecursiveTest < TestCase
 
       # Method 8
       method = methods[8]
-      assert_equal('Kernel#block_given?', method.full_name)
+      assert_equal('Integer#+', method.full_name)
       assert_equal(2, method.called)
       refute(method.recursive?)
       assert_in_delta(0, method.total_time, 0.1)

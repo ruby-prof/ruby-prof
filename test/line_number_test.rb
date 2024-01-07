@@ -28,7 +28,7 @@ end
 
 # --  Tests ----
 class LineNumbersTest < TestCase
-  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.2')
+  if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.3')
     def test_function_line_no
       numbers = LineNumbers.new
 
@@ -63,7 +63,7 @@ class LineNumbersTest < TestCase
       assert_equal(1, method.call_trees.callers.count)
       call_tree = method.call_trees.callers[0]
       assert_equal('LineNumbersTest#test_function_line_no', call_tree.parent.target.full_name)
-      assert_equal(35, call_tree.line)
+      assert_equal(36, call_tree.line)
 
       assert_equal(2, method.call_trees.callees.count)
       call_tree = method.call_trees.callees[0]
@@ -123,7 +123,7 @@ class LineNumbersTest < TestCase
       # Method 5
       method = methods[5]
       assert_equal('LineNumbersTest#test_function_line_no', method.full_name)
-      assert_equal(35, method.line)
+      assert_equal(36, method.line)
 
       assert_equal(0, method.call_trees.callers.count)
 

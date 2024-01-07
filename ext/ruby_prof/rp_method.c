@@ -6,6 +6,16 @@
 #include "rp_method.h"
 #include "rp_profile.h"
 
+#include <ruby/version.h>
+
+// Needed for Ruby 3.0.* and 3.1.*
+#if RUBY_API_VERSION_MAJOR == 3 && RUBY_API_VERSION_MINOR < 2
+   VALUE rb_class_attached_object(VALUE klass)
+   {
+     return rb_iv_get(klass, "__attached__");
+   }
+#endif
+
 VALUE cRpMethodInfo;
 
 /* ================  Helper Functions  =================*/

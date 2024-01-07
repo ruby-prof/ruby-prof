@@ -38,7 +38,7 @@ prof_measurer_t* prof_measurer_memory(bool track_allocations)
   return measure;
 }
 
-void rp_init_measure_memory()
+void rp_init_measure_memory(void)
 {
     rb_define_const(mProf, "MEMORY", INT2NUM(MEASURE_MEMORY));
 

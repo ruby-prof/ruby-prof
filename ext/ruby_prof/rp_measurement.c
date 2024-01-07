@@ -336,7 +336,7 @@ prof_measurement_load(VALUE self, VALUE data)
     return data;
 }
 
-void rp_init_measure()
+void rp_init_measure(void)
 {
     mMeasure = rb_define_module_under(mProf, "Measure");
     rp_init_measure_wall_time();

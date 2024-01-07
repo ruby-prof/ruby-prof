@@ -56,7 +56,7 @@ prof_measurer_t* prof_measurer_wall_time(bool track_allocations)
     return measure;
 }
 
-void rp_init_measure_wall_time()
+void rp_init_measure_wall_time(void)
 {
     rb_define_const(mProf, "WALL_TIME", INT2NUM(MEASURE_WALL_TIME));
 

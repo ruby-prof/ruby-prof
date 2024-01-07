@@ -272,7 +272,7 @@ VALUE prof_method_wrap(prof_method_t* method)
     return method->object;
 }
 
-st_table* method_table_create()
+st_table* method_table_create(void)
 {
     return rb_st_init_numtable();
 }
@@ -528,7 +528,7 @@ static VALUE prof_method_load(VALUE self, VALUE data)
     return data;
 }
 
-void rp_init_method_info()
+void rp_init_method_info(void)
 {
     /* MethodInfo */
     cRpMethodInfo = rb_define_class_under(mProf, "MethodInfo", rb_cObject);

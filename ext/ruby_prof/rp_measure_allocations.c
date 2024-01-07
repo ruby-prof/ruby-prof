@@ -38,7 +38,7 @@ prof_measurer_t* prof_measurer_allocations(bool track_allocations)
     return measure;
 }
 
-void rp_init_measure_allocations()
+void rp_init_measure_allocations(void)
 {
     total_allocated_objects_key = ID2SYM(rb_intern("total_allocated_objects"));
     rb_define_const(mProf, "ALLOCATIONS", INT2NUM(MEASURE_ALLOCATIONS));

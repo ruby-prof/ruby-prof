@@ -172,7 +172,7 @@ thread_data_t* prof_get_thread(VALUE self)
 // ======   Thread Table  ======
 // The thread table is hash keyed on ruby fiber_id that stores instances of thread_data_t.
 
-st_table* threads_table_create()
+st_table* threads_table_create(void)
 {
     return rb_st_init_numtable();
 }

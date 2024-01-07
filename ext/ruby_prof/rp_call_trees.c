@@ -21,7 +21,7 @@ prof_call_trees_t* prof_get_call_trees(VALUE self)
     return result;
 }
 
-prof_call_trees_t* prof_call_trees_create()
+prof_call_trees_t* prof_call_trees_create(void)
 {
     prof_call_trees_t* result = ALLOC(prof_call_trees_t);
     result->start = ALLOC_N(prof_call_tree_t*, INITIAL_CALL_TREES_SIZE);
@@ -279,7 +279,7 @@ VALUE prof_call_trees_load(VALUE self, VALUE data)
     return data;
 }
 
-void rp_init_call_trees()
+void rp_init_call_trees(void)
 {
     cRpCallTrees = rb_define_class_under(mProf, "CallTrees", rb_cObject);
     rb_undef_method(CLASS_OF(cRpCallTrees), "new");

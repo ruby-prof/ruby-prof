@@ -36,7 +36,7 @@
 
 VALUE mProf;
 
-void Init_ruby_prof()
+void Init_ruby_prof(void)
 {
     mProf = rb_define_module("RubyProf");
 

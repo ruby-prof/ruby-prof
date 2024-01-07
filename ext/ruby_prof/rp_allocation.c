@@ -110,7 +110,7 @@ VALUE prof_allocation_wrap(prof_allocation_t* allocation)
 }
 
 /* ======   Allocation Table  ====== */
-st_table* prof_allocations_create()
+st_table* prof_allocations_create(void)
 {
     return rb_st_init_numtable();
 }

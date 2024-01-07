@@ -480,7 +480,7 @@ static VALUE prof_call_tree_load(VALUE self, VALUE data)
     return data;
 }
 
-void rp_init_call_tree()
+void rp_init_call_tree(void)
 {
     /* CallTree */
     cRpCallTree = rb_define_class_under(mProf, "CallTree", rb_cObject);

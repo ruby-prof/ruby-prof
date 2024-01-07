@@ -57,7 +57,7 @@ prof_measurer_t* prof_measurer_process_time(bool track_allocations)
     return measure;
 }
 
-void rp_init_measure_process_time()
+void rp_init_measure_process_time(void)
 {
     rb_define_const(mProf, "CLOCKS_PER_SEC", INT2NUM(CLOCKS_PER_SEC));
     rb_define_const(mProf, "PROCESS_TIME", INT2NUM(MEASURE_PROCESS_TIME));

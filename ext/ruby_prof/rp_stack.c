@@ -6,7 +6,7 @@
 #define INITIAL_STACK_SIZE 16
 
 // Creates a stack of prof_frame_t to keep track of timings for active methods.
-prof_stack_t* prof_stack_create()
+prof_stack_t* prof_stack_create(void)
 {
     prof_stack_t* stack = ALLOC(prof_stack_t);
     stack->start = ZALLOC_N(prof_frame_t, INITIAL_STACK_SIZE);

@@ -22,17 +22,23 @@ module RubyProf
       #  Fundamental Types
       ##
 
-      exclude_methods(profile, BasicObject,  :"!=")
-      exclude_methods(profile, Method,       :"[]")
+      exclude_methods(profile, BasicObject,  :!=)
+      exclude_methods(profile, Kernel,       :"block_given?")
+      exclude_methods(profile, Method,       :[])
       exclude_methods(profile, Module,       :new)
       exclude_methods(profile, Class,        :new)
       exclude_methods(profile, Proc,         :call, :yield)
       exclude_methods(profile, Range,        :each)
-      exclude_methods(profile, Integer,      :times)
 
       ##
       #  Value Types
       ##
+
+      exclude_methods(profile, Integer, [
+        :times,
+        :succ,
+        :<
+      ])
 
       exclude_methods(profile, String, [
         :sub,

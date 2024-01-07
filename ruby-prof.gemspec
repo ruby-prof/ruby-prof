@@ -56,9 +56,12 @@ EOF
                    'test/*.rb']
 
   spec.test_files = Dir["test/test_*.rb"]
-  spec.required_ruby_version = '>= 2.7.0'
+  spec.required_ruby_version = '>= 3.0.0'
   spec.date = Time.now.strftime('%Y-%m-%d')
   spec.homepage = 'https://github.com/ruby-prof/ruby-prof'
   spec.add_development_dependency('minitest')
   spec.add_development_dependency('rake-compiler')
+
+  spec.add_runtime_dependency('excon')
+  spec.add_runtime_dependency('benchmark-ips')
 end

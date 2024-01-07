@@ -21,7 +21,7 @@ VALUE resolve_klass(VALUE klass, unsigned int* klass_flags)
     {
         /* We have come across a singleton object. First
            figure out what it is attached to.*/
-        VALUE attached = rb_iv_get(klass, "__attached__");
+        VALUE attached = rb_class_attached_object(klass);
 
         switch (BUILTIN_TYPE(attached))
         {

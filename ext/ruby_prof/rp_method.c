@@ -4,6 +4,7 @@
 #include "rp_allocation.h"
 #include "rp_call_trees.h"
 #include "rp_method.h"
+#include "rp_profile.h"
 
 VALUE cRpMethodInfo;
 
@@ -125,7 +126,7 @@ prof_method_t* prof_get_method(VALUE self)
     return result;
 }
 
-prof_method_t* prof_method_create(VALUE profile, VALUE klass, VALUE msym, VALUE source_file, int source_line)
+prof_method_t* prof_method_create(struct prof_profile_t* profile, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
     prof_method_t* result = ALLOC(prof_method_t);
     result->profile = profile;
@@ -204,14 +205,16 @@ void prof_method_mark(void* data)
 
     prof_method_t* method = (prof_method_t*)data;
 
-    if (method->profile != Qnil)
-        rb_gc_mark_movable(method->profile);
-
     if (method->object != Qnil)
-        rb_gc_mark_movable(method->object);
+      rb_gc_mark_movable(method->object);
 
-    rb_gc_mark_movable(method->klass_name);
-    rb_gc_mark_movable(method->method_name);
+    // Mark the profile to keep it alive. Can't call prof_profile_mark because that would
+    // cause recursion
+    if (method->profile && method->profile->object != Qnil)
+        rb_gc_mark(method->profile->object);
+
+    rb_gc_mark(method->klass_name);
+    rb_gc_mark(method->method_name);
     rb_gc_mark(method->source_file);
 
     if (method->klass != Qnil)
@@ -225,14 +228,13 @@ void prof_method_compact(void* data)
 {
     prof_method_t* method = (prof_method_t*)data;
     method->object = rb_gc_location(method->object);
-    method->profile = rb_gc_location(method->profile);
     method->klass_name = rb_gc_location(method->klass_name);
     method->method_name = rb_gc_location(method->method_name);
 }
 
 static VALUE prof_method_allocate(VALUE klass)
 {
-    prof_method_t* method_data = prof_method_create(Qnil, Qnil, Qnil, Qnil, 0);
+    prof_method_t* method_data = prof_method_create(NULL, Qnil, Qnil, Qnil, 0);
     method_data->object = prof_method_wrap(method_data);
     return method_data->object;
 }

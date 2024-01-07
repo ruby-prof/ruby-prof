@@ -105,7 +105,7 @@ static int excludes_method(st_data_t key, prof_profile_t* profile)
 
 static prof_method_t* create_method(prof_profile_t* profile, st_data_t key, VALUE klass, VALUE msym, VALUE source_file, int source_line)
 {
-    prof_method_t* result = prof_method_create(profile->object, klass, msym, source_file, source_line);
+    prof_method_t* result = prof_method_create(profile, klass, msym, source_file, source_line);
     method_table_insert(profile->last_thread_data->method_table, result->key, result);
 
     return result;
@@ -863,7 +863,7 @@ static VALUE prof_exclude_method(VALUE self, VALUE klass, VALUE msym)
 
     if (!method)
     {
-        method = prof_method_create(self, klass, msym, Qnil, 0);
+        method = prof_method_create(profile, klass, msym, Qnil, 0);
         method_table_insert(profile->exclude_methods_tbl, method->key, method);
     }
 

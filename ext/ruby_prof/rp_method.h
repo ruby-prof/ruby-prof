@@ -18,11 +18,14 @@ enum {
     kOtherSingleton = 0x10                    // Singleton of unknown object
 };
 
+// Don't want to include ruby_prof.h to avoid a circular reference
+struct prof_profile_t;
+
 // Profiling information for each method.
 // Excluded methods have no call_trees, source_klass, or source_file.
 typedef struct prof_method_t
 {
-    VALUE profile;                          // Profile this method is associated with - needed for mark phase
+    struct prof_profile_t* profile;                  // Profile this method is associated with - needed for mark phase
     struct prof_call_trees_t* call_trees;   // Call infos that call this method
     st_table* allocations_table;            // Tracks object allocations
 
@@ -51,7 +54,7 @@ prof_method_t* method_table_lookup(st_table* table, st_data_t key);
 size_t method_table_insert(st_table* table, st_data_t key, prof_method_t* val);
 void method_table_free(st_table* table);
 void prof_method_table_merge(st_table* self, st_table* other);
-prof_method_t* prof_method_create(VALUE profile, VALUE klass, VALUE msym, VALUE source_file, int source_line);
+prof_method_t* prof_method_create(struct prof_profile_t* profile, VALUE klass, VALUE msym, VALUE source_file, int source_line);
 prof_method_t* prof_get_method(VALUE self);
 
 VALUE prof_method_wrap(prof_method_t* result);

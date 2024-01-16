@@ -668,6 +668,8 @@ static VALUE prof_start(VALUE self)
         }
     }
 
+    rb_iv_set(cProfile, "@current", self);
+
     prof_install_hook(self);
     return self;
 }
@@ -748,6 +750,8 @@ static VALUE prof_stop(VALUE self)
        and the threads table */
     profile->running = profile->paused = Qfalse;
     profile->last_thread_data = NULL;
+
+    rb_iv_set(cProfile, "@current", Qnil);
 
     return self;
 }

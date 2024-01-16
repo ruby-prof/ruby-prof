@@ -5,6 +5,24 @@ require File.expand_path('../test_helper', __FILE__)
 require_relative './call_tree_builder'
 
 class ProfileTest < TestCase
+  def test_current
+    profile = RubyProf::Profile.new
+    refute_same(profile, RubyProf::Profile.current)
+
+    yielded = false
+    profile.profile do
+      yielded = true
+      assert_same(profile, RubyProf::Profile.current)
+    end
+    assert(yielded)
+    assert_nil(RubyProf::Profile.current)
+
+    profile.start
+    assert_same(profile, RubyProf::Profile.current)
+    profile.stop
+    assert_nil(RubyProf::Profile.current)
+  end
+
   def test_measure_mode
     profile = RubyProf::Profile.new(:measure_mode => RubyProf::PROCESS_TIME)
     assert_equal(RubyProf::PROCESS_TIME, profile.measure_mode)

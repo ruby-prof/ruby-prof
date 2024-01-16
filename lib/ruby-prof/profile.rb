@@ -4,6 +4,10 @@ require 'ruby-prof/exclude_common_methods'
 
 module RubyProf
   class Profile
+    class << self
+      attr_accessor :current
+    end
+
     def measure_mode_string
       case self.measure_mode
         when WALL_TIME

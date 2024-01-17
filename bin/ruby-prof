@@ -45,6 +45,7 @@ module RubyProf
   #                                       self - Self time
   #                                       wait - Wait time
   #                                       child - Child time
+  #        --start-paused               Pause the profile immediately (resume manually with RubyProf::Profile.current.resume)
   #        --track_allocations          Track allocations while profiling
   #    -v, --version version            Show version (1.1.0)
   #    -h, --help                       Show help message
@@ -73,6 +74,7 @@ module RubyProf
       options.pre_libs = Array.new
       options.pre_execs = Array.new
       options.printer = RubyProf::FlatPrinter
+      options.start_paused = false
       options.track_allocations = false
     end
 
@@ -232,6 +234,10 @@ module RubyProf
                                 end
         end
 
+        opts.on('--start-paused', "Pause the profile immediately (resume manually with RubyProf::Profile.current.resume)") do
+          options.start_paused = true
+        end
+
         opts.on('--track_allocations', 'Track allocations while profiling') do
           options.track_allocations = true
         end
@@ -299,8 +305,9 @@ module RubyProf
       end
 
       script = ARGV.shift
-      profile.profile do
-       load script
+
+      profile.profile paused: options.start_paused do
+        load script
       end
     end
   end

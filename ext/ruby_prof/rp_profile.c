@@ -634,8 +634,16 @@ static VALUE prof_profile_track_allocations(VALUE self)
    start -> self
 
    Starts recording profile data.*/
-static VALUE prof_start(VALUE self)
+static VALUE prof_start(int argc, VALUE* argv, VALUE self)
 {
+    VALUE keywords;
+    rb_scan_args_kw(RB_SCAN_ARGS_KEYWORDS, argc, argv, ":", &keywords);
+
+    ID table[] = {rb_intern("paused")};
+    VALUE values[1];
+    rb_get_kwargs(keywords, table, 0, 1, values);
+    VALUE paused = values[0] == Qundef ? Qfalse : values[0];
+
     char* trace_file_name;
 
     prof_profile_t* profile = prof_get_profile(self);
@@ -646,7 +654,7 @@ static VALUE prof_start(VALUE self)
     }
 
     profile->running = Qtrue;
-    profile->paused = Qfalse;
+    profile->paused = paused;
     profile->last_thread_data = threads_table_insert(profile, rb_fiber_current());
 
     /* open trace file if environment wants it */
@@ -809,7 +817,7 @@ static VALUE prof_remove_thread(VALUE self, VALUE thread)
        ..
      end
 */
-static VALUE prof_profile_instance(VALUE self)
+static VALUE prof_profile_instance(int argc, VALUE* argv, VALUE self)
 {
     int result;
     prof_profile_t* profile = prof_get_profile(self);
@@ -819,7 +827,7 @@ static VALUE prof_profile_instance(VALUE self)
         rb_raise(rb_eArgError, "A block must be provided to the profile method.");
     }
 
-    prof_start(self);
+    prof_start(argc, argv, self);
     rb_protect(rb_yield, self, &result);
     self = prof_stop(self);
 
@@ -845,7 +853,7 @@ static VALUE prof_profile_instance(VALUE self)
 */
 static VALUE prof_profile_class(int argc, VALUE* argv, VALUE klass)
 {
-    return prof_profile_instance(rb_class_new_instance(argc, argv, cProfile));
+    return prof_profile_instance(0, NULL, rb_class_new_instance(argc, argv, cProfile));
 }
 
 /* call-seq:
@@ -916,8 +924,8 @@ void rp_init_profile(void)
 
     rb_define_singleton_method(cProfile, "profile", prof_profile_class, -1);
     rb_define_method(cProfile, "initialize", prof_initialize, -1);
-    rb_define_method(cProfile, "profile", prof_profile_instance, 0);
-    rb_define_method(cProfile, "start", prof_start, 0);
+    rb_define_method(cProfile, "profile", prof_profile_instance, -1);
+    rb_define_method(cProfile, "start", prof_start, -1);
     rb_define_method(cProfile, "stop", prof_stop, 0);
     rb_define_method(cProfile, "resume", prof_resume, 0);
     rb_define_method(cProfile, "pause", prof_pause, 0);

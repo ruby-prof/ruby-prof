@@ -1,3 +1,7 @@
+1.7.1 (2024-10-13)
+=====================
+* Fix crashes when calling merge due to inconsistent method keys (Chris Heald)
+
 1.7.0 (2024-01-07)
 =====================
 * Add support for ruby 3.3.*  (Charlie Savage)

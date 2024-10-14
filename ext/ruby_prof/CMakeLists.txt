@@ -1,4 +1,4 @@
-﻿# CMakeList.txt : Top-level CMake project file, do global configuration
+# CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
 cmake_minimum_required (VERSION 3.8)
@@ -31,9 +31,9 @@ set_target_properties(ruby_prof PROPERTIES
         PREFIX ""
         OUTPUT_NAME "ruby_prof"
         SUFFIX ".so"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/..")
-
-set_property(TARGET ruby_prof PROPERTY C_STANDARD 99)
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../../lib" # Windows
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../../../lib" # Not Windows
+        C_STANDARD 99)
 
 if (MSVC)
   target_include_directories(ruby_prof PRIVATE "C:/msys64/usr/local/ruby-3.2.1-vc/include/ruby-3.2.0")

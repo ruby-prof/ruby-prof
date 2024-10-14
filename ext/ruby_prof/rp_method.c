@@ -141,12 +141,12 @@ prof_method_t* prof_method_create(struct prof_profile_t* profile, VALUE klass, V
     prof_method_t* result = ALLOC(prof_method_t);
     result->profile = profile;
 
-    result->key = method_key(klass, msym);
     result->klass_flags = 0;
 
     /* Note we do not call resolve_klass_name now because that causes an object allocation that shows up
        in the allocation results so we want to avoid it until after the profile run is complete. */
     result->klass = resolve_klass(klass, &result->klass_flags);
+    result->key = method_key(result->klass, msym);
     result->klass_name = Qnil;
     result->method_name = msym;
     result->measurement = prof_measurement_create();

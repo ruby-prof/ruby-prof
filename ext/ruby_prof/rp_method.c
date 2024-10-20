@@ -101,7 +101,7 @@ VALUE resolve_klass_name(VALUE klass, unsigned int* klass_flags)
 
 st_data_t method_key(VALUE klass, VALUE msym)
 {
-    uint klass_flags = 0;
+    unsigned int klass_flags = 0;
     VALUE resolved_klass = resolve_klass(klass, &klass_flags);
 
     st_data_t hash = rb_hash_start(0);

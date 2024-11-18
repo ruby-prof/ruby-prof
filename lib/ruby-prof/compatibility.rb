@@ -100,7 +100,7 @@ module RubyProf
   class << self
     extend Gem::Deprecate
     deprecate :measure_mode, "RubyProf::Profile#measure_mode", 2023, 6
-    deprecate :measure_mode=, "RubyProf::Profile#measure_mode=", 2023, 6
+    deprecate :measure_mode=, "RubyProf::Profile.new(measure_mode: ...)", 2023, 6
     deprecate :exclude_threads, "RubyProf::Profile#exclude_threads", 2023, 6
     deprecate :exclude_threads=, "RubyProf::Profile#initialize", 2023, 6
     deprecate :start, "RubyProf::Profile#start", 2023, 6

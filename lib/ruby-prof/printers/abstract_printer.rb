@@ -112,17 +112,35 @@ module RubyProf
     end
 
     def print_footer(thread)
+      metric_data = {
+        0 => { label: "time", prefix: "", suffix: "spent" },
+        1 => { label: "time", prefix: "", suffix: "spent" },
+        2 => { label: "allocations", prefix: "number of ", suffix: "made" },
+        3 => { label: "memory", prefix: "", suffix: "used" }
+      }
+
+      metric = metric_data[@result.measure_mode]
+
+      metric_label = metric[:label]
+      metric_suffix = metric[:suffix]
+      metric_prefix = metric[:prefix]
+
+      metric1 = "#{metric_label} #{metric_suffix}"
+      metric2 = "#{metric_prefix}#{metric1}"
+      metric3 = metric_label
+
+      # Output the formatted text
       @output << <<~EOT
 
         * recursively called methods
 
         Columns are:
 
-          %self     - The percentage of time spent in this method, derived from self_time/total_time.
-          total     - The time spent in this method and its children.
-          self      - The time spent in this method.
-          wait      - The amount of time this method waited for other threads.
-          child     - The time spent in this method's children.
+          %self     - The percentage of #{metric1} by this method relative to the total #{metric3} in the entire program.
+          total     - The total #{metric2} by this method and its children.
+          self      - The #{metric2} by this method.
+          wait      - The time this method spent waiting for other threads.
+          child     - The #{metric2} by this method's children.
           calls     - The number of times this method was called.
           name      - The name of the method.
           location  - The location of the method.

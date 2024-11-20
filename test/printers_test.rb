@@ -11,39 +11,45 @@ require_relative 'prime'
 class PrintersTest < TestCase
   def setup
     super
-    # WALL_TIME so we can use sleep in our test and get same measurements on linux and windows
-    @result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
-      run_primes(1000, 5000)
+    # WALL_TIME, PROCESS_TIME, ALLOCATIONS and MEMORY as types of measuremen
+    measure_modes = {wall_time: RubyProf::WALL_TIME, process_time: RubyProf::PROCESS_TIME, allocations: RubyProf::ALLOCATIONS, memory: RubyProf::MEMORY}
+
+    @results = {}
+
+    measure_modes.each do |key, value|
+      @results[key] = RubyProf::Profile.profile(measure_mode: value) do
+        run_primes(1000, 5000)
+      end
     end
   end
 
   def test_printers
     output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new('')
 
-    printer = RubyProf::CallStackPrinter.new(@result)
+    printer = RubyProf::CallStackPrinter.new(@results[:wall_time])
     printer.print(output)
 
-    printer = RubyProf::CallTreePrinter.new(@result)
+    printer = RubyProf::CallTreePrinter.new(@results[:wall_time])
     printer.print(:path => Dir.tmpdir)
 
-    printer = RubyProf::FlatPrinter.new(@result)
+    printer = RubyProf::FlatPrinter.new(@results[:wall_time])
     printer.print(output)
 
-    printer = RubyProf::GraphHtmlPrinter.new(@result)
+    printer = RubyProf::GraphHtmlPrinter.new(@results[:wall_time])
     printer.print(output)
 
-    printer = RubyProf::GraphPrinter.new(@result)
+    printer = RubyProf::GraphPrinter.new(@results[:wall_time])
     printer.print(output)
   end
 
   def test_print_to_files
-    printer = RubyProf::DotPrinter.new(@result)
+    printer = RubyProf::DotPrinter.new(@results[:wall_time])
     File.open("#{Dir.tmpdir}/graph.dot", "w") {|f| printer.print(f)}
 
-    printer = RubyProf::CallStackPrinter.new(@result)
+    printer = RubyProf::CallStackPrinter.new(@results[:wall_time])
     File.open("#{Dir.tmpdir}/stack.html", "w") {|f| printer.print(f, :application => "primes")}
 
-    printer = RubyProf::MultiPrinter.new(@result)
+    printer = RubyProf::MultiPrinter.new(@results[:wall_time])
     printer.print(:path => Dir.tmpdir, :profile => "multi", :application => "primes")
 
     ['graph.dot', 'multi.flat.txt', 'multi.graph.html', "multi.callgrind.out.#{$$}", 'multi.stack.html', 'stack.html'].each do |file_name|
@@ -53,7 +59,7 @@ class PrintersTest < TestCase
   end
 
   def test_refuses_io_objects
-    p = RubyProf::MultiPrinter.new(@result)
+    p = RubyProf::MultiPrinter.new(@results[:wall_time])
     begin
       p.print(STDOUT)
       flunk "should have raised an ArgumentError"
@@ -63,7 +69,7 @@ class PrintersTest < TestCase
   end
 
   def test_refuses_non_hashes
-    p = RubyProf::MultiPrinter.new (@result)
+    p = RubyProf::MultiPrinter.new (@results[:wall_time])
     begin
       p.print([])
       flunk "should have raised an ArgumentError"
@@ -80,7 +86,7 @@ class PrintersTest < TestCase
   def helper_test_flat_string(klass)
     output = ''
 
-    printer = klass.new(@result)
+    printer = klass.new(@results[:wall_time])
     printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output)
@@ -92,7 +98,7 @@ class PrintersTest < TestCase
 
   def test_graph_html_string
     output = ''
-    printer = RubyProf::GraphHtmlPrinter.new(@result)
+    printer = RubyProf::GraphHtmlPrinter.new(@results[:wall_time])
     printer.print(output)
 
     assert_match(/<!DOCTYPE html>/i, output)
@@ -102,7 +108,7 @@ class PrintersTest < TestCase
 
   def test_graph_string
     output = ''
-    printer = RubyProf::GraphPrinter.new(@result)
+    printer = RubyProf::GraphPrinter.new(@results[:wall_time])
     printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output)
@@ -130,6 +136,43 @@ class PrintersTest < TestCase
       out = ''
       printer.print(out, :min_percent => 0.00000001)
       assert_match(/do_nothing/, out)
+    end
+  end
+
+  def test_print_footer
+    results_keys = [:wall_time, :process_time, :allocations, :memory]
+    expected_matches = [
+      "The percentage of time spent by this method relative to the total time in the entire program.",
+      "The total time spent by this method and its children.",
+      "The time spent by this method.",
+      "The time spent by this method's children.",
+      "The percentage of allocations made by this method relative to the total allocations in the entire program.",
+      "The total number of allocations made by this method and its children.",
+      "The number of allocations made by this method.",
+      "The number of allocations made by this method's children.",
+      "The percentage of memory used by this method relative to the total memory in the entire program.",
+      "The total memory used by this method and its children.",
+      "The memory used by this method.",
+      "The memory used by this method's children."
+    ]
+
+    results_keys.each do |key|
+      output = ''
+      printer = RubyProf::GraphPrinter.new(@results[key])
+      printer.print(output)
+
+      case key
+      when :wall_time, :process_time
+        matches = expected_matches[0..3]
+      when :allocations
+        matches = expected_matches[4..7]
+      when :memory
+        matches = expected_matches[8..11]
+      end
+
+      matches.each do |pattern|
+        assert_match(pattern, output)
+      end
     end
   end
 end

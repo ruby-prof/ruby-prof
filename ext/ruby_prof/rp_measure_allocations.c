@@ -33,7 +33,7 @@ prof_measurer_t* prof_measurer_allocations(bool track_allocations)
     measure->measure = measure_allocations;
     measure->multiplier = 1;
     // Need to track allocations to get RUBY_INTERNAL_EVENT_NEWOBJ event
-    measure->track_allocations = track_allocations;
+    measure->track_allocations = true;
 
     return measure;
 }

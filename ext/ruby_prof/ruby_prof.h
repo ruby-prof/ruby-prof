@@ -4,10 +4,11 @@
 #ifndef __RUBY_PROF_H__
 #define __RUBY_PROF_H__
 
-#include <ruby.h>
-#include <ruby/debug.h>
 #include <stdio.h>
 #include <stdbool.h>
+
+#include <ruby.h>
+#include <ruby/debug.h>
 
 #ifndef rb_st_lookup
 #define rb_st_foreach st_foreach

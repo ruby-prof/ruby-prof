@@ -11,10 +11,13 @@ class EnumerableTest < TestCase
     result = RubyProf::Profile.profile do
       3.times {  [1,2,3].any? {|n| n} }
     end
-    methods = if RUBY_VERSION >= "3.3.0"
+    methods = if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.3')
+                %w(EnumerableTest#test_enumerable Integer#times Array#any?)
+                %w(EnumerableTest#test_enumerable Integer#times Kernel#block_given? Integer#< Array#any? Integer#succ)
+              elsif Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.4')
                 %w(EnumerableTest#test_enumerable Integer#times Kernel#block_given? Integer#< Array#any? Integer#succ)
               else
-                %w(EnumerableTest#test_enumerable Integer#times Array#any?)
+                %w(EnumerableTest#test_enumerable Integer#times Integer#< Array#any? Integer#succ)
               end
     assert_equal(methods, result.threads.first.methods.map(&:full_name))
   end

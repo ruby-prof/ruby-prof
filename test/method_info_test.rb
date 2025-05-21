@@ -23,7 +23,12 @@ class MethodInfoTest < Minitest::Test
     error = assert_raises(NoMethodError) do
       RubyProf::MethodInfo.new(nil, nil)
     end
-    assert_match(/undefined method `instance_method' for nil/, error.message)
+
+    if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.4')
+      assert_match(/undefined method `instance_method' for nil/, error.message)
+    else
+      assert_match(/undefined method 'instance_method' for nil/, error.message)
+    end
   end
 
   def test_initialize_nil_method_name

@@ -2,7 +2,10 @@
    Please see the LICENSE file for copyright and distribution information */
 
 #include "rp_measurement.h"
+
+#if !defined(_WIN32)
 #include <time.h>
+#endif
 
 static VALUE cMeasureProcessTime;
 
@@ -25,11 +28,6 @@ static double measure_process_time(rb_trace_arg_t* trace_arg)
     userTimeInt.HighPart = userTime.dwHighDateTime;
 
     return (double)(kernelTimeInt.QuadPart + userTimeInt.QuadPart);
-#elif !defined(CLOCK_PROCESS_CPUTIME_ID)
-    #include <sys/resource.h>
-    struct rusage usage;
-    getrusage(RUSAGE_SELF, &usage);
-    return usage.ru_stime.tv_sec + usage.ru_utime.tv_sec + ((usage.ru_stime.tv_usec + usage.ru_utime.tv_usec) / 1000000.0);
 #else
     struct timespec clock;
     clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &clock);

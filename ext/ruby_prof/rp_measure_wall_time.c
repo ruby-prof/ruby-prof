@@ -4,9 +4,7 @@
    /* :nodoc: */
 #include "rp_measurement.h"
 
-#if defined(__APPLE__)
-#include <mach/mach_time.h>
-#elif !defined(_WIN32)
+#if !defined(_WIN32)
 #include <time.h>
 #endif
 
@@ -18,16 +16,10 @@ static double measure_wall_time(rb_trace_arg_t* trace_arg)
     LARGE_INTEGER time;
     QueryPerformanceCounter(&time);
     return (double)time.QuadPart;
-#elif defined(__APPLE__)
-    return mach_absolute_time();// * (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom;
-#elif defined(__linux__)
+#else
     struct timespec tv;
     clock_gettime(CLOCK_MONOTONIC, &tv);
     return tv.tv_sec + (tv.tv_nsec / 1000000000.0);
-#else
-    struct timeval tv;
-    gettimeofday(&tv, NULL);
-    return tv.tv_sec + (tv.tv_usec / 1000000.0);
 #endif
 }
 
@@ -37,10 +29,6 @@ static double multiplier_wall_time(void)
     LARGE_INTEGER frequency;
     QueryPerformanceFrequency(&frequency);
     return 1.0 / frequency.QuadPart;
-#elif defined(__APPLE__)
-    mach_timebase_info_data_t mach_timebase;
-    mach_timebase_info(&mach_timebase);
-    return (uint64_t)mach_timebase.numer / (uint64_t)mach_timebase.denom / 1000000000.0;
 #else
     return 1.0;
 #endif

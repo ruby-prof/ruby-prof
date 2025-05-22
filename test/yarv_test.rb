@@ -25,11 +25,7 @@ class YarvTest < TestCase
       a = self.array_push_optimized
     end
     assert_equal(2, a.length)
-    if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.1')
-      assert_equal(["YarvTest#test_array_push_optimized", "YarvTest#array_push_optimized", "Array#push"], result.threads.first.methods.map(&:full_name))
-    else
-      assert_equal(["YarvTest#test_array_push_optimized", "YarvTest#array_push_optimized", "Array#<<", "Array#push"], result.threads.first.methods.map(&:full_name))
-    end
+    assert_equal(["YarvTest#test_array_push_optimized", "YarvTest#array_push_optimized", "Array#<<", "Array#push"], result.threads.first.methods.map(&:full_name))
   end
 
   private

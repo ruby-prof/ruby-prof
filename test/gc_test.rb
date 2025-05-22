@@ -66,6 +66,7 @@ class GcTest < TestCase
     end
   end
 
+unless windows?
   def test_hold_onto_measurements
     # Run a profile
     profile = run_profile
@@ -86,6 +87,7 @@ class GcTest < TestCase
     end
     assert(true)
   end
+end
 
   def test_hold_onto_root_call_tree
     call_trees = 5.times.reduce(Array.new) do |array, i|

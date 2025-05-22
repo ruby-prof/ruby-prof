@@ -6,7 +6,8 @@ require "mkmf"
 if RUBY_PLATFORM =~ /mswin/
   $CFLAGS += ' /std:c11'
 else
-  $CFLAGS += ' -std=c11'
+  # Need -D_POSIX_C_SOURCE=199309L for clock_gettime
+  $CFLAGS += ' -std=c11 -D_POSIX_C_SOURCE=199309L'
 end
 
 # For gcc add -s to strip symbols, reducing library size from 17MB to 78KB (at least on Windows with mingw64)

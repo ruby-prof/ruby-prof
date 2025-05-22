@@ -62,4 +62,5 @@ EOF
   spec.add_dependency('base64')
   spec.add_development_dependency('minitest')
   spec.add_development_dependency('rake-compiler')
+  spec.add_development_dependency('rdoc')
 end

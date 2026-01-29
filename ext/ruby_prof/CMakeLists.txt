@@ -18,15 +18,16 @@ add_library (${CMAKE_PROJECT_NAME} SHARED
         "rp_thread.c"
         "ruby_prof.c")
 
-set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
-        PREFIX ""
-        SUFFIX ".so"
-        OUTPUT_NAME "ruby_prof"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../../lib"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../../../lib" # Not Windows
-        C_STANDARD 99)
-
 # Ruby
 find_package(Ruby REQUIRED)
 target_include_directories(${CMAKE_PROJECT_NAME} PUBLIC ${Ruby_INCLUDE_DIR} ${Ruby_CONFIG_INCLUDE_DIR})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${Ruby_LIBRARY})
+
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES
+        PREFIX ""
+        SUFFIX ".so"
+        OUTPUT_NAME "ruby_prof"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../../../../../lib/${Ruby_VERSION_MAJOR}.${Ruby_VERSION_MINOR}" # Windows
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/../../../../../lib/${Ruby_VERSION_MAJOR}.${Ruby_VERSION_MINOR}" # Not Windows
+        C_STANDARD 99)
+

@@ -60,6 +60,7 @@ EOF
   spec.date = Time.now.strftime('%Y-%m-%d')
   spec.homepage = 'https://github.com/ruby-prof/ruby-prof'
   spec.add_dependency('base64')
+  spec.add_dependency('ostruct')
   spec.add_development_dependency('minitest')
   spec.add_development_dependency('rake-compiler')
   spec.add_development_dependency('rdoc')

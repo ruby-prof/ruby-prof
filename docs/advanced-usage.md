@@ -14,6 +14,10 @@ ruby-prof understands the following options when profiling code:
 
 **include_threads** - Array of threads which should be profiled. All other threads will be ignored. For more information see the [Thread Inclusion/Exclusion](#thread-inclusionexclusion) section.
 
+**allow_exceptions** - Whether to raise exceptions encountered during profiling, or to suppress them. Defaults to false.
+
+**exclude_common** - Automatically calls `exclude_common_methods!` to exclude commonly cluttering methods. Defaults to false. For more information see the [Method Exclusion](#method-exclusion) section.
+
 ## Measurement Mode
 
 The measurement mode determines what ruby-prof measures when profiling code. Supported measurements are:
@@ -82,19 +86,25 @@ However, this is a somewhat opinionated method collection. It's usually better t
 
 ## Merging Threads and Fibers
 
-A common design pattern is to have a main thread delegate work to background threads or fibers (the rest of this section will just refer to worker threads to keep the text simpler). Examples include web servers, such as Puma and Falcon.
+ruby-prof profiles each thread and fiber separately. A common design pattern is to have a main thread delegate work to background threads or fibers. Examples include web servers such as Puma and Falcon, as well as code that uses `Enumerator`, `Fiber.new`, or async libraries.
 
-Understanding profiling results for worker threads can be very difficult because there may be hundreds or thousands of them. To help with this, ruby-prof includes the ability to merge results for worker threads that start with the same parent method. In the best case, this can collapse results into two threads - one for the parent thread and one for all worker threads.
+Understanding profiling results can be very difficult when there are many threads or fibers because each one appears as a separate entry in the output. To help with this, ruby-prof includes the ability to merge results for threads and fibers that start with the same root method. In the best case, this can collapse results into just two entries - one for the parent thread and one for all workers.
 
-Note the collapsed threads show the sum of times for all merged threads. For example, assume there are 10 worker threads that each took 5 seconds to run. The single merged thread will show a total time of 50 seconds.
+Note the collapsed results show the sum of times for all merged threads/fibers. For example, assume there are 10 worker fibers that each took 5 seconds to run. The single merged entry will show a total time of 50 seconds.
 
-To merge threads:
+To merge threads and fibers:
 
 ```ruby
 profile = RubyProf::Profile.profile do
             ...
           end
 profile.merge!
+```
+
+This is also supported in the Rack adapter via the `merge_fibers` option:
+
+```ruby
+config.middleware.use Rack::RubyProf, :path => './tmp/profile', :merge_fibers => true
 ```
 
 ## Saving Results

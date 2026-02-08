@@ -16,5 +16,6 @@ ENV["MT_CPU"] = "0" # New versions of minitest
 ENV["N"] = "0" # Older versions of minitest
 
 require 'minitest/autorun'
+Minitest.load_plugins
 class TestCase < Minitest::Test
 end

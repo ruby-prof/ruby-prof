@@ -20,3 +20,4 @@ Gemfile.lock
 /ext/ruby_prof/mkmf.log
 /ext/ruby_prof/.idea
 /ext/ruby_prof/cmake-build-mingw
+/site

@@ -15,6 +15,7 @@ module RubyProf
       @call_info_printer = printers.include?(:call_tree) ? CallInfoPrinter.new(result) : nil
 
       @stack_printer = printers.include?(:stack) ? CallStackPrinter.new(result) : nil
+      @flame_graph_printer = printers.include?(:flame_graph) ? FlameGraphPrinter.new(result) : nil
       @dot_printer = printers.include?(:dot) ? DotPrinter.new(result) : nil
     end
 
@@ -37,6 +38,7 @@ module RubyProf
       print_to_graph_html(options) if @graph_html_printer
 
       print_to_stack(options) if @stack_printer
+      print_to_flame_graph(options) if @flame_graph_printer
       print_to_call_info(options) if @call_info_printer
       print_to_tree(options) if @tree_printer
       print_to_dot(options) if @dot_printer
@@ -69,6 +71,11 @@ module RubyProf
     # the name of the call stack profile file
     def stack_report
       "#{@directory}/#{@file_name}.stack.html"
+    end
+
+    # the name of the flame graph profile file
+    def flame_graph_report
+      "#{@directory}/#{@file_name}.flame_graph.html"
     end
 
     # the name of the call stack profile file
@@ -107,6 +114,12 @@ module RubyProf
     def print_to_stack(options)
       File.open(stack_report, "wb") do |file|
         @stack_printer.print(file, options.merge(:graph => "#{@file_name}.graph.html"))
+      end
+    end
+
+    def print_to_flame_graph(options)
+      File.open(flame_graph_report, "wb") do |file|
+        @flame_graph_printer.print(file, options)
       end
     end
 

@@ -39,8 +39,6 @@ module RubyProf
       RubyProf.measure_mode = RubyProf::WALL_TIME
     when "allocations"
       RubyProf.measure_mode = RubyProf::ALLOCATIONS
-    when "memory"
-      RubyProf.measure_mode = RubyProf::MEMORY
     when "process", "process_time"
       RubyProf.measure_mode = RubyProf::PROCESS_TIME
     else

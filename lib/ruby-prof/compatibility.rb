@@ -10,7 +10,6 @@ module RubyProf
   # * RubyProf::WALL_TIME
   # * RubyProf::PROCESS_TIME
   # * RubyProf::ALLOCATIONS
-  # * RubyProf::MEMORY
   def self.measure_mode
     @measure_mode ||= RubyProf::WALL_TIME
   end
@@ -23,7 +22,6 @@ module RubyProf
   # * RubyProf::WALL_TIME - Wall time measures the real-world time elapsed between any two moments. If there are other processes concurrently running on the system that use significant CPU or disk time during a profiling run then the reported results will be larger than expected. On Windows, wall time is measured using GetTickCount(), on MacOS by mach_absolute_time, on Linux by clock_gettime and otherwise by gettimeofday.
   # * RubyProf::PROCESS_TIME - Process time measures the time used by a process between any two moments. It is unaffected by other processes concurrently running on the system. Remember with process time that calls to methods like sleep will not be included in profiling results. On Windows, process time is measured using GetProcessTimes and on other platforms by clock_gettime.
   # * RubyProf::ALLOCATIONS - Object allocations measures show how many objects each method in a program allocates. Measurements are done via Ruby's GC.stat api.
-  # * RubyProf::MEMORY - Memory measures how much memory each method in a program uses. Measurements are done via Ruby's TracePoint api.
   def self.measure_mode=(value)
     @measure_mode = value
   end

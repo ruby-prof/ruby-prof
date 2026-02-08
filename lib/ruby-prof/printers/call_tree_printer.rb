@@ -37,9 +37,6 @@ module RubyProf
         when RubyProf.const_defined?(:ALLOCATIONS) && RubyProf::ALLOCATIONS
           @value_scale = 1
           @event_specification << 'allocations'
-        when RubyProf.const_defined?(:MEMORY) && RubyProf::MEMORY
-          @value_scale = 1
-          @event_specification << 'memory'
         when RubyProf.const_defined?(:GC_RUNS) && RubyProf::GC_RUNS
           @value_scale = 1
           @event_specification << 'gc_runs'

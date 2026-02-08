@@ -63,7 +63,6 @@ class MarshalTest < TestCase
       assert_equal(allocation_1.klass_flags, allocation_2.klass_flags)
 
       assert_equal(allocation_1.count, allocation_2.count)
-      assert_equal(allocation_1.memory, allocation_2.memory)
 
       assert_equal(allocation_1.source_file, allocation_2.source_file)
       assert_equal(allocation_1.line, allocation_2.line)

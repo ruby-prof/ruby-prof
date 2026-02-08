@@ -165,8 +165,7 @@ module RubyProf
                 'Select what ruby-prof should measure:',
                 '  wall - Wall time (default).',
                 '  process - Process time.',
-                '  allocations - Object allocations (requires patched Ruby interpreter).',
-                '  memory - Allocated memory in KB (requires patched Ruby interpreter).') do |measure_mode|
+                '  allocations - Object allocations (requires patched Ruby interpreter).') do |measure_mode|
 
           case measure_mode
           when :wall
@@ -175,8 +174,6 @@ module RubyProf
             options.measure_mode = RubyProf::PROCESS_TIME
           when :allocations
             options.measure_mode = RubyProf::ALLOCATIONS
-          when :memory
-            options.measure_mode = RubyProf::MEMORY
           end
         end
 

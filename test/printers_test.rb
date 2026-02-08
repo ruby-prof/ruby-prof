@@ -12,7 +12,7 @@ class PrintersTest < TestCase
   def setup
     super
     # WALL_TIME, PROCESS_TIME, ALLOCATIONS and MEMORY as types of measuremen
-    measure_modes = {wall_time: RubyProf::WALL_TIME, process_time: RubyProf::PROCESS_TIME, allocations: RubyProf::ALLOCATIONS, memory: RubyProf::MEMORY}
+    measure_modes = {wall_time: RubyProf::WALL_TIME, process_time: RubyProf::PROCESS_TIME, allocations: RubyProf::ALLOCATIONS}
 
     @results = {}
 
@@ -140,7 +140,7 @@ class PrintersTest < TestCase
   end
 
   def test_print_footer
-    results_keys = [:wall_time, :process_time, :allocations, :memory]
+    results_keys = [:wall_time, :process_time, :allocations]
     expected_matches = [
       "The percentage of time spent by this method relative to the total time in the entire program.",
       "The total time spent by this method and its children.",
@@ -166,8 +166,6 @@ class PrintersTest < TestCase
         matches = expected_matches[0..3]
       when :allocations
         matches = expected_matches[4..7]
-      when :memory
-        matches = expected_matches[8..11]
       end
 
       matches.each do |pattern|

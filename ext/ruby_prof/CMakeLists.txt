@@ -8,7 +8,6 @@ add_library (${CMAKE_PROJECT_NAME} SHARED
         "rp_call_tree.c"
         "rp_call_trees.c"
         "rp_measure_allocations.c"
-        "rp_measure_memory.c"
         "rp_measure_process_time.c"
         "rp_measure_wall_time.c"
         "rp_measurement.c"

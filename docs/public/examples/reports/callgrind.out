@@ -1,0 +1,150 @@
+events: wall_time
+
+fl=
+fn=Array::take
+0 2
+
+fl=C:/Source/ruby-prof/<internal:numeric>
+fn=Integer::-@
+104 7
+
+fl=
+fn=Hash::each
+0 22
+cfl=C:/Source/ruby-prof/<internal:numeric>
+cfn=Integer::-@
+calls=25 19
+19 7
+
+fl=
+fn=Enumerable::sort_by
+0 10
+cfl=
+cfn=Hash::each
+calls=1 0
+0 28
+
+fl=C:/Source/ruby-prof/docs/public/examples/example.rb
+fn=Object::top_words
+18 10
+cfl=
+cfn=Enumerable::sort_by
+calls=1 19
+19 38
+cfl=
+cfn=Array::take
+calls=1 19
+19 2
+
+fl=
+fn=Hash::[]=
+0 1148
+
+fl=
+fn=Integer::+
+0 791
+
+fl=
+fn=Hash::[]
+0 1017
+
+fl=
+fn=Array::each
+0 3291
+cfl=
+cfn=Hash::[]
+calls=5800 14
+14 1017
+cfl=
+cfn=Integer::+
+calls=5800 14
+14 791
+cfl=
+cfn=Hash::[]=
+calls=5800 14
+14 1148
+
+fl=C:/Source/ruby-prof/<internal:hash>
+fn=Hash::initialize
+37 2
+
+fl=C:/Source/ruby-prof/docs/public/examples/example.rb
+fn=Object::count_words
+12 7
+cfl=C:/Source/ruby-prof/<internal:hash>
+cfn=Hash::initialize
+calls=1 13
+13 2
+cfl=
+cfn=Array::each
+calls=1 14
+14 6248
+
+fl=
+fn=String::split
+0 1382
+
+fl=C:/Source/ruby-prof/docs/public/examples/example.rb
+fn=Object::tokenize
+8 2
+cfl=
+cfn=String::split
+calls=1 9
+9 1382
+
+fl=
+fn=String::gsub
+0 500
+
+fl=
+fn=String::downcase
+0 20
+
+fl=C:/Source/ruby-prof/docs/public/examples/example.rb
+fn=Object::normalize
+4 3
+cfl=
+cfn=String::downcase
+calls=1 5
+5 20
+cfl=
+cfn=String::gsub
+calls=1 5
+5 500
+
+fl=
+fn=String::*
+0 6
+
+fl=C:/Source/ruby-prof/docs/public/examples/example.rb
+fn=Object::run_example
+22 12
+cfl=
+cfn=String::*
+calls=1 23
+23 6
+cfl=C:/Source/ruby-prof/docs/public/examples/example.rb
+cfn=Object::normalize
+calls=1 29
+29 523
+cfl=C:/Source/ruby-prof/docs/public/examples/example.rb
+cfn=Object::tokenize
+calls=1 30
+30 1384
+cfl=C:/Source/ruby-prof/docs/public/examples/example.rb
+cfn=Object::count_words
+calls=1 31
+31 6256
+cfl=C:/Source/ruby-prof/docs/public/examples/example.rb
+cfn=Object::top_words
+calls=1 32
+32 50
+
+fl=C:/Source/ruby-prof/docs/public/examples/generate_reports.rb
+fn=[global]::
+24 35
+cfl=C:/Source/ruby-prof/docs/public/examples/example.rb
+cfn=Object::run_example
+calls=1 24
+24 8232
+

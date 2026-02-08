@@ -1,0 +1,45 @@
+Measure Mode: wall_time
+Thread ID: 464
+Fiber ID: 456
+Total: 0.008267
+Sort by: self_time
+
+ %self      total      self      wait     child     calls  name                           location
+ 39.81      0.006     0.003     0.000     0.003        1   Array#each                     
+ 16.72      0.001     0.001     0.000     0.000        1   String#split                   
+ 13.89      0.001     0.001     0.000     0.000     5800   Hash#[]=                       
+ 12.31      0.001     0.001     0.000     0.000     5800   Hash#[]                        
+  9.56      0.001     0.001     0.000     0.000     5800   Integer#+                      
+  6.05      0.001     0.001     0.000     0.000        1   String#gsub                    
+  0.42      0.008     0.000     0.000     0.008        1   [global]#                      C:/Source/ruby-prof/docs/public/examples/generate_reports.rb:24
+  0.26      0.000     0.000     0.000     0.000        1   Hash#each                      
+  0.24      0.000     0.000     0.000     0.000        1   String#downcase                
+  0.15      0.008     0.000     0.000     0.008        1   Object#run_example             C:/Source/ruby-prof/docs/public/examples/example.rb:22
+  0.12      0.000     0.000     0.000     0.000        1   Enumerable#sort_by             
+  0.12      0.000     0.000     0.000     0.000        1   Object#top_words               C:/Source/ruby-prof/docs/public/examples/example.rb:18
+  0.09      0.006     0.000     0.000     0.006        1   Object#count_words             C:/Source/ruby-prof/docs/public/examples/example.rb:12
+  0.08      0.000     0.000     0.000     0.000       25   Integer#-@                     <internal:numeric>:104
+  0.07      0.000     0.000     0.000     0.000        1   String#*                       
+  0.04      0.001     0.000     0.000     0.001        1   Object#normalize               C:/Source/ruby-prof/docs/public/examples/example.rb:4
+  0.03      0.001     0.000     0.000     0.001        1   Object#tokenize                C:/Source/ruby-prof/docs/public/examples/example.rb:8
+  0.03      0.000     0.000     0.000     0.000        1   Array#take                     
+  0.02      0.000     0.000     0.000     0.000        1   Hash#initialize                <internal:hash>:37
+
+* recursively called methods
+
+Columns are:
+
+  %self     - The percentage of time spent by this method relative to the total time in the entire program.
+  total     - The total time spent by this method and its children.
+  self      - The time spent by this method.
+  wait      - The time this method spent waiting for other threads.
+  child     - The time spent by this method's children.
+  calls     - The number of times this method was called.
+  name      - The name of the method.
+  location  - The location of the method.
+
+The interpretation of method names is:
+
+  * MyObject#test - An instance method "test" of the class "MyObject"
+  * <Object:MyObject>#test - The <> characters indicate a method on a singleton class.
+

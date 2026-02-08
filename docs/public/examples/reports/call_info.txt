@@ -1,0 +1,27 @@
+----------------------------------------------------
+Thread ID: 464
+Fiber ID: 456
+Total Time: 0.008266999997431412
+Sort by: 
+
+[global]# (tt:0.01, st:0.00, wt:0.00, ct:0.01, call:1, )
+  Object#run_example (tt:0.01, st:0.00, wt:0.00, ct:0.01, call:1, )
+    String#* (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+    Object#normalize (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+      String#downcase (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+      String#gsub (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+    Object#tokenize (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+      String#split (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+    Object#count_words (tt:0.01, st:0.00, wt:0.00, ct:0.01, call:1, )
+      Hash#initialize (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+      Array#each (tt:0.01, st:0.00, wt:0.00, ct:0.00, call:1, )
+        Hash#[] (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:5800, )
+        Integer#+ (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:5800, )
+        Hash#[]= (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:5800, )
+    Object#top_words (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+      Enumerable#sort_by (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+        Hash#each (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+          Integer#-@ (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:25, )
+      Array#take (tt:0.00, st:0.00, wt:0.00, ct:0.00, call:1, )
+
+

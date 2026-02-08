@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ruby-prof flame graph</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+      color: #333;
+    }
+    #header {
+      background: #2d3436;
+      color: #dfe6e9;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    #header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    #controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    #controls label {
+      font-size: 13px;
+      color: #b2bec3;
+    }
+    #controls select, #controls input[type="text"] {
+      font-size: 13px;
+      padding: 4px 8px;
+      border: 1px solid #636e72;
+      border-radius: 3px;
+      background: #3d4447;
+      color: #dfe6e9;
+    }
+    #controls button {
+      font-size: 13px;
+      padding: 4px 12px;
+      border: 1px solid #636e72;
+      border-radius: 3px;
+      background: #3d4447;
+      color: #dfe6e9;
+      cursor: pointer;
+    }
+    #controls button:hover {
+      background: #4a5568;
+    }
+    #chart-container {
+      padding: 10px 20px 0 20px;
+      overflow-x: auto;
+    }
+    #tooltip {
+      position: fixed;
+      display: none;
+      background: rgba(0,0,0,0.88);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      line-height: 1.5;
+      pointer-events: none;
+      z-index: 1000;
+      max-width: 500px;
+      white-space: nowrap;
+    }
+    #tooltip .tt-name {
+      font-weight: 600;
+      margin-bottom: 2px;
+      white-space: normal;
+      word-break: break-all;
+    }
+    #tooltip .tt-detail {
+      color: #ccc;
+    }
+    svg {
+      display: block;
+    }
+    svg text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 11px;
+      fill: #333;
+      pointer-events: none;
+    }
+    svg rect.frame {
+      stroke: #fff;
+      stroke-width: 0.5;
+      cursor: pointer;
+    }
+    svg rect.frame:hover {
+      stroke: #333;
+      stroke-width: 1;
+    }
+    svg rect.frame.highlight {
+      stroke: #0984e3;
+      stroke-width: 2;
+    }
+    #zoom-info {
+      padding: 6px 20px;
+      font-size: 12px;
+      color: #636e72;
+      display: none;
+    }
+    #zoom-info a {
+      color: #0984e3;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <h1>ruby-prof flame graph</h1>
+    <div id="controls">
+      <label for="thread-select">Thread:</label>
+      <select id="thread-select"></select>
+      <label for="search-input">Search:</label>
+      <input type="text" id="search-input" placeholder="Method name...">
+      <button id="reset-zoom-btn">Reset Zoom</button>
+      <button id="toggle-icicle-btn">Icicle</button>
+    </div>
+  </div>
+  <div id="zoom-info">Zoomed into: <span id="zoom-target"></span> &mdash; <a id="zoom-reset-link">reset</a></div>
+  <div id="thread-info" style="padding: 6px 20px; font-size: 12px; color: #636e72;"></div>
+  <div id="chart-container">
+    <svg id="flame-svg"></svg>
+  </div>
+  <div id="tooltip"></div>
+
+  <script>
+  (function() {
+    var threads = [{"id":464,"fiber_id":456,"total_time":0.008266999997431412,"data":{"name":"[global]#","value":0.008266999997431412,"self_value":0.000034899989259429276,"called":1,"children":[{"name":"Object#run_example","value":0.008232100008171983,"self_value":0.000012300006346777081,"called":1,"children":[{"name":"Object#count_words","value":0.006256499997107312,"self_value":0.000007299997378140688,"called":1,"children":[{"name":"Array#each","value":0.006247500001336448,"self_value":0.0032911000889725983,"called":1,"children":[{"name":"Hash#[]=","value":0.001148200113675557,"self_value":0.001148200113675557,"called":5800,"children":[]},{"name":"Hash#[]","value":0.001017499904264696,"self_value":0.001017499904264696,"called":5800,"children":[]},{"name":"Integer#+","value":0.0007906998944235966,"self_value":0.0007906998944235966,"called":5800,"children":[]}]},{"name":"Hash#initialize","value":0.0000016999983927235007,"self_value":0.0000016999983927235007,"called":1,"children":[]}]},{"name":"Object#tokenize","value":0.0013841000036336482,"self_value":0.0000021000014385208488,"called":1,"children":[{"name":"String#split","value":0.0013820000021951273,"self_value":0.0013820000021951273,"called":1,"children":[]}]},{"name":"Object#normalize","value":0.0005230999959167093,"self_value":0.000003000008291564882,"called":1,"children":[{"name":"String#gsub","value":0.0005000999954063445,"self_value":0.0005000999954063445,"called":1,"children":[]},{"name":"String#downcase","value":0.00001999999221879989,"self_value":0.00001999999221879989,"called":1,"children":[]}]},{"name":"Object#top_words","value":0.000050300004659220576,"self_value":0.000009900002623908222,"called":1,"children":[{"name":"Enumerable#sort_by","value":0.000038300000596791506,"self_value":0.000009900002623908222,"called":1,"children":[{"name":"Hash#each","value":0.000028399997972883284,"self_value":0.000021599960746243596,"called":1,"children":[{"name":"Integer#-@","value":0.000006800037226639688,"self_value":0.000006800037226639688,"called":25,"children":[]}]}]},{"name":"Array#take","value":0.0000021000014385208488,"self_value":0.0000021000014385208488,"called":1,"children":[]}]},{"name":"String#*","value":0.000005800000508315861,"self_value":0.000005800000508315861,"called":1,"children":[]}]}]}}];
+    var currentThreadIdx = 0;
+    var zoomNode = null;
+    var searchPattern = null;
+    var icicleMode = false;
+
+    var FRAME_HEIGHT = 18;
+    var MIN_WIDTH_PX = 1;
+    var PADDING_BOTTOM = 4;
+    var CHAR_WIDTH = 6.5;
+    var TEXT_PADDING = 4;
+
+    // --- Color ---
+    function hashCode(s) {
+      var hash = 0;
+      for (var i = 0; i < s.length; i++) {
+        hash = ((hash << 5) - hash) + s.charCodeAt(i);
+        hash = hash & hash;
+      }
+      return Math.abs(hash);
+    }
+
+    function frameColor(name) {
+      var h = hashCode(name);
+      var hue = 10 + (h % 40);
+      var sat = 60 + (h % 30);
+      var lit = 55 + (h % 20);
+      return 'hsl(' + hue + ',' + sat + '%,' + lit + '%)';
+    }
+
+    // --- Layout ---
+    function maxDepth(node) {
+      var max = 0;
+      if (node.children) {
+        for (var i = 0; i < node.children.length; i++) {
+          var d = maxDepth(node.children[i]);
+          if (d > max) max = d;
+        }
+      }
+      return max + 1;
+    }
+
+    function render() {
+      var thread = threads[currentThreadIdx];
+      var root = zoomNode || thread.data;
+      var totalTime = root.value;
+      var depth = maxDepth(root);
+
+      // Update thread info text above the SVG
+      var threadInfo = 'Thread ' + thread.id + ' | Total: ' + root.value.toFixed(4) + 's';
+      if (zoomNode) threadInfo += ' (zoomed)';
+      document.getElementById('thread-info').textContent = threadInfo;
+
+      var container = document.getElementById('chart-container');
+      var svgWidth = Math.max(container.clientWidth - 40, 800);
+      var svgHeight = depth * FRAME_HEIGHT + PADDING_BOTTOM;
+
+      var svg = document.getElementById('flame-svg');
+      svg.setAttribute('width', svgWidth);
+      svg.setAttribute('height', svgHeight);
+      svg.innerHTML = '';
+
+      renderNode(svg, root, 0, svgWidth, 0, totalTime, svgHeight);
+      updateZoomInfo();
+    }
+
+    function renderNode(svg, node, x, width, depth, totalTime, svgHeight) {
+      if (width < MIN_WIDTH_PX) return;
+
+      var y = icicleMode
+        ? depth * FRAME_HEIGHT
+        : svgHeight - PADDING_BOTTOM - (depth + 1) * FRAME_HEIGHT;
+      var rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('class', 'frame');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', width);
+      rect.setAttribute('height', FRAME_HEIGHT - 1);
+      rect.setAttribute('fill', frameColor(node.name));
+      rect.setAttribute('rx', 1);
+
+      if (searchPattern && searchPattern.test(node.name)) {
+        rect.classList.add('highlight');
+      }
+
+      rect.addEventListener('click', function(e) {
+        e.stopPropagation();
+        zoomNode = node;
+        render();
+      });
+
+      rect.addEventListener('mouseenter', function(e) {
+        showTooltip(e, node, totalTime);
+      });
+      rect.addEventListener('mousemove', function(e) {
+        positionTooltip(e);
+      });
+      rect.addEventListener('mouseleave', hideTooltip);
+
+      svg.appendChild(rect);
+
+      // Text label
+      var maxChars = Math.floor((width - TEXT_PADDING * 2) / CHAR_WIDTH);
+      if (maxChars > 2) {
+        var label = node.name;
+        if (label.length > maxChars) {
+          label = label.substring(0, maxChars - 2) + '..';
+        }
+        var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', x + TEXT_PADDING);
+        text.setAttribute('y', y + FRAME_HEIGHT - 5);
+        text.textContent = label;
+        svg.appendChild(text);
+      }
+
+      // Children
+      if (node.children) {
+        var childX = x;
+        for (var i = 0; i < node.children.length; i++) {
+          var child = node.children[i];
+          var childWidth = (child.value / (node.value || 1)) * width;
+          renderNode(svg, child, childX, childWidth, depth + 1, totalTime, svgHeight);
+          childX += childWidth;
+        }
+      }
+    }
+
+    // --- Tooltip ---
+    var tooltipEl = document.getElementById('tooltip');
+
+    function showTooltip(e, node, totalTime) {
+      var pct = totalTime > 0 ? (node.value / totalTime * 100).toFixed(2) : '0.00';
+      var selfPct = totalTime > 0 ? (node.self_value / totalTime * 100).toFixed(2) : '0.00';
+      tooltipEl.innerHTML =
+        '<div class="tt-name">' + escapeHtml(node.name) + '</div>' +
+        '<div class="tt-detail">Total: ' + node.value.toFixed(4) + 's (' + pct + '%)</div>' +
+        '<div class="tt-detail">Self: ' + node.self_value.toFixed(4) + 's (' + selfPct + '%)</div>' +
+        '<div class="tt-detail">Calls: ' + node.called + '</div>';
+      tooltipEl.style.display = 'block';
+      positionTooltip(e);
+    }
+
+    function positionTooltip(e) {
+      var x = e.clientX + 12;
+      var y = e.clientY + 12;
+      if (x + tooltipEl.offsetWidth > window.innerWidth - 10) {
+        x = e.clientX - tooltipEl.offsetWidth - 12;
+      }
+      if (y + tooltipEl.offsetHeight > window.innerHeight - 10) {
+        y = e.clientY - tooltipEl.offsetHeight - 12;
+      }
+      tooltipEl.style.left = x + 'px';
+      tooltipEl.style.top = y + 'px';
+    }
+
+    function hideTooltip() {
+      tooltipEl.style.display = 'none';
+    }
+
+    function escapeHtml(s) {
+      var div = document.createElement('div');
+      div.appendChild(document.createTextNode(s));
+      return div.innerHTML;
+    }
+
+    // --- Zoom ---
+    function updateZoomInfo() {
+      var info = document.getElementById('zoom-info');
+      if (zoomNode && zoomNode !== threads[currentThreadIdx].data) {
+        info.style.display = 'block';
+        document.getElementById('zoom-target').textContent = zoomNode.name;
+      } else {
+        info.style.display = 'none';
+      }
+    }
+
+    function resetZoom() {
+      zoomNode = null;
+      render();
+    }
+
+    document.getElementById('reset-zoom-btn').addEventListener('click', resetZoom);
+    document.getElementById('zoom-reset-link').addEventListener('click', resetZoom);
+
+    // --- Icicle toggle ---
+    var icicleBtn = document.getElementById('toggle-icicle-btn');
+    icicleBtn.addEventListener('click', function() {
+      icicleMode = !icicleMode;
+      icicleBtn.textContent = icicleMode ? 'Flame' : 'Icicle';
+      render();
+    });
+
+    // --- Thread selector ---
+    var threadSelect = document.getElementById('thread-select');
+    for (var i = 0; i < threads.length; i++) {
+      var opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = 'Thread ' + threads[i].id + ' (Fiber ' + threads[i].fiber_id + ')';
+      threadSelect.appendChild(opt);
+    }
+    threadSelect.addEventListener('change', function() {
+      currentThreadIdx = parseInt(this.value, 10);
+      zoomNode = null;
+      render();
+    });
+
+    // --- Search ---
+    var searchInput = document.getElementById('search-input');
+    var searchTimeout = null;
+    searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(function() {
+        var val = searchInput.value.trim();
+        if (val.length > 0) {
+          try {
+            searchPattern = new RegExp(val, 'i');
+          } catch(e) {
+            searchPattern = new RegExp(val.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+          }
+        } else {
+          searchPattern = null;
+        }
+        render();
+      }, 200);
+    });
+
+    // --- Resize ---
+    var resizeTimeout = null;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(render, 150);
+    });
+
+    // --- Init ---
+    render();
+  })();
+  </script>
+</body>
+</html>

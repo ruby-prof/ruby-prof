@@ -2,7 +2,7 @@
 
 - [Getting Started](getting-started.md) - Command line, convenience API, core API
 - [Advanced Usage](advanced-usage.md) - Measurement modes, allocation tracking, thread filtering, method exclusion
-- [Reports](reports.md) - Flat, graph, HTML, call stack, call tree, graphviz
+- [Reports](reports.md) - Flat, graph, HTML, call stack, call tree, flame graph, graphviz
 - [Profiling Rails](profiling-rails.md) - Using ruby-prof with Rails applications
 - [Architecture](architecture.md) - How ruby-prof works internally
 

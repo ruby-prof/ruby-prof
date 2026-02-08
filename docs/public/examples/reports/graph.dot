@@ -1,0 +1,104 @@
+digraph "Profile" {
+labelloc=t;
+labeljust=l;
+subgraph "Thread 464" {
+624 [label="take\n(0%)"];
+632 [label="-@\n(0%)"];
+640 [label="each\n(0%)"];
+640 -> 632 [label="25/25" fontsize=10 fontcolor="#666666"];
+648 [label="sort_by\n(0%)"];
+648 -> 640 [label="1/1" fontsize=10 fontcolor="#666666"];
+656 [label="top_words\n(1%)"];
+656 -> 648 [label="1/1" fontsize=10 fontcolor="#666666"];
+656 -> 624 [label="1/1" fontsize=10 fontcolor="#666666"];
+664 [label="[]=\n(14%)"];
+672 [label="+\n(10%)"];
+680 [label="[]\n(12%)"];
+688 [label="each\n(76%)"];
+688 -> 664 [label="5800/5800" fontsize=10 fontcolor="#666666"];
+688 -> 680 [label="5800/5800" fontsize=10 fontcolor="#666666"];
+688 -> 672 [label="5800/5800" fontsize=10 fontcolor="#666666"];
+696 [label="initialize\n(0%)"];
+704 [label="count_words\n(76%)"];
+704 -> 688 [label="1/1" fontsize=10 fontcolor="#666666"];
+704 -> 696 [label="1/1" fontsize=10 fontcolor="#666666"];
+712 [label="split\n(17%)"];
+720 [label="tokenize\n(17%)"];
+720 -> 712 [label="1/1" fontsize=10 fontcolor="#666666"];
+728 [label="gsub\n(6%)"];
+736 [label="downcase\n(0%)"];
+744 [label="normalize\n(6%)"];
+744 -> 728 [label="1/1" fontsize=10 fontcolor="#666666"];
+744 -> 736 [label="1/1" fontsize=10 fontcolor="#666666"];
+752 [label="*\n(0%)"];
+760 [label="run_example\n(100%)"];
+760 -> 704 [label="1/1" fontsize=10 fontcolor="#666666"];
+760 -> 720 [label="1/1" fontsize=10 fontcolor="#666666"];
+760 -> 744 [label="1/1" fontsize=10 fontcolor="#666666"];
+760 -> 656 [label="1/1" fontsize=10 fontcolor="#666666"];
+760 -> 752 [label="1/1" fontsize=10 fontcolor="#666666"];
+768 [label="[global]\n(100%)"];
+768 -> 760 [label="1/1" fontsize=10 fontcolor="#666666"];
+}
+subgraph cluster_776 {
+label = "[global]";
+fontcolor = "#666666";
+fontsize = 16;
+color = "#666666";
+768;
+}
+subgraph cluster_784 {
+label = "Object";
+fontcolor = "#666666";
+fontsize = 16;
+color = "#666666";
+760;
+744;
+720;
+704;
+656;
+}
+subgraph cluster_792 {
+label = "String";
+fontcolor = "#666666";
+fontsize = 16;
+color = "#666666";
+752;
+736;
+728;
+712;
+}
+subgraph cluster_800 {
+label = "Hash";
+fontcolor = "#666666";
+fontsize = 16;
+color = "#666666";
+696;
+680;
+664;
+640;
+}
+subgraph cluster_808 {
+label = "Array";
+fontcolor = "#666666";
+fontsize = 16;
+color = "#666666";
+688;
+624;
+}
+subgraph cluster_816 {
+label = "Integer";
+fontcolor = "#666666";
+fontsize = 16;
+color = "#666666";
+672;
+632;
+}
+subgraph cluster_824 {
+label = "Enumerable";
+fontcolor = "#666666";
+fontsize = 16;
+color = "#666666";
+648;
+}
+}

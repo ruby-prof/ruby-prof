@@ -11,4 +11,5 @@ nav = [
   { "Reports" = "reports.md" },
   { "Profiling Rails" = "profiling-rails.md" },
   { "Architecture" = "architecture.md" },
+  { "Changelog" = "changelog.md" },
 ]

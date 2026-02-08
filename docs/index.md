@@ -46,7 +46,7 @@ Significant effort has been put into reducing ruby-prof's overhead. Our tests sh
 
 ## Version History
 
-For a full list of changes between versions, see the [CHANGES](../CHANGES) file.
+For a full list of changes between versions, see the [Changelog](changelog.md).
 
 Notable milestones:
 

@@ -14,7 +14,6 @@ prof_allocation_t* prof_allocation_create(void)
     result->klass = Qnil;
     result->klass_name = Qnil;
     result->object = Qnil;
-    result->memory = 0;
     result->source_line = 0;
     result->source_file = Qnil;
     result->key = 0;
@@ -194,7 +193,6 @@ prof_allocation_t* prof_allocate_increment(st_table* allocations_table, rb_trace
     }
 
     allocation->count++;
-    allocation->memory += rb_obj_memsize_of(object);
 
     return allocation;
 }
@@ -280,16 +278,6 @@ static VALUE prof_allocation_count(VALUE self)
     return INT2FIX(allocation->count);
 }
 
-/* call-seq:
-   memory -> number
-
-Returns the amount of memory allocated. */
-static VALUE prof_allocation_memory(VALUE self)
-{
-    prof_allocation_t* allocation = prof_allocation_get(self);
-    return ULL2NUM(allocation->memory);
-}
-
 /* :nodoc: */
 static VALUE prof_allocation_dump(VALUE self)
 {
@@ -303,7 +291,6 @@ static VALUE prof_allocation_dump(VALUE self)
     rb_hash_aset(result, ID2SYM(rb_intern("source_file")), allocation->source_file);
     rb_hash_aset(result, ID2SYM(rb_intern("source_line")), INT2FIX(allocation->source_line));
     rb_hash_aset(result, ID2SYM(rb_intern("count")), INT2FIX(allocation->count));
-    rb_hash_aset(result, ID2SYM(rb_intern("memory")), ULL2NUM(allocation->memory));
 
     return result;
 }
@@ -320,7 +307,6 @@ static VALUE prof_allocation_load(VALUE self, VALUE data)
     allocation->source_file = rb_hash_aref(data, ID2SYM(rb_intern("source_file")));
     allocation->source_line = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("source_line"))));
     allocation->count = FIX2INT(rb_hash_aref(data, ID2SYM(rb_intern("count"))));
-    allocation->memory = NUM2ULONG(rb_hash_aref(data, ID2SYM(rb_intern("memory"))));
 
     return data;
 }
@@ -336,7 +322,6 @@ void rp_init_allocation(void)
     rb_define_method(cRpAllocation, "source_file", prof_allocation_source_file, 0);
     rb_define_method(cRpAllocation, "line", prof_allocation_source_line, 0);
     rb_define_method(cRpAllocation, "count", prof_allocation_count, 0);
-    rb_define_method(cRpAllocation, "memory", prof_allocation_memory, 0);
     rb_define_method(cRpAllocation, "_dump_data", prof_allocation_dump, 0);
     rb_define_method(cRpAllocation, "_load_data", prof_allocation_load, 1);
 }

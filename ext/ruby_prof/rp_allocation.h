@@ -15,7 +15,6 @@ typedef struct prof_allocation_t
     VALUE source_file;                /* Line number where allocation happens */
     int source_line;                  /* Line number where allocation happens */
     int count;                        /* Number of allocations */
-    size_t memory;                    /* Amount of allocated memory */
     VALUE object;                     /* Cache to wrapped object */
 } prof_allocation_t;
 

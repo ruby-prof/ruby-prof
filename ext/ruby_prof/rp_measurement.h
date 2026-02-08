@@ -14,8 +14,7 @@ typedef enum
 {
     MEASURE_WALL_TIME,
     MEASURE_PROCESS_TIME,
-    MEASURE_ALLOCATIONS,
-    MEASURE_MEMORY
+    MEASURE_ALLOCATIONS
 } prof_measure_mode_t;
 
 typedef struct prof_measurer_t

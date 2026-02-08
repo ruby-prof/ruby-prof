@@ -1,27 +1,31 @@
-name: docs
+name: Deploy Documentation
 
 on:
   push:
-    branches:
-      - master
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    branches: [ master ]
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/configure-pages@v5
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.x
-      - run: pip install zensical
-      - run: zensical build --clean
-      - uses: actions/upload-pages-artifact@v4
+          python-version: '3.x'
+
+      - name: Install zensical
+        run: pip install zensical
+
+      - name: Build documentation
+        run: zensical build --clean
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: site
-      - uses: actions/deploy-pages@v4
+          deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
+          external_repository: ruby-prof/ruby-prof.github.io
+          publish_branch: main
+          publish_dir: ./site

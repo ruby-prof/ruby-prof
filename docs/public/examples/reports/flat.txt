@@ -1,29 +1,29 @@
 Measure Mode: wall_time
 Thread ID: 464
 Fiber ID: 456
-Total: 0.008267
+Total: 0.007775
 Sort by: self_time
 
  %self      total      self      wait     child     calls  name                           location
- 39.81      0.006     0.003     0.000     0.003        1   Array#each                     
- 16.72      0.001     0.001     0.000     0.000        1   String#split                   
- 13.89      0.001     0.001     0.000     0.000     5800   Hash#[]=                       
- 12.31      0.001     0.001     0.000     0.000     5800   Hash#[]                        
-  9.56      0.001     0.001     0.000     0.000     5800   Integer#+                      
-  6.05      0.001     0.001     0.000     0.000        1   String#gsub                    
-  0.42      0.008     0.000     0.000     0.008        1   [global]#                      C:/Source/ruby-prof/docs/public/examples/generate_reports.rb:24
-  0.26      0.000     0.000     0.000     0.000        1   Hash#each                      
-  0.24      0.000     0.000     0.000     0.000        1   String#downcase                
-  0.15      0.008     0.000     0.000     0.008        1   Object#run_example             C:/Source/ruby-prof/docs/public/examples/example.rb:22
-  0.12      0.000     0.000     0.000     0.000        1   Enumerable#sort_by             
-  0.12      0.000     0.000     0.000     0.000        1   Object#top_words               C:/Source/ruby-prof/docs/public/examples/example.rb:18
+ 38.85      0.006     0.003     0.000     0.003        1   Array#each                     
+ 19.40      0.002     0.002     0.000     0.000        1   String#split                   
+ 12.86      0.001     0.001     0.000     0.000     5800   Hash#[]=                       
+ 11.29      0.001     0.001     0.000     0.000     5800   Hash#[]                        
+  8.68      0.001     0.001     0.000     0.000     5800   Integer#+                      
+  7.61      0.001     0.001     0.000     0.000        1   String#gsub                    
+  0.22      0.000     0.000     0.000     0.000        1   Hash#each                      
+  0.21      0.000     0.000     0.000     0.000        1   String#downcase                
+  0.19      0.008     0.000     0.000     0.008        1   [global]#                      C:/Source/ruby-prof/docs/public/examples/generate_reports.rb:24
+  0.16      0.008     0.000     0.000     0.008        1   Object#run_example             C:/Source/ruby-prof/docs/public/examples/example.rb:22
+  0.09      0.000     0.000     0.000     0.000        1   Enumerable#sort_by             
   0.09      0.006     0.000     0.000     0.006        1   Object#count_words             C:/Source/ruby-prof/docs/public/examples/example.rb:12
-  0.08      0.000     0.000     0.000     0.000       25   Integer#-@                     <internal:numeric>:104
+  0.08      0.000     0.000     0.000     0.000        1   Object#top_words               C:/Source/ruby-prof/docs/public/examples/example.rb:18
+  0.07      0.000     0.000     0.000     0.000       25   Integer#-@                     <internal:numeric>:104
   0.07      0.000     0.000     0.000     0.000        1   String#*                       
-  0.04      0.001     0.000     0.000     0.001        1   Object#normalize               C:/Source/ruby-prof/docs/public/examples/example.rb:4
-  0.03      0.001     0.000     0.000     0.001        1   Object#tokenize                C:/Source/ruby-prof/docs/public/examples/example.rb:8
-  0.03      0.000     0.000     0.000     0.000        1   Array#take                     
-  0.02      0.000     0.000     0.000     0.000        1   Hash#initialize                <internal:hash>:37
+  0.05      0.001     0.000     0.000     0.001        1   Object#normalize               C:/Source/ruby-prof/docs/public/examples/example.rb:4
+  0.03      0.000     0.000     0.000     0.000        1   Hash#initialize                <internal:hash>:37
+  0.03      0.002     0.000     0.000     0.002        1   Object#tokenize                C:/Source/ruby-prof/docs/public/examples/example.rb:8
+  0.02      0.000     0.000     0.000     0.000        1   Array#take                     
 
 * recursively called methods
 

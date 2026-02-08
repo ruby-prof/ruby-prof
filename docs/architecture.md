@@ -4,7 +4,7 @@
 
 ruby-prof is a profiler for MRI Ruby. It's built as a C extension and therefore many times faster than the standard Ruby profiler. The image below shows the main classes that make up ruby-prof:
 
-![Class Diagram](images/class_diagram.png)
+![Class Diagram](../public/images/class_diagram.png)
 
 The top level class is Profile, which is returned by a profiling run:
 

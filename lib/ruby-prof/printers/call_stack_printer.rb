@@ -155,7 +155,7 @@ module RubyProf
     end
 
     def title
-      @title ||= @options.delete(:title) || "ruby-prof call tree"
+      @title ||= @options.delete(:title) || "ruby-prof call stack"
     end
 
     def threshold

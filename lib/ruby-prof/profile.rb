@@ -17,6 +17,19 @@ module RubyProf
       end
     end
 
+    def measure_mode_name
+      case self.measure_mode
+        when WALL_TIME
+          "Wall Time"
+        when PROCESS_TIME
+          "Process Time"
+        when ALLOCATIONS
+          "Allocations"
+        when MEMORY
+          "Memory"
+      end
+    end
+
     # Hides methods that, when represented as a call graph, have
     # extremely large in and out degrees and make navigation impossible.
     def exclude_common_methods!

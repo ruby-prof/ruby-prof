@@ -1,169 +1,205 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <title>ruby-prof call tree</title>
+    <meta charset="utf-8">
+    <title>ruby-prof call stack</title>
     <style>
+      * { box-sizing: border-box; }
       body {
-        font-size: 70%;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        font-size: 13px;
         padding: 0;
-        margin: 5px;
-        margin-right: 0px;
-        margin-left: 0px;
-        background: #ffffff;
+        margin: 0;
+        background: #f5f5f5;
+        color: #333;
       }
 
       ul {
-        margin-left: 0px;
-        margin-top: 0px;
-        margin-bottom: 0px;
-        padding-left: 0px;
+        margin: 0;
+        padding-left: 0;
         list-style-type: none;
-        font-weight: normal;
       }
 
       li {
-        margin-left: 11px;
-        padding: 0px;
+        margin-left: 20px;
+        padding: 2px 4px;
         white-space: nowrap;
-        border-top: 1px solid #cccccc;
-        border-left: 1px solid #cccccc;
-        border-bottom: none;
+        border-left: 2px solid transparent;
+        border-radius: 2px;
+      }
+
+      li:hover {
+        background: rgba(0,0,0,0.03);
       }
 
       .thread {
-        margin-left: 11px;
-        background: #708090;
-        padding-top: 3px;
-        padding-left: 12px;
-        padding-bottom: 2px;
-        border-left: 1px solid #CCCCCC;
-        border-top: 1px solid #CCCCCC;
-        font-weight: bold;
+        margin: 0 16px;
+        background: #fff;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid #e0e0e0;
+        margin-bottom: 12px;
+        font-weight: 600;
+        color: #555;
       }
 
       .hidden {
         display: none;
-        width: 0px;
-        height: 0px;
-        margin: 0px;
-        padding: 0px;
+        width: 0;
+        height: 0;
+        margin: 0;
+        padding: 0;
         border-style: none;
       }
 
-      .color01 {
-        background: #adbdeb
+      .color01 { border-left-color: #90CAF9; background: #F5F9FF; }
+      .color05 { border-left-color: #64B5F6; background: #EEF5FF; }
+      .color0  { border-left-color: #42A5F5; background: #E8F1FF; }
+      .color1  { border-left-color: #26C6DA; background: #E6F9FB; }
+      .color2  { border-left-color: #26A69A; background: #E4F5F3; }
+      .color3  { border-left-color: #66BB6A; background: #E8F5E9; }
+      .color4  { border-left-color: #9CCC65; background: #F1F8E9; }
+      .color5  { border-left-color: #D4E157; background: #F9FBE7; }
+      .color6  { border-left-color: #FFA726; background: #FFF3E0; }
+      .color7  { border-left-color: #FF7043; background: #FBE9E7; }
+      .color8  { border-left-color: #EF5350; background: #FFEBEE; }
+      .color9  { border-left-color: #E53935; background: #FFEBEE; }
+
+      #header {
+        background: #0D2483;
+        color: #fff;
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
       }
 
-      .color05 {
-        background: #9daddb
+      #header .header-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
       }
 
-      .color0 {
-        background: #8d9dcb
+      #header h6 {
+        margin: 0;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
       }
 
-      .color1 {
-        background: #89bccb
+      #header h1 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        white-space: nowrap;
       }
 
-      .color2 {
-        background: #56e3e7
-      }
-
-      .color3 {
-        background: #32cd70
-      }
-
-      .color4 {
-        background: #a3d53c
-      }
-
-      .color5 {
-        background: #c4cb34
-      }
-
-      .color6 {
-        background: #dcb66d
-      }
-
-      .color7 {
-        background: #cda59e
-      }
-
-      .color8 {
-        background: #be9d9c
-      }
-
-      .color9 {
-        background: #cf947a
+      .logo {
+        width: 140px;
+        height: 30px;
+        opacity: 0.5;
+        background-repeat: no-repeat;
+        background-image: url("data:image/svg+xml,%3Csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 41'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:%23fff%7D%3C/style%3E%3C/defs%3E%3Cpath class='cls-1' d='M63.49 16.74c0-1.37-.91-2-2.26-2h-3.38v3.93h3.58c1.24.01 2.06-.56 2.06-1.93zM110.43 14.75h-3.6v5h3.6a2.32 2.32 0 0 0 2.5-2.49 2.34 2.34 0 0 0-2.5-2.51zM128.77 14.75h-3.53v4.94h3.53a2.28 2.28 0 0 0 2.47-2.45 2.3 2.3 0 0 0-2.47-2.49zM61.81 21.83h-4v4.32h3.91c1.44 0 2.45-.62 2.45-2.14s-.99-2.18-2.36-2.18zM21 14.75h-3.57v4.94H21a2.28 2.28 0 0 0 2.47-2.45A2.3 2.3 0 0 0 21 14.75z'/%3E%3Cpath class='cls-1' d='M184 .44H5.87A4.93 4.93 0 0 0 .94 5.37V35.5a4.94 4.94 0 0 0 4.93 4.94H184a4.94 4.94 0 0 0 4.94-4.94V5.37A4.94 4.94 0 0 0 184 .44zm-34.38 10.78c4.79 0 8.46 2.89 9.18 7.54h-3.86a5.48 5.48 0 0 0-10.68 0h-3.83c.71-4.65 4.36-7.54 9.19-7.54zM24 29.44L20.46 23h-3v6.46h-3.72v-18h7.68c3.41 0 5.78 2.07 5.78 5.76a5.34 5.34 0 0 1-2.88 5.14l3.82 7.06zm24.31-7.3c0 4.8-2.92 7.56-7.63 7.56S33 26.94 33 22.14V11.48h3.69v10.61c0 2.81 1.37 4.32 4 4.32s3.94-1.51 3.94-4.32V11.48h3.69zm13.92 7.3h-8v-18h7.52c3.24 0 5.59 1.61 5.59 5A4 4 0 0 1 65.51 20 4.22 4.22 0 0 1 68 24.21c0 3.43-2.4 5.23-5.81 5.23zm19.66-6.92v6.92h-3.7v-6.92l-6.81-11h4.29L80 18.85l4.34-7.37h4.32zm16-.5h-7.62v-3.26h7.59zm13 1h-4v6.39h-3.72v-18h7.77c3.41 0 5.79 2.09 5.79 5.79s-2.41 5.85-5.82 5.85zm20.86 6.39L128.26 23h-3v6.46h-3.72v-18h7.69c3.4 0 5.78 2.07 5.78 5.76a5.34 5.34 0 0 1-2.88 5.14l3.87 7.08zm17.85.26c-4.88 0-8.55-2.95-9.21-7.68h3.81A5.49 5.49 0 0 0 155 22h3.84c-.69 4.75-4.38 7.7-9.22 7.7zm18.4-.23h-3.72v-3.7H168zm6.36-7.54h-10.05v-3.26h10.08zm1.44-7.16h-11.49v-3.26h11.52z'/%3E%3C/svg%3E");
       }
 
       #commands {
-        font-size: 10pt;
-        padding: 10px;
-        margin-left: 11px;
-        margin-bottom: 0px;
-        margin-top: 0px;
-        background: #708090;
-        border-top: 1px solid #cccccc;
-        border-left: 1px solid #cccccc;
-        border-bottom: none;
+        background: #0D2483;
+        padding: 8px 1.5rem 12px 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
       }
 
-      #titlebar {
-        font-size: 10pt;
-        padding: 10px;
-        margin-left: 11px;
-        margin-bottom: 0px;
-        margin-top: 10px;
-        background: #8090a0;
-        border-top: 1px solid #cccccc;
-        border-left: 1px solid #cccccc;
-        border-bottom: none;
+      #commands label {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.6);
+        font-weight: 600;
+      }
+
+      #commands input[type="text"] {
+        font-size: 13px;
+        padding: 4px 8px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        width: 50px;
+      }
+
+      #commands button {
+        font-size: 13px;
+        padding: 4px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 3px;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        cursor: pointer;
+      }
+
+      #commands button:hover {
+        background: rgba(255, 255, 255, 0.25);
       }
 
       #help {
-        font-size: 10pt;
-        padding: 10px;
-        margin-left: 11px;
-        margin-bottom: 0px;
-        margin-top: 0px;
-        background: #8090a0;
+        font-size: 13px;
+        padding: 12px 20px;
+        margin: 0;
+        background: #fff;
         display: none;
-        border-top: 1px solid #cccccc;
-        border-left: 1px solid #cccccc;
-        border-bottom: none;
+        border-bottom: 1px solid #e0e0e0;
+        color: #555;
+      }
+
+      #help li {
+        margin-left: 0;
+        padding: 2px 0;
+        border-left: none;
+      }
+
+      #content {
+        padding: 16px;
       }
 
       #sentinel {
-        height: 400px;
-        margin-left: 11px;
-        background: #8090a0;
-        border-top: 1px solid #cccccc;
-        border-left: 1px solid #cccccc;
-        border-bottom: none;
+        height: 300px;
       }
 
-      input {
-        margin-left: 10px;
+      a {
+        color: #0984e3;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
       }
 
       .toggle {
-        background: url(data:image/png;base64,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) no-repeat left center;
-        float: left;
-        width: 9px;
-        height: 9px;
-        margin: 2px 1px 1px 1px;
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        text-align: center;
+        line-height: 16px;
+        cursor: pointer;
+        font-size: 10px;
+        color: #999;
+        vertical-align: middle;
+        margin-right: 2px;
+        border-radius: 2px;
+        user-select: none;
       }
 
-      .toggle.minus {
-        background-position: -9px 0;
+      .toggle:hover {
+        background: rgba(0,0,0,0.08);
+        color: #333;
       }
 
-      .toggle.plus {
-        background-position: -18px 0;
-      }
+      .toggle.minus::before { content: "\25BE"; }
+      .toggle.plus::before { content: "\25B8"; }
+      .toggle.empty { visibility: hidden; }
     </style>
 
     <script type="text/javascript">
@@ -193,8 +229,8 @@
 
       function isLeafNode(li)
       {
-        var element = li.querySelector('a')
-        return element.classList.contains('empty')
+        var element = li.querySelector('.toggle')
+        return element && element.classList.contains('empty')
       }
 
       function toggle(li, show)
@@ -242,7 +278,7 @@
 
       function setThresholdLI(li, threshold)
       {
-        var a = li.querySelector('a')
+        var a = li.querySelector('.toggle')
         var span = li.querySelector('span')
         var ul = li.querySelector('ul')
 
@@ -379,17 +415,17 @@
         }
       }
 
-      function toggleHelp(node)
+      function toggleHelp(btn)
       {
         var help = document.getElementById("help")
-        if (node.value == "Show Help")
+        if (help.style.display === 'block')
         {
-          node.value = "Hide Help"
-          help.style.display = 'block'
+          btn.textContent = "Help"
+          help.style.display = 'none'
         } else
         {
-          node.value = "Show Help"
-          help.style.display = 'none'
+          btn.textContent = "Hide Help"
+          help.style.display = 'block'
         }
       }
 
@@ -424,7 +460,7 @@
         }
         selectedNode = node
         selectedColor = node.style.background
-        selectedNode.style.background = "red"
+        selectedNode.style.background = "#BBDEFB"
         selectedNode.scrollIntoView()
         window.scrollBy(0, -400)
       }
@@ -622,11 +658,11 @@
 
       window.onload = function ()
       {
-        var images = document.querySelectorAll(".toggle")
-        for (var i = 0; i < images.length; i++)
+        var toggles = document.querySelectorAll(".toggle")
+        for (var i = 0; i < toggles.length; i++)
         {
-          var img = images[i]
-          img.onclick = function (event)
+          var tog = toggles[i]
+          tog.onclick = function (event)
           {
             toggleChildren(this, event)
             return false
@@ -661,39 +697,38 @@
     
   </head>
   <body>
-    <div style="display: inline-block;">
-      <div id="titlebar">
-        Call tree for application <strong>C:/Source/ruby-prof/docs/public/examples/generate_reports.rb </strong><br/> Generated on 2026-02-07 23:30:47 -0800
-        with options {}<br/>
+    <div id="header">
+      <div class="header-left">
+        <h6>Call Stack Report</h6>
+        <h1>Wall Time</h1>
       </div>
-      <div id="commands">
-        <span style="font-size: 11pt; font-weight: bold;">Threshold:</span>
-        <input value="1.0" size="3" id="threshold" type="text">
-        <input value="Apply" onclick="setThreshold();" type="submit">
-        <input value="Expand All" onclick="expandAll(event);" type="submit">
-        <input value="Collapse All" onclick="collapseAll(event);" type="submit">
-        <input value="Show Help" onclick="toggleHelp(this);" type="submit">
+      <div style="margin-left: auto; display: flex; align-items: flex-end; flex-direction: column;">
+        <div style="font-size: 12px; margin-bottom: 0.5rem; color: rgba(255,255,255,0.6);">Sunday, February 8 at 12:46:07 AM (Pacific Standard Time)</div>
+        <div class="logo"></div>
       </div>
-      <ul style="display: none;" id="help">
-        <li>* indicates recursively called methods</li>
-        <li>Enter a decimal value <i>d</i> into the threshold field and click "Apply" to hide all nodes marked with time
-          values lower than <em>d</em>.
-        </li>
-        <li>Click on "Expand All" for full tree expansion.</li>
-        <li>Click on "Collapse All" to show only top level nodes.</li>
-        <li>Use a, s, d, w as in Quake or Urban Terror to navigate the tree.</li>
-        <li>Use f and b to navigate the tree in preorder forward and backwards.</li>
-        <li>Use x to toggle visibility of a subtree.</li>
-        <li>Use * to expand/collapse a whole subtree.</li>
-        <li>Use h to navigate to thread root.</li>
-        <li>Use n and p to navigate between threads.</li>
-        <li>Click on background to move focus to a subtree.</li>
-      </ul>
+    </div>
+    <div id="commands">
+      <label for="threshold">Threshold:</label>
+      <input value="1.0" size="3" id="threshold" type="text">
+      <button onclick="setThreshold();">Apply</button>
+      <button onclick="expandAll(event);">Expand All</button>
+      <button onclick="collapseAll(event);">Collapse All</button>
+      <button onclick="toggleHelp(this);">Help</button>
+    </div>
+    <ul id="help">
+      <li>* indicates recursively called methods</li>
+      <li>Enter a threshold value and click "Apply" to hide methods below that percentage.</li>
+      <li>Use <strong>a, s, d, w</strong> to navigate the tree (left, down, right, up).</li>
+      <li>Use <strong>f</strong> and <strong>b</strong> to navigate forward and backwards in preorder.</li>
+      <li>Use <strong>x</strong> to toggle a subtree, <strong>*</strong> to expand/collapse a whole subtree.</li>
+      <li>Use <strong>h</strong> to navigate to thread root, <strong>n</strong> and <strong>p</strong> to switch threads.</li>
+    </ul>
 
+    <div id="content">
       
         
         <div class="thread">
-          <span>Thread: 464, Fiber: 456 (100.00% ~ 0.008266999997431412)</span>
+          <span>Thread: 464, Fiber: 456 (100.00% ~ 0.007774999990942888)</span>
           <ul name="thread">
             
             <li class="color9" style="display:block">
@@ -702,83 +737,83 @@
 <ul>
 <li class="color9" style="display:block">
 <a href="#" class="toggle minus" ></a>
-<span>99.58% (99.58%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#22">Object#run_example</a> [1 calls, 1 total]</span>
+<span>99.81% (99.81%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#22">Object#run_example</a> [1 calls, 1 total]</span>
 <ul>
 <li class="color7" style="display:block">
 <a href="#" class="toggle minus" ></a>
-<span>75.68% (76.00%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#12">Object#count_words</a> [1 calls, 1 total]</span>
+<span>71.81% (71.95%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#12">Object#count_words</a> [1 calls, 1 total]</span>
 <ul>
 <li class="color7" style="display:block">
 <a href="#" class="toggle minus" ></a>
-<span>75.57% (99.86%) Array#each [1 calls, 1 total]</span>
+<span>71.68% (99.82%) Array#each [1 calls, 1 total]</span>
 <ul>
 <li class="color1" style="display:block">
 <a href="#" class="toggle empty" ></a>
-<span>13.89% (18.38%) Hash#[]= [5800 calls, 5800 total]</span>
+<span>12.86% (17.94%) Hash#[]= [5800 calls, 5800 total]</span>
 </li>
 <li class="color1" style="display:block">
 <a href="#" class="toggle empty" ></a>
-<span>12.31% (16.29%) Hash#[] [5800 calls, 5800 total]</span>
+<span>11.29% (15.75%) Hash#[] [5800 calls, 5800 total]</span>
 </li>
 <li class="color05" style="display:block">
 <a href="#" class="toggle empty" ></a>
-<span>9.56% (12.66%) Integer#+ [5800 calls, 5800 total]</span>
+<span>8.68% (12.11%) Integer#+ [5800 calls, 5800 total]</span>
 </li>
 </ul>
 </li>
 <li class="color01" style="display:none">
 <a href="#" class="toggle empty" ></a>
-<span>0.02% (0.03%) <a href="file://C:/Source/ruby-prof/<internal:hash>#37">Hash#initialize</a> [1 calls, 1 total]</span>
+<span>0.03% (0.05%) <a href="file://C:/Source/ruby-prof/<internal:hash>#37">Hash#initialize</a> [1 calls, 1 total]</span>
 </li>
 </ul>
 </li>
 <li class="color1" style="display:block">
 <a href="#" class="toggle minus" ></a>
-<span>16.74% (16.81%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#8">Object#tokenize</a> [1 calls, 1 total]</span>
+<span>19.43% (19.46%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#8">Object#tokenize</a> [1 calls, 1 total]</span>
 <ul>
 <li class="color1" style="display:block">
 <a href="#" class="toggle empty" ></a>
-<span>16.72% (99.85%) String#split [1 calls, 1 total]</span>
+<span>19.40% (99.87%) String#split [1 calls, 1 total]</span>
 </li>
 </ul>
 </li>
 <li class="color05" style="display:block">
 <a href="#" class="toggle plus" ></a>
-<span>6.33% (6.35%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#4">Object#normalize</a> [1 calls, 1 total]</span>
+<span>7.86% (7.88%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#4">Object#normalize</a> [1 calls, 1 total]</span>
 <ul style="display:none">
 <li class="color05" style="display:block">
 <a href="#" class="toggle empty" ></a>
-<span>6.05% (95.60%) String#gsub [1 calls, 1 total]</span>
+<span>7.61% (96.73%) String#gsub [1 calls, 1 total]</span>
 </li>
 <li class="color01" style="display:none">
 <a href="#" class="toggle empty" ></a>
-<span>0.24% (3.82%) String#downcase [1 calls, 1 total]</span>
-</li>
-</ul>
-</li>
-<li class="color01" style="display:none">
-<a href="#" class="toggle empty" ></a>
-<span>0.61% (0.61%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#18">Object#top_words</a> [1 calls, 1 total]</span>
-<ul style="display:none">
-<li class="color01" style="display:none">
-<a href="#" class="toggle empty" ></a>
-<span>0.46% (76.14%) Enumerable#sort_by [1 calls, 1 total]</span>
-<ul style="display:none">
-<li class="color01" style="display:none">
-<a href="#" class="toggle empty" ></a>
-<span>0.34% (74.15%) Hash#each [1 calls, 1 total]</span>
-<ul style="display:none">
-<li class="color01" style="display:none">
-<a href="#" class="toggle empty" ></a>
-<span>0.08% (23.94%) <a href="file://C:/Source/ruby-prof/<internal:numeric>#104">Integer#-@</a> [25 calls, 25 total]</span>
-</li>
-</ul>
+<span>0.21% (2.65%) String#downcase [1 calls, 1 total]</span>
 </li>
 </ul>
 </li>
 <li class="color01" style="display:none">
 <a href="#" class="toggle empty" ></a>
-<span>0.03% (4.17%) Array#take [1 calls, 1 total]</span>
+<span>0.49% (0.49%) <a href="file://C:/Source/ruby-prof/docs/public/examples/example.rb#18">Object#top_words</a> [1 calls, 1 total]</span>
+<ul style="display:none">
+<li class="color01" style="display:none">
+<a href="#" class="toggle empty" ></a>
+<span>0.38% (78.84%) Enumerable#sort_by [1 calls, 1 total]</span>
+<ul style="display:none">
+<li class="color01" style="display:none">
+<a href="#" class="toggle empty" ></a>
+<span>0.29% (75.50%) Hash#each [1 calls, 1 total]</span>
+<ul style="display:none">
+<li class="color01" style="display:none">
+<a href="#" class="toggle empty" ></a>
+<span>0.07% (24.89%) <a href="file://C:/Source/ruby-prof/<internal:numeric>#104">Integer#-@</a> [25 calls, 25 total]</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="color01" style="display:none">
+<a href="#" class="toggle empty" ></a>
+<span>0.02% (4.76%) Array#take [1 calls, 1 total]</span>
 </li>
 </ul>
 </li>

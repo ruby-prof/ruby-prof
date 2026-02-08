@@ -20,13 +20,14 @@ module RubyProf
   #   dot -Tpng graph.dot > graph.png
   #
   class DotPrinter < RubyProf::AbstractPrinter
-    CLASS_COLOR = '"#666666"'
-    EDGE_COLOR  = '"#666666"'
+    CLUSTER_COLORS = %w[#1A35A6 #2E86C1 #1ABC9C #5B2C8E #2471A3 #148F77 #1F618D #7D3C98]
 
     # Creates the DotPrinter using a RubyProf::Proile.
     def initialize(result)
       super(result)
       @seen_methods = Set.new
+      @class_color_map = {}
+      @color_index = 0
     end
 
     # Print a graph report to the provided output.
@@ -47,9 +48,12 @@ module RubyProf
       setup_options(options)
 
       puts 'digraph "Profile" {'
-      #puts "label=\"#{mode_name} >=#{min_percent}%\\nTotal: #{total_time}\";"
-      puts "labelloc=t;"
-      puts "labeljust=l;"
+      puts 'rankdir=TB;'
+      puts 'bgcolor="#FAFAFA";'
+      puts 'node [fontname="Helvetica" fontsize=11 style="filled,rounded" shape=box fillcolor="#FFFFFF" color="#CCCCCC" penwidth=1.2];'
+      puts 'edge [fontname="Helvetica" fontsize=9 color="#5B7DB1" arrowsize=0.7];'
+      puts 'labelloc=t;'
+      puts 'labeljust=l;'
       print_threads
       puts '}'
     end
@@ -79,6 +83,32 @@ module RubyProf
       subject.object_id
     end
 
+    def color_for_class(klass_name)
+      @class_color_map[klass_name] ||= begin
+        color = CLUSTER_COLORS[@color_index % CLUSTER_COLORS.length]
+        @color_index += 1
+        color
+      end
+    end
+
+    def node_color(total_percentage)
+      if total_percentage >= 50
+        '#0D2483'
+      elsif total_percentage >= 25
+        '#1A35A6'
+      elsif total_percentage >= 10
+        '#2E86C1'
+      elsif total_percentage >= 5
+        '#D4E6F1'
+      else
+        '#FFFFFF'
+      end
+    end
+
+    def node_fontcolor(total_percentage)
+      total_percentage >= 10 ? '#FFFFFF' : '#333333'
+    end
+
     def print_thread(thread)
       total_time = thread.total_time
       thread.methods.sort_by(&sort_method).reverse_each do |method|
@@ -86,7 +116,15 @@ module RubyProf
 
         next if total_percentage < min_percent
         name = method.full_name.split("#").last
-        puts "#{dot_id(method)} [label=\"#{name}\\n(#{total_percentage.round}%)\"];"
+        label = "#{name}\\n(#{total_percentage.round}%)"
+
+        # Only emit fill/font attrs when they differ from the default (white/#333)
+        fill = node_color(total_percentage)
+        fontcolor = node_fontcolor(total_percentage)
+        attrs = "label=\"#{label}\""
+        attrs += " fillcolor=\"#{fill}\" fontcolor=\"#{fontcolor}\"" unless fill == '#FFFFFF'
+
+        puts "#{dot_id(method)} [#{attrs}];"
         @seen_methods << method
         print_edges(total_time, method)
       end
@@ -100,11 +138,15 @@ module RubyProf
         big_methods = methods2.select{|m| @seen_methods.include? m}
 
         if !big_methods.empty?
+          color = color_for_class(cls)
           puts "subgraph cluster_#{cls.object_id} {"
           puts "label = \"#{cls}\";"
-          puts "fontcolor = #{CLASS_COLOR};"
-          puts "fontsize = 16;"
-          puts "color = #{CLASS_COLOR};"
+          puts "fontname = \"Helvetica\";"
+          puts "fontcolor = \"#{color}\";"
+          puts "fontsize = 14;"
+          puts "color = \"#{color}\";"
+          puts "style = \"rounded,dashed\";"
+          puts "penwidth = 1.5;"
           big_methods.each do |m|
             puts "#{m.object_id};"
           end
@@ -119,7 +161,8 @@ module RubyProf
         next if target_percentage < min_percent
         next unless @seen_methods.include?(call_tree.target)
 
-        puts "#{dot_id(method)} -> #{dot_id(call_tree.target)} [label=\"#{call_tree.called}/#{call_tree.target.called}\" fontsize=10 fontcolor=#{EDGE_COLOR}];"
+        edge_width = [0.5 + (target_percentage / 20.0), 4.0].min
+        puts "#{dot_id(method)} -> #{dot_id(call_tree.target)} [label=\"#{call_tree.called}/#{call_tree.target.called}\" penwidth=#{format('%.1f', edge_width)}];"
       end
     end
 

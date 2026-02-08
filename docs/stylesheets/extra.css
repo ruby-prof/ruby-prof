@@ -1,0 +1,80 @@
+/* ruby-prof blue branding */
+:root,
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color: #0D2483;
+  --md-primary-fg-color--light: #1A35A6;
+  --md-primary-fg-color--dark: #091A5E;
+  --md-accent-fg-color: #1A35A6;
+}
+
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #0D2483;
+  --md-primary-fg-color--light: #1A35A6;
+  --md-primary-fg-color--dark: #091A5E;
+  --md-accent-fg-color: #1A35A6;
+}
+
+/* Header - force blue bg with white foreground in both modes */
+.md-header {
+  background-color: #0D2483 !important;
+  color: white !important;
+  --md-primary-bg-color: white;
+}
+
+/* Logo in header - match graph.html report style */
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 24px;
+  width: auto;
+  opacity: 0.5;
+}
+
+/* Hide site name text next to logo but keep spacing */
+.md-header__title {
+  visibility: hidden;
+}
+
+/* Header text and icons white on blue */
+.md-header .md-header__button,
+.md-header .md-icon,
+.md-header .md-header__option .md-icon {
+  color: white !important;
+}
+
+.md-header .md-icon svg {
+  stroke: white !important;
+}
+
+/* Search button - visible on blue header */
+.md-header .md-search__button {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+}
+
+.md-header .md-search__button:before {
+  background-color: white !important;
+}
+
+.md-header .md-search__button:after {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* GitHub repo link in header */
+.md-header .md-source {
+  color: white;
+}
+
+.md-header .md-source__icon svg {
+  fill: white;
+}
+
+.md-header .md-source__repository,
+.md-header .md-source__fact {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* Tabs bar */
+.md-tabs {
+  background-color: #091A5E;
+}

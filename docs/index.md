@@ -1,19 +1,14 @@
 # ruby-prof
 
-- [Getting Started](getting-started.md) - Command line, convenience API, core API
-- [Advanced Usage](advanced-usage.md) - Measurement modes, allocation tracking, thread filtering, method exclusion
-- [Reports](reports.md) - Flat, graph, HTML, call stack, call tree, flame graph, graphviz
-- [Profiling Rails](profiling-rails.md) - Using ruby-prof with Rails applications
-- [Architecture](architecture.md) - How ruby-prof works internally
-
-## Overview
-
 ruby-prof is a profiler for MRI Ruby. Its features include:
 
 - Speed - it is a C extension and therefore many times faster than the standard Ruby profiler.
-- Measurement Modes - ruby-prof can measure program wall time, process time and object allocations.
-- Reports - ruby-prof can generate a variety of text and cross-referenced html reports.
+- Measurement Modes - ruby-prof can measure program [wall time](advanced-usage.md#wall-time), [process time](advanced-usage.md#process-time) and [object allocations](advanced-usage.md#object-allocations).
+- Reports - ruby-prof can generate [flat](reports.md#flat), [graph (text)](reports.md#graph-text), [graph (HTML)](reports.md#graph-html), [flame graph](reports.md#flame-graph), [call stack](reports.md#call-stack), [graphviz](reports.md#graphviz), [cachegrind](reports.md#cachegrind), and [call info](reports.md#call-info-report) reports.
 - Threads - supports profiling multiple threads simultaneously.
+- Fibers - supports profiling multiple fibers simultaneously.
+
+![Flame Graph](../public/images/flame_graph.png)
 
 ## Why ruby-prof?
 

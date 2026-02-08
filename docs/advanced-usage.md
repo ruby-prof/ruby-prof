@@ -22,11 +22,17 @@ ruby-prof understands the following options when profiling code:
 
 The measurement mode determines what ruby-prof measures when profiling code. Supported measurements are:
 
-**RubyProf::WALL_TIME** - Wall time measures the real-world time elapsed between any two moments in seconds. If there are other processes concurrently running on the system that use significant CPU or disk time during a profiling run then the reported results will be larger than expected. On Windows, wall time is measured using `GetTickCount()`, on MacOS by `mach_absolute_time`, on Linux by `clock_gettime` and otherwise by `gettimeofday`.
+### Wall Time
 
-**RubyProf::PROCESS_TIME** - Process time measures the time used by a process between any two moments in seconds. It is unaffected by other processes concurrently running on the system. Remember with process time that calls to methods like sleep will not be included in profiling results. On Windows, process time is measured using `GetProcessTimes` and on other platforms by `clock_gettime`.
+Wall time measures the real-world time elapsed between any two moments in seconds. If there are other processes concurrently running on the system that use significant CPU or disk time during a profiling run then the reported results will be larger than expected. On Windows, wall time is measured using `GetTickCount()`, on MacOS by `mach_absolute_time`, on Linux by `clock_gettime` and otherwise by `gettimeofday`. Use `RubyProf::WALL_TIME` to select this mode.
 
-**RubyProf::ALLOCATIONS** - Object allocations measures show how many objects each method in a program allocates. Measurements are done via Ruby's `GC.stat` api.
+### Process Time
+
+Process time measures the time used by a process between any two moments in seconds. It is unaffected by other processes concurrently running on the system. Remember with process time that calls to methods like sleep will not be included in profiling results. On Windows, process time is measured using `GetProcessTimes` and on other platforms by `clock_gettime`. Use `RubyProf::PROCESS_TIME` to select this mode.
+
+### Object Allocations
+
+Object allocations measures show how many objects each method in a program allocates. Measurements are done via Ruby's `GC.stat` api. Use `RubyProf::ALLOCATIONS` to select this mode.
 
 To set the measurement mode:
 

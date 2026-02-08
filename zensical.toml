@@ -3,6 +3,9 @@ site_name = "ruby-prof"
 site_url = "https://ruby-prof.github.io/"
 site_description = "A profiler for MRI Ruby"
 docs_dir = "docs"
+extra_css = ["stylesheets/extra.css"]
+repo_url = "https://github.com/ruby-prof/ruby-prof"
+repo_name = "ruby-prof/ruby-prof"
 
 nav = [
   { "Home" = "index.md" },
@@ -13,3 +16,16 @@ nav = [
   { "Architecture" = "architecture.md" },
   { "Changelog" = "changelog.md" },
 ]
+
+[project.theme]
+logo = "public/images/ruby-prof-logo.svg"
+
+[[project.theme.palette]]
+scheme = "default"
+primary = "custom"
+toggle = { icon = "lucide/sun", name = "Switch to dark mode" }
+
+[[project.theme.palette]]
+scheme = "slate"
+primary = "custom"
+toggle = { icon = "lucide/moon", name = "Switch to light mode" }

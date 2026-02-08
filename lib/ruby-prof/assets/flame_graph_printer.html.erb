@@ -13,19 +13,39 @@
       color: #333;
     }
     #header {
-      background: #2d3436;
-      color: #dfe6e9;
-      padding: 12px 20px;
+      background: #0D2483;
+      color: #fff;
+      padding: 1rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 16px;
       flex-wrap: wrap;
     }
+    #header .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    #header h6 {
+      margin: 0;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 600;
+    }
     #header h1 {
       margin: 0;
-      font-size: 16px;
+      font-size: 22px;
       font-weight: 600;
       white-space: nowrap;
+    }
+    .logo {
+      width: 140px;
+      height: 30px;
+      opacity: 0.5;
+      background-repeat: no-repeat;
+      background-image: url("data:image/svg+xml,%3Csvg id='Layer_1' data-name='Layer 1' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 190 41'%3E%3Cdefs%3E%3Cstyle%3E.cls-1%7Bfill:%23fff%7D%3C/style%3E%3C/defs%3E%3Cpath class='cls-1' d='M63.49 16.74c0-1.37-.91-2-2.26-2h-3.38v3.93h3.58c1.24.01 2.06-.56 2.06-1.93zM110.43 14.75h-3.6v5h3.6a2.32 2.32 0 0 0 2.5-2.49 2.34 2.34 0 0 0-2.5-2.51zM128.77 14.75h-3.53v4.94h3.53a2.28 2.28 0 0 0 2.47-2.45 2.3 2.3 0 0 0-2.47-2.49zM61.81 21.83h-4v4.32h3.91c1.44 0 2.45-.62 2.45-2.14s-.99-2.18-2.36-2.18zM21 14.75h-3.57v4.94H21a2.28 2.28 0 0 0 2.47-2.45A2.3 2.3 0 0 0 21 14.75z'/%3E%3Cpath class='cls-1' d='M184 .44H5.87A4.93 4.93 0 0 0 .94 5.37V35.5a4.94 4.94 0 0 0 4.93 4.94H184a4.94 4.94 0 0 0 4.94-4.94V5.37A4.94 4.94 0 0 0 184 .44zm-34.38 10.78c4.79 0 8.46 2.89 9.18 7.54h-3.86a5.48 5.48 0 0 0-10.68 0h-3.83c.71-4.65 4.36-7.54 9.19-7.54zM24 29.44L20.46 23h-3v6.46h-3.72v-18h7.68c3.41 0 5.78 2.07 5.78 5.76a5.34 5.34 0 0 1-2.88 5.14l3.82 7.06zm24.31-7.3c0 4.8-2.92 7.56-7.63 7.56S33 26.94 33 22.14V11.48h3.69v10.61c0 2.81 1.37 4.32 4 4.32s3.94-1.51 3.94-4.32V11.48h3.69zm13.92 7.3h-8v-18h7.52c3.24 0 5.59 1.61 5.59 5A4 4 0 0 1 65.51 20 4.22 4.22 0 0 1 68 24.21c0 3.43-2.4 5.23-5.81 5.23zm19.66-6.92v6.92h-3.7v-6.92l-6.81-11h4.29L80 18.85l4.34-7.37h4.32zm16-.5h-7.62v-3.26h7.59zm13 1h-4v6.39h-3.72v-18h7.77c3.41 0 5.79 2.09 5.79 5.79s-2.41 5.85-5.82 5.85zm20.86 6.39L128.26 23h-3v6.46h-3.72v-18h7.69c3.4 0 5.78 2.07 5.78 5.76a5.34 5.34 0 0 1-2.88 5.14l3.87 7.08zm17.85.26c-4.88 0-8.55-2.95-9.21-7.68h3.81A5.49 5.49 0 0 0 155 22h3.84c-.69 4.75-4.38 7.7-9.22 7.7zm18.4-.23h-3.72v-3.7H168zm6.36-7.54h-10.05v-3.26h10.08zm1.44-7.16h-11.49v-3.26h11.52z'/%3E%3C/svg%3E");
     }
     #controls {
       display: flex;
@@ -35,27 +55,27 @@
     }
     #controls label {
       font-size: 13px;
-      color: #b2bec3;
+      color: rgba(255, 255, 255, 0.6);
     }
     #controls select, #controls input[type="text"] {
       font-size: 13px;
       padding: 4px 8px;
-      border: 1px solid #636e72;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: 3px;
-      background: #3d4447;
-      color: #dfe6e9;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
     }
     #controls button {
       font-size: 13px;
       padding: 4px 12px;
-      border: 1px solid #636e72;
+      border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: 3px;
-      background: #3d4447;
-      color: #dfe6e9;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
       cursor: pointer;
     }
     #controls button:hover {
-      background: #4a5568;
+      background: rgba(255, 255, 255, 0.25);
     }
     #chart-container {
       padding: 10px 20px 0 20px;
@@ -90,7 +110,7 @@
     svg text {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
       font-size: 11px;
-      fill: #333;
+      fill: white;
       pointer-events: none;
     }
     svg rect.frame {
@@ -121,7 +141,10 @@
 </head>
 <body>
   <div id="header">
-    <h1><%= h title %></h1>
+    <div class="header-left">
+      <h6>Flame Graph</h6>
+      <h1><%= h @result.measure_mode_name %></h1>
+    </div>
     <div id="controls">
       <label for="thread-select">Thread:</label>
       <select id="thread-select"></select>
@@ -129,6 +152,10 @@
       <input type="text" id="search-input" placeholder="Method name...">
       <button id="reset-zoom-btn">Reset Zoom</button>
       <button id="toggle-icicle-btn">Icicle</button>
+    </div>
+    <div style="margin-left: auto; display: flex; align-items: flex-end; flex-direction: column;">
+      <div style="font-size: 12px; margin-bottom: 0.5rem; color: rgba(255,255,255,0.6);"><%= Time.now.strftime(self.time_format) %></div>
+      <div class="logo"></div>
     </div>
   </div>
   <div id="zoom-info">Zoomed into: <span id="zoom-target"></span> &mdash; <a id="zoom-reset-link">reset</a></div>
@@ -164,8 +191,8 @@
 
     function frameColor(name) {
       var h = hashCode(name);
-      var hue = 10 + (h % 40);
-      var sat = 60 + (h % 30);
+      var hue = 190 + (h % 50);
+      var sat = 50 + (h % 30);
       var lit = 55 + (h % 20);
       return 'hsl(' + hue + ',' + sat + '%,' + lit + '%)';
     }

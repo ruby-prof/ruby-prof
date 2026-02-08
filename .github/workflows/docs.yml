@@ -19,6 +19,9 @@ jobs:
       - name: Install zensical
         run: pip install zensical
 
+      - name: Copy changelog to docs
+        run: cp CHANGELOG.md docs/changelog.md
+
       - name: Build documentation
         run: zensical build --clean
 

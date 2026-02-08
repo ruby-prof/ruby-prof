@@ -27,5 +27,5 @@ jobs:
         with:
           deploy_key: ${{ secrets.DOCS_DEPLOY_KEY }}
           external_repository: ruby-prof/ruby-prof.github.io
-          publish_branch: main
+          publish_branch: master
           publish_dir: ./site

@@ -27,7 +27,7 @@ class AliasTest < TestCase
       # Method 0
       method = methods[0]
       assert_equal('AliasTest#test_alias', method.full_name)
-      assert_equal(20, method.line)
+      assert_equal(21, method.line)
       refute(method.recursive?)
 
       assert_equal(0, method.call_trees.callers.count)
@@ -35,11 +35,11 @@ class AliasTest < TestCase
       assert_equal(2, method.call_trees.callees.count)
       call_tree = method.call_trees.callees[0]
       assert_equal('Class#new', call_tree.target.full_name)
-      assert_equal(20, call_tree.line)
+      assert_equal(21, call_tree.line)
 
       call_tree = method.call_trees.callees[1]
       assert_equal('AliasTest::TestMe#some_method', call_tree.target.full_name)
-      assert_equal(20, call_tree.line)
+      assert_equal(21, call_tree.line)
 
       # Method 1
       method = methods[1]
@@ -50,7 +50,7 @@ class AliasTest < TestCase
       assert_equal(1, method.call_trees.callers.count)
       call_tree = method.call_trees.callers[0]
       assert_equal('AliasTest#test_alias', call_tree.parent.target.full_name)
-      assert_equal(20, call_tree.line)
+      assert_equal(21, call_tree.line)
 
       assert_equal(1, method.call_trees.callees.count)
       call_tree = method.call_trees.callees[0]
@@ -79,7 +79,7 @@ class AliasTest < TestCase
       assert_equal(1, method.call_trees.callers.count)
       call_tree = method.call_trees.callers[0]
       assert_equal('AliasTest#test_alias', call_tree.parent.target.full_name)
-      assert_equal(20, call_tree.line)
+      assert_equal(21, call_tree.line)
 
       assert_equal(1, method.call_trees.callees.count)
       call_tree = method.call_trees.callees[0]

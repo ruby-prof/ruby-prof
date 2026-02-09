@@ -202,6 +202,10 @@ class MeasureWallTimeTest < TestCase
   
   if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.3')
     def test_instance_methods_block
+      result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
+        1.times { RubyProf::C1.new.sleep_wait }
+      end
+
       methods = result.threads.first.methods.sort.reverse
       assert_equal(6, methods.length)
 

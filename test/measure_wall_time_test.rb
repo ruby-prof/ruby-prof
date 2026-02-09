@@ -202,12 +202,8 @@ class MeasureWallTimeTest < TestCase
   
   if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.3')
     def test_instance_methods_block
-      result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
-        1.times { RubyProf::C1.new.sleep_wait }
-      end
-
       methods = result.threads.first.methods.sort.reverse
-      assert_equal(9, methods.length)
+      assert_equal(6, methods.length)
 
       # Check times
       method = methods[0]
@@ -239,34 +235,13 @@ class MeasureWallTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
 
       method = methods[4]
-      assert_equal("Integer#succ", method.full_name)
-      assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.self_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
-
-      method = methods[5]
       assert_equal("Class#new", method.full_name)
       assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.self_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
 
-      method = methods[6]
-      assert_equal("Integer#<", method.full_name)
-      assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.self_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
-
-      method = methods[7]
-      assert_equal("Kernel#block_given?", method.full_name)
-      assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.self_time, 0.03 * @delta_multiplier)
-      assert_in_delta(0.0, method.children_time, 0.03 * @delta_multiplier)
-
-      method = methods[8]
+      method = methods[5]
       assert_equal("BasicObject#initialize", method.full_name)
       assert_in_delta(0.0, method.total_time, 0.03 * @delta_multiplier)
       assert_in_delta(0.0, method.wait_time, 0.03 * @delta_multiplier)

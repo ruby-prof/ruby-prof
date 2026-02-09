@@ -5,7 +5,7 @@ module RubyProf
   # one profiling run. Currently prints a flat profile, a callgrind
   # profile, a call stack profile and a graph profile.
   class MultiPrinter
-    def initialize(result, printers = [:flat, :graph_html])
+    def initialize(result, printers = [:flat, :graph, :graph_html, :flame_graph, :stack])
       @flat_printer = printers.include?(:flat) ? FlatPrinter.new(result) : nil
 
       @graph_printer = printers.include?(:graph) ? GraphPrinter.new(result) : nil

@@ -10,7 +10,7 @@ class MeasureProcessTimeTest < TestCase
     GC.start
   end
 
-  # These tests run to fast for Windows to detect any used process time
+  # These tests run too fast for Windows to detect any used process time
   if !windows?
     if Gem::Version.new(RUBY_VERSION) < Gem::Version.new('3.1')
       def test_class_methods_sleep

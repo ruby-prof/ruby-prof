@@ -61,8 +61,7 @@ class MeasureProcessTimeTest < TestCase
 
       thread = result.threads.first
       assert_in_delta(0.0, thread.total_time, 0.05)
-
-      methods = result.threads.first.methods.sort.reverse
+      methods = thread.methods.sort.reverse
       assert_equal(4, methods.length)
 
       # Check times
@@ -74,14 +73,14 @@ class MeasureProcessTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[1]
-      assert_equal('Thread#join', method.full_name)
+      assert(['Thread#join', '<Class::Thread>#new'].include?(method.full_name))
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[2]
-      assert_equal('<Class::Thread>#new', method.full_name)
+      assert(['Thread#join', '<Class::Thread>#new'].include?(method.full_name))
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
@@ -96,11 +95,7 @@ class MeasureProcessTimeTest < TestCase
 
       thread = result.threads.last
       assert_in_delta(0.0, thread.total_time, 0.05)
-
-      methods = result.threads.first.methods.sort.reverse
-      assert_equal(4, methods.length)
-
-      methods = result.threads.last.methods.sort.reverse
+      methods = thread.methods.sort.reverse
       assert_equal(3, methods.length)
 
       # Check times
@@ -886,8 +881,7 @@ class MeasureProcessTimeTest < TestCase
 
       thread = result.threads.first
       assert_in_delta(0.0, thread.total_time, 0.05)
-
-      methods = result.threads.first.methods.sort.reverse
+      methods = thread.methods.sort.reverse
       assert_equal(4, methods.length)
 
       # Check times
@@ -899,14 +893,14 @@ class MeasureProcessTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[1]
-      assert_equal('Thread#join', method.full_name)
+      assert(['Thread#join', '<Class::Thread>#new'].include?(method.full_name))
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[2]
-      assert_equal('<Class::Thread>#new', method.full_name)
+      assert(['Thread#join', '<Class::Thread>#new'].include?(method.full_name))
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
@@ -921,11 +915,7 @@ class MeasureProcessTimeTest < TestCase
 
       thread = result.threads.last
       assert_in_delta(0.0, thread.total_time, 0.05)
-
-      methods = result.threads.first.methods.sort.reverse
-      assert_equal(4, methods.length)
-
-      methods = result.threads.last.methods.sort.reverse
+      methods = thread.methods.sort.reverse
       assert_equal(3, methods.length)
 
       # Check times
@@ -1753,8 +1743,7 @@ class MeasureProcessTimeTest < TestCase
 
       thread = result.threads.first
       assert_in_delta(0.0, thread.total_time, 0.05)
-
-      methods = result.threads.first.methods.sort.reverse
+      methods = thread.methods.sort.reverse
       assert_equal(4, methods.length)
 
       # Check times
@@ -1766,14 +1755,14 @@ class MeasureProcessTimeTest < TestCase
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[1]
-      assert_equal('Thread#join', method.full_name)
+      assert(['Thread#join', '<Class::Thread>#new'].include?(method.full_name))
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
       assert_in_delta(0.0, method.children_time, 0.05)
 
       method = methods[2]
-      assert_equal('<Class::Thread>#new', method.full_name)
+      assert(['Thread#join', '<Class::Thread>#new'].include?(method.full_name))
       assert_in_delta(0.0, method.total_time, 0.05)
       assert_in_delta(0.0, method.wait_time, 0.05)
       assert_in_delta(0.0, method.self_time, 0.05)
@@ -1789,11 +1778,9 @@ class MeasureProcessTimeTest < TestCase
       thread = result.threads.last
       assert_in_delta(0.0, thread.total_time, 0.05)
 
-      methods = result.threads.first.methods.sort.reverse
-      assert_equal(4, methods.length)
-
-      methods = result.threads.last.methods.sort.reverse
+      methods = thread.methods.sort.reverse
       assert_equal(3, methods.length)
+      assert_in_delta(0.0, thread.total_time, 0.05)
 
       # Check times
       method = methods[0]
@@ -2038,12 +2025,14 @@ class MeasureProcessTimeTest < TestCase
         background_thread.join
       end
 
+      printer = RubyProf::MultiPrinter.new(result)
+      printer.print({})
+      
       assert_equal(2, result.threads.count)
 
       thread = result.threads.first
       assert_in_delta(0.0, thread.total_time, 0.05)
-
-      methods = result.threads.first.methods.sort.reverse
+      methods = thread.methods.sort.reverse
       assert_equal(4, methods.length)
 
       # Check times

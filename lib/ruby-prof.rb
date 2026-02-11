@@ -11,7 +11,6 @@ end
 
 require 'ruby-prof/version'
 require 'ruby-prof/call_tree'
-require 'ruby-prof/compatibility'
 require 'ruby-prof/measurement'
 require 'ruby-prof/method_info'
 require 'ruby-prof/profile'

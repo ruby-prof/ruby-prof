@@ -1,31 +1,22 @@
 # ruby-prof
 
-ruby-prof is a profiler for MRI Ruby. Its features include:
+ruby-prof is a [tracing](./comparison.md#tracing-vs-sampling) profiler for MRI Ruby with a long [history](./history.md) that dates back to 2005! Its features include:
 
-- Speed - it is a C extension and therefore many times faster than the standard Ruby profiler.
 - Measurement Modes - ruby-prof can measure program [wall time](advanced-usage.md#wall-time), [process time](advanced-usage.md#process-time) and [object allocations](advanced-usage.md#object-allocations).
 - Reports - ruby-prof can generate [flat](reports.md#flat), [graph (text)](reports.md#graph-text), [graph (HTML)](reports.md#graph-html), [flame graph](reports.md#flame-graph), [call stack](reports.md#call-stack), [graphviz](reports.md#graphviz), [cachegrind](reports.md#cachegrind), and [call info](reports.md#call-info-report) reports.
 - Threads - supports profiling multiple threads simultaneously.
 - Fibers - supports profiling multiple fibers simultaneously.
+- Merging - supports merging results across fibers or threads
+- Recursive - supports profiling recursive methods
 
 ![Flame Graph](../public/images/flame_graph.png)
 
 ## Why ruby-prof?
 
-ruby-prof is helpful if your program is slow and you don't know why. It can help you track down methods that are either slow, allocate a large number of objects or allocate objects with high memory usage. Often times the results will be surprising - when profiling what you think you know almost always turns out to be wrong.
-
-Since ruby-prof is built using ruby's C [tracepoint](https://ruby-doc.org/core-2.6.1/TracePoint.html) api, it knows a lot about your program. However, using ruby-prof also comes with two caveats:
-
-- To use ruby-prof you generally need to include a few lines of extra code in your program (although see [command line usage](getting-started.md#command-line))
-- Using ruby-prof will cause your program to run slower (see [Performance](#performance) section)
-
-Most of the time, these two caveats are acceptable. But if you need to determine why a program running in production is slow or hung, a sampling profiler will be a better choice. Excellent choices include [stackprof](https://github.com/tmm1/stackprof) or [rbspy](https://rbspy.github.io/).
-
-If you are just interested in memory usage, you may also want to checkout the [memory_profiler](https://github.com/SamSaffron/memory_profiler) gem (although ruby-prof provides similar information).
+ruby-prof is helpful if your program is slow and you want to know why! It can help you track down methods that are either slow or allocate a large number of objects. Often times the results will surprise you - when profiling what you think you know almost always turns out to be wrong.
 
 ## Installation
-
-The easiest way to install ruby-prof is by using Ruby Gems. To install:
+To install ruby-prof:
 
 ```
 gem install ruby-prof
@@ -33,21 +24,13 @@ gem install ruby-prof
 
 If you are running Linux or Unix you'll need to have a C compiler installed so the extension can be built when it is installed. If you are running Windows, then you should install the Windows specific gem or install [devkit](https://rubyinstaller.org/add-ons/devkit.html).
 
-ruby-prof requires Ruby 3.0.0 or higher.
+ruby-prof requires Ruby 3.2.0 or higher. If you need to work with older Ruby versions then you can download an older version of ruby-prof.
 
 ## Performance
+ruby-prof is a tracing profiler, not a sampling profiler, and thus will cause your program to run slower. Our tests show that the overhead varies considerably based on the code being profiled. Significant effort has been put into reducing this overhead, but most programs will run approximately twice as slow while highly recursive programs (like the fibonacci series test) may run up to five times slower.
 
-Significant effort has been put into reducing ruby-prof's overhead. Our tests show that the overhead associated with profiling code varies considerably with the code being profiled. Most programs will run approximately twice as slow while highly recursive programs (like the fibonacci series test) will run up to five times slower.
-
-## Version History
-
-For a full list of changes between versions, see the [Changelog](changelog.md).
-
-Notable milestones:
-
-- **1.0** - Major rewrite with significantly faster profiling, correct recursive profile handling, redesigned reports, allocation/memory measurement without patched Ruby, and save/reload of profiling results.
-- **1.7** - Dropped Ruby 2.7 support, added Ruby 3.3 support.
-- **1.8** - Ruby 4.0 support. Removed `RubyProf::MEMORY` measurement mode (no longer works on Ruby 4.0).
+## History
+ruby-prof has been under continuous development since 2005 — see the full [History](history.md) page.
 
 ## API Documentation
 

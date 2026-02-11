@@ -24,7 +24,7 @@ The measurement mode determines what ruby-prof measures when profiling code. Sup
 
 ### Wall Time
 
-Wall time measures the real-world time elapsed between any two moments in seconds. If there are other processes concurrently running on the system that use significant CPU or disk time during a profiling run then the reported results will be larger than expected. On Windows, wall time is measured using `GetTickCount()`, on MacOS by `mach_absolute_time`, on Linux by `clock_gettime` and otherwise by `gettimeofday`. Use `RubyProf::WALL_TIME` to select this mode.
+Wall time measures the real-world time elapsed between any two moments in seconds. If there are other processes concurrently running on the system that use significant CPU or disk time during a profiling run then the reported results will be larger than expected. On Windows, wall time is measured using `QueryPerformanceCounter` and on other platforms by `clock_gettime(CLOCK_MONOTONIC)`. Use `RubyProf::WALL_TIME` to select this mode.
 
 ### Process Time
 
@@ -32,7 +32,7 @@ Process time measures the time used by a process between any two moments in seco
 
 ### Object Allocations
 
-Object allocations measures show how many objects each method in a program allocates. Measurements are done via Ruby's `GC.stat` api. Use `RubyProf::ALLOCATIONS` to select this mode.
+Object allocations measures how many objects each method in a program allocates. Measurements are done via Ruby's `RUBY_INTERNAL_EVENT_NEWOBJ` trace event, counting each new object created (excluding internal `T_IMEMO` objects). Use `RubyProf::ALLOCATIONS` to select this mode.
 
 To set the measurement mode:
 
@@ -115,7 +115,7 @@ config.middleware.use Rack::RubyProf, :path => './tmp/profile', :merge_fibers =>
 
 ## Saving Results
 
-It can be helpful to save the results of a profiling run for later analysis. Results can be saved using Ruby's [marshal](https://ruby-doc.org/core-2.6.3/Marshal.html) library.
+It can be helpful to save the results of a profiling run for later analysis. Results can be saved using Ruby's [marshal](https://docs.ruby-lang.org/en/master/Marshal.html) library.
 
 ```ruby
 profile_1 = RubyProf::Profile.profile do
@@ -129,4 +129,4 @@ data = Marshal.dump(profile_1)
 profile_2 = Marshal.load(data)
 ```
 
-**!!!WARNING!!!** - Only load ruby-prof profiles that you know are safe. Demarshaling data can lead to arbitrary code execution and thus can be [dangerous](https://ruby-doc.org/core-2.6.3/Marshal.html#module-Marshal-label-Security+considerations).
+**!!!WARNING!!!** - Only load ruby-prof profiles that you know are safe. Demarshaling data can lead to arbitrary code execution and thus can be [dangerous](https://docs.ruby-lang.org/en/master/Marshal.html#module-Marshal-label-Security+considerations).

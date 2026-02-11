@@ -117,3 +117,13 @@ result = profile.profile do
 ```
 
 Once a profile is completed, you can either generate a [report](reports.md) via a printer or [save](advanced-usage.md#saving-results) the results for later analysis. For a list of profiling options, please see the [Profiling Options](advanced-usage.md#profiling-options) section.
+
+
+However, using ruby-prof also comes with two caveats:
+
+- To use ruby-prof you generally need to include a few lines of extra code in your program (although see [command line usage](getting-started.md#command-line))
+- Using ruby-prof will cause your program to run slower (see [Performance](#performance) section)
+
+Most of the time, these two caveats are acceptable. But if you need to determine why a program running in production is slow or hung, a sampling profiler will be a better choice. Excellent choices include [stackprof](https://github.com/tmm1/stackprof) or [rbspy](https://rbspy.github.io/).
+
+If you are just interested in memory usage, you may also want to checkout the [memory_profiler](https://github.com/SamSaffron/memory_profiler) gem (although ruby-prof provides similar information).

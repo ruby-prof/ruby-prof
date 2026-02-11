@@ -1,6 +1,7 @@
 # Changelog
 
-## 1.8.0 (2026-02-08)
+## 2.0.0 (2026-02-11)
+### Features
 * Ruby 4.0 support.
 * Add flame graph visualizations with icicle mode toggle
 * Lots of documentation updates!
@@ -8,7 +9,10 @@
 * Add `Profile#measure_mode_name` method for human-friendly measurement mode names (e.g., "Wall Time" instead of "wall_time")
 * Fix DotPrinter generating self-referencing edges (was using callers instead of callees)
 * Add Graphviz Online viewer link for dot output
-* Removed `RubyProf::MEMORY` measurement mode (no longer works on Ruby 4.0)
+
+### Backwards Incompatible Changes
+* Removed `RubyProf::MEMORY` measurement mode (no longer works on Ruby 4.0+)
+* Finally remove compatibility API that was scheduled for removal in 2023
 
 ## 1.7.2 (2025-05-21)
 * Fix compiling on Ubuntu and Arch Linux

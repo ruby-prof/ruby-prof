@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
@@ -24,22 +23,22 @@ class PrintersTest < TestCase
   end
 
   def test_printers
-    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new('')
+    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new
 
     printer = RubyProf::CallStackPrinter.new(@results[:wall_time])
-    printer.print(output)
+    printer.print(output.string)
 
     printer = RubyProf::CallTreePrinter.new(@results[:wall_time])
     printer.print(:path => Dir.tmpdir)
 
     printer = RubyProf::FlatPrinter.new(@results[:wall_time])
-    printer.print(output)
+    printer.print(output.string)
 
     printer = RubyProf::GraphHtmlPrinter.new(@results[:wall_time])
-    printer.print(output)
+    printer.print(output.string)
 
     printer = RubyProf::GraphPrinter.new(@results[:wall_time])
-    printer.print(output)
+    printer.print(output.string)
   end
 
   def test_print_to_files
@@ -80,41 +79,41 @@ class PrintersTest < TestCase
 
   def test_flat_string
     output = helper_test_flat_string(RubyProf::FlatPrinter)
-    assert_match(/prime.rb/, output)
+    assert_match(/prime.rb/, output.string)
   end
 
   def helper_test_flat_string(klass)
-    output = ''
+    output = StringIO.new
 
     printer = klass.new(@results[:wall_time])
-    printer.print(output)
+    printer.print(output.string)
 
-    assert_match(/Thread ID: -?\d+/i, output)
-    assert_match(/Fiber ID: -?\d+/i, output)
-    assert_match(/Total: \d+\.\d+/i, output)
-    assert_match(/Object#run_primes/i, output)
+    assert_match(/Thread ID: -?\d+/i, output.string)
+    assert_match(/Fiber ID: -?\d+/i, output.string)
+    assert_match(/Total: \d+\.\d+/i, output.string)
+    assert_match(/Object#run_primes/i, output.string)
     output
   end
 
   def test_graph_html_string
-    output = ''
+    output = StringIO.new
     printer = RubyProf::GraphHtmlPrinter.new(@results[:wall_time])
-    printer.print(output)
+    printer.print(output.string)
 
-    assert_match(/<!DOCTYPE html>/i, output)
-    assert_match( %r{<th>Total</th>}i, output)
-    assert_match(/Object#run_primes/i, output)
+    assert_match(/<!DOCTYPE html>/i, output.string)
+    assert_match( %r{<th>Total</th>}i, output.string)
+    assert_match(/Object#run_primes/i, output.string)
   end
 
   def test_graph_string
-    output = ''
+    output = StringIO.new
     printer = RubyProf::GraphPrinter.new(@results[:wall_time])
-    printer.print(output)
+    printer.print(output.string)
 
-    assert_match(/Thread ID: -?\d+/i, output)
-    assert_match(/Fiber ID: -?\d+/i, output)
-    assert_match(/Total Time: \d+\.\d+/i, output)
-    assert_match(/Object#run_primes/i, output)
+    assert_match(/Thread ID: -?\d+/i, output.string)
+    assert_match(/Fiber ID: -?\d+/i, output.string)
+    assert_match(/Total Time: \d+\.\d+/i, output.string)
+    assert_match(/Object#run_primes/i, output.string)
   end
 
   def do_nothing
@@ -133,9 +132,9 @@ class PrintersTest < TestCase
     # RubyProf::FlatPrinter only outputs if self time > percent...
     for klass in [RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
       printer = klass.new(result)
-      out = ''
+      out = StringIO.new
       printer.print(out, :min_percent => 0.00000001)
-      assert_match(/do_nothing/, out)
+      assert_match(/do_nothing/, out.string)
     end
   end
 
@@ -157,9 +156,9 @@ class PrintersTest < TestCase
     ]
 
     results_keys.each do |key|
-      output = ''
+      output = StringIO.new
       printer = RubyProf::GraphPrinter.new(@results[key])
-      printer.print(output)
+      printer.print(output.string)
 
       case key
       when :wall_time, :process_time
@@ -169,7 +168,7 @@ class PrintersTest < TestCase
       end
 
       matches.each do |pattern|
-        assert_match(pattern, output)
+        assert_match(pattern, output.string)
       end
     end
   end

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # encoding: utf-8
 
 require 'fiber'
@@ -26,7 +27,7 @@ module RubyProf
     end
 
     def determine_event_specification_and_value_scale
-      @event_specification = "events: "
+      @event_specification = String.new("events: ")
       case @result.measure_mode
         when RubyProf::PROCESS_TIME
           @value_scale = RubyProf::CLOCKS_PER_SEC

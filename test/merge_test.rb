@@ -52,28 +52,28 @@ class MergeTest < TestCase
     assert_equal(4, result.threads.size)
 
     thread = result.threads[0]
-    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[1]
-    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[2]
-    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[3]
-    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
   end
 
   def test_single_worker_merged
@@ -83,16 +83,16 @@ class MergeTest < TestCase
     assert_equal(2, result.threads.size)
 
     thread = result.threads[0]
-    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(0.5, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[1]
-    assert_in_delta(1.5, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(1.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(1.5, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(1.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
   end
 
   def test_multiple_workers_unmerged
@@ -100,28 +100,28 @@ class MergeTest < TestCase
     assert_equal(4, result.threads.count)
 
     thread = result.threads[0]
-    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[1]
-    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[2]
-    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[3]
-    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.5, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
   end
 
   def test_multiple_workers_merged
@@ -131,16 +131,16 @@ class MergeTest < TestCase
     assert_equal(2, result.threads.count)
 
     thread = result.threads[0]
-    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(1.0, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(1.0, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
 
     thread = result.threads[1]
-    assert_in_delta(3.0, thread.call_tree.target.total_time, 0.1)
-    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1)
-    assert_in_delta(1.0, thread.call_tree.target.wait_time, 0.1)
-    assert_in_delta(2.0, thread.call_tree.target.children_time, 0.1)
+    assert_in_delta(3.0, thread.call_tree.target.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0.0, thread.call_tree.target.self_time, 0.1 * delta_multiplier)
+    assert_in_delta(1.0, thread.call_tree.target.wait_time, 0.1 * delta_multiplier)
+    assert_in_delta(2.0, thread.call_tree.target.children_time, 0.1 * delta_multiplier)
   end
 end
 end

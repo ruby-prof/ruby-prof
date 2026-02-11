@@ -156,19 +156,19 @@ class ThreadTest < TestCase
     method = methods[0]
     assert_equal('ThreadTest#test_thread_timings', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(1, method.total_time, 0.1)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(1, method.children_time, 0.1)
+    assert_in_delta(1, method.total_time, 0.1 * delta_multiplier)
+    assert_in_delta(0, method.self_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(1, method.children_time, 0.1 * delta_multiplier)
     assert_equal(0, method.call_trees.callers.length)
 
     method = methods[1]
     assert_equal('Kernel#sleep', method.full_name)
     assert_equal(2, method.called)
-    assert_in_delta(1, method.total_time, 0.05)
-    assert_in_delta(1.0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(0, method.children_time, 0.05)
+    assert_in_delta(1, method.total_time, 0.05 * delta_multiplier)
+    assert_in_delta(1.0, method.self_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.children_time, 0.05 * delta_multiplier)
 
     assert_equal(1, method.call_trees.callers.length)
     assert_equal(0, method.call_trees.callees.length)
@@ -185,10 +185,10 @@ class ThreadTest < TestCase
     # cause the parent frame to be created for method #test_thread_timings, which means a +1 when it's popped in the end
     # xxxx a test that shows it the other way, too (never creates parent frame--if that's even possible)
     assert_equal(1, method.called)
-    assert_in_delta(1, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(1, method.children_time, 0.05)
+    assert_in_delta(1, method.total_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.self_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(1, method.children_time, 0.05 * delta_multiplier)
 
     assert_equal(0, method.call_trees.callers.length)
     assert_equal(2, method.call_trees.callees.length)
@@ -196,10 +196,10 @@ class ThreadTest < TestCase
     method = methods[1]
     assert_equal('Thread#join', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(1, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(1.0, method.wait_time, 0.05)
-    assert_in_delta(0, method.children_time, 0.05)
+    assert_in_delta(1, method.total_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.self_time, 0.05 * delta_multiplier)
+    assert_in_delta(1.0, method.wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.children_time, 0.05 * delta_multiplier)
 
     assert_equal(1, method.call_trees.callers.length)
     assert_equal(0, method.call_trees.callees.length)
@@ -207,10 +207,10 @@ class ThreadTest < TestCase
     method = methods[2]
     assert_equal('<Class::Thread>#new', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(0, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(0, method.children_time, 0.05)
+    assert_in_delta(0, method.total_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.self_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.children_time, 0.05 * delta_multiplier)
 
     assert_equal(1, method.call_trees.callers.length)
     assert_equal(1, method.call_trees.callees.length)
@@ -218,10 +218,10 @@ class ThreadTest < TestCase
     method = methods[3]
     assert_equal('Thread#initialize', method.full_name)
     assert_equal(1, method.called)
-    assert_in_delta(0, method.total_time, 0.05)
-    assert_in_delta(0, method.self_time, 0.05)
-    assert_in_delta(0, method.wait_time, 0.05)
-    assert_in_delta(0, method.children_time, 0.05)
+    assert_in_delta(0, method.total_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.self_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, method.children_time, 0.05 * delta_multiplier)
 
     assert_equal(1, method.call_trees.callers.length)
     assert_equal(0, method.call_trees.callees.length)

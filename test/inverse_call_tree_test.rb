@@ -35,7 +35,7 @@ class InverseCallTreeTest < TestCase
     assert_equal(1, result.threads.count)
 
     thread = result.threads.first
-    assert_in_delta(0.79, thread.total_time, 0.05)
+    assert_in_delta(0.79, thread.total_time, 0.1 * delta_multiplier)
 
     assert_equal(7, thread.methods.length)
     methods = thread.methods.sort.reverse

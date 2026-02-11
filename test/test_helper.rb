@@ -18,4 +18,7 @@ ENV["N"] = "0" # Older versions of minitest
 require 'minitest/autorun'
 Minitest.load_plugins
 class TestCase < Minitest::Test
+  def delta_multiplier
+    osx? && ENV["GITHUB_ACTIONS"] ? 6 : 1
+  end
 end

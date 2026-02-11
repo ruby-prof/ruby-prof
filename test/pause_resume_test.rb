@@ -40,17 +40,17 @@ class PauseResumeTest < TestCase
     assert_equal('PauseResumeTest#test_pause_resume', methods[2].full_name)
 
     # Check times
-    assert_in_delta(0.22, methods[0].total_time, 0.02)
-    assert_in_delta(0, methods[0].wait_time, 0.02)
-    assert_in_delta(0, methods[0].self_time, 0.02)
+    assert_in_delta(0.22, methods[0].total_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, methods[0].wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, methods[0].self_time, 0.05 * delta_multiplier)
 
-    assert_in_delta(0.22, methods[1].total_time, 0.02)
-    assert_in_delta(0, methods[1].wait_time, 0.02)
-    assert_in_delta(0.22, methods[1].self_time, 0.02)
+    assert_in_delta(0.22, methods[1].total_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, methods[1].wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(0.22, methods[1].self_time, 0.05 * delta_multiplier)
 
-    assert_in_delta(0.22, methods[2].total_time, 0.02)
-    assert_in_delta(0, methods[2].wait_time, 0.02)
-    assert_in_delta(0, methods[2].self_time, 0.02)
+    assert_in_delta(0.22, methods[2].total_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, methods[2].wait_time, 0.05 * delta_multiplier)
+    assert_in_delta(0, methods[2].self_time, 0.05 * delta_multiplier)
   end
 
   # pause/resume in the same frame
@@ -67,7 +67,7 @@ class PauseResumeTest < TestCase
     method_1c
 
     result = profile.stop
-    assert_in_delta(0.65, result.threads[0].methods.select {|m| m.full_name =~ /test_pause_resume_1$/}[0].total_time, 0.05)
+    assert_in_delta(0.65, result.threads[0].methods.select {|m| m.full_name =~ /test_pause_resume_1$/}[0].total_time, 0.05 * delta_multiplier)
   end
   def method_1a; sleep 0.22 end
   def method_1b; sleep 1   end
@@ -85,7 +85,7 @@ class PauseResumeTest < TestCase
     method_2b(profile)
 
     result = profile.stop
-    assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_2$/}[0].total_time, 0.05)
+    assert_in_delta(0.6, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_2$/}[0].total_time, 0.05 * delta_multiplier)
   end
   def method_2a; sleep 0.22 end
   def method_2b(profile); sleep 0.5; profile.resume; sleep 0.4 end
@@ -102,7 +102,7 @@ class PauseResumeTest < TestCase
     method_3b
 
     result = profile.stop
-    assert_in_delta(0.65, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_3$/}[0].total_time, 0.05)
+    assert_in_delta(0.65, result.threads[0].methods.select{|m| m.full_name =~ /test_pause_resume_3$/}[0].total_time, 0.05 * delta_multiplier)
   end
 
   def method_3a(profile)

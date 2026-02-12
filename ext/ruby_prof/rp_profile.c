@@ -186,7 +186,7 @@ static void prof_trace(prof_profile_t* profile, rb_trace_arg_t* trace_arg, doubl
     const char* source_file_char = (source_file != Qnil ? StringValuePtr(source_file) : "");
 
     fprintf(trace_file, "%2lu:%2f %-8s %s#%s    %s:%2d\n",
-            FIX2ULONG(fiber), (double)measurement,
+            NUM2ULONG(rb_obj_id(fiber)), (double)measurement,
             event_name, class_name, method_name_char, source_file_char, source_line);
     fflush(trace_file);
     last_fiber = fiber;

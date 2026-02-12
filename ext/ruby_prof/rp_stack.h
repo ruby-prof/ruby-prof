@@ -26,8 +26,8 @@ typedef struct prof_frame_t
     double dead_time; // Time to ignore (i.e. total amount of time between pause/resume blocks)
 } prof_frame_t;
 
-#define prof_frame_is_paused(f) (f->pause_time >= 0)
-#define prof_frame_is_unpaused(f) (f->pause_time < 0)
+static inline bool prof_frame_is_paused(prof_frame_t* f) { return f->pause_time >= 0; }
+static inline bool prof_frame_is_unpaused(prof_frame_t* f) { return f->pause_time < 0; }
 
 void prof_frame_pause(prof_frame_t*, double current_measurement);
 void prof_frame_unpause(prof_frame_t*, double current_measurement);

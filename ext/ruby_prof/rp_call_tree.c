@@ -27,6 +27,9 @@ prof_call_tree_t* prof_call_tree_create(prof_method_t* method, prof_call_tree_t*
 prof_call_tree_t* prof_call_tree_copy(prof_call_tree_t* other)
 {
     prof_call_tree_t* result = prof_call_tree_create(other->method, other->parent, other->source_file, other->source_line);
+
+    // Free the measurement created by prof_call_tree_create before replacing it with the copy
+    prof_measurement_free(result->measurement);
     result->measurement = prof_measurement_copy(other->measurement);
 
     return result;

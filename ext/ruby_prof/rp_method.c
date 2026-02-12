@@ -157,6 +157,9 @@ prof_method_t* prof_method_create(struct prof_profile_t* profile, VALUE klass, V
 prof_method_t* prof_method_copy(prof_method_t* other)
 {
     prof_method_t* result = prof_method_create(other->profile, other->klass, other->method_name, other->source_file, other->source_line);
+
+    // Free the measurement created by prof_method_create before replacing it with the copy
+    prof_measurement_free(result->measurement);
     result->measurement = prof_measurement_copy(other->measurement);
 
     return result;

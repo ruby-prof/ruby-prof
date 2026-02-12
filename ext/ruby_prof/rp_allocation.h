@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef _RP_ALLOCATION_
-#define _RP_ALLOCATION_
+#pragma once
 
 #include "ruby_prof.h"
 
@@ -28,5 +27,3 @@ VALUE prof_allocations_wrap(st_table* allocations_table);
 void prof_allocations_unwrap(st_table* allocations_table, VALUE allocations);
 void prof_allocations_mark(st_table* allocations_table);
 void prof_allocations_free(st_table* table);
-
-#endif //_RP_ALLOCATION_

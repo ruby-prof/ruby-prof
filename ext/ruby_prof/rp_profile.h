@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RP_PROFILE_H__
-#define __RP_PROFILE_H__
+#pragma once
 
 #include "ruby_prof.h"
 #include "rp_measurement.h"
@@ -31,6 +30,3 @@ typedef struct prof_profile_t
 
 void rp_init_profile(void);
 prof_profile_t* prof_get_profile(VALUE self);
-
-
-#endif //__RP_PROFILE_H__

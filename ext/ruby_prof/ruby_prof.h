@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RUBY_PROF_H__
-#define __RUBY_PROF_H__
+#pragma once
 
 #include <stdio.h>
 #include <stdbool.h>
@@ -31,5 +30,3 @@ typedef enum
   OWNER_C = 2
 } prof_owner_t;
 
-
-#endif //__RUBY_PROF_H__

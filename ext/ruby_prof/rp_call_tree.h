@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RP_CALL_TREE_H__
-#define __RP_CALL_TREE_H__
+#pragma once
 
 #include "ruby_prof.h"
 #include "rp_measurement.h"
@@ -43,5 +42,3 @@ VALUE prof_call_tree_wrap(prof_call_tree_t* call_tree);
 void prof_call_tree_free(prof_call_tree_t* call_tree);
 
 void rp_init_call_tree(void);
-
-#endif //__RP_CALL_TREE_H__

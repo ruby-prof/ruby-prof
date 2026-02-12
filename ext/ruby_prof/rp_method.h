@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RP_METHOD_INFO__
-#define __RP_METHOD_INFO__
+#pragma once
 
 #include "ruby_prof.h"
 #include "rp_measurement.h"
@@ -62,5 +61,3 @@ void prof_method_mark(void* data);
 
 VALUE resolve_klass(VALUE klass, unsigned int* klass_flags);
 VALUE resolve_klass_name(VALUE klass, unsigned int* klass_flags);
-
-#endif //__RP_METHOD_INFO__

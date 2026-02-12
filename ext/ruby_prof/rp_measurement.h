@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __rp_measurementMENT_H__
-#define __rp_measurementMENT_H__
+#pragma once
 
 #include "ruby_prof.h"
 
@@ -48,5 +47,3 @@ void prof_measurement_mark(void* data);
 void prof_measurement_merge_internal(prof_measurement_t* destination, prof_measurement_t* other);
 
 void rp_init_measure(void);
-
-#endif //__rp_measurementMENT_H__

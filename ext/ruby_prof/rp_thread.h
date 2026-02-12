@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RP_THREAD__
-#define __RP_THREAD__
+#pragma once
 
 #include "ruby_prof.h"
 #include "rp_stack.h"
@@ -35,5 +34,3 @@ void prof_thread_mark(void* data);
 void switch_thread(void* profile, thread_data_t* thread_data, double measurement);
 int pause_thread(st_data_t key, st_data_t value, st_data_t data);
 int unpause_thread(st_data_t key, st_data_t value, st_data_t data);
-
-#endif //__RP_THREAD__

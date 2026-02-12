@@ -1,8 +1,7 @@
 /* Copyright (C) 2005-2019 Shugo Maeda <shugo@ruby-lang.org> and Charlie Savage <cfis@savagexi.com>
    Please see the LICENSE file for copyright and distribution information */
 
-#ifndef __RP_STACK__
-#define __RP_STACK__
+#pragma once
 
 #include "ruby_prof.h"
 #include "rp_call_tree.h"
@@ -49,5 +48,3 @@ prof_frame_t* prof_frame_push(prof_stack_t* stack, prof_call_tree_t* call_tree, 
 prof_frame_t* prof_frame_unshift(prof_stack_t* stack, prof_call_tree_t* parent_call_tree, prof_call_tree_t* call_tree, double measurement);
 prof_frame_t* prof_frame_pop(prof_stack_t* stack, double measurement);
 prof_method_t* prof_find_method(prof_stack_t* stack, VALUE source_file, int source_line);
-
-#endif //__RP_STACK__

@@ -11,21 +11,20 @@ module RubyProf
   #   end
   #
   #   printer = RubyProf::GraphHtmlPrinter.new(result)
-  #   printer.print(STDOUT, :min_percent=>0)
-  #
-  # The Graph printer takes the following options in its print methods:
+  #   printer.print(STDOUT, min_percent: 0)
 
   class GraphHtmlPrinter < AbstractPrinter
     include ERB::Util
 
-    def setup_options(options)
-      super(options)
-      @erb = ERB.new(self.template)
-    end
-
-    def print(output = STDOUT, options = {})
-      setup_options(options)
-      output << @erb.result(binding)
+    def print(output = STDOUT, min_time: nil, nonzero: false,
+              min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
+      @min_percent = min_percent
+      @max_percent = max_percent
+      @filter_by = filter_by
+      @sort_method = sort_method
+      @min_time = min_time
+      @nonzero = nonzero
+      output << ERB.new(self.template).result(binding)
     end
 
     # Creates a link to a method.  Note that we do not create

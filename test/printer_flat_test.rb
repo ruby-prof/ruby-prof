@@ -60,7 +60,7 @@ class PrinterFlatTest < TestCase
 
     sort_method_with_column_number.each_pair do |sort_method, n|
       output = StringIO.new
-      printer.print(output, :sort_method => sort_method)
+      printer.print(output, sort_method: sort_method)
 
       times = flat_output_nth_column_values(output.string, n)
       assert_sorted(times)

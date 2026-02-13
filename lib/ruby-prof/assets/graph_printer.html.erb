@@ -208,7 +208,7 @@
       </tr>
       </thead>
       <tbody>
-      <% min_time = @options[:min_time] || (@options[:nonzero] ? 0.005 : nil)
+      <% min_time = @min_time || (@nonzero ? 0.005 : nil)
          sorted_methods = sort_method ? methods.sort_by(&sort_method) : methods.sort
          sorted_methods.reverse_each do |method|
            total_percentage = (method.total_time/total_time) * 100

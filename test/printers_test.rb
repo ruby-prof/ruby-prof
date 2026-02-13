@@ -29,7 +29,7 @@ class PrintersTest < TestCase
     printer.print(output.string)
 
     printer = RubyProf::CallTreePrinter.new(@results[:wall_time])
-    printer.print(:path => Dir.tmpdir)
+    printer.print(path: Dir.tmpdir)
 
     printer = RubyProf::FlatPrinter.new(@results[:wall_time])
     printer.print(output.string)
@@ -46,10 +46,10 @@ class PrintersTest < TestCase
     File.open("#{Dir.tmpdir}/graph.dot", "w") {|f| printer.print(f)}
 
     printer = RubyProf::CallStackPrinter.new(@results[:wall_time])
-    File.open("#{Dir.tmpdir}/stack.html", "w") {|f| printer.print(f, :application => "primes")}
+    File.open("#{Dir.tmpdir}/stack.html", "w") {|f| printer.print(f, application: "primes")}
 
     printer = RubyProf::MultiPrinter.new(@results[:wall_time])
-    printer.print(:path => Dir.tmpdir, :profile => "multi", :application => "primes")
+    printer.print(path: Dir.tmpdir, profile: "multi", application: "primes")
 
     ['graph.dot', 'multi.flat.txt', 'multi.graph.html', "multi.callgrind.out.#{$$}", 'multi.stack.html', 'stack.html'].each do |file_name|
       file_path = File.join(Dir.tmpdir, file_name)
@@ -57,23 +57,10 @@ class PrintersTest < TestCase
     end
   end
 
-  def test_refuses_io_objects
+  def test_refuses_positional_arguments
     p = RubyProf::MultiPrinter.new(@results[:wall_time])
-    begin
+    assert_raises(ArgumentError) do
       p.print(STDOUT)
-      flunk "should have raised an ArgumentError"
-    rescue ArgumentError => e
-      assert_match(/IO/, e.to_s)
-    end
-  end
-
-  def test_refuses_non_hashes
-    p = RubyProf::MultiPrinter.new (@results[:wall_time])
-    begin
-      p.print([])
-      flunk "should have raised an ArgumentError"
-    rescue ArgumentError => e
-      assert_match(/hash/, e.to_s)
     end
   end
 
@@ -133,7 +120,7 @@ class PrintersTest < TestCase
     for klass in [RubyProf::GraphPrinter, RubyProf::GraphHtmlPrinter]
       printer = klass.new(result)
       out = StringIO.new
-      printer.print(out, :min_percent => 0.00000001)
+      printer.print(out, min_percent: 0.00000001)
       assert_match(/do_nothing/, out.string)
     end
   end

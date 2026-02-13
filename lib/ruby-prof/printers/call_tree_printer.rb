@@ -49,19 +49,10 @@ module RubyProf
       end
     end
 
-    def print(options = {})
-      validate_print_params(options)
-      setup_options(options)
+    def print(path: ".", **)
+      @path = path
       determine_event_specification_and_value_scale
       print_threads
-    end
-
-    def validate_print_params(options)
-      if options.is_a?(IO)
-        raise ArgumentError, "#{self.class.name}#print cannot print to IO objects"
-      elsif !options.is_a?(Hash)
-        raise ArgumentError, "#{self.class.name}#print requires an options hash"
-      end
     end
 
     def print_threads
@@ -88,9 +79,7 @@ module RubyProf
       end
     end
 
-    def path
-      @options[:path] || "."
-    end
+    attr_reader :path
 
     def self.needs_dir?
       true

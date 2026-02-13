@@ -71,22 +71,25 @@ The biggest downsides of stackprof are:
 
 ### rbspy
 
-[rbspy](https://github.com/rbspy/rbspy) is a sampling profiler best for profiling in production or when you cannot modify the application code. As an external process, it attaches to a running Ruby process by PID with zero code changes. Supports the widest range of Ruby versions.
+[rbspy](https://github.com/rbspy/rbspy) is a sampling profiler best for profiling in production or when you cannot modify the application code. As an external process, it attaches to a running Ruby process by PID with zero code changes. It is particularly useful for profiling third-party Ruby applications (Chef, Puppet, etc.), investigating slow test runs, or quick profiling of scripts via `rbspy record ruby my-script.rb`. Supports the widest range of Ruby versions.
 
 The biggest downsides of rbspy are:
 
 * No allocation profiling
 * No call graph or caller/callee data
-* Since it is written in Rust, you will also need to install the Rust compiler.
 
 ### vernier
 
 [vernier](https://github.com/jhawthorn/vernier) is a sampling profiler best for diagnosing concurrency issues and understanding GVL contention. It is the only Ruby profiler that reports GVL state, GC pauses and idle time. Its Firefox Profiler integration provides rich interactive visualizations with per-thread timelines.
 
-The biggest downsides of rbspy are:
+The biggest downsides of vernier are:
 
 * Requires Ruby 3.2.1+
 * No Windows support
+
+### rack-mini-profiler
+
+[rack-mini-profiler](https://github.com/MiniProfiler/rack-mini-profiler) is a "batteries-included" profiling tool for Rails and Rack applications. It uses stackprof under the hood for CPU profiling while also supporting memory profiling. It is a good choice if you want an integrated profiling solution that works directly in the browser during development.
 
 ## Memory Profiling
 

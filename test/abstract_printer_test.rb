@@ -8,8 +8,6 @@ class AbstractPrinterTest < TestCase
     super
     @result = {}
     @printer = RubyProf::AbstractPrinter.new(@result)
-    @options = {}
-    @printer.setup_options(@options)
   end
 
   private

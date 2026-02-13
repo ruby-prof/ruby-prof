@@ -17,29 +17,11 @@ module RubyProf
       @output = nil
     end
 
-    # Returns the min_percent of time a method must take to be included in a profiling report
-    def min_percent
-      @options[:min_percent] || 0
-    end
-
-    # Returns the max_percent of time a method can take to be included in a profiling report
-    def max_percent
-      @options[:max_percent] || 100
-    end
-
-    # Returns the method to filter methods by (when using min_percent and max_percent)
-    def filter_by
-      @options[:filter_by] || :self_time
-    end
+    attr_reader :min_percent, :max_percent, :filter_by, :sort_method
 
     # Returns the time format used to show when a profile was run
     def time_format
       '%A, %B %-d at %l:%M:%S %p (%Z)'
-    end
-
-    # Returns how profile data should be sorted
-    def sort_method
-      @options[:sort_method]
     end
 
     # Prints a report to the provided output.
@@ -47,28 +29,32 @@ module RubyProf
     # output - Any IO object, including STDOUT or a file.
     # The default value is STDOUT.
     #
-    # options - Hash of print options. Note that each printer can
-    # define its own set of options.
-    #
-    #   :min_percent - Number 0 to 100 that specifies the minimum
+    # Keyword arguments:
+    #   min_percent  - Number 0 to 100 that specifies the minimum
     #                  %self (the methods self time divided by the
     #                  overall total time) that a method must take
     #                  for it to be printed out in the report.
     #                  Default value is 0.
     #
-    #   :sort_method - Specifies method used for sorting method infos.
+    #   max_percent  - Number 0 to 100 that specifies the maximum
+    #                  %self for methods to include.
+    #                  Default value is 100.
+    #
+    #   filter_by    - Which time metric to use when applying
+    #                  min_percent and max_percent filters.
+    #                  Default value is :self_time.
+    #
+    #   sort_method  - Specifies method used for sorting method infos.
     #                  Available values are :total_time, :self_time,
-    #                  :wait_time, :children_time
-    #                  Default value is :total_time
-    def print(output = STDOUT, options = {})
+    #                  :wait_time, :children_time.
+    #                  Default value depends on the printer.
+    def print(output = STDOUT, min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
       @output = output
-      setup_options(options)
+      @min_percent = min_percent
+      @max_percent = max_percent
+      @filter_by = filter_by
+      @sort_method = sort_method
       print_threads
-    end
-
-    # :nodoc:
-    def setup_options(options = {})
-      @options = options
     end
 
     def method_location(method)

@@ -20,28 +20,25 @@ module RubyProf
 
     # Specify print options.
     #
-    # options - Hash table
-    #   :title       - a String to override the default "ruby-prof flame graph"
+    # output - Any IO object, including STDOUT or a file.
+    #
+    # Keyword arguments:
+    #   title:       - a String to override the default "ruby-prof flame graph"
     #                  title of the report.
     #
-    #   :min_percent - Number 0 to 100 that specifies the minimum
-    #                  %total time that a method must take for it to
-    #                  be included in the flame graph.
-    #                  Default value is 0.
-    def print(output = STDOUT, options = {})
-      setup_options(options)
-      output << @erb.result(binding)
+    # Also accepts min_percent:, max_percent:, filter_by:, and sort_method:
+    # from AbstractPrinter.
+    def print(output = STDOUT, title: "ruby-prof flame graph",
+              min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
+      @min_percent = min_percent
+      @max_percent = max_percent
+      @filter_by = filter_by
+      @sort_method = sort_method
+      @title = title
+      output << ERB.new(self.template).result(binding)
     end
 
-    # :enddoc:
-    def setup_options(options)
-      super(options)
-      @erb = ERB.new(self.template)
-    end
-
-    def title
-      @title ||= @options.delete(:title) || "ruby-prof flame graph"
-    end
+    attr_reader :title
 
     def build_flame_data(call_tree, visited = Set.new)
       node = {

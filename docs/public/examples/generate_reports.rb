@@ -20,6 +20,15 @@ require_relative 'example'
 output_dir = File.join(File.dirname(__FILE__), "reports")
 FileUtils.mkdir_p(output_dir)
 
+def sanitize_local_file_links(path)
+  content = File.read(path)
+  content.gsub!(%r{href="file://[^"]*/docs/public/examples/([^"#]+)#\d+"}, 'href="../\1"')
+  content.gsub!(%r{title=".*?/docs/public/examples/([^":]+):\d+"}, 'title="\1"')
+  content.gsub!(%r{href="file://[^"]+"}, 'href="#"')
+  content.gsub!(%r{title="[^"]*(?:<internal:|&lt;internal:)[^"]+"}, 'title="internal"')
+  File.write(path, content)
+end
+
 result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
   run_example
 end
@@ -33,11 +42,13 @@ end
 File.open(File.join(output_dir, "call_stack.html"), "wb") do |f|
   RubyProf::CallStackPrinter.new(result).print(f)
 end
+sanitize_local_file_links(File.join(output_dir, "call_stack.html"))
 
 # Graph HTML
 File.open(File.join(output_dir, "graph.html"), "wb") do |f|
   RubyProf::GraphHtmlPrinter.new(result).print(f)
 end
+sanitize_local_file_links(File.join(output_dir, "graph.html"))
 
 # Graph (text)
 File.open(File.join(output_dir, "graph.txt"), "wb") do |f|

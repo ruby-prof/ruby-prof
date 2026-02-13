@@ -22,6 +22,6 @@ To profile Rails:
    end
    ```
 
-   The path is where you want profiling results to be stored. By default the rack adapter will generate a html call graph report and flat text report.
+   The path is where you want profiling results to be stored. By default the rack adapter will generate flat text, graph text, graph HTML, and call stack HTML reports.
 
 4. Now make a request to your running server. New profiling information will be generated for each request. Note that each request will overwrite the profiling reports created by the previous request!

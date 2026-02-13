@@ -62,11 +62,11 @@ RubyProf::Profile.profile(track_allocations: true) do
 end
 ```
 
-Note the `RubyProf::ALLOCATIONS` measure mode is slightly different than tracking allocations. The measurement mode provides high level information about the number of allocations performed in each method. In contrast, tracking allocations provides detailed information about the type, number, memory usage and location of each allocation. Currently, to see allocations results you must use the `RubyProf::GraphHtmlPrinter`.
+Note the `RubyProf::ALLOCATIONS` measure mode is slightly different than tracking allocations. The measurement mode provides high level information about the number of allocations performed in each method. In contrast, tracking allocations provides detailed information about allocation type, count, and source location. Currently, to see allocations results you must use the `RubyProf::GraphHtmlPrinter`.
 
 ## Thread Inclusion/Exclusion
 
-ruby-prof can profile multiple threads. Sometimes this can be overwhelming. For example, assume you want to determine why your tests are running slowly. If you are using minitest, it will run your tests in parallel by spawning tens of worker threads (note to tell minitest to use a single thread set the N environmental variable like this ENV = 0). Thus, ruby-prof provides two options to specify which threads should be profiled:
+ruby-prof can profile multiple threads. Sometimes this can be overwhelming. For example, assume you want to determine why your tests are running slowly. If you are using minitest, it can run tests in parallel by spawning worker threads (to force a single worker, set `N=0` when running tests). Thus, ruby-prof provides two options to specify which threads should be profiled:
 
 **exclude_threads** - Array of threads which should not be profiled.
 

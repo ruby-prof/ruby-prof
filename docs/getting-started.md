@@ -122,7 +122,7 @@ Once a profile is completed, you can either generate a [report](reports.md) via 
 However, using ruby-prof also comes with two caveats:
 
 - To use ruby-prof you generally need to include a few lines of extra code in your program (although see [command line usage](getting-started.md#command-line))
-- Using ruby-prof will cause your program to run slower (see [Performance](#performance) section)
+- Using ruby-prof will cause your program to run slower (see [Performance](index.md#performance) section)
 
 Most of the time, these two caveats are acceptable. But if you need to determine why a program running in production is slow or hung, a sampling profiler will be a better choice. Excellent choices include [stackprof](https://github.com/tmm1/stackprof) or [rbspy](https://rbspy.github.io/).
 

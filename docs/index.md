@@ -1,6 +1,6 @@
 # ruby-prof
 
-ruby-prof is a [tracing](./comparison.md#tracing-vs-sampling) profiler for MRI Ruby with a long [history](./history.md) that dates back to 2005! Its features include:
+ruby-prof is a [tracing](./alternatives.md#tracing-vs-sampling) profiler for MRI Ruby with a long [history](./history.md) that dates back to 2005! Its features include:
 
 - Measurement Modes - ruby-prof can measure program [wall time](advanced-usage.md#wall-time), [process time](advanced-usage.md#process-time) and [object allocations](advanced-usage.md#object-allocations).
 - Reports - ruby-prof can generate [flat](reports.md#flat), [graph (text)](reports.md#graph-text), [graph (HTML)](reports.md#graph-html), [flame graph](reports.md#flame-graph), [call stack](reports.md#call-stack), [graphviz](reports.md#graphviz), [cachegrind](reports.md#cachegrind), and [call info](reports.md#call-info-report) reports.

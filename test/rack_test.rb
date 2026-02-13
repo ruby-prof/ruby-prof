@@ -29,7 +29,7 @@ class RackTest < TestCase
     path = Dir.mktmpdir
     Dir.delete(path)
 
-    Rack::RubyProf.new(FakeRackApp.new, :path => path)
+    Rack::RubyProf.new(FakeRackApp.new, path: path)
 
     assert(Dir.exist?(path))
   end
@@ -37,7 +37,7 @@ class RackTest < TestCase
   def test_create_profile_reports
     path = Dir.mktmpdir
 
-    adapter = Rack::RubyProf.new(FakeRackApp.new, :path => path)
+    adapter = Rack::RubyProf.new(FakeRackApp.new, path: path)
 
     adapter.call(:fake_env)
 
@@ -50,7 +50,7 @@ class RackTest < TestCase
   def test_skip_paths
     path = Dir.mktmpdir
 
-    adapter = Rack::RubyProf.new(FakeRackApp.new, :path => path, :skip_paths => [%r{\.json$}])
+    adapter = Rack::RubyProf.new(FakeRackApp.new, path: path, skip_paths: [%r{\.json$}])
 
     adapter.call(:fake_env)
 
@@ -63,7 +63,7 @@ class RackTest < TestCase
   def test_only_paths
     path = Dir.mktmpdir
 
-    adapter = Rack::RubyProf.new(FakeRackApp.new, :path => path, :only_paths => [%r{\.json$}])
+    adapter = Rack::RubyProf.new(FakeRackApp.new, path: path, only_paths: [%r{\.json$}])
 
     adapter.call({path: '/path/to/resource.json'})
 
@@ -83,7 +83,7 @@ class RackTest < TestCase
     path = Dir.mktmpdir
 
     printer = {::RubyProf::FlatPrinter => lambda { 'dynamic.txt' }}
-    adapter = Rack::RubyProf.new(FakeRackApp.new, :path => path, :printers => printer)
+    adapter = Rack::RubyProf.new(FakeRackApp.new, path: path, printers: printer)
 
     adapter.call(:fake_env)
 

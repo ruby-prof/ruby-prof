@@ -27,25 +27,11 @@ class MSTPT
 end
 
 class MultiPrinterTest < TestCase
-  def test_refuses_io_objects
+  def test_refuses_positional_arguments
     # we don't need a real profile for this test
     p = RubyProf::MultiPrinter.new nil
-    begin
+    assert_raises(ArgumentError) do
       p.print(STDOUT)
-      flunk "should have raised an ArgumentError"
-    rescue ArgumentError => e
-      assert_match(/IO/, e.to_s)
-    end
-  end
-
-  def test_refuses_non_hashes
-    # we don't need a real profile for this test
-    p = RubyProf::MultiPrinter.new nil
-    begin
-      p.print([])
-      flunk "should have raised an ArgumentError"
-    rescue ArgumentError => e
-      assert_match(/hash/, e.to_s)
     end
   end
 
@@ -56,8 +42,8 @@ class MultiPrinterTest < TestCase
     path = Dir.tmpdir
     profile = "ruby_prof_#{test}"
     printer = RubyProf::MultiPrinter.new(result)
-    printer.print(:path => path, :profile => profile,
-                  :threshold => 0, :min_percent => 0, :title => "ruby_prof #{test}")
+    printer.print(path: path, profile: profile,
+                  threshold: 0, min_percent: 0, title: "ruby_prof #{test}")
     if RUBY_PLATFORM =~ /darwin/ && ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT']=="1"
       system("open '#{printer.stack_profile}'")
     end

@@ -18,7 +18,7 @@ To profile Rails:
 
    ```ruby
    if Rails.env.profile?
-     config.middleware.use Rack::RubyProf, :path => './tmp/profile'
+     config.middleware.use Rack::RubyProf, path: './tmp/profile'
    end
    ```
 

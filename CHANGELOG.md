@@ -13,6 +13,13 @@
 ### Backwards Incompatible Changes
 * Removed `RubyProf::MEMORY` measurement mode (no longer works on Ruby 4.0+)
 * Finally remove compatibility API that was scheduled for removal in 2023
+* Printer options now use keyword arguments instead of an options hash. For example:
+  ```ruby
+  # Before:
+  printer.print(STDOUT, :min_percent => 2, :sort_method => :self_time)
+  # After:
+  printer.print(STDOUT, min_percent: 2, sort_method: :self_time)
+  ```
 
 ## 1.7.2 (2025-05-21)
 * Fix compiling on Ubuntu and Arch Linux

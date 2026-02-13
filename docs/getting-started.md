@@ -53,7 +53,7 @@ end
 
 # print a graph profile to text
 printer = RubyProf::GraphPrinter.new(result)
-printer.print(STDOUT, {})
+printer.print(STDOUT)
 ```
 
 ruby-prof also supports pausing and resuming profiling runs.

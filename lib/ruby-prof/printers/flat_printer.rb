@@ -9,12 +9,12 @@ module RubyProf
   #   end
   #
   #   printer = RubyProf::FlatPrinter.new(result)
-  #   printer.print(STDOUT, {})
+  #   printer.print(STDOUT)
   #
   class FlatPrinter < AbstractPrinter
-    # Override for this printer to sort by self time by default
-    def sort_method
-      @options[:sort_method] || :self_time
+    # Override to default sort by self time
+    def print(output = STDOUT, sort_method: :self_time, **options)
+      super(output, sort_method: sort_method, **options)
     end
 
     private

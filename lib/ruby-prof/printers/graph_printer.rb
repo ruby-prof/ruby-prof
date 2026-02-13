@@ -9,20 +9,19 @@ module RubyProf
   #   end
   #
   #   printer = RubyProf::GraphPrinter.new(result)
-  #   printer.print(STDOUT, {})
-  #
-  # The constructor takes two arguments. See the README
+  #   printer.print(STDOUT)
 
   class GraphPrinter < AbstractPrinter
     PERCENTAGE_WIDTH = 8
     TIME_WIDTH = 11
     CALL_WIDTH = 17
 
-    private
-
-    def sort_method
-      @options[:sort_method] || :total_time
+    # Override to default sort by total time
+    def print(output = STDOUT, sort_method: :total_time, **options)
+      super(output, sort_method: sort_method, **options)
     end
+
+    private
 
     def print_header(thread)
       @output << "Measure Mode: %s\n" % @result.measure_mode_string

@@ -7,7 +7,7 @@ profile = RubyProf::Profile.profile do
             ...
           end
 printer = RubyProf::GraphPrinter.new(profile)
-printer.print(STDOUT, :min_percent => 2)
+printer.print(STDOUT, min_percent: 2)
 ```
 
 The first parameter is any writable IO object such as `STDOUT` or a file. The second parameter specifies the minimum percentage a method must take to be printed. Percentages should be specified as integers in the range 0 to 100. For more information please see the documentation for the different printers.
@@ -71,7 +71,7 @@ Call info reports print the call tree with timing information for each node. Thi
 
 ```ruby
 printer = RubyProf::MultiPrinter.new(result)
-printer.print(:path => ".", :profile => "profile")
+printer.print(path: ".", profile: "profile")
 ```
 
 ## Generating Examples

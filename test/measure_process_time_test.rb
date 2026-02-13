@@ -2853,7 +2853,7 @@ class MeasureProcessTimeTest < TestCase
       end
 
       printer = RubyProf::MultiPrinter.new(result)
-      printer.print({})
+      printer.print
       
       assert_equal(2, result.threads.count)
 

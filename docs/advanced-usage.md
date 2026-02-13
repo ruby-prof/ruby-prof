@@ -110,7 +110,7 @@ profile.merge!
 This is also supported in the Rack adapter via the `merge_fibers` option:
 
 ```ruby
-config.middleware.use Rack::RubyProf, :path => './tmp/profile', :merge_fibers => true
+config.middleware.use Rack::RubyProf, path: './tmp/profile', merge_fibers: true
 ```
 
 ## Saving Results

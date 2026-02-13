@@ -23,36 +23,38 @@ module RubyProf
 
     # Specify print options.
     #
-    # options - Hash table
-    #   :min_percent - Number 0 to 100 that specifes the minimum
-    #                  %self (the methods self time divided by the
-    #                  overall total time) that a method must take
-    #                  for it to be printed out in the report.
-    #                  Default value is 0.
+    # output     - Any IO object, including STDOUT or a file.
     #
-    #   :threshold   - a float from 0 to 100 that sets the threshold of
+    # Keyword arguments:
+    #   title:       - a String to override the default "ruby-prof call stack"
+    #                  title of the report.
+    #
+    #   threshold:   - a float from 0 to 100 that sets the threshold of
     #                  results displayed.
     #                  Default value is 1.0
     #
-    #   :title       - a String to overide the default "ruby-prof call tree"
-    #                  title of the report.
-    #
-    #   :expansion   - a float from 0 to 100 that sets the threshold of
+    #   expansion:   - a float from 0 to 100 that sets the threshold of
     #                  results that are expanded, if the percent_total
     #                  exceeds it.
     #                  Default value is 10.0
     #
-    #   :application - a String to overide the name of the application,
+    #   application: - a String to override the name of the application,
     #                  as it appears on the report.
-    def print(output = STDOUT, options = {})
-      setup_options(options)
-      output << @erb.result(binding)
-    end
-
-    # :enddoc:
-    def setup_options(options)
-      super(options)
-      @erb = ERB.new(self.template)
+    #
+    # Also accepts min_percent:, max_percent:, filter_by:, and sort_method:
+    # from AbstractPrinter.
+    def print(output = STDOUT, title: "ruby-prof call stack", threshold: 1.0,
+              expansion: 10.0, application: $PROGRAM_NAME,
+              min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
+      @min_percent = min_percent
+      @max_percent = max_percent
+      @filter_by = filter_by
+      @sort_method = sort_method
+      @title = title
+      @threshold = threshold
+      @expansion = expansion
+      @application = application
+      output << ERB.new(self.template).result(binding)
     end
 
     def print_stack(output, visited, call_tree, parent_time)
@@ -146,24 +148,10 @@ module RubyProf
       end
     end
 
-    def application
-      @options[:application] || $PROGRAM_NAME
-    end
+    attr_reader :application, :title, :threshold, :expansion
 
     def arguments
       ARGV.join(' ')
-    end
-
-    def title
-      @title ||= @options.delete(:title) || "ruby-prof call stack"
-    end
-
-    def threshold
-      @options[:threshold] || 1.0
-    end
-
-    def expansion
-      @options[:expansion] || 10.0
     end
 
     def base64_image

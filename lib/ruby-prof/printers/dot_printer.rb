@@ -35,17 +35,19 @@ module RubyProf
     # output - Any IO object, including STDOUT or a file. The default value is
     # STDOUT.
     #
-    # options - Hash of print options.  See #setup_options
-    # for more information.
+    # Keyword arguments - See AbstractPrinter#print for available options.
     #
     # When profiling results that cover a large number of method calls it
-    # helps to use the :min_percent option, for example:
+    # helps to use the min_percent: option, for example:
     #
-    #   DotPrinter.new(result).print(STDOUT, :min_percent=>5)
+    #   DotPrinter.new(result).print(STDOUT, min_percent: 5)
     #
-    def print(output = STDOUT, options = {})
+    def print(output = STDOUT, min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
       @output = output
-      setup_options(options)
+      @min_percent = min_percent
+      @max_percent = max_percent
+      @filter_by = filter_by
+      @sort_method = sort_method
 
       puts 'digraph "Profile" {'
       puts 'rankdir=TB;'

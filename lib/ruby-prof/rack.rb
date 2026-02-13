@@ -3,20 +3,32 @@ require 'tmpdir'
 
 module Rack
   class RubyProf
-    def initialize(app, options = {})
+    def initialize(app, path: Dir.tmpdir, printers: nil, skip_paths: nil,
+                   only_paths: nil, merge_fibers: false,
+                   measure_mode: ::RubyProf::WALL_TIME, track_allocations: false,
+                   exclude_common: false, ignore_existing_threads: false,
+                   request_thread_only: false, min_percent: 1,
+                   sort_method: :total_time)
       @app = app
-      @options = options
 
-      @tmpdir = options[:path] || Dir.tmpdir
+      @tmpdir = path
       FileUtils.mkdir_p(@tmpdir)
 
-      @printer_klasses = @options[:printers]  || {::RubyProf::FlatPrinter => 'flat.txt',
-                                                  ::RubyProf::GraphPrinter => 'graph.txt',
-                                                  ::RubyProf::GraphHtmlPrinter => 'graph.html',
-                                                  ::RubyProf::CallStackPrinter => 'call_stack.html'}
+      @printer_klasses = printers || {::RubyProf::FlatPrinter => 'flat.txt',
+                                      ::RubyProf::GraphPrinter => 'graph.txt',
+                                      ::RubyProf::GraphHtmlPrinter => 'graph.html',
+                                      ::RubyProf::CallStackPrinter => 'call_stack.html'}
 
-      @skip_paths = options[:skip_paths] || [%r{^/assets}, %r{\.(css|js|png|jpeg|jpg|gif)$}]
-      @only_paths = options[:only_paths]
+      @skip_paths = skip_paths || [%r{^/assets}, %r{\.(css|js|png|jpeg|jpg|gif)$}]
+      @only_paths = only_paths
+      @merge_fibers = merge_fibers
+      @measure_mode = measure_mode
+      @track_allocations = track_allocations
+      @exclude_common = exclude_common
+      @ignore_existing_threads = ignore_existing_threads
+      @request_thread_only = request_thread_only
+      @min_percent = min_percent
+      @sort_method = sort_method
     end
 
     def call(env)
@@ -25,11 +37,11 @@ module Rack
       if should_profile?(request.path)
         begin
           result = nil
-          profile = ::RubyProf::Profile.profile(profiling_options) do
+          profile = ::RubyProf::Profile.profile(**profiling_options) do
             result = @app.call(env)
           end
 
-          if @options[:merge_fibers]
+          if @merge_fibers
             profile.merge!
           end
 
@@ -59,15 +71,15 @@ module Rack
 
     def profiling_options
       result = {}
-      result[:measure_mode] = @options[:measure_mode] || ::RubyProf::WALL_TIME
-      result[:track_allocations] = @options[:track_allocations] || false
-      result[:exclude_common] = @options[:exclude_common] || false
+      result[:measure_mode] = @measure_mode
+      result[:track_allocations] = @track_allocations
+      result[:exclude_common] = @exclude_common
 
-      if @options[:ignore_existing_threads]
+      if @ignore_existing_threads
         result[:exclude_threads] = Thread.list.select {|thread| thread != Thread.current}
       end
 
-      if @options[:request_thread_only]
+      if @request_thread_only
         result[:include_threads] = [Thread.current]
       end
 
@@ -75,10 +87,7 @@ module Rack
     end
 
     def print_options
-      result = {}
-      result[:min_percent] = @options[:min_percent] || 1
-      result[:sort_method] = @options[:sort_method] || :total_time
-      result
+      {min_percent: @min_percent, sort_method: @sort_method}
     end
 
     def print(profile, path)
@@ -90,13 +99,13 @@ module Rack
         end
 
         if printer_klass == ::RubyProf::MultiPrinter
-          printer.print(print_options.merge(:profile => "#{path}-#{base_name}"))
+          printer.print(profile: "#{path}-#{base_name}", **print_options)
         elsif printer_klass == ::RubyProf::CallTreePrinter
-          printer.print(print_options.merge(:profile => "#{path}-#{base_name}"))
+          printer.print(profile: "#{path}-#{base_name}", **print_options)
         else
           file_name = ::File.join(@tmpdir, "#{path}-#{base_name}")
           ::File.open(file_name, 'wb') do |file|
-            printer.print(file, print_options)
+            printer.print(file, **print_options)
           end
         end
       end

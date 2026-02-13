@@ -110,7 +110,7 @@ To create a new profile:
 ```ruby
 require 'ruby-prof'
 
-profile = RubyProf::Profile.new(options)
+profile = RubyProf::Profile.new(measure_mode: RubyProf::WALL_TIME)
 result = profile.profile do
            ...
          end

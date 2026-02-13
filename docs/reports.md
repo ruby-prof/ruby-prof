@@ -10,27 +10,41 @@ printer = RubyProf::GraphPrinter.new(profile)
 printer.print(STDOUT, min_percent: 2)
 ```
 
-The first parameter is any writable IO object such as `STDOUT` or a file. The second parameter specifies the minimum percentage a method must take to be printed. Percentages should be specified as integers in the range 0 to 100. For more information please see the documentation for the different printers.
+The first parameter is any writable IO object such as `STDOUT` or a file. All printers accept the following keyword arguments:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `min_percent` | `0` | Minimum %self time for a method to be included (0–100). |
+| `max_percent` | `100` | Maximum %self time for a method to be included (0–100). |
+| `filter_by` | `:self_time` | Which time metric to use when applying `min_percent` and `max_percent`. |
+| `sort_method` | varies | How to sort methods. Values: `:total_time`, `:self_time`, `:wait_time`, `:children_time`. |
 
 The different types of reports, and their associated printers, are:
 
 ## Flat
 
-The flat report shows the overall time spent in each method. It is a good way of quickly identifying which methods take the most time. Use `RubyProf::FlatPrinter` to generate this report. (<a href="../public/examples/reports/flat.txt" target="_blank">example</a>)
+The flat report shows the overall time spent in each method. It is a good way of quickly identifying which methods take the most time. Use `RubyProf::FlatPrinter` to generate this report. Default `sort_method` is `:self_time`. (<a href="../public/examples/reports/flat.txt" target="_blank">example</a>)
 
 ![Flat Report](../public/images/flat.png)
 
 ## Graph (Text)
 
-The graph report shows the overall time spent in each method. In addition, it also shows which methods call the current method and which methods it calls. Thus they are good for understanding how methods get called and provide insight into the flow of your program. Use `RubyProf::GraphPrinter` to generate this report. (<a href="../public/examples/reports/graph.txt" target="_blank">example</a>)
+The graph report shows the overall time spent in each method. In addition, it also shows which methods call the current method and which methods it calls. Thus they are good for understanding how methods get called and provide insight into the flow of your program. Use `RubyProf::GraphPrinter` to generate this report. Default `sort_method` is `:total_time`. (<a href="../public/examples/reports/graph.txt" target="_blank">example</a>)
 
 ![Graph Report](../public/images/graph.png)
 
 ## Graph (HTML)
 
-HTML Graph profiles are the same as graph reports, except output is generated in hyper-linked HTML. Since graph reports can be quite large, the embedded links make it much easier to navigate the results. Use `RubyProf::GraphHtmlPrinter` to generate this report. (<a href="../public/examples/reports/graph.html" target="_blank">example</a>)
+HTML Graph profiles are the same as graph reports, except output is generated in hyper-linked HTML. Since graph reports can be quite large, the embedded links make it much easier to navigate the results. Use `RubyProf::GraphHtmlPrinter` to generate this report. Default `sort_method` is `:total_time`. (<a href="../public/examples/reports/graph.html" target="_blank">example</a>)
 
 ![HTML Graph Report](../public/images/graph_html.png)
+
+Additional options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `min_time` | `nil` | Minimum total time (in seconds) for a method to be shown. |
+| `nonzero` | `false` | When `true`, sets `min_time` to 0.005 if `min_time` is not specified. |
 
 ## Flame Graph
 
@@ -45,11 +59,26 @@ printer = RubyProf::FlameGraphPrinter.new(result)
 printer.print(File.open("flame_graph.html", "w"))
 ```
 
+Additional options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `title` | `"ruby-prof flame graph"` | Title displayed in the HTML report. |
+
 ## Call Stack
 
 Call stack reports produce a HTML visualization of the time spent in each execution path of the profiled code. Use `RubyProf::CallStackPrinter` to generate this report. (<a href="../public/examples/reports/call_stack.html" target="_blank">example</a>)
 
 ![Call Stack Report](../public/images/call_stack.png)
+
+Additional options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `title` | `"ruby-prof call stack"` | Title displayed in the HTML report. |
+| `threshold` | `1.0` | Minimum %total for a node to be visible (0–100). |
+| `expansion` | `10.0` | Minimum %total for a node to be expanded by default (0–100). |
+| `application` | `$PROGRAM_NAME` | Application name displayed in the report. |
 
 ## Graphviz
 
@@ -60,6 +89,12 @@ The graphviz report is designed to be opened by [Graphviz](https://www.graphviz.
 ## Cachegrind
 
 Cachegrind output results in the calltree profile format which is used by [KCachegrind](https://kcachegrind.github.io/html/Home.html). More information about the format can be found at the KCachegrind site. Use `RubyProf::CallTreePrinter` to generate this report. (<a href="../public/examples/reports/callgrind.out" target="_blank">example</a>)
+
+Additional options:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `path` | `"."` | Directory where callgrind output files are written. |
 
 ## Call Info Report
 
@@ -73,6 +108,13 @@ Call info reports print the call tree with timing information for each node. Thi
 printer = RubyProf::MultiPrinter.new(result)
 printer.print(path: ".", profile: "profile")
 ```
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `path` | `"."` | Directory where report files are written. |
+| `profile` | `"profile"` | Base filename for the generated reports. |
+
+All other keyword arguments are forwarded to the individual printers.
 
 ## Generating Examples
 

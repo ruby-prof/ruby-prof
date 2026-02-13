@@ -57,7 +57,7 @@ ruby-prof also has the ability to track object allocations. This functionality c
 ```ruby
 require 'ruby-prof'
 
-RubyProf::Profile.profile(:track_allocations => true) do
+RubyProf::Profile.profile(track_allocations: true) do
   ...
 end
 ```

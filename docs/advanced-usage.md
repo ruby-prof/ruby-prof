@@ -8,7 +8,7 @@ ruby-prof understands the following options when profiling code:
 
 **measure_mode** - What ruby-prof should measure. For more information see the [Measurement Mode](#measurement-mode) section.
 
-**track_allocations** - Tracks each object location, including the object class, memory size and source file location. For more information see the [Allocation Tracking](#allocation-tracking) section.
+**track_allocations** - Tracks each object location, including the object class and source file location. For more information see the [Allocation Tracking](#allocation-tracking) section.
 
 **exclude_threads** - Array of threads which should not be profiled. For more information see the [Thread Inclusion/Exclusion](#thread-inclusionexclusion) section.
 

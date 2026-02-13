@@ -117,7 +117,7 @@ result = profile.profile do
 ```
 
 Once a profile is completed, you can either generate a [report](reports.md) via a printer or [save](advanced-usage.md#saving-results) the results for later analysis. For a list of profiling options, please see the [Profiling Options](advanced-usage.md#profiling-options) section.
-If you are unsure which report to generate first, see [Choosing a Report](reports.md#choosing-a-report).
+If you are unsure which report to generate first, see [Report Types](reports.md#report-types).
 
 
 However, using ruby-prof also comes with two caveats:

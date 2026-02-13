@@ -2,6 +2,8 @@
 
 Once you have completed a profiling run, you will want to generate a report to analyze the results. One of ruby-prof's strengths is the number of ways it lets you visualize profiling results, from quick text summaries to interactive HTML views and external tooling formats. The following table shows all supported report types and when to use them:
 
+For repeatable profiling workflow guidance, see [Best Practices](best-practices.md).
+
 | Name | Best For |
 |---|---|
 | `FlatPrinter` | Finding hottest methods fast (best quick signal by self time) |

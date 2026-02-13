@@ -12,6 +12,7 @@ nav = [
   { "Getting Started" = "getting-started.md" },
   { "Advanced Usage" = "advanced-usage.md" },
   { "Reports" = "reports.md" },
+  { "Best Practices" = "best-practices.md" },
   { "Profiling Rails" = "profiling-rails.md" },
   { "Architecture" = "architecture.md" },
   { "History" = "history.md" },

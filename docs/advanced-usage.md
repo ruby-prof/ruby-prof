@@ -1,6 +1,6 @@
 # Advanced Usage
 
-This section describes advanced usage of ruby-prof. Additional documentation for every class is also [available](index.md#api-documentation).
+This section describes advanced usage of ruby-prof. Additional documentation for every class is also [available](index.md#api-documentation). For workflow guidance, see [Best Practices](best-practices.md).
 
 ## Profiling Options
 

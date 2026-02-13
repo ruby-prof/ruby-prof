@@ -6,6 +6,11 @@ heap.dump
 /.idea
 *.bundle
 *.so
+*.obj
+*.log
+*.tlog
+*.pdb
+*.recipe
 .*.swp
 ipch
 .rvmrc
@@ -15,9 +20,11 @@ Gemfile.lock
 /ext/ruby_prof/vc/x64
 /ext/ruby_prof/vc/.vs
 /ext/ruby_prof/vc/ruby_prof.vcxproj.user
+/ext/ruby_prof/vc/ruby_prof/x64
 /ext/ruby_prof/vc/obj
 /ext/ruby_prof/vc/bin
 /ext/ruby_prof/mkmf.log
 /ext/ruby_prof/.idea
 /ext/ruby_prof/cmake-build-mingw
 /site
+/tmp

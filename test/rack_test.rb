@@ -25,6 +25,16 @@ module Rack
 end
 
 class RackTest < TestCase
+  def test_pathname_path
+    path = Pathname.new(Dir.mktmpdir)
+    adapter = Rack::RubyProf.new(FakeRackApp.new, path: path)
+
+    adapter.call(:fake_env)
+
+    file_path = ::File.join(path.to_s, 'path-to-resource.json-flat.txt')
+    assert(File.exist?(file_path))
+  end
+
   def test_create_print_path
     path = Dir.mktmpdir
     Dir.delete(path)

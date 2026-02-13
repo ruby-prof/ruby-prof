@@ -11,7 +11,7 @@ module Rack
                    sort_method: :total_time)
       @app = app
 
-      @tmpdir = path
+      @tmpdir = path.to_s
       FileUtils.mkdir_p(@tmpdir)
 
       @printer_klasses = printers || {::RubyProf::FlatPrinter => 'flat.txt',

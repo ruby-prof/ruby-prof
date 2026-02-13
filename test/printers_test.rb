@@ -26,19 +26,19 @@ class PrintersTest < TestCase
     output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new
 
     printer = RubyProf::CallStackPrinter.new(@results[:wall_time])
-    printer.print(output.string)
+    printer.print(output)
 
     printer = RubyProf::CallTreePrinter.new(@results[:wall_time])
     printer.print(path: Dir.tmpdir)
 
     printer = RubyProf::FlatPrinter.new(@results[:wall_time])
-    printer.print(output.string)
+    printer.print(output)
 
     printer = RubyProf::GraphHtmlPrinter.new(@results[:wall_time])
-    printer.print(output.string)
+    printer.print(output)
 
     printer = RubyProf::GraphPrinter.new(@results[:wall_time])
-    printer.print(output.string)
+    printer.print(output)
   end
 
   def test_print_to_files
@@ -73,7 +73,7 @@ class PrintersTest < TestCase
     output = StringIO.new
 
     printer = klass.new(@results[:wall_time])
-    printer.print(output.string)
+    printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output.string)
     assert_match(/Fiber ID: -?\d+/i, output.string)
@@ -85,7 +85,7 @@ class PrintersTest < TestCase
   def test_graph_html_string
     output = StringIO.new
     printer = RubyProf::GraphHtmlPrinter.new(@results[:wall_time])
-    printer.print(output.string)
+    printer.print(output)
 
     assert_match(/<!DOCTYPE html>/i, output.string)
     assert_match( %r{<th>Total</th>}i, output.string)
@@ -95,7 +95,7 @@ class PrintersTest < TestCase
   def test_graph_string
     output = StringIO.new
     printer = RubyProf::GraphPrinter.new(@results[:wall_time])
-    printer.print(output.string)
+    printer.print(output)
 
     assert_match(/Thread ID: -?\d+/i, output.string)
     assert_match(/Fiber ID: -?\d+/i, output.string)
@@ -145,7 +145,7 @@ class PrintersTest < TestCase
     results_keys.each do |key|
       output = StringIO.new
       printer = RubyProf::GraphPrinter.new(@results[key])
-      printer.print(output.string)
+      printer.print(output)
 
       case key
       when :wall_time, :process_time

@@ -262,6 +262,10 @@ class Scheduler
     return fiber
   end
 
+  def fiber_interrupt(fiber, exception)
+    fiber.raise(exception)
+  end
+
   def address_resolve(hostname)
     Thread.new do
       Addrinfo.getaddrinfo(hostname, nil).map(&:ip_address).uniq

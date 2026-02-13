@@ -3,6 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 require 'fileutils'
+require 'stringio'
 require 'tmpdir'
 require_relative 'prime'
 
@@ -32,8 +33,9 @@ class PrinterGraphTest < TestCase
     sort_method_with_column_number = {:total_time => 3, :self_time => 4, :wait_time => 5, :children_time => 6}
 
     sort_method_with_column_number.each_pair do |sort_method, n|
-      printer.print(output = '', sort_method: sort_method)
-      times = graph_output_nth_column_values(output, n)
+      output = StringIO.new
+      printer.print(output, sort_method: sort_method)
+      times = graph_output_nth_column_values(output.string, n)
       assert_sorted times
     end
   end

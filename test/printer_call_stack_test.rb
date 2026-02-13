@@ -3,6 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 require 'fileutils'
+require 'stringio'
 require 'tmpdir'
 require_relative 'prime'
 
@@ -17,11 +18,11 @@ class PrinterCallStackTest < TestCase
   end
 
   def test_graph_html_string
-    output = ''
+    output = StringIO.new
     printer = RubyProf::CallStackPrinter.new(@result)
     printer.print(output)
 
-    assert_match(/<!DOCTYPE html>/i, output)
-    assert_match(/Object#run_primes/i, output)
+    assert_match(/<!DOCTYPE html>/i, output.string)
+    assert_match(/Object#run_primes/i, output.string)
   end
 end

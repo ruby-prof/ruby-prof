@@ -72,10 +72,10 @@ class PrintingRecursiveGraphTest < TestCase
 
   def test_printing_rescursive_graph
     printer = RubyProf::GraphPrinter.new(@result)
-    buffer = ''
-    printer.print(StringIO.new(buffer))
-    puts buffer if ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1"
+    buffer = StringIO.new
+    printer.print(buffer)
+    puts buffer.string if ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1"
 
-    refute_nil(buffer)
+    refute_nil(buffer.string)
   end
 end

@@ -3,6 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 require 'fileutils'
+require 'stringio'
 require 'tmpdir'
 require_relative 'prime'
 
@@ -17,13 +18,13 @@ class PrinterFlameGraphTest < TestCase
   end
 
   def test_flame_graph_string
-    output = ''
+    output = StringIO.new
     printer = RubyProf::FlameGraphPrinter.new(@result)
     printer.print(output)
 
-    assert_match(/<!DOCTYPE html>/i, output)
-    assert_match(/flame-svg/, output)
-    assert_match(/Object#run_primes/i, output)
+    assert_match(/<!DOCTYPE html>/i, output.string)
+    assert_match(/flame-svg/, output.string)
+    assert_match(/Object#run_primes/i, output.string)
   end
 
   def test_flame_graph_stringio
@@ -38,31 +39,31 @@ class PrinterFlameGraphTest < TestCase
   end
 
   def test_flame_graph_contains_svg_elements
-    output = ''
+    output = StringIO.new
     printer = RubyProf::FlameGraphPrinter.new(@result)
     printer.print(output)
 
-    assert_match(/<svg/, output)
-    assert_match(/renderNode/, output)
+    assert_match(/<svg/, output.string)
+    assert_match(/renderNode/, output.string)
   end
 
   def test_flame_graph_contains_json_data
-    output = ''
+    output = StringIO.new
     printer = RubyProf::FlameGraphPrinter.new(@result)
     printer.print(output)
 
     # The template embeds thread data as JSON
-    assert_match(/"name"/, output)
-    assert_match(/"value"/, output)
-    assert_match(/"children"/, output)
+    assert_match(/"name"/, output.string)
+    assert_match(/"value"/, output.string)
+    assert_match(/"children"/, output.string)
   end
 
   def test_flame_graph_custom_title
-    output = ''
+    output = StringIO.new
     printer = RubyProf::FlameGraphPrinter.new(@result)
     printer.print(output, title: "Custom Flame Graph")
 
-    assert_match(/Custom Flame Graph/, output)
+    assert_match(/Custom Flame Graph/, output.string)
   end
 
   def test_flame_graph_file_output

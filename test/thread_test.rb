@@ -126,11 +126,11 @@ class ThreadTest < TestCase
     assert(thread_ids.include?(threads[0].object_id))
     assert(thread_ids.include?(threads[1].object_id))
 
-    assert_instance_of(Thread, ObjectSpace._id2ref(thread_ids[0]))
-    assert(threads.include?(ObjectSpace._id2ref(thread_ids[0])))
-
-    assert_instance_of(Thread, ObjectSpace._id2ref(thread_ids[1]))
-    assert(threads.include?(ObjectSpace._id2ref(thread_ids[1])))
+    thread_ids.each do |id|
+      thread = threads.find { |t| t.object_id == id }
+      refute_nil(thread)
+      assert_instance_of(Thread, thread)
+    end
   end
 
   def test_thread_timings

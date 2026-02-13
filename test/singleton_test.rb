@@ -2,6 +2,7 @@
 # encoding: UTF-8
 
 require File.expand_path('../test_helper', __FILE__)
+require 'stringio'
 require 'timeout'
 
 # --  Test for bug [#5657]
@@ -32,7 +33,7 @@ class SingletonTest < TestCase
       assert_equal(1, a.as.size)
     end
     printer = RubyProf::FlatPrinter.new(result)
-    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : ''
+    output = ENV['SHOW_RUBY_PROF_PRINTER_OUTPUT'] == "1" ? STDOUT : StringIO.new
     printer.print(output)
   end
 end

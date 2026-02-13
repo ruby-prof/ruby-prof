@@ -20,9 +20,9 @@ def build_call_tree(tree_hash)
   # tree_hash is a hash keyed on the parent method_name whose values are
   # child methods. Example:
   #
-  # tree_hash = {:root => [:a, :b],
-  #              :a => [:aa, :ab],
-  #              :b => [:bb]}
+  # tree_hash = {root: [:a, :b],
+  #              a: [:aa, :ab],
+  #              b: [:bb]}
   #
   # Note this is a simplified structure for testing. It assumes methods
   # are only called from one call_tree.
@@ -49,9 +49,9 @@ def create_call_tree_1
   #
 
   # ------ Call Trees 1 -------------
-  tree_hash = {:root => [:a, :b],
-               :a => [:aa, :ab],
-               :b => [:bb]}
+  tree_hash = {root: [:a, :b],
+               a: [:aa, :ab],
+               b: [:bb]}
 
   call_trees = build_call_tree(tree_hash)
 
@@ -90,9 +90,9 @@ def create_call_tree_2
   #    \     / \
   #    ab  ba  bb
 
-  tree_hash = {:root => [:a, :b],
-               :a => [:ab],
-               :b => [:ba, :bb]}
+  tree_hash = {root: [:a, :b],
+               a: [:ab],
+               b: [:ba, :bb]}
 
   call_trees = build_call_tree(tree_hash)
 

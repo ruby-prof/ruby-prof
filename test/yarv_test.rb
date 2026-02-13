@@ -34,8 +34,8 @@ class YarvTest < TestCase
     return if respond_to?(:array_push_optimized)
     old_compile_option = RubyVM::InstructionSequence.compile_option
     RubyVM::InstructionSequence.compile_option = {
-      :trace_instruction => true,
-      :specialized_instruction => false
+      trace_instruction: true,
+      specialized_instruction: false
     }
     self.class.class_eval <<-"EOM"
       def array_push_unoptimized

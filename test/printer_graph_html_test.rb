@@ -50,7 +50,7 @@ class PrinterGraphHtmlTest < TestCase
   def test_graph_html_result_sorting
     printer = RubyProf::GraphHtmlPrinter.new(@result)
 
-    sort_method_with_column_number = {:total_time => 3, :self_time => 4, :wait_time => 5, :children_time => 6}
+    sort_method_with_column_number = {total_time: 3, self_time: 4, wait_time: 5, children_time: 6}
 
     sort_method_with_column_number.each_pair do |sort_method, n|
       output = StringIO.new

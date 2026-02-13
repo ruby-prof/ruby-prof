@@ -6,12 +6,12 @@ require_relative './call_tree_builder'
 
 class ProfileTest < TestCase
   def test_measure_mode
-    profile = RubyProf::Profile.new(:measure_mode => RubyProf::PROCESS_TIME)
+    profile = RubyProf::Profile.new(measure_mode: RubyProf::PROCESS_TIME)
     assert_equal(RubyProf::PROCESS_TIME, profile.measure_mode)
   end
 
   def test_measure_mode_string
-    profile = RubyProf::Profile.new(:measure_mode => RubyProf::PROCESS_TIME)
+    profile = RubyProf::Profile.new(measure_mode: RubyProf::PROCESS_TIME)
     assert_equal("process_time", profile.measure_mode_string)
   end
 

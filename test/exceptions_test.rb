@@ -16,7 +16,7 @@ class ExceptionsTest < TestCase
 
   def test_profile_allows_exceptions
     assert_raises(RuntimeError) do
-      RubyProf::Profile.profile(:allow_exceptions => true) do
+      RubyProf::Profile.profile(allow_exceptions: true) do
         raise(RuntimeError, 'Test error')
       end
     end

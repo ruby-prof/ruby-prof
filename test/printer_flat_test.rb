@@ -10,7 +10,7 @@ require_relative 'prime'
 # --  Tests ----
 class PrinterFlatTest < TestCase
   def run_profile
-    RubyProf::Profile.profile(:measure_mode => RubyProf::WALL_TIME) do
+    RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       run_primes(1000, 5000)
     end
   end
@@ -56,7 +56,7 @@ class PrinterFlatTest < TestCase
   def test_flat_result_sorting
     printer = RubyProf::FlatPrinter.new(self.run_profile)
 
-    sort_method_with_column_number = {:total_time => 2, :self_time => 3, :wait_time => 4, :children_time => 5}
+    sort_method_with_column_number = {total_time: 2, self_time: 3, wait_time: 4, children_time: 5}
 
     sort_method_with_column_number.each_pair do |sort_method, n|
       output = StringIO.new

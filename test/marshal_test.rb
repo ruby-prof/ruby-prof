@@ -110,7 +110,7 @@ class MarshalTest < TestCase
   end
 
   def test_marshal_1
-    profile_1 = RubyProf::Profile.profile(:measure_mode => RubyProf::WALL_TIME) do
+    profile_1 = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
       1.times { RubyProf::C1.new.sleep_wait }
     end
 
@@ -121,7 +121,7 @@ class MarshalTest < TestCase
   end
 
   def test_marshal_2
-    profile_1 = RubyProf::Profile.profile(:measure_mode => RubyProf::PROCESS_TIME, :track_allocations => true) do
+    profile_1 = RubyProf::Profile.profile(measure_mode: RubyProf::PROCESS_TIME, track_allocations: true) do
       1.times { RubyProf::C1.new.sleep_wait }
     end
 

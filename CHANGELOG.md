@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 (2026-02-12)
+## 2.0.0 (2026-02-13)
 ### Features
 * Ruby 4.0 support.
 * Add flame graph visualizations with icicle mode toggle
@@ -12,7 +12,7 @@
 
 ### Backwards Incompatible Changes
 * Removed `RubyProf::MEMORY` measurement mode (no longer works on Ruby 4.0+)
-* Finally removed compatibility API that was scheduled for removal in 2023
+* Rremove compatibility API that was scheduled for removal in 2023
 * Printer options now use keyword arguments instead of an options hash. For example:
   ```ruby
   # Before:

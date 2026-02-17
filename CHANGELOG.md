@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.1 (2026-02-16)
+* Convert bin/ruby-prof endings from CRLF to LF
+
 ## 2.0.0 (2026-02-13)
 ### Features
 * Ruby 4.0 support.

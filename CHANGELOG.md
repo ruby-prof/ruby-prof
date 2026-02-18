@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.2 (2026-02-17)
+* Fix bin/ruby-prof passing printer options as positional arguments instead of keyword arguments
+
 ## 2.0.1 (2026-02-16)
 * Convert bin/ruby-prof endings from CRLF to LF
 

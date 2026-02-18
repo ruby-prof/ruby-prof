@@ -313,24 +313,22 @@ cmd = RubyProf::Cmd.new
 at_exit {
   # Create a printer
   printer = cmd.options.printer.new(cmd.profile)
-  printer_options = {:min_percent => cmd.options.min_percent,
-                     :sort_method => cmd.options.sort_method}
 
   # Get output
   if cmd.options.file
     # write it relative to the dir they *started* in, as it's a bit surprising to write it in the dir they end up in.
     Dir.chdir(cmd.options.old_wd) do
       if printer.class.needs_dir?
-        printer.print(printer_options.merge(:path => cmd.options.file))
+        printer.print(path: cmd.options.file, min_percent: cmd.options.min_percent, sort_method: cmd.options.sort_method)
       else
         File.open(cmd.options.file, 'w') do |file|
-          printer.print(file, printer_options)
+          printer.print(file, min_percent: cmd.options.min_percent, sort_method: cmd.options.sort_method)
         end
       end
     end
   else
     # Print out results
-    printer.print(STDOUT, printer_options)
+    printer.print(STDOUT, min_percent: cmd.options.min_percent, sort_method: cmd.options.sort_method)
   end
 }
 

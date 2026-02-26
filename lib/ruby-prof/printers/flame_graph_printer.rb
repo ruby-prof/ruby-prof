@@ -49,12 +49,12 @@ module RubyProf
         children: []
       }
 
-      unless visited.include?(call_tree.target)
-        visited.add(call_tree.target)
+      unless visited.include?(call_tree)
+        visited.add(call_tree)
         call_tree.children.sort_by { |c| -c.total_time }.each do |child|
           node[:children] << build_flame_data(child, visited)
         end
-        visited.delete(call_tree.target)
+        visited.delete(call_tree)
       end
 
       node
@@ -69,7 +69,7 @@ module RubyProf
           data: build_flame_data(thread.call_tree)
         }
       end
-      JSON.generate(threads)
+      JSON.generate(threads, max_nesting: 1000)
     end
 
     def template

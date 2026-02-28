@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.3 (2026-02-28)
+* Remove unnecessary visited set from FlameGraphPrinter (call tree is always acyclic)
+* Remove sort_by in FlameGraphPrinter to preserve natural call order
+* Add `max_depth` option to FlameGraphPrinter, CallStackPrinter, CallInfoPrinter, and CallTreeVisitor
+* Add documentation covering call tree construction and recursion handling
+
 ## 2.0.2 (2026-02-17)
 * Fix bin/ruby-prof passing printer options as positional arguments instead of keyword arguments
 

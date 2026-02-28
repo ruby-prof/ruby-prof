@@ -45,11 +45,12 @@ module RubyProf
     # from AbstractPrinter.
     def print(output = STDOUT, title: "ruby-prof call stack", threshold: 1.0,
               expansion: 10.0, application: $PROGRAM_NAME,
-              min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
+              min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, max_depth: nil, **)
       @min_percent = min_percent
       @max_percent = max_percent
       @filter_by = filter_by
       @sort_method = sort_method
+      @max_depth = max_depth
       @title = title
       @threshold = threshold
       @expansion = expansion
@@ -57,7 +58,7 @@ module RubyProf
       output << ERB.new(self.template).result(binding)
     end
 
-    def print_stack(output, visited, call_tree, parent_time)
+    def print_stack(output, visited, call_tree, parent_time, depth = 0)
       total_time = call_tree.total_time
       percent_parent = (total_time/parent_time)*100
       percent_total = (total_time/@overall_time)*100
@@ -75,7 +76,7 @@ module RubyProf
       else
         visited << call_tree
 
-        if call_tree.children.empty?
+        if call_tree.children.empty? || (@max_depth && depth >= @max_depth)
           output << "<a href=\"#\" class=\"toggle empty\" ></a>" << "\n"
         else
           visible_children = call_tree.children.any?{|ci| (ci.total_time/@overall_time)*100 >= threshold}
@@ -85,10 +86,10 @@ module RubyProf
         output << "<span>%4.2f%% (%4.2f%%) %s %s</span>" % [percent_total, percent_parent,
                                                             link(call_tree.target, false), graph_link(call_tree)] << "\n"
 
-        unless call_tree.children.empty?
+        unless call_tree.children.empty? || (@max_depth && depth >= @max_depth)
           output <<  (expanded ? '<ul>' : '<ul style="display:none">')  << "\n"
           call_tree.children.sort_by{|c| -c.total_time}.each do |child_call_tree|
-            print_stack(output, visited, child_call_tree, total_time)
+            print_stack(output, visited, child_call_tree, total_time, depth + 1)
           end
           output << '</ul>' << "\n"
         end

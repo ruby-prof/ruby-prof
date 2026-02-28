@@ -48,12 +48,13 @@ module RubyProf
     #                  Available values are :total_time, :self_time,
     #                  :wait_time, :children_time.
     #                  Default value depends on the printer.
-    def print(output = STDOUT, min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
+    def print(output = STDOUT, min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, max_depth: nil, **)
       @output = output
       @min_percent = min_percent
       @max_percent = max_percent
       @filter_by = filter_by
       @sort_method = sort_method
+      @max_depth = max_depth
       print_threads
     end
 

@@ -15,20 +15,23 @@ module RubyProf
   #
   #   puts method_names
   class CallTreeVisitor
-    def initialize(call_tree)
+    def initialize(call_tree, max_depth: nil)
       @call_tree = call_tree
+      @max_depth = max_depth
     end
 
     def visit(&block)
-      visit_call_tree(@call_tree, &block)
+      visit_call_tree(@call_tree, 0, &block)
     end
 
     private
 
-    def visit_call_tree(call_tree, &block)
+    def visit_call_tree(call_tree, depth, &block)
       yield call_tree, :enter
-      call_tree.children.each do |child|
-        visit_call_tree(child, &block)
+      if @max_depth.nil? || depth < @max_depth
+        call_tree.children.each do |child|
+          visit_call_tree(child, depth + 1, &block)
+        end
       end
       yield call_tree, :exit
     end

@@ -41,6 +41,7 @@ The first parameter is any writable IO object such as STDOUT or a file. All prin
 | `max_percent` | `100` | Maximum %self time for a method to be included (0–100). |
 | `filter_by` | `:self_time` | Which time metric to use when applying `min_percent` and `max_percent`. |
 | `sort_method` | varies | How to sort methods. Values: `:total_time`, `:self_time`, `:wait_time`, `:children_time`. |
+| `max_depth` | `nil` | Maximum call tree depth to display. When set, printers that walk the call tree stop descending beyond this depth. Applies to `FlameGraphPrinter`, `CallStackPrinter`, and `CallInfoPrinter`. |
 
 ## Report Types
 

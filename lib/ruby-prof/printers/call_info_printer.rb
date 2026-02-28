@@ -28,7 +28,7 @@ module RubyProf
     end
 
     def print_methods(thread)
-      visitor = CallTreeVisitor.new(thread.call_tree)
+      visitor = CallTreeVisitor.new(thread.call_tree, max_depth: @max_depth)
 
       visitor.visit do |call_tree, event|
         if event == :enter

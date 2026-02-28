@@ -29,18 +29,19 @@ module RubyProf
     # Also accepts min_percent:, max_percent:, filter_by:, and sort_method:
     # from AbstractPrinter.
     def print(output = STDOUT, title: "ruby-prof flame graph",
-              min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, **)
+              min_percent: 0, max_percent: 100, filter_by: :self_time, sort_method: nil, max_depth: nil, **)
       @min_percent = min_percent
       @max_percent = max_percent
       @filter_by = filter_by
       @sort_method = sort_method
+      @max_depth = max_depth
       @title = title
       output << ERB.new(self.template).result(binding)
     end
 
     attr_reader :title
 
-    def build_flame_data(call_tree)
+    def build_flame_data(call_tree, depth = 0)
       node = {
         name: call_tree.target.full_name,
         value: call_tree.total_time,
@@ -49,8 +50,10 @@ module RubyProf
         children: []
       }
 
-      call_tree.children.each do |child|
-        node[:children] << build_flame_data(child)
+      if @max_depth.nil? || depth < @max_depth
+        call_tree.children.each do |child|
+          node[:children] << build_flame_data(child, depth + 1)
+        end
       end
 
       node
@@ -65,7 +68,7 @@ module RubyProf
           data: build_flame_data(thread.call_tree)
         }
       end
-      JSON.generate(threads, max_nesting: 1000)
+      JSON.generate(threads)
     end
 
     def template

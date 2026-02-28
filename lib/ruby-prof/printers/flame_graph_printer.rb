@@ -40,7 +40,7 @@ module RubyProf
 
     attr_reader :title
 
-    def build_flame_data(call_tree, visited = Set.new)
+    def build_flame_data(call_tree)
       node = {
         name: call_tree.target.full_name,
         value: call_tree.total_time,
@@ -49,12 +49,8 @@ module RubyProf
         children: []
       }
 
-      unless visited.include?(call_tree)
-        visited.add(call_tree)
-        call_tree.children.sort_by { |c| -c.total_time }.each do |child|
-          node[:children] << build_flame_data(child, visited)
-        end
-        visited.delete(call_tree)
+      call_tree.children.each do |child|
+        node[:children] << build_flame_data(child)
       end
 
       node

@@ -96,4 +96,15 @@ class PrinterFlatTest < TestCase
 
     assert self_percents.min >= 0.1
   end
+
+  def test_flat_result_nil_sort_method
+    printer = RubyProf::FlatPrinter.new(self.run_profile)
+
+    output = StringIO.new
+    printer.print(output, sort_method: nil)
+    total_times = flat_output_nth_column_values(output.string, 2)
+
+    # nil sort_method should fall back to default (total_time)
+    assert_sorted total_times
+  end
 end

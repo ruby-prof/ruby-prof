@@ -53,7 +53,7 @@ module RubyProf
       @min_percent = min_percent
       @max_percent = max_percent
       @filter_by = filter_by
-      @sort_method = sort_method
+      @sort_method = sort_method || :total_time
       @max_depth = max_depth
       print_threads
     end

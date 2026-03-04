@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4 (2026-03-03)
+* Fix NoMethodError when sort_method is nil (issue #349)
+* Fix broken source_code_uri on rubygems.org (issue #350)
+
 ## 2.0.3 (2026-02-28)
 * Remove unnecessary visited set from FlameGraphPrinter (call tree is always acyclic)
 * Remove sort_by in FlameGraphPrinter to preserve natural call order

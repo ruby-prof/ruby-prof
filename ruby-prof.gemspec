@@ -23,7 +23,7 @@ EOF
     "bug_tracker_uri"   => "https://github.com/ruby-prof/ruby-prof/issues",
     "changelog_uri"     => "https://github.com/ruby-prof/ruby-prof/blob/master/CHANGELOG.md",
     "documentation_uri" => "https://ruby-prof.github.io/",
-    "source_code_uri"   => "https://github.com/ruby-prof/ruby-prof/tree/v#{spec.version}",
+    "source_code_uri"   => "https://github.com/ruby-prof/ruby-prof/tree/#{spec.version}",
   }
 
   spec.author = "Shugo Maeda, Charlie Savage, Roger Pack, Stefan Kaes"

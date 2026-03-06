@@ -91,7 +91,7 @@ Additional options:
 
 ### Call Stack
 
-Call stack reports produce a HTML visualization of the time spent in each execution path of the profiled code. Use `RubyProf::CallStackPrinter` to generate this report. (<a href="../public/examples/reports/call_stack.html" target="_blank">example</a>)
+Call stack reports produce an HTML visualization of the time spent in each execution path of the profiled code. Use `RubyProf::CallStackPrinter` to generate this report. (<a href="../public/examples/reports/call_stack.html" target="_blank">example</a>)
 
 ![Call Stack Report](../public/images/call_stack.png)
 

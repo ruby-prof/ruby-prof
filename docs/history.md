@@ -2,7 +2,7 @@
 
 For a full list of changes between versions, see the [Changelog](changelog.md).
 
-The first version of ruby-prof, 0.1.1, was released on March 22, 2005 by [Shugo Maeda](https://shugo.net/) The original [source](https://shugo.net/archive/ruby-prof/) code is still available on his website (it is not actually in the git history). ruby-prof was a vast improvement at the time, running 30 times faster as the original ruby profiler.
+The first version of ruby-prof, 0.1.1, was released on March 22, 2005 by [Shugo Maeda](https://shugo.net/) The original [source](https://shugo.net/archive/ruby-prof/) code is still available on his website (it is not actually in the git history). ruby-prof was a vast improvement at the time, running 30 times faster than the original ruby profiler.
 
 Version [0.4.0](https://rubygems.org/gems/ruby-prof/versions/0.4.0) was the first version packaged as a Ruby gem. Version 0.4.0 also introduced Windows support, thread support and added a number of additional reports such as the graph report in HTML and the call graph report.
 

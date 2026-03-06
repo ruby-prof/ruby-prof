@@ -51,7 +51,7 @@ The table below compares ruby-prof with [stackprof](https://github.com/tmm1/stac
 
 ruby-prof is the longest-standing Ruby profiler, with its [first](./history.md) release in 2005. It has been continuously maintained for nearly two decades, evolving alongside Ruby itself from 1.8 through 4.0. Over that time it has supported every major Ruby version and platform, including Windows — a rarity among Ruby C extensions.
 
-Being a tracing profiler, ruby-prof provides *exact* information about your program. It tracks every thread, every fiber and every method call. It shines with its support for multiple measurements modes and excellent reporting capabilities. 
+Being a tracing profiler, ruby-prof provides *exact* information about your program. It tracks every thread, every fiber and every method call. It shines with its support for multiple measurement modes and excellent reporting capabilities. 
 
 ruby-prof can be used from the [command line](getting-started.md#command-line) with no code changes, or via an API for more control.
 

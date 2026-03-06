@@ -28,7 +28,7 @@
 
 ### Backwards Incompatible Changes
 * Removed `RubyProf::MEMORY` measurement mode (no longer works on Ruby 4.0+)
-* Rremove compatibility API that was scheduled for removal in 2023
+* Remove compatibility API that was scheduled for removal in 2023
 * Printer options now use keyword arguments instead of an options hash. For example:
   ```ruby
   # Before:
@@ -162,7 +162,7 @@ Changes (Charlie Savage):
 
 * Profiling is significantly faster - 5x in some cases
 * Recursive profiles are finally handled correctly.  Yeah!!!
-* Redesigned reports (Chirs Whitefield)
+* Redesigned reports (Chris Whitefield)
 * New documentation website (https://ruby-prof.github.io)
 * The ability to measure allocations and memory usage using a standard (unpatched) version of ruby
 * The ability to save and reload profiling results for later analysis

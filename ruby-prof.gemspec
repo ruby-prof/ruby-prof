@@ -35,12 +35,9 @@ EOF
   spec.extensions = ["ext/ruby_prof/extconf.rb"]
   spec.files = Dir['CHANGELOG.md',
                    'LICENSE',
-                   'Rakefile',
                    'README.md',
-                   'ruby-prof.gemspec',
                    'bin/ruby-prof',
                    'bin/ruby-prof-check-trace',
-                   'docs/**/*',
                    'ext/ruby_prof/extconf.rb',
                    'ext/ruby_prof/*.c',
                    'ext/ruby_prof/*.h',
@@ -51,10 +48,8 @@ EOF
                    'lib/ruby-prof/*.rb',
                    'lib/ruby-prof/assets/*',
                    'lib/ruby-prof/profile/*.rb',
-                   'lib/ruby-prof/printers/*.rb',
-                   'test/*.rb']
+                   'lib/ruby-prof/printers/*.rb']
 
-  spec.test_files = Dir["test/test_*.rb"]
   spec.required_ruby_version = '>= 3.2.0'
   spec.date = Time.now.strftime('%Y-%m-%d')
   spec.homepage = 'https://github.com/ruby-prof/ruby-prof'

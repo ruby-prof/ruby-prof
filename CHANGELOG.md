@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.0.5 (2026-06-21)
+* Fix FlameGraphPrinter crashing with `JSON::NestingError` on deep call trees (issue #353)
+
 ## 2.0.4 (2026-03-03)
 * Fix NoMethodError when sort_method is nil (issue #349)
 * Fix broken source_code_uri on rubygems.org (issue #350)

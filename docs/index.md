@@ -34,7 +34,7 @@ ruby-prof has been under continuous development since 2005 — see the full [His
 
 ## API Documentation
 
-API documentation for each class is available at the [ruby-prof API docs](https://ruby-prof.github.io/doc/index.html).
+API documentation for each class is available at the [ruby-prof API docs](https://www.rubydoc.info/gems/ruby-prof).
 
 ## License
 

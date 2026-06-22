@@ -2,6 +2,7 @@
 
 ## 2.0.5 (2026-06-21)
 * Fix FlameGraphPrinter crashing with `JSON::NestingError` on deep call trees (issue #353)
+* Fix link to API documentation (issue #351)
 
 ## 2.0.4 (2026-03-03)
 * Fix NoMethodError when sort_method is nil (issue #349)

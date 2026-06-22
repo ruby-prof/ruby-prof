@@ -68,7 +68,9 @@ module RubyProf
           data: build_flame_data(thread.call_tree)
         }
       end
-      JSON.generate(threads)
+      # Disable JSON nesting limit (default 100) so deep call trees serialize.
+      # See https://github.com/ruby-prof/ruby-prof/issues/353
+      JSON.generate(threads, max_nesting: false)
     end
 
     def template

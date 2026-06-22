@@ -9,6 +9,14 @@ require_relative 'prime'
 
 # --  Tests ----
 class PrinterFlameGraphTest < TestCase
+  # Fast, deep recursion used to build a call tree deeper than JSON's default
+  # max_nesting of 100. Each call tree level produces two JSON nesting levels
+  # (the children array and the child node), so ~200 frames is well past 100.
+  def deep_recurse(depth)
+    return depth if depth.zero?
+    deep_recurse(depth - 1)
+  end
+
   def setup
     super
     # WALL_TIME so we can use sleep in our test and get same measurements on linux and windows
@@ -64,6 +72,23 @@ class PrinterFlameGraphTest < TestCase
     printer.print(output, title: "Custom Flame Graph")
 
     assert_match(/Custom Flame Graph/, output.string)
+  end
+
+  # Regression test for https://github.com/ruby-prof/ruby-prof/issues/353
+  # Deep call trees must not raise JSON::NestingError ("nesting of 100 is too deep").
+  def test_flame_graph_deep_nesting
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
+      deep_recurse(200)
+    end
+
+    output = StringIO.new
+    printer = RubyProf::FlameGraphPrinter.new(result)
+
+    # Before the fix this raised JSON::NestingError: nesting of 100 is too deep
+    printer.print(output)
+
+    assert_match(/<!DOCTYPE html>/i, output.string)
+    assert_match(/deep_recurse/, output.string)
   end
 
   def test_flame_graph_file_output

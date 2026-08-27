@@ -33,6 +33,7 @@ thread_data_t* thread_data_create(void)
     result->methods = Qnil;
     result->fiber_id = Qnil;
     result->thread_id = Qnil;
+    result->thread_name = Qnil;
     result->trace = true;
     result->fiber = Qnil;
     return result;
@@ -71,6 +72,9 @@ void prof_thread_mark(void* data)
     if (thread->thread_id != Qnil)
         rb_gc_mark_movable(thread->thread_id);
 
+    if (thread->thread_name != Qnil)
+        rb_gc_mark_movable(thread->thread_name);
+
     if (thread->call_tree)
         prof_call_tree_mark(thread->call_tree);
 
@@ -84,6 +88,7 @@ void prof_thread_compact(void* data)
     thread->methods = rb_gc_location(thread->methods);
     thread->fiber_id = rb_gc_location(thread->fiber_id);
     thread->thread_id = rb_gc_location(thread->thread_id);
+    thread->thread_name = rb_gc_location(thread->thread_name);
 }
 
 static void prof_thread_free(thread_data_t* thread_data)
@@ -213,6 +218,7 @@ thread_data_t* threads_table_insert(void* prof, VALUE fiber)
     result->fiber = fiber;
     result->fiber_id = rb_obj_id(fiber);
     result->thread_id = rb_obj_id(thread);
+    result->thread_name = rb_funcall(thread, rb_intern("name"), 0);
     rb_st_insert(profile->threads_tbl, (st_data_t)result->fiber_id, (st_data_t)result);
 
     // Are we tracing this thread?
@@ -308,6 +314,7 @@ static VALUE prof_thread_initialize(VALUE self, VALUE call_tree, VALUE thread, V
   thread_ptr->fiber = fiber;
   thread_ptr->fiber_id = rb_obj_id(fiber);
   thread_ptr->thread_id = rb_obj_id(thread);
+  thread_ptr->thread_name = rb_funcall(thread, rb_intern("name"), 0);
 
   // Add methods from call trees into thread methods table
   VALUE methods = prof_call_tree_methods(thread_ptr->call_tree);
@@ -329,6 +336,17 @@ static VALUE prof_thread_id(VALUE self)
 {
     thread_data_t* thread = prof_get_thread(self);
     return thread->thread_id;
+}
+
+/* call-seq:
+   name -> string
+
+Returns the name of the underlying Ruby thread (Thread#name), or nil if it was
+not set. */
+static VALUE prof_thread_name(VALUE self)
+{
+    thread_data_t* thread = prof_get_thread(self);
+    return thread->thread_name;
 }
 
 /* call-seq:
@@ -424,6 +442,7 @@ void rp_init_thread(void)
     rb_define_method(cRpThread, "initialize", prof_thread_initialize, 3);
 
     rb_define_method(cRpThread, "id", prof_thread_id, 0);
+    rb_define_method(cRpThread, "name", prof_thread_name, 0);
     rb_define_method(cRpThread, "call_tree", prof_call_tree, 0);
     rb_define_method(cRpThread, "fiber_id", prof_fiber_id, 0);
     rb_define_method(cRpThread, "methods", prof_thread_methods, 0);

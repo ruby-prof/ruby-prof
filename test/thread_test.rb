@@ -3,6 +3,7 @@
 
 require File.expand_path('../test_helper', __FILE__)
 require_relative './call_tree_builder'
+require 'stringio'
 
 # --  Tests ----
 class ThreadTest < TestCase
@@ -96,6 +97,37 @@ class ThreadTest < TestCase
     assert_in_delta(0.7, call_tree.self_time, 0.00001)
     assert_in_delta(0.2, call_tree.wait_time, 0.00001)
     assert_in_delta(0.0, call_tree.children_time, 0.00001)
+  end
+
+  def test_thread_name
+    original_name = Thread.current.name
+    Thread.current.name = 'ruby-prof-main'
+
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
+      sleep(0.1)
+    end
+
+    rp_thread = result.threads.detect { |t| t.id == Thread.current.object_id }
+    refute_nil(rp_thread)
+    assert_equal('ruby-prof-main', rp_thread.name)
+
+    output = StringIO.new
+    RubyProf::GraphPrinter.new(result).print(output)
+    assert_match(/Thread Name: ruby-prof-main/, output.string)
+  ensure
+    Thread.current.name = original_name
+  end
+
+  def test_thread_name_defaults_to_nil
+    background = nil
+    result = RubyProf::Profile.profile(measure_mode: RubyProf::WALL_TIME) do
+      background = Thread.new { sleep(0.1) }
+      background.join
+    end
+
+    rp_thread = result.threads.detect { |t| t.id == background.object_id }
+    refute_nil(rp_thread)
+    assert_nil(rp_thread.name)
   end
 
   def test_thread_count

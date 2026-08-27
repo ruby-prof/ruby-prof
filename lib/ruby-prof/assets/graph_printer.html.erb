@@ -189,7 +189,7 @@
       methods = thread.methods
       total_time = thread.total_time
   %>
-    <h2><a name="<%= thread.fiber_id %>">Thread <%= thread.id %>, Fiber: <%= thread.fiber_id %></a></h2>
+    <h2><a name="<%= thread.fiber_id %>">Thread <%= thread.id %><%= " (#{thread.name})" if thread.name %>, Fiber: <%= thread.fiber_id %></a></h2>
     <table>
       <thead>
       <tr>

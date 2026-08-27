@@ -16,6 +16,7 @@ typedef struct thread_data_t
     bool trace;                       /* Are we tracking this thread */
     prof_call_tree_t* call_tree;      /* The root of the call tree*/
     VALUE thread_id;                  /* Thread id */
+    VALUE thread_name;                /* Thread name */
     VALUE fiber_id;                   /* Fiber id */
     VALUE methods;                    /* Array of RubyProf::MethodInfo */
     st_table* method_table;           /* Methods called in the thread */
